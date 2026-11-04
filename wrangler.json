@@ -1,0 +1,50 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "codewise",
+  "main": "src/server/index.ts",
+  "compatibility_date": "2026-11-04",
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": true
+  },
+  "env": {
+    "development": {
+      "name": "codewise-development",
+      "vars": { "APP_ENV": "development", "APP_VERSION": "local" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "codewise-development",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "src/server/db/migrations"
+        }
+      ]
+    },
+    "staging": {
+      "name": "codewise-staging",
+      "vars": { "APP_ENV": "staging", "APP_VERSION": "unreleased" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "codewise-staging",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "src/server/db/migrations"
+        }
+      ]
+    },
+    "production": {
+      "name": "codewise-production",
+      "vars": { "APP_ENV": "production", "APP_VERSION": "unreleased" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "codewise-production",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "src/server/db/migrations"
+        }
+      ]
+    }
+  }
+}

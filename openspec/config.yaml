@@ -1,0 +1,28 @@
+schema: spec-driven
+
+context: |
+  Codewise is a proposed programming education application for NUS CS3227 MP4.
+  Status: draft for team review, not an approved implementation baseline.
+  Confirmed team: Darryl owns instructor features; Keith owns student features.
+  Cloudflare pipeline foundation is authorized; role features remain separate work.
+  Working assumptions: one language (Python),
+  one source file per question, no student-code execution or automatic test grading.
+  Required LLM provider: SoCLaaS, accessed only through the backend.
+  Hosting candidate: Cloudflare Workers with static assets and D1; decision gated
+  on authenticated deployed connectivity, CPU usage, quotas, and team confirmation.
+  Never invent provider quotas, available models, credentials, or test outcomes.
+  OpenSpec artifacts live in openspec/; development coordination records in workflow/;
+  implementation in src/; guides and reflections in docs/; redacted summaries in logs/.
+  Preserve immutable submission, question, rubric, prompt, and assessment versions.
+  Each AI output is untrusted and must be validated. Instructor approval precedes release.
+
+rules:
+  proposal:
+    - State assumptions, exclusions, and unresolved decisions explicitly.
+  specs:
+    - Use SHALL requirements and WHEN/THEN scenarios, including failure paths.
+    - Include stable requirement IDs for traceability to tests.
+  design:
+    - Explain authorization, data boundaries, deployment isolation, and resource limits.
+  tasks:
+    - Link implementation and verification tasks to requirement IDs.

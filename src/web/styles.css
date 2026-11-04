@@ -1,0 +1,81 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #182c35;
+  background: #f4f7f6;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 28px 36px;
+}
+.eyebrow {
+  color: #17634f;
+  letter-spacing: 0.18em;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+h1 {
+  max-width: 760px;
+  font-size: clamp(2.3rem, 5vw, 4.3rem);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin: 24px 0;
+}
+.intro {
+  max-width: 650px;
+  color: #52656c;
+  line-height: 1.7;
+}
+.workspaces {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  margin-top: 46px;
+}
+section {
+  background: white;
+  border: 1px solid #dbe5e0;
+  border-radius: 18px;
+  padding: 30px;
+}
+.label {
+  color: #17634f;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+h2 {
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+}
+section p {
+  color: #52656c;
+  line-height: 1.6;
+}
+.status {
+  display: inline-block;
+  background: #eaf3ee;
+  color: #295d47;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+footer {
+  margin-top: 64px;
+  color: #677a80;
+  font-size: 0.8rem;
+}
+@media (max-width: 650px) {
+  main {
+    padding-top: 42px;
+  }
+  .workspaces {
+    grid-template-columns: 1fr;
+  }
+}

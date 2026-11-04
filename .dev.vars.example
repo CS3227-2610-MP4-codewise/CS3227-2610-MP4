@@ -1,0 +1,3 @@
+# Copy to .dev.vars for local-only secrets when those integrations are implemented.
+# Keep real secrets out of Git and browser-prefixed environment variables.
+# SOCLAAS_API_KEY=

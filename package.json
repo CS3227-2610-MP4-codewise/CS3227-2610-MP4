@@ -1,0 +1,47 @@
+{
+  "name": "codewise",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "wrangler dev --env development --port 8787",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run && node --test workflow/scripts/deployment.test.mjs",
+    "specs:validate": "openspec validate --all --strict",
+    "check": "npm run specs:validate && npm run typecheck && npm run lint && npm run test && npm run build",
+    "db:local": "wrangler d1 migrations apply codewise-development --local --env development",
+    "deploy:prepare": "node workflow/scripts/prepare-deploy.mjs",
+    "smoke": "node workflow/scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261104.1",
+    "@eslint/js": "^9.39.0",
+    "@fission-ai/openspec": "1.16.0",
+    "@types/node": "^22.19.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.0",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vite": "^7.2.0",
+    "vitest": "^4.0.0",
+    "wrangler": "4.157.0"
+  }
+}
