@@ -1,4 +1,4 @@
-name: Deploy staging
+name: Deploy staging and production
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: codewise-staging
+  group: codewise-release
   cancel-in-progress: false
 
 jobs:
@@ -55,8 +55,9 @@ jobs:
             echo "### Staging verified"
             echo "- [Open stable staging]($APP_URL)"
             echo "- Tested commit: $APP_VERSION"
-            echo "- Production input staging_run_id: $GITHUB_RUN_ID"
-            echo "To release, open Actions > Deploy production > Run workflow on main, enter this staging run ID, and approve the production environment."
+            echo "Production is queued in this same run and waits for your approval."
+            echo "Test staging, then click Review deployments > production > Approve and deploy at the top of this run."
+            echo "Reject or cancel the run if staging is not ready. No run ID needs to be copied."
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Record tested commit
         run: node -e "require('fs').writeFileSync('dist/release.json', JSON.stringify({sha:process.env.APP_VERSION,runId:process.env.GITHUB_RUN_ID}))"
@@ -68,3 +69,60 @@ jobs:
             dist/release.json
           if-no-files-found: error
           retention-days: 14
+
+  production:
+    needs: deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+    env:
+      DEPLOY_ENV: production
+      APP_VERSION: ${{ github.sha }}
+      STAGING_D1_DATABASE_ID: ${{ vars.STAGING_D1_DATABASE_ID }}
+      PRODUCTION_D1_DATABASE_ID: ${{ vars.PRODUCTION_D1_DATABASE_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      APP_URL: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: staging-release-${{ github.sha }}
+          path: dist
+      - name: Verify exact staging artifact and current main revision
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { readFileSync } = await import('node:fs');
+            const { assertReleaseArtifact } = await import(`${process.env.GITHUB_WORKSPACE}/workflow/scripts/release-gate.mjs`);
+            const { data: main } = await github.rest.repos.getCommit({...context.repo, ref: 'main'});
+            assertReleaseArtifact(JSON.parse(readFileSync('dist/release.json', 'utf8')), {
+              sha: context.sha,
+              runId: String(context.runId),
+              latestMainSha: main.sha,
+            });
+      - run: npm run deploy:prepare
+      - name: Apply reviewed production migrations
+        run: npx wrangler d1 migrations apply codewise-production --remote --env production --config wrangler.deploy.json
+      - name: Deploy approved revision
+        run: npx wrangler deploy --env production --config wrangler.deploy.json
+      - run: npm run smoke
+      - name: Publish production link
+        run: |
+          {
+            echo "### Production verified"
+            echo "- [Open stable production]($APP_URL)"
+            echo "- Released commit: $APP_VERSION"
+            echo "- Approved staging run: $GITHUB_RUN_ID"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,20 +1,18 @@
-/** Validate GitHub API results before checking out or deploying a staging build. */
-export function assertStagingRun(run, repositoryId) {
-  if (
-    run.repository?.id !== repositoryId ||
-    run.head_repository?.id !== repositoryId
-  )
-    throw new Error('Run must belong to this repository.');
-  if (
-    run.path !== '.github/workflows/deploy-staging.yml' ||
-    run.event !== 'push' ||
-    run.head_branch !== 'main'
-  ) {
-    throw new Error('Release requires the main-branch staging workflow.');
+/** Bind a production deployment to the staging artifact from this exact run. */
+export function assertReleaseArtifact(manifest, { sha, runId, latestMainSha }) {
+  if (!/^[0-9a-f]{40}$/.test(sha ?? ''))
+    throw new Error('Release requires an exact Git commit.');
+  if (!/^[0-9]+$/.test(runId ?? ''))
+    throw new Error('Release requires the current workflow run ID.');
+  if (!manifest || manifest.sha !== sha || manifest.runId !== runId) {
+    throw new Error(
+      'Artifact must match the commit and run that passed staging.',
+    );
   }
-  if (run.status !== 'completed' || run.conclusion !== 'success')
-    throw new Error('Staging must have completed successfully.');
-  if (!/^[0-9a-f]{40}$/.test(run.head_sha))
-    throw new Error('Invalid staged commit.');
-  return run.head_sha;
+  if (latestMainSha !== sha) {
+    throw new Error(
+      'Main has changed since staging; cancel this run and test the newer release.',
+    );
+  }
+  return sha;
 }
