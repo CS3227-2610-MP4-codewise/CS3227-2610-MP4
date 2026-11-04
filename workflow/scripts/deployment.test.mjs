@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { prepareConfig } from './prepare-deploy.mjs';
-import { assertStagingRun } from './release-gate.mjs';
+import YAML from 'yaml';
+import { assertReleaseArtifact } from './release-gate.mjs';
 
 const base = JSON.parse(
   readFileSync(new URL('../../wrangler.json', import.meta.url), 'utf8'),
@@ -51,28 +52,68 @@ test('OPS-01: missing, shared, or placeholder databases fail closed', () => {
   assert.throws(() => prepareConfig(base, { ...inputs, APP_VERSION: 'main' }));
 });
 
-const run = {
-  repository: { id: 123 },
-  head_repository: { id: 123 },
-  path: '.github/workflows/deploy-staging.yml',
-  event: 'push',
-  head_branch: 'main',
-  status: 'completed',
-  conclusion: 'success',
-  head_sha: 'a'.repeat(40),
+const expected = {
+  sha: 'a'.repeat(40),
+  runId: '12345',
+  latestMainSha: 'a'.repeat(40),
 };
+const manifest = { sha: expected.sha, runId: expected.runId };
 
-test('OPS-02: production accepts only a successful trusted staging run', () => {
-  assert.equal(assertStagingRun(run, 123), run.head_sha);
+test('OPS-02: release rejects mismatched artifacts, another run and stale main', () => {
+  assert.equal(assertReleaseArtifact(manifest, expected), expected.sha);
+  for (const invalid of [
+    null,
+    {},
+    { ...manifest, sha: 'b'.repeat(40) },
+    { ...manifest, runId: '99999' },
+  ]) {
+    assert.throws(() => assertReleaseArtifact(invalid, expected));
+  }
   for (const patch of [
-    { conclusion: 'failure' },
-    { status: 'in_progress' },
-    { event: 'pull_request' },
-    { head_branch: 'feature' },
-    { path: '.github/workflows/ci.yml' },
-    { head_repository: { id: 999 } },
-    { head_sha: 'main' },
-  ])
-    assert.throws(() => assertStagingRun({ ...run, ...patch }, 123));
-  assert.throws(() => assertStagingRun(run, 999));
+    { sha: 'main' },
+    { runId: 'not-a-run' },
+    { latestMainSha: 'b'.repeat(40) },
+  ]) {
+    assert.throws(() =>
+      assertReleaseArtifact(manifest, { ...expected, ...patch }),
+    );
+  }
+});
+
+test('OPS-02: production is a dependent approval-gated job, never a PR deployment', () => {
+  const workflow = YAML.parse(
+    readFileSync(
+      new URL('../../.github/workflows/deploy-staging.yml', import.meta.url),
+      'utf8',
+    ),
+  );
+  assert.deepEqual(workflow.on.push.branches, ['main']);
+  assert.equal(workflow.on.pull_request, undefined);
+  assert.equal(workflow.concurrency['cancel-in-progress'], false);
+  assert.equal(workflow.jobs.deploy.needs, 'ci');
+  assert.equal(workflow.jobs.production.needs, 'deploy');
+  assert.equal(workflow.jobs.production.environment.name, 'production');
+  assert.match(workflow.jobs.production.if, /github\.event_name == 'push'/);
+  assert.match(
+    workflow.jobs.production.if,
+    /github\.ref == 'refs\/heads\/main'/,
+  );
+  const steps = workflow.jobs.production.steps;
+  const artifact = steps.find((step) =>
+    step.uses?.startsWith('actions/download-artifact@'),
+  );
+  assert.equal(artifact.with.name, 'staging-release-${{ github.sha }}');
+  assert.equal(artifact.with['run-id'], undefined);
+  const verify = steps.findIndex(
+    (step) =>
+      step.name === 'Verify exact staging artifact and current main revision',
+  );
+  const migrate = steps.findIndex(
+    (step) => step.name === 'Apply reviewed production migrations',
+  );
+  assert.ok(verify >= 0 && migrate > verify);
+  assert.equal(
+    steps.find((step) => step.uses?.startsWith('actions/checkout@')).with.ref,
+    '${{ github.sha }}',
+  );
 });

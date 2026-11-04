@@ -46,3 +46,5 @@ Read docs/DeveloperGuide.md and workflow/Ownership.md. Develop on feature branch
 - workflow/: agent instructions, shared contracts, handoffs, evidence, templates and deployment scripts.
 
 The required product website is published separately on GitHub Pages. It is not the application hosting environment.
+
+Release flow: merge a reviewed PR to main -> Actions deploys staging -> test the stable staging link -> in that same run choose Review deployments / production / Approve and deploy -> test the stable production link. Production waits for approval; no staging run ID needs to be copied. See docs/Deployment.md for cancellation, stale-source and database recovery details.

@@ -49,6 +49,10 @@ The coordinator assigns requirement IDs and file ownership; the specification ro
 
 See Deployment.md for isolation and promotion. The Worker adds restrictive response headers and reserves API routes ahead of SPA fallback. These controls are only a foundation: authentication, CSRF, object authorization, AI guardrails and adversarial grading tests remain outstanding. Never place provider keys in VITE_ variables. SoCLaaS remains server-only, with model/quota/connectivity verification required before activation.
 
+## Release approval
+
+The main-push Deploy staging and production workflow runs CI and staging first, then queues its production job behind the protected production environment. Production consumes the artifact from that exact run and checks source/run identity and current main before migrations. Review deployments is GitHub's native environment banner. The former standalone run-ID dispatch workflow is removed. Read Deployment.md before cancelling or approving a queued release; a waiting approval holds the serialized release slot.
+
 ## Dependency audit status
 
 The initial audit on 2026-11-04 reports no high/critical findings and 11 moderate findings in the development-only ESLint/typescript-eslint dependency tree, originating from minimatch. CI blocks high/critical advisories and reports the complete audit. These development tools are not part of the deployed Worker/client bundle. Review compatible upstream fixes; do not use npm audit fix --force to downgrade or break the toolchain blindly.

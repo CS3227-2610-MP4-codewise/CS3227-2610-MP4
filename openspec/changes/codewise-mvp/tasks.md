@@ -18,6 +18,7 @@
 - [ ] 2.2 Establish synthetic data, redacted summaries, security scans and least-privilege agent tooling (DEV-03, DEV-04).
 - [ ] 2.3 Configure isolated environments and required CI checks (OPS-01, OPS-02).
 - [x] 2.4 Organize member logs, shared evidence and contract reading map; preserve history and verify references (DEV-02, DEV-04).
+- [x] 2.5 Replace manual run-ID dispatch with one approval-gated release run, validate exact artifacts and update release guidance (OPS-02, OPS-04).
 
 ## 3. Implement identity and persistence
 - [ ] 3.1 Choose maintained identity integration; implement secure sessions and trusted provisioning (AUTH-01, AUTH-03).

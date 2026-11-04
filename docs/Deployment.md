@@ -43,7 +43,7 @@ Create/activate the account's workers.dev subdomain in Cloudflare Workers & Page
 
 Canonical repository: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4
 
-Under Settings -> Environments create staging and production. Restrict both to main deployments. For production enable required reviewer approval if supported by the repository/account settings. Even without that option, promotion is an explicit workflow_dispatch action restricted to main by the workflow.
+Under Settings -> Environments create staging and production. Restrict both to main deployments. Production MUST have a required reviewer configured before enabling this workflow: the protected environment supplies the human approval gate. Naming an environment alone does not pause for approval. The public repository already has owner approval configured; retain it.
 
 Repository Actions variables (Settings -> Secrets and variables -> Actions -> Variables):
 
@@ -72,7 +72,7 @@ The first push starts staging automatically; it will fail clearly if account var
 
 ## 5. Staging pipeline
 
-There is no automatic branch/PR preview deployment. A PR runs checks; merging it to main updates the stable staging URL above. Production stays unchanged until explicit promotion. The workflow's environment deployment link and summary show the stable staging URL and the staging run ID needed for production. Publishing a feature branch alone does not update staging.
+There is no automatic branch/PR preview deployment. A PR runs checks; merging it to main starts **Deploy staging and production** and updates the stable staging URL above. After staging succeeds, production waits for approval in that same run. Publishing a feature branch alone does not update staging.
 
 Push/merge main -> reusable CI (strict specs, types, lint, tests, build, dependency audit, secret scan, Worker dry run) -> download that commit's checked frontend -> isolated config generation -> D1 migrations -> Worker deployment -> smoke checks -> immutable staging-release artifact.
 
@@ -80,14 +80,15 @@ Smoke checks verify the environment name, exact Git commit, database migration r
 
 ## 6. Production promotion
 
-1. Open Actions -> Deploy staging and select a successful run. Its numeric run ID appears in the run URL.
-   For changes in this PR/branch, use the new successful run produced AFTER merging it, rather than the older foundation run recorded above.
-2. Open Actions -> Deploy production -> Run workflow on main.
-3. Enter that staging run ID. Approve the production environment if required.
-4. The gate verifies the run belongs to this repository, was triggered by push to main, used the expected staging workflow, and completed successfully.
-5. Production checks out the exact staged SHA, downloads its tested frontend artifact, applies production migrations, deploys, and checks the version and database.
+1. Merge the reviewed feature PR into main and open Actions -> Deploy staging and production -> that merge's run.
+2. Wait for CI and staging deployment/smoke checks to pass. Open the stable staging link from the staging summary and test the changes.
+3. In the same run's Summary page, click **Review deployments**, select **production**, and click **Approve and deploy**. This is GitHub's pending-environment approval banner, not a custom executable button inside Markdown. It appears only after staging succeeds and the production job reaches its gate.
+4. Production downloads the saved artifact from this exact run and checks its source/run IDs plus current main head before production migrations or deployment.
+5. After production deployment and smoke checks pass, open the stable production link from its summary and test the release.
 
-Artifacts expire after 14 days. If absent, produce a new successful staging run. Do not substitute a different build. The foundation workflow rebuilds the Worker bundle from the exact staged source and lockfile; it promotes the original tested frontend artifact. Deployment runs are serialized per environment.
+No run ID needs to be copied and no separate Deploy production workflow is manually started. Reject the deployment or cancel the run if staging fails manual testing. The old standalone production-dispatch workflow is removed. No production approval is granted automatically by the agent.
+
+Artifacts expire after 14 days. If absent, produce a new successful staging run. Do not substitute a different build. The workflow rebuilds the Worker bundle from the exact staged source and lockfile and promotes the original tested frontend artifact. The complete release workflow is serialized with cancellation disabled. A waiting approval holds the release slot; approve, reject or cancel before the next release proceeds. If main advances during the wait, the old release is rejected before migrations: cancel it and test the newer release.
 
 ## Failure handling and recovery
 
