@@ -12,7 +12,8 @@ context: |
   on authenticated deployed connectivity, CPU usage, quotas, and team confirmation.
   Never invent provider quotas, available models, credentials, or test outcomes.
   OpenSpec artifacts live in openspec/; development coordination records in workflow/;
-  implementation in src/; guides and reflections in docs/; redacted summaries in logs/.
+  implementation in src/; guides and reflections in docs/; member summaries in
+  logs/darryl/ and logs/keith/. Shared verification belongs in workflow/evidence/.
   Preserve immutable submission, question, rubric, prompt, and assessment versions.
   Each AI output is untrusted and must be validated. Instructor approval precedes release.
 

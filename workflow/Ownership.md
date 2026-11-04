@@ -14,3 +14,7 @@ Confirmed by the team: Darryl implements instructor features; Keith implements s
 Use feature branches such as codex/instructor-rubrics and codex/student-drafts (or team-agreed names). Merge through reviewed PRs to main. Keep role services in one deployable application for now. If two agents or developers need a shared file, serialize ownership or split interfaces first.
 
 Before role features expose real data, jointly implement the trusted identity/membership boundary. Do not let each role invent its own authentication or separate copy of shared tables. Language remains a draft Python default; execution remains excluded unless a later spec change adds it.
+
+## Records and shared interfaces
+
+Darryl owns logs/darryl/; Keith owns logs/keith/. Choose one human log owner for each shared increment and attribute both contributions. Follow [the log policy](../logs/README.md). Shared producer/consumer decisions live in [IntegrationContracts.md](IntegrationContracts.md); handoffs and verification evidence stay in shared workflow folders. Assign a named lead and single active writer per shared increment before dependent implementation.

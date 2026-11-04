@@ -17,6 +17,7 @@
 - [ ] 2.1 Implement coordinator handoff records, file ownership and review-return rules (DEV-02).
 - [ ] 2.2 Establish synthetic data, redacted summaries, security scans and least-privilege agent tooling (DEV-03, DEV-04).
 - [ ] 2.3 Configure isolated environments and required CI checks (OPS-01, OPS-02).
+- [x] 2.4 Organize member logs, shared evidence and contract reading map; preserve history and verify references (DEV-02, DEV-04).
 
 ## 3. Implement identity and persistence
 - [ ] 3.1 Choose maintained identity integration; implement secure sessions and trusted provisioning (AUTH-01, AUTH-03).

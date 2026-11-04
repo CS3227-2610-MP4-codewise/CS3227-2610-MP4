@@ -44,7 +44,9 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: production
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
     env:
       DEPLOY_ENV: production
       APP_VERSION: ${{ needs.verify.outputs.sha }}
@@ -53,6 +55,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       APP_URL: ${{ vars.APP_URL }}
+      STAGING_RUN_ID: ${{ inputs.staging_run_id }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -78,4 +81,10 @@ jobs:
         run: npx wrangler deploy --env production --config wrangler.deploy.json
       - run: npm run smoke
       - name: Record release
-        run: echo "Released commit $APP_VERSION from staging run ${{ inputs.staging_run_id }}" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          {
+            echo "### Production verified"
+            echo "- [Open stable production]($APP_URL)"
+            echo "- Released commit: $APP_VERSION"
+            echo "- Source staging run: $STAGING_RUN_ID"
+          } >> "$GITHUB_STEP_SUMMARY"

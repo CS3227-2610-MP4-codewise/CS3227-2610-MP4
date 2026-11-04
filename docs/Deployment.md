@@ -4,13 +4,14 @@ Status (2026-11-04): staging foundation deployed successfully through GitHub Act
 
 ## Verified environment setup
 
-- Staging: https://codewise-staging.codewise-darryl.workers.dev
+- Staging: https://codewise-staging.codewise-cs3227-2610.workers.dev
+- Production address (deployment pending): https://codewise-production.codewise-cs3227-2610.workers.dev
 - Product website: https://cs3227-2610-mp4-codewise.github.io/CS3227-2610-MP4/
 - Successful staging run: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/41783663340
 - Tested revision: c4354ace256b1c6d27a7d74fb4989a9ddcfea00f.
 - Separate remote staging and production D1 databases are created; the production application has not been deployed.
 - GitHub environment APP_URL values, repository database/account IDs, and environment deployment tokens are configured. The saved token name is CLOUDFARE_API_TOKEN; workflows accept that alias as well as CLOUDFLARE_API_TOKEN. Token values are not recorded.
-- Both environments restrict deployments to main. Production requires owner review. Main requires ci / checks and ci / secrets, one approving PR review, and resolved conversations. Administrator bypass is retained for repository maintenance.
+- Both environments restrict deployments to main. Production requires owner review. Main requires checks and secrets (the names emitted on pull requests), one approving PR review, and resolved conversations. Administrator bypass is retained for repository maintenance.
 - Online CI checks, secret scan, staging migration/deployment, artifact upload and smoke checks passed. A separate live smoke run confirmed database readiness, exact revision, app HTML and JSON API 404 behaviour. Full role features and AI integration remain unimplemented.
 
 ## Architecture
@@ -71,6 +72,8 @@ The first push starts staging automatically; it will fail clearly if account var
 
 ## 5. Staging pipeline
 
+There is no automatic branch/PR preview deployment. A PR runs checks; merging it to main updates the stable staging URL above. Production stays unchanged until explicit promotion. The workflow's environment deployment link and summary show the stable staging URL and the staging run ID needed for production. Publishing a feature branch alone does not update staging.
+
 Push/merge main -> reusable CI (strict specs, types, lint, tests, build, dependency audit, secret scan, Worker dry run) -> download that commit's checked frontend -> isolated config generation -> D1 migrations -> Worker deployment -> smoke checks -> immutable staging-release artifact.
 
 Smoke checks verify the environment name, exact Git commit, database migration readiness, JSON 404 for unknown API paths, and application HTML. They do not yet verify login or feature behaviour because those features do not exist. Extend the checks as feature services are implemented.
@@ -78,6 +81,7 @@ Smoke checks verify the environment name, exact Git commit, database migration r
 ## 6. Production promotion
 
 1. Open Actions -> Deploy staging and select a successful run. Its numeric run ID appears in the run URL.
+   For changes in this PR/branch, use the new successful run produced AFTER merging it, rather than the older foundation run recorded above.
 2. Open Actions -> Deploy production -> Run workflow on main.
 3. Enter that staging run ID. Approve the production environment if required.
 4. The gate verifies the run belongs to this repository, was triggered by push to main, used the expected staging workflow, and completed successfully.
