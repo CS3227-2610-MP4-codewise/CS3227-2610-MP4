@@ -19,7 +19,9 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: staging
+    environment:
+      name: staging
+      url: ${{ vars.APP_URL }}
     env:
       DEPLOY_ENV: staging
       APP_VERSION: ${{ github.sha }}
@@ -47,6 +49,15 @@ jobs:
       - name: Deploy staging
         run: npx wrangler deploy --env staging --config wrangler.deploy.json
       - run: npm run smoke
+      - name: Publish staging link and release instructions
+        run: |
+          {
+            echo "### Staging verified"
+            echo "- [Open stable staging]($APP_URL)"
+            echo "- Tested commit: $APP_VERSION"
+            echo "- Production input staging_run_id: $GITHUB_RUN_ID"
+            echo "To release, open Actions > Deploy production > Run workflow on main, enter this staging run ID, and approve the production environment."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Record tested commit
         run: node -e "require('fs').writeFileSync('dist/release.json', JSON.stringify({sha:process.env.APP_VERSION,runId:process.env.GITHUB_RUN_ID}))"
       - uses: actions/upload-artifact@v4

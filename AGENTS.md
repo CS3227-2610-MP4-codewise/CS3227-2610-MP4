@@ -23,3 +23,5 @@ Never commit .env, .dev.vars, tokens, real learner code or raw private prompts. 
 Run npm run check and appropriate integration/security checks. Document limitations honestly. Keep handoffs in workflow/handoffs/ using the template. Include requirement IDs, owned files, exact verification outcomes, blockers and next owner. Use workflow/agents/ for specialized role instructions when coordinated agent work is requested; roles and templates alone are not evidence of actual multi-agent execution.
 
 Production deployments occur through the reviewed GitHub Actions release workflow, using a successful staging run. Do not run ad hoc production migrations or publish development data to production.
+
+Keep interaction summaries in logs/darryl/ or logs/keith/, following logs/README.md and workflow/templates/member-log.md. Reuse one log per PR-sized increment, append substantial-request entries and preserve history. Shared increments have one named log owner with both contributions attributed. Store redacted verification in workflow/evidence/<change>/ and link it from logs/handoffs. Read workflow/IntegrationContracts.md before dependent shared-service changes.

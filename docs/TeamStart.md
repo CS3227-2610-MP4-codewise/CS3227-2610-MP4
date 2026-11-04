@@ -4,6 +4,8 @@
 
 Before merging role features, both owners should review the shared DTOs, planned routes, identity boundary and migration conventions. The foundation provides modules and interfaces, not a finished database schema or authentication system. Agree those shared decisions first so feature services can integrate safely.
 
+Use [IntegrationContracts.md](../workflow/IntegrationContracts.md) to identify the producer/consumer decisions. Keep your own interaction summaries under [Darryl](../logs/darryl/) or [Keith](../logs/keith/), with one file per PR-sized increment. Shared handoffs and verification live in workflow/handoffs/ and workflow/evidence/. Create bounded OpenSpec changes as each feature is planned; see [the change guide](../openspec/changes/README.md).
+
 ## Darryl
 
 Work under src/server/instructor/ and src/web/instructor/. Start with assignment/rubric authoring and manual assessment/release. Add AI suggestions after the common provider and quota boundary exists. Relevant spec IDs: SUB-01, GRADE-01 through GRADE-04.

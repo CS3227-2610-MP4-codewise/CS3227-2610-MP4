@@ -2,7 +2,7 @@
 
 ## Current release status
 
-Foundation only. React application shell, non-sensitive health endpoint, shared TypeScript contracts, local D1 metadata migration, checks, and deployment workflow definitions. No authentication or role features are implemented. No live hosting success or SoCLaaS integration is claimed.
+Foundation only. React application shell, non-sensitive health endpoint, shared TypeScript contracts, D1 metadata migration, checks, and deployment workflows. Staging has passed online deployment and live smoke checks; see Deployment.md for the exact run/revision. No authentication, role features, production deployment or SoCLaaS integration is claimed.
 
 ## Structure and responsibility
 
@@ -20,7 +20,10 @@ Foundation only. React application shell, non-sensitive health endpoint, shared 
 | workflow/handoffs/                             | Context and review records; template provided                                      |
 | workflow/scripts/                              | Deployment configuration validation, trusted-run gate, smoke checks and gate tests |
 | .github/workflows/                             | Required CI, staging, production promotion and product-site publishing             |
-| logs/                                          | Human-verified redacted AI interaction summaries                                   |
+| logs/darryl/ and logs/keith/                   | Human-owned redacted interaction summaries; policy in logs/README.md               |
+| workflow/IntegrationContracts.md               | Shared-service decisions and producer/consumer reading map                         |
+| workflow/evidence/                             | Redacted verification records grouped by change                                    |
+| workflow/templates/                            | Reusable member-log entry template                                                 |
 
 ## Shared API and data contract
 
@@ -35,6 +38,8 @@ Use one database and shared identity per environment. Keep route handling separa
 Follow README. The Vite frontend is at 5173 and proxies /api to Wrangler at 8787. Run the first build before starting Wrangler; run db:local to apply metadata migration. npm run check validates OpenSpec, TypeScript, lint, application/gate tests and the frontend build. CI additionally audits dependencies, scans secrets and performs Worker bundling without credentials.
 
 ## Spec and agent workflow
+
+Use [member logs](../logs/README.md) and the [shared integration map](../workflow/IntegrationContracts.md). The [change naming guide](../openspec/changes/README.md) explains bounded member/shared OpenSpec changes. Existing setup summaries retain their historical contents after relocation; new records follow the per-increment log policy.
 
 OpenSpec was initialized for Codex and Claude. Read the relevant capability specs and tasks, implement a bounded change on a feature branch, attach verification and review records, and update checkboxes only for fully completed tasks. The comprehensive MVP change remains in progress; completed foundation does not imply completed product requirements.
 
@@ -54,4 +59,5 @@ The initial audit on 2026-11-04 reports no high/critical findings and 11 moderat
 - Cloudflare documentation: Workers/D1 environments, migrations and CI deployment patterns (links in Deployment.md).
 - React, Vite, TypeScript, Wrangler, Vitest, ESLint and other dependencies: see package.json and lockfile.
 - SourceAcademy screenshot supplied by the team inspired the planned two-panel layout; no SourceAcademy code has been copied.
+- Member-log organisation was informed by the team's MP3 contribution conventions; no MP3 application implementation was copied.
 - AI assistance generated initial planning and foundation code; record and verify summaries in logs/.

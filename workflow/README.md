@@ -4,6 +4,8 @@ This is a workflow specification, not evidence that agents have already run.
 
 The repository now includes role instructions under agents/, a handoff template under handoffs/, and Ownership.md for Darryl/Keith's integration agreement. Use these in actual development and retain evidence; templates alone do not satisfy the multi-agent requirement.
 
+Shared implementation decisions are tracked in [IntegrationContracts.md](IntegrationContracts.md). Put redacted verification under [evidence/](evidence/), using one folder per real change. Member interaction summaries belong in [logs/darryl/](../logs/darryl/) or [logs/keith/](../logs/keith/), following the [log policy](../logs/README.md) and [entry template](templates/member-log.md). Handoffs stay shared here so producers and consumers can find the same transition record.
+
 ## Roles and handoffs
 
 Coordinator: accepts team-reviewed requirement IDs, assigns write ownership, tracks dependencies, and routes failed reviews. Specification agent: drafts scenarios/design; output is reviewed before implementation. Implementation agent: edits only assigned files and supplies changes plus verification. Independent test/security agent: checks acceptance behaviour and adversarial boundaries, returns findings with requirement IDs. Human team: resolves scope decisions and approves releases.

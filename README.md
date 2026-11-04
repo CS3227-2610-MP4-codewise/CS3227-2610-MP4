@@ -2,7 +2,9 @@
 
 Programming learning and assessment platform for CS3227 MP4.
 
-**Current status:** repository foundation. The app shell and health endpoint work; authentication, assignments, editor/submissions and AI features are not implemented. Cloud deployment needs the account setup in docs/Deployment.md.
+**Current status:** repository foundation. The app shell and health endpoint work and are deployed to staging. Authentication, assignments, editor/submissions and AI features are not implemented. Production promotion remains pending.
+
+Staging preview: https://codewise-staging.codewise-cs3227-2610.workers.dev. See docs/Deployment.md for verified deployment evidence and release instructions.
 
 ## Team
 
@@ -40,6 +42,7 @@ Read docs/DeveloperGuide.md and workflow/Ownership.md. Develop on feature branch
 - docs/UserGuide.md: currently available behaviour only.
 - docs/PlanningDecisions.md: assumptions and provider-access evidence.
 - docs/Reflections.md: experiment template, not invented results.
-- workflow/: specialized agent instructions, handoff template, ownership and deployment scripts.
+- logs/darryl/ and logs/keith/: member summaries; see logs/README.md.
+- workflow/: agent instructions, shared contracts, handoffs, evidence, templates and deployment scripts.
 
 The required product website is published separately on GitHub Pages. It is not the application hosting environment.
