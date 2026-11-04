@@ -39,13 +39,13 @@ Repository Actions variables (Settings -> Secrets and variables -> Actions -> Va
 | ------------------------- | ---------------------------------- |
 | STAGING_D1_DATABASE_ID    | Staging database UUID              |
 | PRODUCTION_D1_DATABASE_ID | Different production database UUID |
+| CLOUDFLARE_ACCOUNT_ID | Cloudflare account identifier (not a credential) |
 
 In EACH GitHub environment configure:
 
 | Type     | Name                  | Value                                                                                |
 | -------- | --------------------- | ------------------------------------------------------------------------------------ |
 | Variable | APP_URL               | That environment's HTTPS Worker URL                                                  |
-| Secret   | CLOUDFLARE_ACCOUNT_ID | Cloudflare account identifier                                                        |
 | Secret   | CLOUDFLARE_API_TOKEN  | Token with required Workers deployment and D1 migration permissions for that account |
 
 Use separate deployment tokens where practical, with the minimum available permissions. Do not use a Cloudflare global API key. GitHub environment isolation controls when the credentials become available; use account-level separation if stronger Cloudflare resource isolation is required.
