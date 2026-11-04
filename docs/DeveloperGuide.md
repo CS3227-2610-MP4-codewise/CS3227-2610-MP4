@@ -2,7 +2,7 @@
 
 ## Current release status
 
-Foundation only. React application shell, non-sensitive health endpoint, shared TypeScript contracts, local D1 metadata migration, checks, and deployment workflow definitions. No authentication or role features are implemented. No live hosting success or SoCLaaS integration is claimed.
+Foundation only. React application shell, non-sensitive health endpoint, shared TypeScript contracts, D1 metadata migration, checks, and deployment workflows. Staging has passed online deployment and live smoke checks; see Deployment.md for the exact run/revision. No authentication, role features, production deployment or SoCLaaS integration is claimed.
 
 ## Structure and responsibility
 

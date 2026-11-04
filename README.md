@@ -2,7 +2,9 @@
 
 Programming learning and assessment platform for CS3227 MP4.
 
-**Current status:** repository foundation. The app shell and health endpoint work; authentication, assignments, editor/submissions and AI features are not implemented. Cloud deployment needs the account setup in docs/Deployment.md.
+**Current status:** repository foundation. The app shell and health endpoint work and are deployed to staging. Authentication, assignments, editor/submissions and AI features are not implemented. Production promotion remains pending.
+
+Staging preview: https://codewise-staging.codewise-darryl.workers.dev. See docs/Deployment.md for verified deployment evidence and release instructions.
 
 ## Team
 

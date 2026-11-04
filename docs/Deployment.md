@@ -1,6 +1,17 @@
 # Cloudflare deployment runbook
 
-Status: configuration prepared. A successful online deployment is not claimed until GitHub Actions and smoke checks pass.
+Status (2026-11-04): staging foundation deployed successfully through GitHub Actions. Production promotion is pending explicit user approval; no production deployment is claimed.
+
+## Verified environment setup
+
+- Staging: https://codewise-staging.codewise-darryl.workers.dev
+- Product website: https://cs3227-2610-mp4-codewise.github.io/CS3227-2610-MP4/
+- Successful staging run: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/41783663340
+- Tested revision: c4354ace256b1c6d27a7d74fb4989a9ddcfea00f.
+- Separate remote staging and production D1 databases are created; the production application has not been deployed.
+- GitHub environment APP_URL values, repository database/account IDs, and environment deployment tokens are configured. The saved token name is CLOUDFARE_API_TOKEN; workflows accept that alias as well as CLOUDFLARE_API_TOKEN. Token values are not recorded.
+- Both environments restrict deployments to main. Production requires owner review. Main requires ci / checks and ci / secrets, one approving PR review, and resolved conversations. Administrator bypass is retained for repository maintenance.
+- Online CI checks, secret scan, staging migration/deployment, artifact upload and smoke checks passed. A separate live smoke run confirmed database readiness, exact revision, app HTML and JSON API 404 behaviour. Full role features and AI integration remain unimplemented.
 
 ## Architecture
 
@@ -35,18 +46,18 @@ Under Settings -> Environments create staging and production. Restrict both to m
 
 Repository Actions variables (Settings -> Secrets and variables -> Actions -> Variables):
 
-| Variable                  | Value                              |
-| ------------------------- | ---------------------------------- |
-| STAGING_D1_DATABASE_ID    | Staging database UUID              |
-| PRODUCTION_D1_DATABASE_ID | Different production database UUID |
-| CLOUDFLARE_ACCOUNT_ID | Cloudflare account identifier (not a credential) |
+| Variable                  | Value                                            |
+| ------------------------- | ------------------------------------------------ |
+| STAGING_D1_DATABASE_ID    | Staging database UUID                            |
+| PRODUCTION_D1_DATABASE_ID | Different production database UUID               |
+| CLOUDFLARE_ACCOUNT_ID     | Cloudflare account identifier (not a credential) |
 
 In EACH GitHub environment configure:
 
-| Type     | Name                  | Value                                                                                |
-| -------- | --------------------- | ------------------------------------------------------------------------------------ |
-| Variable | APP_URL               | That environment's HTTPS Worker URL                                                  |
-| Secret   | CLOUDFLARE_API_TOKEN  | Token with required Workers deployment and D1 migration permissions for that account |
+| Type     | Name                 | Value                                                                                |
+| -------- | -------------------- | ------------------------------------------------------------------------------------ |
+| Variable | APP_URL              | That environment's HTTPS Worker URL                                                  |
+| Secret   | CLOUDFLARE_API_TOKEN | Token with required Workers deployment and D1 migration permissions for that account |
 
 Use separate deployment tokens where practical, with the minimum available permissions. Do not use a Cloudflare global API key. GitHub environment isolation controls when the credentials become available; use account-level separation if stronger Cloudflare resource isolation is required.
 
