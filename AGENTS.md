@@ -10,6 +10,8 @@ Read openspec/config.yaml and the relevant change's proposal, design, capability
 
 ## Architecture
 
+For application UI planning, implementation and review, read docs/ui/design.md (`warm-workbook-v1`) and the relevant warm-workbook-ui capability requirements (UI-01–UI-08). Preserve its warm workbook layout, palette, typography, version boundaries and accessible flows. Include applicable UI IDs and the design revision in UI proposals/tasks/PRs; complete workflow/templates/ui-review.md with actual evidence. Return unexplained design departures for revision; intentional departures require an explicit user/team decision and updated design reference. A role switch never grants permissions. This guidance does not authorize implementation outside the requested role/slice or claim the design is already implemented.
+
 React/Vite browser app: src/web/. Native Cloudflare Worker API: src/server/. Role-specific code: instructor/ and student/. Shared transport types: src/shared/. Migrations: src/server/db/migrations/. Development helpers belong in workflow/.
 
 Never duplicate identity, course, submission or assessment storage across role services. No feature routes are exposed before authentication and object authorization exist. Shared DTOs must not expose private references or unreleased assessments to students. Browser role checks are presentation only.

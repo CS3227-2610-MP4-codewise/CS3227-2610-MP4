@@ -41,6 +41,8 @@ Follow README. The Vite frontend is at 5173 and proxies /api to Wrangler at 8787
 
 ## Spec and agent workflow
 
+Application UI follows [docs/ui/design.md](ui/design.md), revision `warm-workbook-v1`, with [UI-01–UI-08](../openspec/changes/warm-workbook-ui/specs/workbook-experience/spec.md). Read it before UI planning/code/review and attach a completed [UI review](../workflow/templates/ui-review.md) to the feature evidence. AGENTS.md, OpenSpec rules and the PR template require traceability and review; no automated visual gate is claimed. The shared visual foundation now implements the chosen tokens and public foundation screen; [component usage](ui/components.md) describes the controls. Authentication and role workspaces remain unimplemented.
+
 Use [member logs](../logs/README.md) and the [shared integration map](../workflow/IntegrationContracts.md). The [change naming guide](../openspec/changes/README.md) explains bounded member/shared OpenSpec changes. Existing setup summaries retain their historical contents after relocation; new records follow the per-increment log policy.
 
 OpenSpec was initialized for Codex and Claude. Read the relevant capability specs and tasks, implement a bounded change on a feature branch, attach verification and review records, and update checkboxes only for fully completed tasks. The comprehensive MVP change remains in progress; completed foundation does not imply completed product requirements.

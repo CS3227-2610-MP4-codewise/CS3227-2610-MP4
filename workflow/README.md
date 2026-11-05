@@ -8,6 +8,8 @@ Shared implementation decisions are tracked in [IntegrationContracts.md](Integra
 
 ## Roles and handoffs
 
+Application UI uses the [warm workbook design contract](../docs/ui/design.md), with UI-01–UI-08 in [warm-workbook-ui](../openspec/changes/warm-workbook-ui/specs/workbook-experience/spec.md). Before a UI slice, name its design revision, applicable requirements, role owner and shared component write window. Complete the [UI review template](templates/ui-review.md) with actual screenshots, keyboard/state checks and relevant integration/security evidence. Reviewers return unexplained departures; intentional changes need an explicit user/team decision and revised reference. PR templates and OpenSpec rules make this a review obligation, not an automatic pixel-fidelity gate. Missing real authentication or persistence remains unverified even if a mock looks correct.
+
 Coordinator: accepts team-reviewed requirement IDs, assigns write ownership, tracks dependencies, and routes failed reviews. Specification agent: drafts scenarios/design; output is reviewed before implementation. Implementation agent: edits only assigned files and supplies changes plus verification. Independent test/security agent: checks acceptance behaviour and adversarial boundaries, returns findings with requirement IDs. Human team: resolves scope decisions and approves releases.
 
 Agent roles may run sequentially; use parallel work only for independently owned files. No subagents were spawned while preparing this draft.
