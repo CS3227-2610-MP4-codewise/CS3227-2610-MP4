@@ -13,7 +13,7 @@
   --cw-font-editorial: Georgia, serif;
   --cw-font-code: Consolas, 'Courier New', monospace;
   font-family: var(--cw-font-ui);
-  font-size: 16px;
+  font-size: 100%;
   color: var(--cw-ink);
   background: var(--cw-canvas);
   font-synthesis: none;

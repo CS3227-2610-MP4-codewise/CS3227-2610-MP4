@@ -6,6 +6,8 @@ Implements the first shared presentation slice of `warm-workbook-v1` (UI-01/UI-0
 
 Import `src/web/styles.css` once. Use the `--cw-*` semantic tokens; do not duplicate hex colors in role components. Default appearance follows the system. `.cw-shell`, `.cw-header`, `.cw-workbook`, `.cw-workbook-brief` and `.cw-workbook-work` provide the shared page geometry. The continuous sheet stacks at 720px. Editorial headings use Georgia; UI text uses Segoe UI/Arial; source uses Consolas/Courier New. All stacks have local fallbacks.
 
+The root uses `font-size: 100%` so rem-based typography inherits the browser's default text size. Do not replace it with a fixed pixel root. The specimen's text scaling is relative to that default; selecting Browser default removes its inline font-size override. A doubled-text specimen is not evidence that browser font preferences are honored; verify that independently.
+
 Use the light `rule` token for decorative dividers, not as the only identifiable boundary of a form input. Focus uses the higher-contrast accent; action boundaries use ink. Inputs in future features need the same explicit boundary/contrast review. See [measured contrast](../../workflow/evidence/warm-workbook-ui/foundation/contrast.md).
 
 ## Controlled presentation components

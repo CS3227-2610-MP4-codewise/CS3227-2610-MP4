@@ -52,13 +52,17 @@ function Preview() {
         <label>
           Text scale
           <select
-            defaultValue="16"
+            defaultValue=""
             onChange={(event) => {
-              document.documentElement.style.fontSize = `${event.target.value}px`;
+              if (event.target.value) {
+                document.documentElement.style.fontSize = event.target.value;
+              } else {
+                document.documentElement.style.removeProperty('font-size');
+              }
             }}
           >
-            <option value="16">100%</option>
-            <option value="32">200% text stress test</option>
+            <option value="">Browser default</option>
+            <option value="200%">200% of browser default</option>
           </select>
         </label>
       </div>

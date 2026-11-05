@@ -92,3 +92,16 @@ Darryl explicitly requested commit, push and PR creation for the warm-workbook i
 - Main assistant performs commit/push/PR preparation; no independent or Keith review claimed. Existing validation and visual evidence remain linked above. Fresh staged-snapshot verification and publication outcomes are recorded in the handoff/PR and reported to the user after completion.
 - Fresh `npm run check` on the clean staged-file snapshot passed (exit 0): all three included OpenSpec changes valid, typecheck/lint passed, 13 Vitest and 4 deployment tests passed, build passed. The unrelated untracked scaffold is not part of this snapshot or the planned commit. Hosted CI is not yet claimed.
 - No main-branch push, merge, archive or deployment is requested by this action. The role/service dependency gates and 3/15 implementation progress remain unchanged.
+
+# 07 - Review correction: preserve browser text preferences - 2026-11-06
+
+## Request
+
+Darryl identified that the fixed 16px root prevented browser-default text scaling and that the inline doubled-text preview could not catch it. UI-01/UI-07; follow-up to PR #5 on `codex/warm-workbook-foundation`.
+
+## Results
+
+- Changed the root to `font-size: 100%`. Updated the development specimen to scale relative to the browser default and remove the inline override on reset; documented that browser preference verification is separate from text stress.
+- Main agent verified Chromium's actual standard-font setting at 16px and 24px with reload and no inline root override: root/body 16→24px; heading 32→48px. Preview at a 24px browser default: default 24px, relative double 48px, reset 24px with no inline font-size. Restored the original browser preference afterwards.
+- [Review evidence and screenshot](../../workflow/evidence/warm-workbook-ui/foundation/review.md). No new role/service implementation or independent/Keith review claimed. Validation/publication outcomes are reported with the PR update; existing task progress remains 3/15.
+- Preserved intervening remote commits by fast-forwarding to PR head `10a8b76`. Fresh full check on the staged snapshot passed: four OpenSpec changes, types/lint, 95 Vitest + 4 deployment tests and build. The unrelated untracked scaffold remains untouched. Updating the existing PR branch is covered by the user's prior publication authorization; no merge/deployment.

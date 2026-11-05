@@ -46,3 +46,21 @@ No intentional visual-contract departure. Native zoom limitation is disclosed ra
 ## Publication verification — 2026-11-06
 
 `npm run check` passed (exit 0) in a clean copy of the staged files: 3/3 OpenSpec changes, typecheck, lint, 13 Vitest tests, 4 deployment tests and Vite build. The earlier aggregate failure came from an unrelated untracked instructor-assignment-publication scaffold, which is excluded from the commit and was left untouched. The clean snapshot reused the installed dependencies; it was not a fresh `npm ci` or a hosted CI run. Runtime screenshots and limitations above are unchanged.
+
+## Review correction: browser default text size — 2026-11-06
+
+The user identified that the initial fixed 16px root overrode browser font preferences. Replaced it with `100%`; rem typography now follows the browser default. The development preview uses a relative `200%` scale and removes its inline font-size when Browser default is selected. The earlier inline doubled-text check did not cover browser default inheritance and is not evidence for that behavior.
+
+Verified with Chromium's browser font preference (`Page.setFontSizes`, standard 24), not an application root-style override, then reloaded the page:
+
+| Browser default / view   | Computed root | Computed body / heading | Inline root size |
+| ------------------------ | ------------- | ----------------------- | ---------------- |
+| 16px / public foundation | 16px          | 16px / 32px             | absent           |
+| 24px / public foundation | 24px          | 24px / 48px             | absent           |
+| 24px / preview default   | 24px          | not recorded            | absent           |
+| 24px / preview 200%      | 48px          | not recorded            | `200%`           |
+| 24px / preview reset     | 24px          | not recorded            | absent           |
+
+Saved [public foundation with the 24px browser default](browser-default-24px.jpg). Restored the browser standard font size to its original 16px after testing. This checks browser-default inheritance separately from zoom or inline text stress; no broader accessibility audit is claimed.
+
+After fast-forwarding to the existing remote PR head `10a8b76` without changing its commits, `npm run check` passed on a clean staged-file snapshot: 4/4 OpenSpec changes, typecheck, lint, 95 Vitest cases, 4 deployment cases and Vite build. The unrelated untracked scaffold remains excluded and untouched.
