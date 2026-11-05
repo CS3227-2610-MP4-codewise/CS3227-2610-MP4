@@ -1,0 +1,29 @@
+# Handoff: instructor-development-contracts
+
+- Human owner: Darryl; shared contract-artifact write window explicitly approved 2026-11-05. Keith remains owner of identity/course, submissions and student progress; K1–K6 detailed agreement pending.
+- Agent role / model / configuration: /root implements and verifies; /root/contracts_review performs independent read-only review and focused re-review. Available metadata gpt-6.1-sol, no override; other configuration unavailable. No recursive delegation or parallel editing.
+- Requirement IDs/change: DEV-01, DEV-02, SUB-01, GRADE-04, AI-05; CON-01–CON-07 in instructor-development-contracts.
+- Input revision: e3862de841c61cadf3c1f82b19e94db5fb445f61 (merged readiness PR #3); branch codex/instructor-development-contracts. Publication authorized by Darryl; [PR #4](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/4) contains incremental planning, runtime, test and evidence commits. Real producer/consumer implementation SHAs are unavailable.
+- Exclusive write scope: src/shared/instructor-contracts/{schema,identity,publication,submission,release,ai,contracts.test}.ts; src/server/instructor/ports/contracts.ts; workflow/fixtures/instructor-contracts/{graph,adapters}.ts; workflow/contracts/instructor-contracts.ts; existing IntegrationContracts.md, Ownership.md and docs/PlanningDecisions.md; this change's artifacts/evidence/handoff and logs/darryl/03-instructor-development-contracts.md. Reviewer writes nothing.
+- Context: approved bounded brief and P1–P4, existing C-* drafts, MVP requirements, original source and readiness acceptance, exact base and file ownership. Independent judgment targeted auth-versus-schema trust, source/score/version joins, safe projections and async seam interleavings.
+- Delivered: strict schemaVersion 1 candidate parsers and inferred types; runtime relational validators; explicit publication/feedback/status allowlists; legacy ID mapping; server-only injected read/auth/gateway/protocol interfaces; cross-linked valid and importable invalid examples; reusable factory suites. No service/storage/route/provider implementation.
+- Decisions: Darryl accepted immutable publish identity rules, two-decimal numeric points, LF/UTF-8/SHA-256/exact-line evidence, reviewed release/currentness and withdrawal tombstones. The single [K1–K6 packet](../IntegrationContracts.md#keith-review-packet--pending-agreement) lists consumer agreement as pending. No direct Keith approval is invented.
+- Actual verification: npm run check passed all 3 strict spec changes, types, lint, 88 Vitest tests (82 new + 6 existing), 4 Node workflow tests and build. Final inspection: 23 changed/new files, 11 Markdown documents, 38 local links; no missing links, trailing whitespace or protected-scope changes. Original concurrent checkout work was left separate and untouched. [Evidence](../evidence/instructor-development-contracts/verification.md) separates schema/synthetic tests from unverified producer integration.
+- Review returns/repairs: hardened unknown-input approval/feedback boundaries; repaired synthetic driver deadline after request-record persistence and auth/currentness/deadline recheck after async domain validation. Added regressions and runtime payload-action correlation. Same reviewer accepted focused repairs, no remaining actionable findings. Reviewer Vitest startup was denied parent filesystem access; main's test run passed. Targeted reviewer reproductions and read-only inspection are the actual independent checks.
+- Security/limitations: deployed API entry and routing unchanged; no synthetic production fallback. No identity/course/submission copy, real provider credential/call, learner code execution, quota service, release database, migration, deployment or student feature was added. Runtime parser success never proves authorization, transaction history or currentness freshness.
+- Resource evidence: external checkpoint 2026-11-05 13:54:54 Singapore time; per_response_usage. Current main turn-cc589f62a91c519618b96044 incomplete/provisional. Completed attributable review records turn-1c86b77e7f199efd0cfe5a26 and turn-a1308df48d3d31ebd56ce688. Detailed telemetry stays outside Git; no numeric total/efficiency claim.
+- Next owner/action: Darryl’s explicit package acceptance is recorded; Darryl gives Keith the single packet. Keith reviews K1–K6 and later supplies real reviewed producer adapters/revisions. Run the same factory suites against those adapters before real integration is claimed. Dependent application work remains separately scoped.
+- Independent review outcome: accept implementation repairs for this contract-only scope; Darryl accepted the completed package on 2026-11-05; Keith agreement remains open. Darryl separately authorized incremental commits, push and PR creation. Merge, deployment and archival remain unauthorized.
+
+## Manual acceptance — accepted by Darryl, 2026-11-05
+
+- [x] Candidate runtime fields, P1–P4 owner resolutions and the single Keith packet match the approved brief.
+- [x] Synthetic schema/adapter/protocol results are clearly separated from pending real auth/submission/release/provider integration.
+- [x] Identity/course/submission producers remain replaceable through injected ports, with no duplicate storage or unprotected feature routes.
+- [x] Exact fixtures/suite instructions and remaining joint-policy/producer-revision gates are sufficient for Keith's review.
+
+This checklist accepts the delivered contract package only. It does not accept Keith's decisions, implement the earlier publication feature or authorize commit/push/merge/deploy/archive.
+
+## Publication follow-up — 2026-11-05
+
+PR #4 was opened as a draft after the first three batches were pushed. The final evidence/accepted-handoff/log batch completes the published package before ready-for-review transition. No Keith agreement is inferred from publication; task 1.4 remains open.
