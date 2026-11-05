@@ -21,14 +21,24 @@ context: |
   logs/darryl/ and logs/keith/. Shared verification belongs in workflow/evidence/.
   Preserve immutable submission, question, rubric, prompt, and assessment versions.
   Each AI output is untrusted and must be validated. Instructor approval precedes release.
+  Application UI follows docs/ui/design.md revision warm-workbook-v1: Workbook
+  layout with Margin palette, proportional interface text and monospaced code.
+  Read warm-workbook-ui UI-01–UI-08 for sign-in, trusted conditional role switching,
+  versioned work, Previous/Next navigation, source observations and accessible states.
+  The shared visual foundation is applied to the public foundation screen;
+  sign-in and role workspaces remain unimplemented. Identity, role provisioning
+  and domain policies still require their producer handoffs.
 
 rules:
   proposal:
     - State assumptions, exclusions, and unresolved decisions explicitly.
+    - For application UI, cite docs/ui/design.md and applicable UI-01–UI-08 requirements; state affected screens and bounded role ownership.
   specs:
     - Use SHALL requirements and WHEN/THEN scenarios, including failure paths.
     - Include stable requirement IDs for traceability to tests.
   design:
     - Explain authorization, data boundaries, deployment isolation, and resource limits.
+    - For application UI, follow warm-workbook-v1 and identify shared tokens, screen/state coverage, keyboard/responsive behavior and any explicitly approved departures.
   tasks:
     - Link implementation and verification tasks to requirement IDs.
+    - For application UI, include applicable UI requirement IDs and workflow/templates/ui-review.md evidence; screenshots or mocks do not complete authentication, persistence or deployment tasks.
