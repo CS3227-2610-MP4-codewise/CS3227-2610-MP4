@@ -6,6 +6,8 @@ Students need a simple place to write programming solutions and understand revie
 
 Status: DRAFT. This proposal makes implementation choices reviewable; it does not claim team approval or completed features.
 
+Readiness reconciliation (2026-11-05): foundation deployment and shared workload ownership are confirmed separately from the draft product policies. See `project-readiness`, workflow/Ownership.md and docs/PlanningDecisions.md. No role or AI feature implementation is claimed.
+
 ## What Changes
 
 - Introduce course-scoped student and instructor accounts.
@@ -22,7 +24,7 @@ Status: DRAFT. This proposal makes implementation choices reviewable; it does no
 - Assignments may contain multiple questions; all questions are submitted atomically as an assignment attempt.
 - No code execution, automatic test grading, live tutoring, textbook retrieval, or AI-detection features in MVP.
 - Reference solutions remain instructor-only. Student AI uses released feedback and the student's own evidence only.
-- Cloudflare Workers/static assets/D1 is selected for the repository and pipeline foundation. Account provisioning and deployed integration verification remain outstanding.
+- Cloudflare Workers/static assets/D1 foundation is provisioned and deployed to staging and production at `281cc13` via run 41799944040. Authenticated role/AI integration, load/CPU measurement and recovery rehearsal remain outstanding; see workflow/evidence/project-readiness/verification.md.
 - Instructor enrolment is provisioned by a trusted setup process; users cannot self-promote.
 
 ## Capabilities
@@ -43,4 +45,4 @@ None; repository was empty apart from Git metadata at inspection.
 
 ## Impact
 
-New application, data schema, API, development records, and deployment pipeline. No existing product migration. Provider access, identity provider, supported language, team size, final hosting and exact quotas remain review decisions in `docs/PlanningDecisions.md`. Optional features belong in later independent changes.
+New application, data schema, API, development records, and deployment pipeline. No existing product migration. Two members, role ownership, named shared increment writers and the deployed Cloudflare foundation are confirmed. Identity provider, language acceptance, provider access/quotas, product policies and full-product capacity remain review gates in `docs/PlanningDecisions.md`. Optional features belong in later independent changes.
