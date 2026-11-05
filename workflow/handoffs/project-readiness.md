@@ -1,0 +1,26 @@
+# Handoff: PR-READY / project-readiness
+
+- Human owner: Darryl; shared workload split agreed by Keith as reported by Darryl on 2026-11-05. No direct Keith review/contribution is invented.
+- Agent role / model / configuration: main agent `/root` performs analysis/document editing/verification; independent reviewer `/root/readiness_review` is read-only, fresh-context initial assignment, reused for final review, no recursive delegation or editing. Local source metadata identifies both as `gpt-6.1-sol`; further configuration is unavailable. No model override requested.
+- Requirement IDs and OpenSpec change: `project-readiness`; DEV-01–DEV-04, OPS-01–OPS-04; supporting AUTH/SUB/GRADE/AI/PROG IDs in contract tables.
+- Input commit/artifact versions: base `281cc1392b722e873bc58fd806913c5f2121eeec`; branch `codex/project-readiness`; prior release run 41799944040; existing `codewise-mvp` draft.
+- Publication: [PR #3](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/3), opened as a draft after pushing the first two coherent commits; final verification/acceptance records form the third batch before ready-for-review publication. No merge or deployment authorized.
+- Owned files (exclusive write ownership): Darryl/main agent writes readiness OpenSpec artifacts, OpenSpec context and MVP status reconciliation; README and current docs; workflow/Ownership.md, IntegrationContracts.md; foundation handoff follow-up; readiness evidence/handoff; logs/darryl/02-project-readiness.md. Reviewer has no write scope. No src, migrations, dependency, CI, skill or personal-tool edits.
+- Relevant context supplied / retrieved: bounded planning request and requirement IDs, base/clean-tree status, ownership/contracts/current code/MVP specs/deployment evidence; reviewer independently inspected surrounding documents/code. Benefit: independent judgment on status truthfulness and missing contract cases. Verification: reviewer returns file-based findings; main checks against source/evidence.
+- Changes and decisions: confirmed named shared writers; prepared five draft contracts and policy gates; reconciled foundation deployment status; completed only independently evidenced foundation task 0.6. New interface fields remain proposed pending joint producer/consumer acceptance.
+- Initial review return: stale production/team statements, unassigned shared writers, incomplete DTO projections and unresolved language/source/deadline/withdrawal gates. Repairs are the current planning/doc changes; historical logs preserved. No substantive application behavior changed.
+- Verification commands and actual results: current `npm run check` passed both strict OpenSpec validations, types, lint, six app/four workflow tests and build. `git diff --check`, local-link (18 documents/36 links) and documentation-only scope checks passed. Earlier baseline check and read-only staging/production smoke also passed. Exact scope/limitations in [evidence](../evidence/project-readiness/verification.md).
+- Security findings / unresolved defects: no unauthenticated feature routes added. Identity, object authorization, provider quota/connectivity, retention, recovery and performance remain unimplemented/unverified as detailed in decision register.
+- Resource measurements: checkpoint refreshed 2026-11-05 13:01:35 Singapore time, `per_response_usage`; current main record `turn-425beba727b0128a4b15cc0d` incomplete/provisional. Attributable completed review records `turn-9dfe0b84e2eb912e1718c531` and `turn-d3f442591e010a031620d84e`. Detailed telemetry stays outside repo; no numeric total or efficiency claim.
+- Blockers and next action: Darryl accepted the readiness checklist on 2026-11-05 and separately authorized batched commits, push and PR creation. Future interface/schema/policy acceptance remains a separate gate. No implementation handoff from Keith exists yet.
+- Next owner: both owners review the readiness PR; Keith leads the separately scoped SH-ID provider/session decision and bounded implementation. Darryl consumes the reviewed handoff rather than duplicating it.
+- Independent review outcome: initial findings addressed in revised documents; same reviewer accepted documentation-only scope with no actionable correctness/security findings. Reviewer ran read-only diff/content checks and `git diff --check`; main agent ran tests. Live deployment evidence was coordinator-supplied to reviewer. No focused repair cycle was required after final review; optional heading polish was not a correctness finding.
+
+## Manual acceptance checklist — accepted by Darryl, 2026-11-05
+
+- [x] Current status correctly distinguishes deployed foundation from unimplemented product/AI and unverified recovery/performance.
+- [x] Agreed writer split and shared-file serialization match the team agreement.
+- [x] All five contract drafts expose producer/consumer responsibilities, private/public boundaries and success/failure cases; unresolved policies remain labelled.
+- [x] Dependent implementation waits for joint contract acceptance and real producer handoffs; fixtures are not completed integration.
+
+Acceptance does not approve unresolved product decisions or authorize merge, deployment or archival. Commit, push and PR creation were separately authorized in the same acceptance message; no merge/deployment/archive is requested.
