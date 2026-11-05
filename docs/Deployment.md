@@ -1,15 +1,15 @@
 # Cloudflare deployment runbook
 
-Status (2026-11-04): staging foundation deployed successfully through GitHub Actions. Production promotion is pending explicit user approval; no production deployment is claimed.
+Status (verified 2026-11-05): foundation deployed successfully to staging and production through GitHub Actions run [41799944040](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/41799944040) at `281cc1392b722e873bc58fd806913c5f2121eeec`, with recorded production approval. Both live smoke checks passed. See [readiness evidence](../workflow/evidence/project-readiness/verification.md) for scope and remaining gates. No deployment was initiated by the readiness review.
 
 ## Verified environment setup
 
 - Staging: https://codewise-staging.codewise-cs3227-2610.workers.dev
-- Production address (deployment pending): https://codewise-production.codewise-cs3227-2610.workers.dev
+- Production foundation: https://codewise-production.codewise-cs3227-2610.workers.dev
 - Product website: https://cs3227-2610-mp4-codewise.github.io/CS3227-2610-MP4/
-- Successful staging run: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/41783663340
-- Tested revision: c4354ace256b1c6d27a7d74fb4989a9ddcfea00f.
-- Separate remote staging and production D1 databases are created; the production application has not been deployed.
+- Current verified staging/production run: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/41799944040
+- Tested revision: 281cc1392b722e873bc58fd806913c5f2121eeec. Earlier staging evidence: run 41783663340 at c4354ace256b1c6d27a7d74fb4989a9ddcfea00f.
+- Separate remote staging and production D1 databases were provisioned; both foundation deployments passed migration-readiness smoke checks. This does not verify future domain tables or recovery.
 - GitHub environment APP_URL values, repository database/account IDs, and environment deployment tokens are configured. The saved token name is CLOUDFARE_API_TOKEN; workflows accept that alias as well as CLOUDFLARE_API_TOKEN. Token values are not recorded.
 - Both environments restrict deployments to main. Production requires owner review. Main requires checks and secrets (the names emitted on pull requests), one approving PR review, and resolved conversations. Administrator bypass is retained for repository maintenance.
 - Online CI checks, secret scan, staging migration/deployment, artifact upload and smoke checks passed. A separate live smoke run confirmed database readiness, exact revision, app HTML and JSON API 404 behaviour. Full role features and AI integration remain unimplemented.

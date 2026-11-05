@@ -2,14 +2,19 @@ schema: spec-driven
 
 context: |
   Codewise is a proposed programming education application for NUS CS3227 MP4.
-  Status: draft for team review, not an approved implementation baseline.
+  Status: MVP product baseline remains draft; verified foundation is deployed.
   Confirmed team: Darryl owns instructor features; Keith owns student features.
-  Cloudflare pipeline foundation is authorized; role features remain separate work.
+  Shared writer split agreed via Darryl on 2026-11-05: Keith owns identity/course
+  and submissions; Darryl owns publication, assessment/release, AI gateway and
+  operations. Contract fields/policies require joint acceptance before integration.
+  Cloudflare foundation staging/production passed run 41799944040 at 281cc13;
+  role features remain separate work. See workflow/Ownership.md and evidence.
   Working assumptions: one language (Python),
   one source file per question, no student-code execution or automatic test grading.
   Required LLM provider: SoCLaaS, accessed only through the backend.
-  Hosting candidate: Cloudflare Workers with static assets and D1; decision gated
-  on authenticated deployed connectivity, CPU usage, quotas, and team confirmation.
+  Foundation host: Cloudflare Workers with static assets and D1. Full-product
+  capacity and AI activation remain gated on measured CPU/latency, authenticated
+  provider connectivity, supported models and verified quotas.
   Never invent provider quotas, available models, credentials, or test outcomes.
   OpenSpec artifacts live in openspec/; development coordination records in workflow/;
   implementation in src/; guides and reflections in docs/; member summaries in

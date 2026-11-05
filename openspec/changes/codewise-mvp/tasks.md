@@ -4,10 +4,10 @@
 - [x] 0.3 Implement CI and tested staging-to-production promotion workflows plus GitHub Pages workflow (OPS-02).
 - [x] 0.4 Record confirmed Darryl/Keith ownership, shared-file review rules and agent handoff templates (DEV-02).
 - [x] 0.5 Verify dependency installation, types, lint, tests, build, specs and local Worker smoke checks (DEV-01, OPS-03).
-- [ ] 0.6 Provision cloud/GitHub settings, pass online staging checks and promote a foundation release (OPS-01, OPS-02).
+- [x] 0.6 Provision cloud/GitHub settings, pass online staging checks and promote a foundation release (OPS-01, OPS-02). Verified run 41799944040 at 281cc13, recorded production approval and staging/production smoke results: workflow/evidence/project-readiness/verification.md. Foundation only; full OPS and role release remain incomplete.
 
 ## 1. Resolve planning and integration gates
-- [ ] 1.1 Confirm team size, language, role workload and MVP assumptions (DEV-01).
+- [ ] 1.1 Confirm language and remaining MVP assumptions (DEV-01). Two-member team and role/shared increment workload confirmed; see workflow/Ownership.md. Product gates remain in docs/PlanningDecisions.md.
 - [ ] 1.2 Obtain documented SoCLaaS quotas, discover a supported model, and configure secrets outside Git (AI-01, AI-03).
 - [ ] 1.3 Run authenticated model discovery and one synthetic completion from an isolated candidate deployment; record host, date, HTTP outcome and latency without secrets (AI-01).
 - [ ] 1.4 Measure complete API CPU/latency and confirm hosting plan, repository integration and database choice (OPS-01).
@@ -19,6 +19,8 @@
 - [ ] 2.3 Configure isolated environments and required CI checks (OPS-01, OPS-02).
 - [x] 2.4 Organize member logs, shared evidence and contract reading map; preserve history and verify references (DEV-02, DEV-04).
 - [x] 2.5 Replace manual run-ID dispatch with one approval-gated release run, validate exact artifacts and update release guidance (OPS-02, OPS-04).
+
+Readiness reconciliation: `project-readiness` records actual independent planning review, named writers, contract drafts and redacted evidence. Tasks 2.1–2.3 remain open for full workflow/security/environment acceptance beyond foundation configuration. New contract scenarios are not executed feature integration checks; no role/AI/recovery task is completed by this document update.
 
 ## 3. Implement identity and persistence
 - [ ] 3.1 Choose maintained identity integration; implement secure sessions and trusted provisioning (AUTH-01, AUTH-03).

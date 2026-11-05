@@ -2,17 +2,17 @@
 
 Programming learning and assessment platform for CS3227 MP4.
 
-**Current status:** repository foundation. The app shell and health endpoint work and are deployed to staging. Authentication, assignments, editor/submissions and AI features are not implemented. Production promotion remains pending.
+**Current status (2026-11-05):** foundation deployed to staging and production at `281cc13`. The app shell and health endpoint work. Authentication, assignments, editor/submissions and AI features are not implemented. See [readiness evidence](workflow/evidence/project-readiness/verification.md) for the exact release and limits.
 
 Staging preview: https://codewise-staging.codewise-cs3227-2610.workers.dev. See docs/Deployment.md for verified deployment evidence and release instructions.
 
 ## Team
 
-| Owner  | Feature set                                                                                    |
-| ------ | ---------------------------------------------------------------------------------------------- |
-| Darryl | Instructor assignments/rubrics, assessment suggestions, annotation review and feedback release |
-| Keith  | Student editor/drafts, submissions, released feedback and progress explanations                |
-| Both   | Shared contracts, identity, database, AI integration, security, deployment and evidence        |
+| Owner  | Feature set                                                                                            |
+| ------ | ------------------------------------------------------------------------------------------------------ |
+| Darryl | Instructor assignments/rubrics, assessment suggestions, annotation review and feedback release         |
+| Keith  | Student editor/drafts, submissions, released feedback and progress explanations                        |
+| Both   | Shared review; named implementation writers and dependency gates in [Ownership](workflow/Ownership.md) |
 
 ## Start locally
 

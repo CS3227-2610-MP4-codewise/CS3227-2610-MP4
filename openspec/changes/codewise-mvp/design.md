@@ -4,6 +4,8 @@
 
 Draft created 2026-11-04. Foundation implementation is authorized. Two team members are confirmed: Darryl owns instructor features and Keith owns student features. Cloudflare is selected for the deployment foundation; language remains a Python default for review. The full role features and AI workflows remain unimplemented. SourceAcademy is a layout reference, not a code reuse decision.
 
+Readiness update 2026-11-05: the Cloudflare foundation is deployed to staging and production at `281cc13` (run 41799944040). Named shared writers are agreed in workflow/Ownership.md; producer/consumer contract drafts and pending product gates are in workflow/IntegrationContracts.md and docs/PlanningDecisions.md. This is not acceptance of all draft product policies or evidence of role/AI integration.
+
 ## Goals / Non-Goals
 
 Goals: durable submissions, rubric-driven assistance, private evidence-based learning feedback, testable security, and auditable development/deployment.
@@ -79,7 +81,7 @@ Prompt versions are immutable repository artifacts. Identical policy prefixes an
 
 AIRequest states: pending -> running -> succeeded | failed | expired. This is separate from AssessmentRevision draft -> approved -> released. Store request metadata before invoking the provider; use a unique key scoped to actor/action/evidence and reject key reuse with different payloads.
 
-Initial design is a bounded synchronous request with persisted status. Do not rely on unawaited promises after a serverless response. Use a request deadline below verified host/provider limits; an expired lease can be marked failed and retried explicitly. A durable background queue is a later decision if latency measurements require it.
+Proposed initial design is a bounded synchronous request with persisted status. Do not rely on unawaited promises after a serverless response. Use a request deadline below verified host/provider limits; an expired lease can be marked failed and retried explicitly. A durable background queue is a later decision if latency measurements require it.
 
 Use shared atomic request/token reservations and expiring concurrency leases, not per-process counters. Retry attempts require admission too. Reserve configured worst-case input/output allowances; reconcile to actual usage only where semantics are known. Exact quotas, tokenizer and model context limits remain unverified. Production AI is disabled until configuration is supplied. A request can fail without affecting editor save or manual assessment paths.
 
@@ -115,9 +117,11 @@ No existing product data. Implement schema and synthetic fixtures locally; verif
 
 See docs/PlanningDecisions.md. Identity provider, language, provider quotas, retention policy and final feature selection remain unresolved. Team ownership is confirmed and Cloudflare is selected for foundation setup. Optional textbook Q&A and code execution require independent security/design changes.
 
+Contract gates also include source normalization/hash/size bounds, deadline equality and republishing behavior, and release withdrawal semantics: PROG-03 requires withdrawal invalidation but no withdrawal operation is defined yet. Ownership agreement does not resolve these policies. Resolve each before the corresponding producing feature change and dependent consumer edits.
+
 ## Foundation delivery slice
 
-Scope: repository conventions, app shell, safe API/health boundary, metadata migration, shared DTO starting points, role folders, CI, staging and explicit production promotion, product-site pipeline, runbooks and handoff instructions. This is not implementation of the complete role services or all OPS requirements. Cloud account configuration, remote pipeline success and recovery rehearsal must be recorded separately.
+Scope: repository conventions, app shell, safe API/health boundary, metadata migration, shared DTO starting points, role folders, CI, staging and explicit production promotion, product-site pipeline, runbooks and handoff instructions. This is not implementation of the complete role services or all OPS requirements. Cloud account configuration and foundation staging/production success are recorded in workflow/evidence/project-readiness/verification.md; recovery rehearsal remains pending.
 
 CI runs without cloud/provider credentials. Pushes to main run checks before staging deploy. The same release run queues production only after staging smoke checks and artifact upload succeed. The production environment's required reviewer creates the Review deployments approval gate. After approval, the job checks out the same commit, downloads this run's tested frontend artifact, validates its commit/run provenance and current main head, then migrates/deploys. No separate run-ID dispatch is used. Staging and production retain separate D1 IDs checked by the configuration generator. Full API/data schema and identity decisions remain future shared work.
 

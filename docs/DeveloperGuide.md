@@ -2,7 +2,7 @@
 
 ## Current release status
 
-Foundation only. React application shell, non-sensitive health endpoint, shared TypeScript contracts, D1 metadata migration, checks, and deployment workflows. Staging has passed online deployment and live smoke checks; see Deployment.md for the exact run/revision. No authentication, role features, production deployment or SoCLaaS integration is claimed.
+Foundation only. React application shell, non-sensitive health endpoint, partial shared TypeScript contracts, D1 metadata migration, checks, and deployment workflows. Staging and production passed deployment and smoke checks at `281cc13`; see [readiness evidence](../workflow/evidence/project-readiness/verification.md) for exact provenance. Authentication, role features and SoCLaaS integration remain unimplemented.
 
 ## Structure and responsibility
 
@@ -32,6 +32,8 @@ The only implemented API is GET /api/health. It checks the platform metadata sch
 The planned routes and entity relationships are in openspec/changes/codewise-mvp/design.md. src/shared/contracts.ts supplies initial public DTOs; these are reviewed starting points, not completed API implementations. They deliberately exclude reference solutions and draft instructor assessments. Add runtime validators alongside feature implementation; TypeScript types do not validate HTTP or AI input.
 
 Use one database and shared identity per environment. Keep route handling separate from business rules and persistence. Do not split into separately deployed microservices for each role: independent modules/branches provide development ownership while one API avoids duplicated identity/data and additional hosting complexity.
+
+The agreed writer split is in [Ownership.md](../workflow/Ownership.md): Keith produces identity/course and submission services; Darryl produces publication, assessment/release and the common gateway. [Contract drafts](../workflow/IntegrationContracts.md) specify producer/consumer acceptance cases; field/policy acceptance and reviewed producer handoffs still gate dependent edits. No identity/submission handoff exists yet. Shared DTO/API/migration files require one active writer window, even for different increments.
 
 ## Local development and checks
 

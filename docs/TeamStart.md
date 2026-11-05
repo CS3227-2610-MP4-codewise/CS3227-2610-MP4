@@ -6,6 +6,8 @@ Before merging role features, both owners should review the shared DTOs, planned
 
 Use [IntegrationContracts.md](../workflow/IntegrationContracts.md) to identify the producer/consumer decisions. Keep your own interaction summaries under [Darryl](../logs/darryl/) or [Keith](../logs/keith/), with one file per PR-sized increment. Shared handoffs and verification live in workflow/handoffs/ and workflow/evidence/. Create bounded OpenSpec changes as each feature is planned; see [the change guide](../openspec/changes/README.md).
 
+The [agreed shared writer split](../workflow/Ownership.md) assigns Keith identity/course and submissions, and Darryl publication, assessment/release, the AI gateway and operations. Contract fields/policies still need joint acceptance. Keith starts SH-ID; Darryl can prepare isolated instructor work, but must consume Keith's reviewed identity/submission handoffs before dependent integration. Fixtures do not prove that integration. Neither member may expose unauthenticated placeholder feature routes.
+
 ## Darryl
 
 Work under src/server/instructor/ and src/web/instructor/. Start with assignment/rubric authoring and manual assessment/release. Add AI suggestions after the common provider and quota boundary exists. Relevant spec IDs: SUB-01, GRADE-01 through GRADE-04.
