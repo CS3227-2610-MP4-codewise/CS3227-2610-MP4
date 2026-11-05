@@ -1,6 +1,6 @@
 # Shared integration contracts
 
-Updated 2026-11-05 for `project-readiness` (DEV-01–DEV-04). **Ownership is agreed; the interface profiles and scenarios below are drafts for joint acceptance before dependent edits.** Darryl reported Keith's agreement to the implementation split in this chat. That does not approve every product policy or establish implemented services.
+Updated 2026-11-05 for instructor-development-contracts. **Darryl approved the brief, P1–P4 owner policies and isolated contract-artifact write window. Keith’s detailed K1–K6 agreement remains pending.** Readiness and workload acceptance do not establish real-producer integration.
 
 ## Sources
 
@@ -24,9 +24,9 @@ Assign a named human lead and one active writer per shared increment before impl
 
 ## Current implementation and common draft profile
 
-Baseline: `281cc1392b722e873bc58fd806913c5f2121eeec`. Only the app shell, health/API reservation, metadata store and deployment foundation exist. There are no feature-service handoffs; producer and consumer revisions are **unavailable** until future handoffs record them. The foundation handoff is not an identity/submission implementation. See [readiness evidence](evidence/project-readiness/verification.md) and [decision gates](../docs/PlanningDecisions.md).
+Feature-service baseline: e3862de (merged readiness). The app shell, health/API reservation, metadata store and deployment foundation remain the only deployed application behavior. This iteration adds isolated candidate contract artifacts, not feature services. There are no feature-service handoffs; producer and consumer revisions are **unavailable** until future handoffs record them. The foundation handoff is not an identity/submission implementation. See [readiness evidence](evidence/project-readiness/verification.md) and [decision gates](../docs/PlanningDecisions.md).
 
-The in-flight MVP specs remain the draft requirement source. These profiles prepare boundaries without creating a competing normative baseline. Existing TypeScript DTOs are incomplete starting points without runtime validation; no code is changed here.
+The in-flight MVP specs remain the draft requirement source. These profiles prepare boundaries without creating a competing normative baseline. Existing scaffold DTOs remain incomplete starting points; the opt-in candidate package now supplies runtime validation without changing those legacy types.
 
 Proposed shared conventions: opaque string IDs, positive integer revisions, UTC ISO timestamps, `Page<T>` pagination with opaque cursors, explicit public field allowlists and existing `ApiError { error: { code, message, requestId } }`. Never serialize database rows or private provider payloads directly. Server-derived membership is course-scoped; browser roles are presentation only.
 
@@ -36,9 +36,9 @@ All protected service operations, lists, result reads and cache hits authorize t
 
 ## C-ID: identity and courses
 
-**Producer/writer:** Keith. **Consumers/reviewer:** Darryl's instructor services and Keith's student services. **Requirements:** AUTH-01–AUTH-03. **Gate:** identity provider/session/provisioning decision and identity schema ownership.
+Runtime candidate: [sessionViewSchema/courseMembershipSchema](../src/shared/instructor-contracts/identity.ts) and server-only [IdentityCoursePort/withAuthorizedObject](../src/server/instructor/ports/contracts.ts). Session → authoritative object-to-course metadata → current course permission → mutation-origin guard → private read. Parsed/browser roles and principal-shaped JSON never authorize. No real adapter/fallback is composed into routing.
 
-Draft service operations: `requireSession`, `requireCourseMembership`, shared object-scope checks. Browser projections: `SessionView { userId, expiresAt }`, `CourseMembershipView { courseId, title, role }`; GET `/api/courses` lists active memberships. Provider subjects, session secrets and provisioning controls remain server-only. No global instructor flag overrides course membership.
+**Producer/writer:** Keith. **Consumers/reviewer:** Darryl's instructor services and Keith's student services. **Requirements:** AUTH-01–AUTH-03. **Gate:** identity provider/session/provisioning decision and identity schema ownership.
 
 Keith supplies trusted subject mapping, expiration/logout/revocation, one authoritative user/course/membership store and documented errors. Consumers pass the target course/object and recheck membership for result reads; neither role builds parallel identity storage.
 
@@ -54,9 +54,9 @@ Keith supplies trusted subject mapping, expiration/logout/revocation, one author
 
 ## C-PUB: published assignment
 
-**Producer/writer:** Darryl. **Consumer/reviewer:** Keith. **Requirements:** SUB-01, SUB-04. **Gate:** accepted C-ID and versioned publication schema.
+Runtime candidate: [publicationSchema/projectPublication/toLegacyQuestion](../src/shared/instructor-contracts/publication.ts). Closed schemaVersion 1, logical questionId/rubricId and immutable version IDs. Legacy id explicitly maps to questionVersionId. The allowlist projection excludes private references/draft fields. Existing scaffold DTOs remain unchanged.
 
-Draft `PublishedAssignmentView`: `assignmentId`, `assignmentVersionId`, `courseId`, `title`, `publishedAt`, `deadlineAt`, ordered `questions`. Each question has `questionVersionId`, title, instructions, language, starter code, `rubricVersionId` and criteria with `criterionId`, `comparisonKey`, descriptor and finite minimum/maximum scores. Existing `PublishedQuestion.id` requires an explicit mapping/migration to `questionVersionId`; consumers must not guess its meaning.
+**Producer/writer:** Darryl. **Consumer/reviewer:** Keith. **Requirements:** SUB-01, SUB-04. **Gate:** accepted C-ID and versioned publication schema.
 
 Darryl validates publication atomically and stores immutable versions. Private references and authoring drafts use separate instructor-only projections. Keith pins drafts to published versions and renders only the public allowlist. Proposed MVP routes GET `/api/courses/:course/assignments` and POST `/api/assignments/:id/publish` do not exist yet.
 
@@ -67,15 +67,17 @@ Darryl validates publication atomically and stores immutable versions. Private r
 | PUB-03   | Published content changes                                            | New immutable IDs; existing drafts/attempts stay pinned                            |
 | PUB-04   | Unpublished or foreign-course version requested                      | Visibility/authorization reject before serialization                               |
 
-**Open:** availability/deadline edits, comparison-key governance, scoring precision, language and size limits. Republishing cannot silently move existing work.
+**Darryl accepted P1–P3 for the candidate; Keith pending:** version/deadline/reference edit policy, comparison keys, score precision and source representation are resolved for isolated instructor development. Team acceptance of the projection/resource bounds and real producer integration remains required. No silent migration of pinned work.
 
 ## C-SUB: immutable submission
 
+Runtime candidate: [attemptSchema/validateAttempt](../src/shared/instructor-contracts/submission.ts) and injected SubmissionReadPort. Checks complete pinned question/rubric coverage and canonical source hashes. Keith retains the actual submission command/transaction/storage producer. No parallel identity/course/submission store is created.
+
 **Producer/writer:** Keith. **Consumers/reviewer:** Darryl's assessment service and Keith's history. **Requirements:** SUB-02–SUB-04, AUTH-02. **Gate:** accepted C-ID/C-PUB.
 
-Existing `SubmitAssignmentRequest` carries an idempotency key and every question's expected draft revision. The route's assignment version is validated through object authorization. Draft response: `attemptId`, `assignmentVersionId`, `courseId`, `submittedByUserId`, server `submittedAt`, ordered `answers[] { submittedAnswerId, questionVersionId, rubricVersionId, draftRevision, source, sourceHash }`. Identity comes from the server. Darryl consumes an authorized projection of the same immutable record, not a copied submission store.
+The existing SubmitAssignmentRequest remains Keith-owned scaffold; this increment specifies only the immutable read boundary consumed by instructors, not submission commands or their transactional implementation.
 
-Proposed canonical representation: UTF-8 source with CRLF/CR normalized to LF at draft ingress, retained for snapshot/hash/one-based annotation lines. Agree the hash algorithm, empty-source/terminal-newline rules, size limits and actor/action/assignment-scoped canonical request fingerprint before implementation. No later normalization changes historical attempts. Snapshot all answers, revisions, versions and the idempotency record in one transaction. Known identical retries are checked before new-attempt deadline rejection, with authorization always first.
+The candidate source contract is implemented by canonicalizeSource/sourceHash/excerpt primitives: producer ingress normalizes once, consumers verify rather than rewrite. Darryl accepted these representation rules; Keith must agree before supplying real C-SUB evidence. Submission transaction/deadline/idempotency semantics remain Keith-owned producer gates.
 
 | Scenario | WHEN                                                                | Producer guarantee / consumer acceptance                                                   |
 | -------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
@@ -86,13 +88,13 @@ Proposed canonical representation: UTF-8 source with CRLF/CR normalized to LF at
 | SUB-C05  | Save races submit or request reaches deadline boundary              | Agreed transactional revision/server-time rule; no unexpected source or late new attempt   |
 | SUB-C06  | Later attempt/draft changes                                         | Old source, hashes, version/answer IDs remain immutable; annotations use old attempt       |
 
-**Open:** deadline equality, attempt count, per-question/assignment limits, canonicalization/hash/fingerprint details. Proposed MVP policy: new attempts strictly before deadline, no late submissions. A retry after membership revocation cannot bypass authorization.
+**Keith producer gates:** deadline equality, attempt-count limits, canonical request fingerprint/transaction semantics and detailed acceptance of candidate source/line bounds. Authorization always precedes retry/result access, including after membership revocation.
 
 ## C-REL: released feedback
 
-**Producer/writer:** Darryl. **Consumers/reviewer:** Keith's feedback/progress services. **Requirements:** GRADE-01–GRADE-04, SUB-04, PROG-01–PROG-03. **Gate:** accepted C-ID/C-PUB/C-SUB. Manual grading can precede AI availability.
+Runtime candidate: [releaseSchema/withdrawnSchema/currentnessSchema/releaseCommandSchema/withdrawalCommandSchema/validateRelease/assertApproval/projectRelease](../src/shared/instructor-contracts/release.ts). Feedback criteria carry explicit composite question/rubric/criterion joins. Closed content, currentness and tombstone schemas exclude private reasons/references/prompts/drafts. ReleaseProtocolPort is a replaceable future producer seam, not an implemented lifecycle service.
 
-Draft extension to `ReleasedAssessment`: `id`, `submissionAttemptId`, `assessmentRevisionId`, `releaseVersion`, `releasedAt`, rubric version references, criteria with criterion/comparison IDs and minimum/maximum/awarded scores, and `annotations[] { submittedAnswerId, questionVersionId, rubricVersionId, criterionId, startLine, endLine, excerpt, explanation }`. The existing DTO lacks several fields and is not a complete accepted schema. Retain reviewer/audit provenance server-side; public fields exclude references, private prompts/provider payloads and unreleased revisions.
+**Producer/writer:** Darryl. **Consumers/reviewer:** Keith's feedback/progress services. **Requirements:** GRADE-01–GRADE-04, SUB-04, PROG-01–PROG-03. **Gate:** accepted C-ID/C-PUB/C-SUB. Manual grading can precede AI availability.
 
 Darryl approves/releases the exact revision; edits invalidate approval and corrections create reviewed release history. Keith joins annotations to immutable submitted answers and records exact evidence/release versions for progress reuse. Bounds, criterion coverage and source/excerpt validation apply to manual and AI-derived releasable content. AI success never equals approval or release.
 
@@ -105,15 +107,15 @@ Darryl approves/releases the exact revision; edits invalidate approval and corre
 | REL-05   | Annotation range/excerpt/criterion mismatches pinned source/rubric | Releasable-content validation fails; no fabricated/shifted annotation shown                             |
 | REL-06   | Release is withdrawn under a future agreed policy                  | Atomic visibility/currentness update; cached progress becomes stale before redisplay                    |
 
-**Open:** PROG-03 requires withdrawal invalidation, but design has no withdrawal operation. Agree operator, authorization, audit/history visibility and read semantics before feedback/progress integration. No withdrawal route is added here. Also agree historical-release selection and safe public rendering.
+**Darryl accepted P4; Keith consumer agreement pending:** withdrawing current clears currentReleaseVersion; withdrawing historical v1 preserves current v2. Both increment availabilityRevision; neither restores older content. Withdrawn student/history reads return a tombstone; private audit history remains authorized. Currentness gates cached reads. The synthetic protocol model tests these outcomes; actual lifecycle atomicity/audit storage remain unimplemented.
 
 ## C-AI: shared AI gateway
 
+Runtime candidate: [aiRequestSchema/gatewayOutcomeSchema/assessmentDraftSchema/validateAssessmentDraft/usageSchema/publicAIStatusSchema/projectAIStatus](../src/shared/instructor-contracts/ai.ts). Typed action/evidence input, registered domain validators, tagged unavailable usage and a distinct safe public status projection. Generic progress validation is not supplied; Keith provides it. No provider/admission/request persistence implementation is added.
+
 **Producer/writer:** Darryl. **Consumers/reviewer:** Darryl's assessment and Keith's progress services. **Requirements:** AI-01–AI-05, GRADE-01–02, PROG-01–03. **Gate:** accepted C-ID and action-specific immutable evidence contracts.
 
-Server-only draft input: verified principal/course/action (`assessment-draft` or `progress-explanation`), scoped idempotency key, evidence/version references, prompt version, configured model/settings and bounded output allowance. Browser callers cannot choose URLs, supply trusted policy or select arbitrary private context. The authorized domain service assembles minimal action-specific context; gateway validates allowlisted action/config and persists request metadata before calling SoCLaaS.
-
-Draft result: `requestId`, status (`pending`, `running`, `succeeded`, `failed`, `expired`), evidence/prompt/model versions, safe retry/error code and validated action payload on success. Public status is a separate authorized allowlist; instructor payloads never appear in student responses. Internal metrics record outcome, latency, retries, reservation reconciliation and available token usage; missing metrics are unavailable, not zero.
+AI requests are server-only typed references: exactly one immutable submission for assessment, or 1..20 unique numeric release versions for progress. Actual context assembly, quotas, transport and persisted request lifecycle are not implemented by this candidate package.
 
 Darryl's gateway owns endpoint/model configuration, shared atomic request/token/concurrency admission, leases, idempotency, deadlines, eligible retries (at most two), scoped caching, transport/schema checks and redacted metrics. Darryl's assessment service owns pinned rubric/source context and exact criterion/score/excerpt validation. Keith's progress service owns released/self-only selection, comparability/citation validation and stale-evidence rechecks. Domain validation must complete before output is marked successful/usable; invalid output fails wholly. No model/gateway can execute code, approve or release grades. Darryl does not implement student progress in the gateway.
 
@@ -127,10 +129,33 @@ Darryl's gateway owns endpoint/model configuration, shared atomic request/token/
 | AI-C06   | Membership/release changes before result/cache read                 | Reauthorize/revalidate currentness; no cross-scope cache or stale progress display    |
 | AI-C07   | Provider omits usage                                                | Mark unavailable and retain conservative budget policy; invent no usage percentage    |
 
-**Open:** supported model/capabilities, real quotas and cross-environment scope, tokenizer/reservations, host deadline, timeout/retry constants, cache retention and runtime payload schemas. Synthetic adapters do not verify provider access or quotas.
+**Open:** real supported model/capabilities, quotas/cross-environment scope, tokenizer/reservation bounds, host deadlines and cache retention. Runtime request/result shapes are now candidates; Keith must supply the real progress validator. Synthetic adapters establish neither provider access nor real admission behavior.
 
 ## Handoff and acceptance gate
 
 Before dependent edits, producer and consumer jointly accept relevant fields, policies and scenarios in a bounded OpenSpec feature change. Record both review outcomes, active writer, exact producer revision, public/internal runtime schemas, safe errors and synthetic payloads using the [handoff template](handoffs/TEMPLATE.md). Consumer records its revision and executed integration/security checks against that producer. Fixture-only consumption remains integration pending; type checks alone are insufficient.
 
 Order: identity/course → publication → submission → manual assessment/release → feedback/progress consumption. Gateway can use isolated synthetic adapters after interface agreement, but consumers/activation wait for auth, evidence and provider gates. Serialize migration numbering and shared DTO/API wiring by active producer. Consume Keith's identity/submission handoffs when available; absent handoffs block dependent integration rather than justify substitute services.
+
+## Candidate policy and evidence status
+
+All five runtime candidates are Darryl-approved; Keith agreement remains pending. [Primitives](../src/shared/instructor-contracts/schema.ts) enforce strict unknown-input parsing, safe errors, UTC round trips, finite 0..1000 numeric point scores with two decimals/no rounding, integer-hundredth arithmetic, UTF-8 bounds and bounded value-free issues. Source canonicalizes CRLF/CR to LF once at ingress, preserves other whitespace/final LF, hashes canonical UTF-8 with lowercase SHA-256, and uses exact one-based inclusive split-line excerpts. Consumers reject noncanonical snapshots rather than rewriting evidence.
+
+P1 accepted by Darryl: stable logical identities and fresh assignment/question/rubric versions on every publication, including deadline/private-reference edits; immediate visibility, no scheduling/unpublish/delete in this slice; old snapshots/deadlines remain pinned. P2 covers precision/comparison keys, P3 source/lines, P4 reviewed correction/withdrawal. These owner decisions await consumer agreement; no publication/release feature is implemented.
+
+[Cross-linked fixtures](fixtures/instructor-contracts/graph.ts), [synthetic adapters/protocol model](fixtures/instructor-contracts/adapters.ts), [reusable factory suites](contracts/instructor-contracts.ts) and [contract/security tests](../src/shared/instructor-contracts/contracts.test.ts) establish schema/synthetic conformance only. Actual authentication, submission persistence, release transactions, distributed admission and provider behavior remain pending. See [evidence](evidence/instructor-development-contracts/verification.md) and [handoff](handoffs/instructor-development-contracts.md).
+
+## Keith review packet — pending agreement
+
+One combined packet through Darryl; no message was automatically sent. Every row is Darryl-approved on 2026-11-05; **Keith pending**. Real producer/consumer implementation revisions remain unavailable. Accept or return exact replacements before dependent runtime composition.
+
+| ID  | Concrete decision                                                                                                                                   | Producer / consumer                                     |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| K1  | Request-derived trusted session/course/object port; schemaVersion 1/closed shapes/safe errors; parsed roles never authorize                         | Keith identity/course, Darryl consumer                  |
+| K2  | Stable logical IDs, fresh immutable publish versions; deadline/reference edits republish; immediate visibility; legacy id maps to questionVersionId | Darryl publication, Keith pins work                     |
+| K3  | 0..1000 numeric point scores, two decimals/no rounding; composite question/rubric/criterion joins and comparison-key governance                     | Darryl rubric/release, Keith display/comparison         |
+| K4  | 32 KiB UTF-8 source, LF ingress/SHA-256; preserved final LF, exact inclusive one-based excerpts                                                     | Keith submission producer, Darryl evidence consumer     |
+| K5  | Exact reviewed release, monotonic availability; withdrawal tombstones/no historical revival; recheck before cached reads                            | Darryl release/currentness, Keith progress invalidation |
+| K6  | Typed action/evidence/validators; real configured output cap; missing usage unavailable; no generic progress success parser                         | Darryl gateway/assessment, Keith progress validation    |
+
+The runtime modules define candidate text/array/error bounds for review in this same packet. Real model/quota/tokenizer values, identity choice and submission transaction/deadline rules remain producer gates. Darryl can proceed independently with isolated candidate contract artifacts and pure instructor design. Actual feature implementation/composition requires approved bounded changes, joint agreement and real reviewed handoffs. Existing unimplemented API paths stay unavailable.
