@@ -285,3 +285,137 @@ P021 and P022 share this source group: count it once, not once per prompt. Indiv
 - Additional numeric verification passed: **110 completed parent/child table rows** match source input, cached-input, output and total fields. A stale padded P020 row initially failed comparison; it was corrected to the completed measurement and the check passed. The current shared group remains provisional. P021/P022 publication target is the existing PR #9, with its scope updated to Darryl's actual experiment logs and dedicated template.
 
 - P021/P022 publication outcome: committed the actual-log backfill and Darryl-only template as `71974f3`, pushed to `codex/prompt-workflow-logs`, and updated [PR #9](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/9) to **Record Darryl prompt experiments with agent rationale and measured tokens**. GitHub verified open/unmerged state, matching source revision and 16 documentation files. Detailed requirements apply only to Darryl; Keith keeps his previous policy. No merge/deployment. This outcome record follows in the same PR.
+
+<a id="prompt-p023"></a>
+
+## Prompt P023 — 2026-11-06, exact arrival timestamp not yet reconciled
+
+**Prompt (redacted):** Challenge the unformatted authentication log and require actual prompt-linked token reports and clear agents-spawned sub-lists.
+
+### Agents spawned
+
+- **New agents:**
+  - None — bounded local log formatting/source attribution; no delegated work needed.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`. No independent review performed.
+
+### Token count
+
+**Usage report for P023 (shared active-turn group):**
+
+| Agent        | Input   | Cached input (subset) | Output | Group total | Source record                   | Status                                                    |
+| ------------ | ------- | --------------------- | ------ | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 335,326 | 329,472               | 1,884  | 337,210     | `turn-d0ddd8f20a3f6d18137142db` | Provisional checkpoint; per-prompt allocation unavailable |
+| Child agents | 0       | 0                     | 0      | 0           | None                            | No children used                                          |
+
+- Source/checkpoint: `per_response_usage`, `2026-11-06T08:23:16.013Z`. P023/P024 share the active turn; the steering prompt may be outside this snapshot. Count the source group once, not each table. Later calls/final response excluded. Finalize at the next checkpoint.
+
+### Experiment outcome
+
+- Reworked the actual primary-checkout authentication log into ten source-backed prompt sections. Every section has a new/reused-agent sub-list, a prompt-tagged token table, source IDs and a total; original content and uncommitted follow-ups preserved. No application/specification file changed by this agent.
+- AUTH-004: main 5,168,291 + reviewer 209,095 = 5,377,386. AUTH-005: main 12,723,151 + reused reviewer 2,273,484 = 14,996,635. Source-backed completed measurements, not new usage for this formatting task.
+- Verification: all ten individual authentication prompt sections checked for their own table before the next heading. First check accidentally included the Prompt index heading as an entry; fixed the heading matcher and reran successfully. Formatting/whitespace passed.
+- No new commit, push or PR mutation this turn; user can inspect the actual local file first. Dedicated Darryl template locally revised to require the nested list and per-prompt table explicitly. No controlled efficiency comparison.
+
+<a id="prompt-p024"></a>
+
+## Prompt P024 — 2026-11-06, exact arrival timestamp not yet reconciled
+
+**Prompt (redacted):** Require a separate token table inside every prompt section, not one per log file.
+
+### Agents spawned
+
+- **New agents:**
+  - None — bounded local log formatting/source attribution; no delegated work needed.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`. No independent review performed.
+
+### Token count
+
+**Usage report for P024 (shared active-turn group):**
+
+| Agent        | Input   | Cached input (subset) | Output | Group total | Source record                   | Status                                                    |
+| ------------ | ------- | --------------------- | ------ | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 335,326 | 329,472               | 1,884  | 337,210     | `turn-d0ddd8f20a3f6d18137142db` | Provisional checkpoint; per-prompt allocation unavailable |
+| Child agents | 0       | 0                     | 0      | 0           | None                            | No children used                                          |
+
+- Source/checkpoint: `per_response_usage`, `2026-11-06T08:23:16.013Z`. P023/P024 share the active turn; the steering prompt may be outside this snapshot. Count the source group once, not each table. Later calls/final response excluded. Finalize at the next checkpoint.
+
+### Experiment outcome
+
+- Reworked the actual primary-checkout authentication log into ten source-backed prompt sections. Every section has a new/reused-agent sub-list, a prompt-tagged token table, source IDs and a total; original content and uncommitted follow-ups preserved. No application/specification file changed by this agent.
+- AUTH-004: main 5,168,291 + reviewer 209,095 = 5,377,386. AUTH-005: main 12,723,151 + reused reviewer 2,273,484 = 14,996,635. Source-backed completed measurements, not new usage for this formatting task.
+- Verification: all ten individual authentication prompt sections checked for their own table before the next heading. First check accidentally included the Prompt index heading as an entry; fixed the heading matcher and reran successfully. Formatting/whitespace passed.
+- No new commit, push or PR mutation this turn; user can inspect the actual local file first. Dedicated Darryl template locally revised to require the nested list and per-prompt table explicitly. No controlled efficiency comparison.
+
+### P023/P024 checkpoint reconciliation
+
+Source `turn-d0ddd8f20a3f6d18137142db`, status completed, checkpoint `2026-11-06T08:28:23.663Z`: input 1,764,691, cached input 1,754,112, output 9,966, total **1,774,657**. Shared source counted once; supersedes prior snapshots rather than adding them.
+
+<a id="prompt-p025"></a>
+
+## Prompt P025 — 2026-11-06, exact arrival time not reconciled
+
+**Prompt (redacted):** Ask whether every future logged prompt will retain the same per-prompt agent sub-list and token table.
+
+### Agents spawned
+
+- **New agents:**
+  - None — direct verification of the logging instructions/template needs no delegation.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`.
+
+### Token count
+
+**Usage report for P025:**
+
+| Agent        | Input   | Cached input (subset) | Output | Total tokens | Source                          | Status                                 |
+| ------------ | ------- | --------------------- | ------ | ------------ | ------------------------------- | -------------------------------------- |
+| `/root`      | 184,096 | 183,936               | 713    | 184,809      | `turn-ce1875f8d375d0f1e173fa19` | Provisional; later work/final excluded |
+| Child agents | 0       | 0                     | 0      | 0            | None                            | No child activity                      |
+
+- Source `per_response_usage`, checkpoint `2026-11-06T08:28:23.663Z`; 1 observed prompt item(s). No cached/reasoning subtotal addition or cost estimate. Reconcile next checkpoint; no per-message estimate if source groups multiple messages.
+
+### Experiment outcome
+
+Verified explicit every-prompt requirements in the logging branch root AGENTS and Darryl-specific template: own spawned/reused list, rationale, prompt-tagged token table, source and outcome. Applicability is Darryl only. Adoption limitation remains explicit: PR9 instructions are unmerged, and the latest exact sub-list/template refinement is local/uncommitted. The current authentication checkout has not adopted that policy from main. Future chats on old branches are not guaranteed to see it until changes are published/merged and the branch updated. No commit/push/merge/deployment or product tests for this explanatory prompt.
+
+### P025 reconciliation — 2026-11-06T08:31:07.501Z
+
+Source `turn-ce1875f8d375d0f1e173fa19`, completed: input 556,253, cached input 555,008, output 1,699, total **557,952**. Supersedes the previous checkpoint; count once.
+
+<a id="prompt-p026"></a>
+
+## Prompt P026 — 2026-11-06, exact arrival time not reconciled
+
+**Prompt (redacted):** Commit and push remaining logging-history changes.
+
+### Agents spawned
+
+- **New agents:**
+  - None — scoped documentation verification and publication needs no delegated work.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`.
+
+### Token count
+
+**Usage report for P026:**
+
+| Agent        | Input   | Cached input (subset) | Output | Total tokens | Source                          | Status                                  |
+| ------------ | ------- | --------------------- | ------ | ------------ | ------------------------------- | --------------------------------------- |
+| `/root`      | 186,682 | 186,496               | 231    | 186,913      | `turn-0b3be818265a6fc4732cf3b3` | Provisional; later calls/final excluded |
+| Child agents | 0       | 0                     | 0      | 0            | None                            | No children used                        |
+
+- Source/checkpoint: `per_response_usage`, `2026-11-06T08:31:07.501Z`; scope matches repository. Cached/reasoning subsets not added. Finalize current turn at next checkpoint; shared-turn per-prompt allocation unavailable if later steering arrives.
+
+### Experiment outcome
+
+- Authorized scope: remaining logging history and dedicated Darryl template only. Authentication log belongs on `codex/shared-authentication`; audit/template belong on `codex/prompt-workflow-logs`. Existing authentication OpenSpec/ownership edits remain excluded.
+- Verify each authentication prompt has its own agent sub-list and token table; format/whitespace checks before exact-file staging. Prior runtime checks remain unchanged; no new application behavior.
+- Publication outcomes recorded after actual pushes; no merge or deployment authorized.
+
+- P026 verification/publication: all ten authentication prompts passed individual sub-list/table/source/total checks; formatting and whitespace passed. Authentication log alone committed as `e3a49bf` and pushed to `origin/codex/shared-authentication`. Authentication spec/ownership edits and newly appearing hash-spike helpers were excluded. Audit/template validation initially expected unpadded Markdown header spacing; corrected the check to allow formatter padding and all four recent prompt entries passed. Audit/template publication follows on their dedicated logging branch.
