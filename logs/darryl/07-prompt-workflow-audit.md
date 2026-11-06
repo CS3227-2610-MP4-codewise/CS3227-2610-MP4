@@ -6,54 +6,445 @@
 - Requirement: every user prompt records actual agents, why they were used, and measured token usage. No OpenSpec product requirement changes.
 - Publication branch: `codex/prompt-workflow-logs`, isolated from `origin/main` at `2d8a861`; authentication commits excluded.
 
-## Historical prompt register — reconstructed 2026-11-06
+## Source reconciliation — 2026-11-06
 
-One row per earlier user message visible in this chat. Prompt IDs describe conversation order, not recorder turn IDs. Original timestamps and exact prompt-to-turn mappings were not retained in the old summaries. These rows expose that gap; they are not a claim of complete historical accounting. Existing increment logs preserve decisions/checks and are linked below. Raw prompts, private data and hidden reasoning are not copied.
+The former historical summary table is replaced by an individually formatted entry for each prompt. Original user-item turn IDs now link prompts directly to measured records. Stable P001–P019 IDs are retained; P020 is this correction. P015 remains a context-only record.
 
-For P001–P016, **main/child input, cached input, output and total tokens are unavailable at the individual-prompt level until source attribution is reconciled**. Existing usage checkpoints are not silently copied to several prompts. Agent facts below come from the existing member logs and observed chat; unknown assignments/reasons remain unavailable.
+The earlier P002 reviewer attribution was wrong: it came from a different chat's readiness log. This session has no recorded spawn requests or linked child turns. No external reviewer consumption is assigned here. Historical delegation reasons below are identified as unavailable or retrospective where they were not contemporaneously recorded.
 
-| Prompt ID | Redacted request / context | Agents spawned or reused | Why / observed outcome | Usage evidence / gap |
-| --- | --- | --- | --- | --- |
-| P001 | Investigate direct-to-main push and failing builds | Historical assignment unavailable | Build/deployment investigation; exact delegation rationale unavailable | Per-prompt tokens unavailable; prior investigation context only |
-| P002 | Run project-readiness iteration | `/root/readiness_review`, independent read-only review and focused re-review | Independent evidence/contract assessment; findings repaired | [Readiness log](02-project-readiness.md) contains turn references; per-prompt mapping not reconciled |
-| P003 | Move newly created workflow skill into repo, keep uncommitted | Historical assignment unavailable | Local skill relocation; actual spawn record/reason unavailable | Per-prompt tokens unavailable |
-| P004 | Draft distinctive UI directions, later capture design contract | None, per [UI log](03-ui-design-direction.md) | Main agent handled disposable visual exploration | Per-prompt tokens unavailable |
-| P005 | Explore more distinctive and intuitive designs | None, per UI log | Main agent continued concept exploration | Per-prompt tokens unavailable |
-| P006 | Blend Workbook layout with Margin colors and refine type/UX | None, per UI log | Main agent refined selected concept | Per-prompt tokens unavailable |
-| P007 | Add proper role switch, login and Next navigation; write specs | None, per UI log | Main agent wrote bounded design/planning references | Per-prompt tokens unavailable |
-| P008 | Continue, first occurrence | Prompt-specific activity unavailable | Continuation; cannot infer which work/review belongs to this message | Per-prompt tokens unavailable |
-| P009 | Continue, second occurrence | Prompt-specific activity unavailable | Continuation; cannot infer which work/review belongs to this message | Per-prompt tokens unavailable |
-| P010 | Ask whether UI implementor will consult design | Prompt-specific activity unavailable | Process explanation; exact delegation evidence unavailable | Per-prompt tokens unavailable |
-| P011 | Commit, push and create UI PR | Prompt-specific activity unavailable | UI PR publication; no separate reviewer claimed | Per-prompt tokens unavailable; UI log records publication |
-| P012 | Correct root font sizing to honor browser preferences | None, per UI log | Main agent repaired and browser-verified font behavior | Per-prompt tokens unavailable |
-| P013 | Ask who owns sign-in/registration | None, observed prior conversation | Main agent explained existing ownership; no delegation needed | Per-prompt tokens unavailable |
-| P014 | Assign sign-in to Darryl, commit/push/create PR | None, per [ownership log](05-sign-in-ownership.md) | Main agent handled bounded documentation change; independent review unnecessary | Per-prompt tokens unavailable; old log omitted recorder linkage |
-| P015 | Supply AGENTS instructions and workspace context | None attributable to this context message | Context received; no separate task/delegation | No distinct usage allocation available |
-| P016 | Ask how sign-in works | None, observed prior conversation | Main agent explained sign-in flow; no independent work needed | Per-prompt tokens unavailable; source turn not yet reconciled |
+Private measurement source: `C:/Users/darry/.codex/local-tools/codewise-recorder/data/records.json`, project scope verified. Raw session contents are not copied. Recorder checkpoint: 2026-11-06 16:01:22 Singapore. Session warning: `tool_call_without_turn`; complete tool/agent coverage is not claimed. Reported tokens include cached input and are not monetary charges.
 
-Coverage limitation: other chats and prompts not visible in this conversation are not reconstructed here. Existing shared-authentication and other increment logs remain authoritative for their own work; this register does not attribute another chat's reviewers or tokens to this chat. Full historical backfill remains incomplete.
+## Prompt P001 — 2026-11-04 13:56:47.378 +08:00
 
-## Prompt P017 — 2026-11-06 15:42:56 +08:00
+### Request
+
+Investigate the main-branch push and failed builds.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent repository/deployment investigation; contemporaneous reason for no delegation was not logged.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 487,379     | 434,176               | 1,689       | **489,068** | `turn-dcbaa4622c18bd950e2461c6` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+Prior build investigation; this audit recovers usage, not new deployment verification.
+
+## Prompt P002 — 2026-11-05 12:26:36.227 +08:00
+
+### Request
+
+Run the bounded project-readiness iteration.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent initial skill discovery; contemporaneous delegation rationale unavailable.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 306,250     | 251,136               | 659         | **306,909** | `turn-54d7a5453ca05b4de81d0a15` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+No readiness reviewer is attributable to this prompt in this chat. The earlier register incorrectly imported a reviewer from another chat; that attribution is withdrawn.
+
+## Prompt P003 — 2026-11-05 12:35:33.343 +08:00
+
+### Request
+
+Move the supplied workflow skill into this repo and keep it uncommitted.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent local skill relocation; no separate specialist was needed for the bounded file operation (retrospective explanation).
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 190,923     | 189,056               | 827         | **191,750** | `turn-52b346b3f39e4e1187411f0b` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+Local-only skill handling; no independent review claimed.
+
+## Prompt P004 — 2026-11-05 13:19:30.228 +08:00
+
+### Request
+
+Draft distinctive UI directions before writing the selected design contract.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent disposable visual exploration; delegation skipped as recorded in the UI increment log.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 740,730     | 719,232               | 6,991       | **747,721** | `turn-20bf816eb071423e24aa9b9b` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+See [UI increment log](03-ui-design-direction.md) for design outcomes.
+
+## Prompt P005 — 2026-11-05 13:24:52.657 +08:00
+
+### Request
+
+Explore more distinctive and intuitive UI concepts.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent visual exploration; no separate agent needed for concept iteration.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 1,267,899   | 1,250,176             | 10,977      | **1,278,876** | `turn-c90b4f8dff960199dd07773c` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+See UI increment log.
+
+## Prompt P006 — 2026-11-05 13:34:02.747 +08:00
+
+### Request
+
+Blend Workbook layout with Margin colors and refine typography and UX.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent design refinement from user feedback; no separate agent needed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 2,525,696   | 2,507,008             | 12,368      | **2,538,064** | `turn-a5d7fac9c5ffedbf10c54d8a` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+See UI increment log.
+
+## Prompt P007 — 2026-11-05 13:43:53.093 +08:00
+
+### Request
+
+Add the role switch, login and Next navigation to the design specs and workflow.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent bounded design/specification edits; no independent reviewer claimed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 4,143,641   | 4,107,520             | 18,468      | **4,162,109** | `turn-52610e418b05ae013cce2e3a` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+See UI increment log.
+
+## Prompt P008 — 2026-11-05 15:14:58.433 +08:00
+
+### Request
+
+Continue, first occurrence.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent continuation; prompt-specific reason for skipping delegation was not retained.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 5,671,730   | 5,621,120             | 19,566      | **5,691,296** | `turn-e0de9a255ff5e8429ee905d5` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+Continuation is now separately attributed to its actual source turn; see UI increment log for outcomes.
+
+## Prompt P009 — 2026-11-05 15:38:29.891 +08:00
+
+### Request
+
+Continue, second occurrence.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent continuation; prompt-specific reason for skipping delegation was not retained.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 5,907,198   | 5,886,336             | 11,340      | **5,918,538** | `turn-027942d4e1e8f7e97052ccf2` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+Continuation is now separately attributed to its actual source turn; see UI increment log for outcomes.
+
+## Prompt P010 — 2026-11-06 00:34:10.520 +08:00
+
+### Request
+
+Ask whether the UI implementor will consult the design.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main agent answered a process question; no delegated investigation needed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 309,941     | 7,040                 | 119         | **310,060** | `turn-9445526a50d514da32154cb8` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+Explained design references; documentation does not guarantee compliance by itself.
+
+## Prompt P011 — 2026-11-06 00:34:23.949 +08:00
+
+### Request
+
+Commit, push and create the UI PR.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent routine Git/PR publication; no new review agent needed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 4,095,190   | 4,053,376             | 7,438       | **4,102,628** | `turn-499a95ef398cae2781fc17e6` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+See UI increment log for publication outcome.
+
+## Prompt P012 — 2026-11-06 00:43:06.193 +08:00
+
+### Request
+
+Fix root typography so browser font preferences are honored.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent focused CSS/preview repair and browser verification; no delegated review claimed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 5,910,627   | 5,897,088             | 8,056       | **5,918,683** | `turn-b37b4e2f23216bbb84d8a4cb` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+See UI increment log for font-setting evidence.
+
+## Prompt P013 — 2026-11-06 11:58:43.028 +08:00
+
+### Request
+
+Ask who owns sign-in and registration.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main agent answered the ownership question; no delegated work needed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 379,195     | 7,040                 | 82          | **379,277** | `turn-aa4f42ae950cc7cf0448b097` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+Explained the allocation at that point; later reassignment is separate.
+
+## Prompt P014 — 2026-11-06 11:59:26.372 +08:00
+
+### Request
+
+Assign sign-in to Darryl and publish the planning PR.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent bounded ownership-document revision and publication; self-review sufficient for this scope.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total         | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ------------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 7,518,809   | 7,472,512             | 18,950      | **7,537,759** | `turn-7dbcd6ad8c1838278b2f3827` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable   | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+See [ownership increment log](05-sign-in-ownership.md).
+
+## Prompt P015 — context only; timestamp unavailable
+
+### Request
+
+Repository AGENTS instructions and workspace context supplied with the next request. Preserved under its existing ID; it is not a separately observed user-message event.
+
+### Agents spawned
+
+- Spawned/reused: none attributable to this context record. No separate assignment or delegation decision.
+
+### Token count
+
+| Agent         | Input       | Cached input | Output      | Total       | Status                                                                           |
+| ------------- | ----------- | ------------ | ----------- | ----------- | -------------------------------------------------------------------------------- |
+| Main/children | unavailable | unavailable  | unavailable | unavailable | No independent turn or usage allocation; do not invent or count a separate total |
+
+### Results
+
+Context applied to the next request.
+
+## Prompt P016 — 2026-11-06 14:05:37.141 +08:00
+
+### Request
+
+Ask how sign-in works.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main agent explained the flow; no delegated investigation needed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 443,131     | 443,008               | 526         | **443,657** | `turn-fc59f37551aebbefe141afe7` | Final observed turn                                       |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: no turn warnings; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Reconciled from completed source metadata.
+
+### Results
+
+Historical explanation only; this audit does not establish current authentication runtime status.
+
+## Prompt P017 — 2026-11-06 15:44:08.992 +08:00
 
 ### Request
 
 - Darryl asked why logs looked like summaries instead of the agreed spawned-agent/token workflow log.
 - Objective: inspect actual logging and explain discrepancies. Product requirement IDs: not applicable.
 
-### Agent activity
+### Agents spawned
 
-| Agent identity | Activity | Assignment | Why this agent was used | Outcome |
-| --- | --- | --- | --- | --- |
-| `/root` | main | Inspect policy, template, local recorder and recent member logs | Direct read-only investigation required no separate reviewer | Found summary-only policy exemption and inconsistent usage linkage; explained gap but did not fix it in that response |
+| Agent identity | Activity | Assignment                                                      | Why this agent was used                                      | Outcome                                                                                                               |
+| -------------- | -------- | --------------------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `/root`        | main     | Inspect policy, template, local recorder and recent member logs | Direct read-only investigation required no separate reviewer | Found summary-only policy exemption and inconsistent usage linkage; explained gap but did not fix it in that response |
 
 - Spawned/reused agents: **none**; this was a short read-only audit. Independent review: not performed.
 
-### Token usage
+### Token count
 
-| Agent identity | Source record | Input | Cached input (subset) | Output | Total | Status / coverage |
-| --- | --- | --- | --- | --- | --- | --- |
-| `/root` | `turn-7ddd580aff2f7c4c2c5d5bd1` | 595,145 | 139,392 | 3,932 | 599,077 | Final observed turn; completed, one prompt item, no turn warnings |
-| No children | No spawn/reuse in observed response | 0 | 0 | 0 | 0 | No child activity attributable |
+| Agent identity | Source record                       | Input   | Cached input (subset) | Output | Total   | Status / coverage                                                 |
+| -------------- | ----------------------------------- | ------- | --------------------- | ------ | ------- | ----------------------------------------------------------------- |
+| `/root`        | `turn-7ddd580aff2f7c4c2c5d5bd1`     | 595,145 | 139,392               | 3,932  | 599,077 | Final observed turn; completed, one prompt item, no turn warnings |
+| No children    | No spawn/reuse in observed response | 0       | 0                     | 0      | 0       | No child activity attributable                                    |
 
 - Source: `per_response_usage`; recorder checkpoint 2026-11-06 15:50:02 Singapore, configured project verified matches this repository.
 - Private source: `C:/Users/darry/.codex/local-tools/codewise-recorder/data/records.json`; [local readable report](C:/Users/darry/.codex/local-tools/codewise-recorder/data/report.md).
@@ -73,25 +464,25 @@ Coverage limitation: other chats and prompts not visible in this conversation ar
 - Darryl reiterated that **every prompt** must log which agents were spawned, why and tokens consumed.
 - Objective: implement that logging requirement, including questions/continuations; product requirement IDs not applicable.
 
-### Agent activity
+### Agents spawned
 
-| Agent identity | Activity | Assignment | Why this agent was used | Outcome |
-| --- | --- | --- | --- | --- |
-| `/root` | main | Correct logging policy/template, add prompt register, refresh measured source and check edits | Bounded workflow-document correction needs direct execution; no parallel investigation or independent product review needed | Removed routine-question exemption; required actual agent/usage fields, source linkage and next-checkpoint reconciliation |
+| Agent identity | Activity | Assignment                                                                                    | Why this agent was used                                                                                                     | Outcome                                                                                                                   |
+| -------------- | -------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `/root`        | main     | Correct logging policy/template, add prompt register, refresh measured source and check edits | Bounded workflow-document correction needs direct execution; no parallel investigation or independent product review needed | Removed routine-question exemption; required actual agent/usage fields, source linkage and next-checkpoint reconciliation |
 
 - Spawned/reused agents: **none**. Independent review: not performed; main self-review only. No actual multi-agent execution claimed.
 
-### Token usage
+### Token count
 
-| Agent identity | Source record | Input | Cached input (subset) | Output | Total | Status / coverage |
-| --- | --- | --- | --- | --- | --- | --- |
-| `/root` | `turn-52ee7c23aa377585d319784f` | 88,023 | 83,456 | 374 | 88,397 | Provisional snapshot at 15:50:02; turn incomplete |
-| No children | No spawn/reuse in this response | 0 | 0 | 0 | 0 | No child activity attributable |
+| Agent identity | Source record                   | Input   | Cached input (subset) | Output | Total       | Status / coverage                        |
+| -------------- | ------------------------------- | ------- | --------------------- | ------ | ----------- | ---------------------------------------- |
+| `/root`        | `turn-52ee7c23aa377585d319784f` | 625,206 | 608,256               | 8,784  | **633,990** | Final observed turn, reconciled 15:55:31 |
+| No children    | No spawn/reuse in this response | 0       | 0                     | 0      | 0           | No child activity attributable           |
 
 - Source: `per_response_usage`, same verified project/private report as P017.
-- Attributable checkpoint total: **88,397**, not the final prompt total. Shared-turn allocation: not applicable at checkpoint (one prompt item).
+- Historical checkpoint total at 15:50:02: **88,397**, superseded by the completed total in the table and reconciliation below. Shared-turn allocation: not applicable at checkpoint (one prompt item).
 - Coverage warning: `turn_not_observed_complete`. Later reads, edits, checks and final response are outside this snapshot. Unlinked automatic approval sessions excluded. Cached input is not added again.
-- Reconciliation pending: at the next prompt/reporting checkpoint append the completed record and supersede this subtotal; do not add the snapshots together.
+- Reconciled below at the next checkpoint; the table now shows completed usage. Earlier snapshots remain historical and must not be added.
 
 ### Results
 
@@ -112,23 +503,23 @@ Completed `turn-52ee7c23aa377585d319784f`, `per_response_usage`, one prompt item
 - Darryl asked to commit, push and create the PR for the logging correction.
 - Scope: publish only the five logging-policy/template/audit files; exclude authentication commits. Product requirement IDs: not applicable.
 
-### Agent activity
+### Agents spawned
 
-| Agent identity | Activity | Assignment | Why this agent was used | Outcome |
-| --- | --- | --- | --- | --- |
-| `/root` | main | Isolate logging changes, verify, commit, push and open PR | Routine publication of the bounded documentation correction needs no delegated investigation | In progress; publication outcomes appended below |
+| Agent identity | Activity | Assignment                                                | Why this agent was used                                                                      | Outcome                                          |
+| -------------- | -------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `/root`        | main     | Isolate logging changes, verify, commit, push and open PR | Routine publication of the bounded documentation correction needs no delegated investigation | In progress; publication outcomes appended below |
 
 - Spawned/reused agents: **none**; independent review not performed, main self-review only.
 
-### Token usage
+### Token count
 
-| Agent identity | Source record | Input | Cached input (subset) | Output | Total | Status / coverage |
-| --- | --- | --- | --- | --- | --- | --- |
-| `/root` | `turn-fd6e227690a01ffaf9468695` | 134,131 | 131,840 | 356 | 134,487 | Provisional 15:55:31 checkpoint; one prompt item, turn incomplete |
-| No children | No spawned/reused child | 0 | 0 | 0 | 0 | No attributable child activity |
+| Agent identity | Source record                   | Input     | Cached input (subset) | Output | Total         | Status / coverage                        |
+| -------------- | ------------------------------- | --------- | --------------------- | ------ | ------------- | ---------------------------------------- |
+| `/root`        | `turn-fd6e227690a01ffaf9468695` | 1,190,736 | 1,173,760             | 6,466  | **1,197,202** | Final observed turn, reconciled 16:01:22 |
+| No children    | No spawned/reused child         | 0         | 0                     | 0      | 0             | No attributable child activity           |
 
-- Source: `per_response_usage`; configured project verified, private report location as P017. Attributable checkpoint total **134,487**, not final consumption.
-- Shared-turn allocation: not applicable at checkpoint. `turn_not_observed_complete`; later work and final response excluded. Unlinked automatic approval sessions excluded. Reconcile this record at the next prompt checkpoint without adding snapshots.
+- Source: `per_response_usage`; configured project verified, private report location as P017. Historical checkpoint total **134,487**, superseded by **1,197,202** in the table and reconciliation below.
+- Shared-turn allocation: not applicable at checkpoint. `turn_not_observed_complete`; later work and final response excluded. Unlinked automatic approval sessions excluded. Reconciled below at the next prompt checkpoint; do not add the snapshots.
 
 ### Results
 
@@ -136,3 +527,38 @@ Completed `turn-52ee7c23aa377585d319784f`, `per_response_usage`, one prompt item
 - Local GitHub CLI unavailable; verified existing Git credential access through GitHub's official API without printing credentials. No new credentials or permissions created.
 - Verification: isolated `npm run check` passed five OpenSpec changes, typecheck/lint, 116 Vitest tests, four Node deployment checks and Vite build, using the existing dependency installation through a junction (not fresh `npm ci`). Five-file Prettier check and `git diff --check` passed; 19 unique prompt IDs, required policy wording and referenced local log paths checked. Initial template formatting warning was corrected; no test failures. No new application tests for documentation-only changes.
 - Publication: committed the five files as `ed028d6` (`docs: require agent and token logs for every prompt`), pushed `origin/codex/prompt-workflow-logs`, and created [PR #9](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/9) targeting main; GitHub returned open state and the exact pushed head. This outcome is recorded in a documentation follow-up on the same branch. No merge or deployment performed.
+
+### P019 reconciliation — 2026-11-06 16:01:22 +08:00
+
+Completed `turn-fd6e227690a01ffaf9468695`, `per_response_usage`, one prompt, no turn warnings: input **1,190,736**, cached input **1,173,760** (subset), output **6,466**, total **1,197,202**. No spawned/reused child in observed response. Supersedes the 134,487 provisional checkpoint; do not add them.
+
+## Prompt P020 — 2026-11-06 16:00:29.506 +08:00
+
+### Request
+
+Require formatted agent/token sections under every prompt and clarify future logging instructions.
+
+### Agents spawned
+
+- **Spawned: none observed. Reused: none observed.** Source turn has 0 recorded spawn requests; no child turns are linked. Main agent: `/root`, model `gpt-6.1-sol`.
+- **Why:** Main-agent correction of the audit/template and source reconciliation; no independent product review needed.
+- Independent review: not performed in this prompt's recorded session. Historical no-spawn observations do not prove complete recorder coverage.
+
+### Token count
+
+| Agent        | Input       | Cached input (subset) | Output      | Total       | Source record                   | Status                                                    |
+| ------------ | ----------- | --------------------- | ----------- | ----------- | ------------------------------- | --------------------------------------------------------- |
+| `/root`      | 278,912     | 270,592               | 1,343       | **280,255** | `turn-cea291fe2873c3de769b283e` | Provisional; turn incomplete                              |
+| Child agents | unavailable | unavailable           | unavailable | unavailable | No linked child record          | No observed child activity; no child consumption invented |
+
+- Source: `per_response_usage`; checkpoint **2026-11-06 16:01:22 +08:00**. One recorded prompt item in this turn; no shared-turn allocation required. Main-agent total is measured; unattributed sessions are excluded.
+- Coverage: turn_not_observed_complete; session-level `tool_call_without_turn` warning remains. Cached/reasoning subtotals are not added to total. Later work and final response are outside this snapshot; finalize at the next checkpoint.
+
+### Results
+
+Replace historical summary rows with per-prompt sections, recover measured usage, correct cross-chat reviewer attribution and update the same logging PR.
+
+- Verification: 20 separately formatted entries (19 observed prompts plus preserved context P015), each with both mandatory headings and token tables; all 19 source record IDs and 18 completed main-agent totals verified. Current P020 remains its dated provisional snapshot. Initial comparison against live recorder data found a changed current-turn subtotal; corrected the check to compare final records only, preserving the documented provisional checkpoint.
+- Root AGENTS instructions, log policy and template now explicitly require these exact sections before every final response. The original working checkout still follows the older main baseline until the PR is adopted; no claim that an unmerged branch governs main.
+- Prior full repository check passed for this documentation-only branch. Focused structure, numeric/source and whitespace checks repeated for this revision; no application changes or repeated full suite needed.
+- Publication target: existing PR #9; source attribution and mandatory headings are corrections within its original logging scope. No merge or deployment authorized.

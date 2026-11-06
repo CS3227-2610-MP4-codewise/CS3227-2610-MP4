@@ -22,3 +22,5 @@ Preserve historical logs. Backfill only what source records or observed conversa
 For shared work choose one log owner and identify both contributors. Human owner and agent role are different concepts. Include requirement/change IDs, branch/PR when available, actual checks and limitations. Review AI-generated entries for accuracy. Never include credentials, real student code, raw private prompts or hidden reasoning.
 
 The three dated setup summaries were moved into Darryl's folder because they originated in his setup session. Their historical filenames and separate records are retained; they are not retroactively claimed to be one PR each. Keith's folder intentionally contains no invented contribution records.
+
+Before every final response, confirm that the current prompt has its own `### Agents spawned` and `### Token count` sections in the member log, even when no agent was spawned or usage is unavailable. A summary table covering several prompts does not satisfy this structure. Reconcile the preceding prompt at the next checkpoint. These instructions apply to future logs after this branch is adopted; do not claim an unmerged PR has changed main.

@@ -4,7 +4,7 @@
 - Change / requirement IDs:
 - Branch / PR:
 
-Copy the following entry for **every user prompt**, including questions and "continue". Keep IDs stable and preserve previous entries. Redact requests; do not copy secrets or hidden reasoning.
+Copy the following entry for **every user prompt**, including questions and "continue". Each prompt must have its own visible `### Agents spawned` and `### Token count` sections; an increment summary or multi-prompt table is insufficient. Keep IDs stable and preserve previous entries. Redact requests; do not copy secrets or hidden reasoning.
 
 ## Prompt <stable-ID> — <time with timezone, or unavailable>
 
@@ -13,7 +13,7 @@ Copy the following entry for **every user prompt**, including questions and "con
 - Redacted request / sequence:
 - Objective and applicable requirements (or not applicable):
 
-### Agent activity
+### Agents spawned
 
 | Agent identity | Activity (main / spawned / reused) | Assignment | Why this agent was used | Outcome / findings / repairs |
 | -------------- | ---------------------------------- | ---------- | ----------------------- | ---------------------------- |
@@ -22,7 +22,7 @@ Copy the following entry for **every user prompt**, including questions and "con
 - Spawned/reused agents: <list, or explicitly none and why; unavailable for missing historical evidence>.
 - Independent review: <actual evidence or not performed; do not equate self-review with independence>.
 
-### Token usage
+### Token count
 
 | Agent identity                      | Source record / usage group        | Input       | Cached input (subset) | Output      | Total       | Status / coverage                              |
 | ----------------------------------- | ---------------------------------- | ----------- | --------------------- | ----------- | ----------- | ---------------------------------------------- |
