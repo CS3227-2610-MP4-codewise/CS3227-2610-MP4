@@ -1,0 +1,59 @@
+.auth-shell {
+  overflow-wrap: anywhere;
+}
+.auth-shell .cw-wordmark {
+  text-decoration: none;
+  color: var(--cw-ink);
+}
+.auth-work h2 {
+  font-family: var(--cw-font-editorial);
+  font-weight: 400;
+}
+.auth-work label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.auth-work input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--cw-ink);
+  background: var(--cw-page);
+  border: 1px solid var(--cw-secondary);
+  margin-bottom: 16px;
+}
+.auth-work form {
+  margin: 24px 0;
+}
+.auth-copy,
+.auth-signout {
+  border-top: 1px solid var(--cw-rule);
+  padding-top: 24px;
+  margin-top: 32px;
+}
+.auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.auth-invites {
+  list-style: none;
+  padding: 0;
+}
+.auth-invites li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  border-top: 1px solid var(--cw-rule);
+}
+.auth-invites p {
+  color: var(--cw-secondary);
+  margin-bottom: 0;
+}

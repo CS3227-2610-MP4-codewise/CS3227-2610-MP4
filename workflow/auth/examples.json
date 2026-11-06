@@ -1,0 +1,25 @@
+{
+  "sessionView": {
+    "schemaVersion": 1,
+    "userId": "synthetic-account",
+    "expiresAt": "2026-11-07T00:00:00.000Z"
+  },
+  "createInvitation": { "email": "invitee@example.test" },
+  "invitationList": {
+    "items": [
+      {
+        "id": "synthetic-invitation",
+        "email": "invitee@example.test",
+        "createdAt": "2026-11-06T00:00:00.000Z",
+        "expiresAt": "2026-11-07T00:00:00.000Z",
+        "status": "pending"
+      }
+    ],
+    "nextCursor": null
+  },
+  "unavailableWorkspace": { "state": "unavailable", "destination": null },
+  "authorizedDestination": {
+    "state": "authorized",
+    "destination": "/instructor/assignments/synthetic-assignment"
+  }
+}

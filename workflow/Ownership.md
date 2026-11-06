@@ -44,6 +44,12 @@ Darryl owns the sign-in UI and provider callback, session expiry/logout/revocati
 
 ## Records and shared interfaces
 
+## SH-AUTH implementation window — approved2026-11-06
+
+Darryl is sole writer for src/server/auth/, src/web/auth/, compatible existing C-ID session/error boundary additions, authentication wiring in src/server/index.ts/environment.ts and src/web/main.tsx, next0003 authentication migration (number rechecked before creation), minimal package/lock and wrangler.json auth configuration sections, workflow/auth/ provisioning/tests and this bounded change's specs/docs/log/evidence/handoff. Existing styling/primitives are reused. User approved Google OIDC, invitation-only24-hour onboarding,30-minute idle/8-hour absolute sessions and in-app trusted-admin create/copy-once/list/revoke invitations with manual sending. Auth-admin authority is operator-bootstrapped separately from course/instructor roles. One independent auth_review is read-only. No Keith/course/submission implementations, CI/release edits, email provider, production deployment or generic personal skill changes. Keith's revised-boundary review remains pending. This window is serialized with future shared writes.
+
+Concrete compatible additions in this same window: src/shared/auth.ts (separate UI envelope; existing SessionView unchanged), .dev.vars.example (blank server-only auth configuration), openspec/config.yaml context and docs/PlanningDecisions.md/IntegrationContracts.md current-status reconciliation. No other migration writer is active. The earlier “provider/registration undecided” and “no SH-AUTH implementation” paragraphs describe the pre-approval baseline; this window and its source/evidence handoff supersede them for current local implementation. Live Google, deployment, Keith cross-review and composed authorization remain pending.
+
 Darryl owns logs/darryl/; Keith owns logs/keith/. Choose one human log owner for each shared increment and attribute both contributions. Follow [the log policy](../logs/README.md). Shared producer/consumer decisions live in [IntegrationContracts.md](IntegrationContracts.md); handoffs and verification evidence stay in shared workflow folders. Assign a named lead and single active writer per shared increment before dependent implementation.
 
 ## Instructor contract artifact window — approved 2026-11-05

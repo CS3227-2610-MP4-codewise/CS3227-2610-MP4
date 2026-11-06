@@ -2,6 +2,8 @@
 
 Updated 2026-11-05 for instructor-development-contracts. **Darryl approved the brief, P1–P4 owner policies and isolated contract-artifact write window. Keith’s detailed K1–K6 agreement remains pending.** Readiness and workload acceptance do not establish real-producer integration.
 
+Current SH-AUTH update, 2026-11-06: Darryl approved Google OIDC, invitation-only onboarding, 30-minute idle/8-hour absolute sessions and trusted-administrator invitation management with manual link delivery. The [SH-AUTH handoff](handoffs/shared-authentication.md) identifies the local implementation, separate UI schemas and reusable real-D1 session checks. Existing C-ID SessionView remains unchanged; no course roles/memberships are added. Earlier provider/registration and no-producer statements below are historical baselines superseded for this slice only. Real Google configuration/callback, deployed authentication, Keith revised-boundary review and SH-ID integration remain pending; this is not Keith's acceptance or a deployed feature claim.
+
 ## Sources
 
 - [MVP design](../openspec/changes/codewise-mvp/design.md): planned entities, routes and version boundaries.

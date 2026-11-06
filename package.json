@@ -21,9 +21,12 @@
     "db:local": "wrangler d1 migrations apply codewise-development --local --env development",
     "deploy:prepare": "node workflow/scripts/prepare-deploy.mjs",
     "smoke": "node workflow/scripts/smoke.mjs",
-    "dev:instructor": "vite --config workflow/instructor-preview/vite.config.ts"
+    "dev:instructor": "vite --config workflow/instructor-preview/vite.config.ts",
+    "dev:auth": "vite --config workflow/auth/vite.config.ts",
+    "auth:local": "node workflow/auth/operator.mjs"
   },
   "dependencies": {
+    "openid-client": "6.8.9",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

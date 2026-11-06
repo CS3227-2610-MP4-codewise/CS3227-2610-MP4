@@ -9,8 +9,10 @@ context: |
   plus publication, assessment/release, AI gateway and operations. Keith retains
   courses/memberships/object authorization (SH-ID), submissions and student features.
   Both review the composed C-ID boundary; Keith's revised-boundary review is pending.
-  One authoritative identity store; serialize shared schema/API edits. Provider and
-  public registration policy remain undecided; client roles never grant privileges.
+  One authoritative identity store; serialize shared schema/API edits. Darryl approved
+  Google OIDC and invitation-only onboarding in shared-authentication on 2026-11-06.
+  Public registration and instructor self-promotion are not approved. Live Google,
+  Keith's revised-boundary review and composed authorization remain pending.
   Cloudflare foundation staging/production passed run 41799944040 at 281cc13;
   role features remain separate work. See workflow/Ownership.md and evidence.
   Working assumptions: one language (Python),
@@ -30,8 +32,9 @@ context: |
   Read warm-workbook-ui UI-01–UI-08 for sign-in, trusted conditional role switching,
   versioned work, Previous/Next navigation, source observations and accessible states.
   The shared visual foundation is applied to the public foundation screen;
-  sign-in and role workspaces remain unimplemented. Identity, role provisioning
-  and domain policies still require their producer handoffs.
+  shared-authentication implements local sign-in/session/invitation behavior with
+  real provider configuration and verification pending. Role workspaces still await
+  their reviewed producer handoffs. Client roles never grant privileges.
 
 rules:
   proposal:

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Action, StatusMessage } from './ui/primitives';
 import './styles.css';
+import { AuthApp } from './auth/App';
 
 function App() {
   const [showNotes, setShowNotes] = useState(false);
@@ -42,10 +43,13 @@ function App() {
             <p className="cw-kicker">Where we are</p>
             <h2 id="foundation-heading">The workbook is taking shape.</h2>
             <p>
-              This release provides the application foundation. Sign-in and the
-              student and instructor workspaces are not available yet.
+              Sign in with your invited Google account. Course workspaces become
+              available after course access is connected.
             </p>
             <div className="cw-foundation-notes">
+              <p>
+                <a href="/sign-in">Sign in to Codewise</a>
+              </p>
               <Action
                 variant="secondary"
                 aria-expanded={showNotes}
@@ -112,6 +116,12 @@ function App() {
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    {['/sign-in', '/auth/finish', '/workspace', '/auth/invitations'].includes(
+      window.location.pathname,
+    ) ? (
+      <AuthApp />
+    ) : (
+      <App />
+    )}
   </React.StrictMode>,
 );

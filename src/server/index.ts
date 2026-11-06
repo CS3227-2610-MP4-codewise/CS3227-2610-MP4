@@ -1,5 +1,9 @@
 import type { ApiError, HealthResponse } from '../shared/contracts';
 import type { Environment } from './environment';
+import { AuthRoutes } from './auth/routes';
+import { AuthStore } from './auth/store';
+import { authConfig } from './auth/primitives';
+import { GoogleProvider } from './auth/provider';
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -42,6 +46,14 @@ async function health(env: Environment): Promise<Response> {
 export default {
   async fetch(request: Request, env: Environment): Promise<Response> {
     const pathname = new URL(request.url).pathname;
+    if (pathname.startsWith('/api/auth/')) {
+      const config = authConfig(env);
+      return new AuthRoutes(
+        new AuthStore(env.DB),
+        config,
+        config ? new GoogleProvider(config) : undefined,
+      ).fetch(request);
+    }
     if (pathname === '/api/health' && request.method === 'GET') {
       return health(env);
     }
@@ -62,6 +74,14 @@ export default {
     const headers = new Headers(response.headers);
     for (const [name, value] of Object.entries(securityHeaders)) {
       headers.set(name, value);
+    }
+    if (
+      ['/sign-in', '/auth/finish', '/auth/invitations', '/workspace'].includes(
+        pathname,
+      )
+    ) {
+      headers.set('Cache-Control', 'no-store');
+      headers.set('Referrer-Policy', 'no-referrer');
     }
     return new Response(response.body, { status: response.status, headers });
   },

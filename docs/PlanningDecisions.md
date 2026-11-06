@@ -62,6 +62,14 @@ Initial recommendation was to evaluate Cloudflare first for a lightweight API an
 5. Confirm authenticated browser -> backend -> SoCLaaS path, error mapping, and shared quota configuration. Test 429 handling with a mock rather than exhausting the service.
 6. If blocked, distinguish DNS/TLS, authentication, model capability, quota and networking failures before changing hosts. Obtain service-owner clarification for provider restrictions.
 
+## SH-AUTH approved policy — 2026-11-06
+
+Later review follow-up: Darryl requested non-expiring, single-use/revocable invitations and asked about NUS-only/institutional authentication, with an explicit instruction not to implement changes yet. Existing code still uses the earlier Google/24-hour invitation policy described below. NUS institutional sign-in and NUS-email verification are options under discussion, not accepted integrations; institutional registration/consent is unverified. The pending PR records these differences and does not claim final feature acceptance.
+
+Darryl approved Google OIDC and invitation-only account onboarding, with 24-hour single-use links matched to verified Google email. Trusted authentication administrators manage invitations in the app; delivery is manual. This supersedes earlier open provider/registration statements for SH-AUTH. An account/invitation never grants course roles. Sessions expire after 30 minutes idle or 8 hours absolute, with server-side logout/revocation and no remember-me option. The local operator bootstraps a verified account's auth-admin authority separately from instructor membership.
+
+Local implementation and synthetic/provider-protocol checks are distinct from live Google, Keith's revised-boundary review, composed course authorization, deployment and final manual feature acceptance. Those gates remain pending; see [handoff](../workflow/handoffs/shared-authentication.md). Earlier release evidence verifies the foundation revision only.
+
 ## OpenSpec provenance
 
 Structure follows the upstream spec-driven schema and proposal template:
