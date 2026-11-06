@@ -1,0 +1,26 @@
+[
+  {
+    "innerWidth": 320,
+    "scrollWidth": 305,
+    "theme": "light",
+    "width": 320
+  },
+  {
+    "innerWidth": 320,
+    "scrollWidth": 305,
+    "theme": "dark",
+    "width": 320
+  },
+  {
+    "innerWidth": 1024,
+    "scrollWidth": 1009,
+    "theme": "light",
+    "width": 1024
+  },
+  {
+    "innerWidth": 1024,
+    "scrollWidth": 1009,
+    "theme": "dark",
+    "width": 1024
+  }
+]

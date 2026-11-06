@@ -1,0 +1,12 @@
+{
+  "base": "62da9f2",
+  "state": "uncommitted UX cleanup",
+  "sha256": {
+    "src/web/instructor/assignments/AssignmentWorkspace.tsx": "08a040e95111c1f6081335956a22522e312365501930f2ee8f2e304cc002a1c1",
+    "src/web/instructor/assignments/styles.css": "8743635475d1960adfd9a6cecde626808696ddf8f1f78e31b2b30d8a43d2c5f2",
+    "src/web/instructor/assignments/controller.ts": "c3c8724fd0f12eae66beb6549f2f8aea8955076fb1f6a21cfa62491a6bea8e44",
+    "src/web/instructor/assignments/controller.test.ts": "9d71759affccb780d0929452929421f58d3bb338120264bd7e45fa35d175a671",
+    "src/web/instructor/assignments/client.ts": "70b8d6a8c98d601d4f8b203d2808221e0297b64d722f18d59560ebe2a6c6bdea",
+    "src/web/instructor/assignments/messages.ts": "ea4bd295dd159dc1b962631c58a1d525ab7d281f029f9831850f8e0e79d8b031"
+  }
+}

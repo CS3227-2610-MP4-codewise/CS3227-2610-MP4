@@ -1,0 +1,28 @@
+{
+  "base": "7e3e7293152de512a3081e8149caa55ae6d715e8",
+  "branch": "codex/instructor-assignment-publication",
+  "state": "uncommitted",
+  "sha256": {
+    "package-lock.json": "0703bfb6cb05f66f11a587f6f9597b90b93a2520f89c0ce95b54c01dd801be73",
+    "package.json": "8e9cb1a618842c7a6702376ade0e82356bfd3327c71e654dffdcfb9d1cf1336d",
+    "src/server/db/migrations/0002_instructor_assignments.sql": "f44440cb7f3b3770f998611c2e663f8dd7986c2ead69b8be67830eeafc511d37",
+    "src/server/instructor/assignments/http.ts": "c835dc720aef092bc826b2782173d7240b337b395e3bcde6345993108e52351f",
+    "src/server/instructor/assignments/repository.ts": "6d772c40f2edd23134cce12f9f94c9807918d3d236295ccf93edd2eaa1e9b667",
+    "src/server/instructor/assignments/service.ts": "b6a6aa3c5d0c5ecbe6a4adb5c7c46e67ec88912c49e4515822b949c7a1832dc2",
+    "src/shared/instructor-contracts/authoring.ts": "3bb4251d32a7221c8cefa5b9ce3ae4cd4c57ece2f804582ff488072caf681b10",
+    "src/web/instructor/assignments/AssignmentWorkspace.tsx": "6fa9e0826b869706ee7ff7826fd8124d9617ef6a3f9b67461c44bf258365d927",
+    "src/web/instructor/assignments/client.ts": "ff69a1ebdea954bddb10dcab21888dc968c04aa74a245d18e3b50ad2c5b4639a",
+    "src/web/instructor/assignments/controller.test.ts": "61d571abcd8e72ba14f7f24ebb1e3dbfada7a6abeda17fdc15ec79ed73f1b0a2",
+    "src/web/instructor/assignments/controller.ts": "4ee7fdaa00398143e3fd99ba764be675bae47d8fa843163567c9121428eae104",
+    "src/web/instructor/assignments/preview.tsx": "ca2d8b98d16ed8aec3e73db88e71039329c9836e89c0bfa8c6017abe656381cb",
+    "src/web/instructor/assignments/styles.css": "611cfd9759a956f6396528c7fbdb5ce620528960e64777e2dd1b122fb3881121",
+    "workflow/instructor-preview/README.md": "ec8f57b32c75cf9b7c4fd9a422974f019217d23e9c7f193b81121cb124acd3be",
+    "workflow/instructor-preview/assignments.test.ts": "143479a637471e4cc7f393dac21e163cf0e99756cd0d6f297bb06c6074903312",
+    "workflow/instructor-preview/database.ts": "80a165c2fed5026a2e0d07381e715c89f2de6483f805a7fa2ab77900edb15b7a",
+    "workflow/instructor-preview/identity.ts": "a00dca0050673fe0f394dd18ae6a8a79a757234dbb9822f51c2b02496878f125",
+    "workflow/instructor-preview/index.html": "b99bf5cf868d2160e16213c3a3bfd1e6be96e36a2681ef9f86597b738ddb6378",
+    "workflow/instructor-preview/payloads.json": "73def76d27ea943204588436c2452444d365c76bbe3f0d1cb0d84d97efaa98ac",
+    "workflow/instructor-preview/producer-checks.ts": "6a9a73ea62a85c256924e5c53971eacc9c0379d2a809dd3463ddd496f3118593",
+    "workflow/instructor-preview/vite.config.ts": "86d40dacc4aa2e320aae538508d84104fd2a5b497ae86369f3eaed09b16cbe02"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "create": {
+    "courseId": "course_synthetic",
+    "requestKey": "create_synthetic_1"
+  },
+  "save": {
+    "expectedRevision": 1,
+    "payload": {
+      "title": "Synthetic loops",
+      "deadlineAt": "2099-01-01T00:00:00.000Z",
+      "questions": [
+        {
+          "questionId": "q_loop",
+          "rubricId": "rub_loop",
+          "title": "Count items",
+          "instructions": "Write a Python function.",
+          "language": "python",
+          "starterCode": "def count(items):\n    pass\n",
+          "privateReference": "PRIVATE_SYNTHETIC_REFERENCE\n",
+          "criteria": [
+            {
+              "criterionId": "criterion_count",
+              "comparisonKey": "count",
+              "descriptor": "Counts every item",
+              "minimumScore": 0,
+              "maximumScore": 10.25
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "publish": {
+    "expectedRevision": 2,
+    "idempotencyKey": "publish-1"
+  },
+  "public": {
+    "schemaVersion": 1,
+    "assignmentId": "assignment_synthetic",
+    "assignmentVersionId": "version_synthetic_1",
+    "courseId": "course_synthetic",
+    "title": "Synthetic loops",
+    "publishedAt": "2026-11-06T00:00:00.000Z",
+    "deadlineAt": "2099-01-01T00:00:00.000Z",
+    "questions": [
+      {
+        "questionId": "q_loop",
+        "questionVersionId": "question_version_synthetic_1",
+        "rubricId": "rub_loop",
+        "rubricVersionId": "rubric_version_synthetic_1",
+        "title": "Count items",
+        "instructions": "Write a Python function.",
+        "language": "python",
+        "starterCode": "def count(items):\n    pass\n",
+        "criteria": [
+          {
+            "criterionId": "criterion_count",
+            "comparisonKey": "count",
+            "descriptor": "Counts every item",
+            "minimumScore": 0,
+            "maximumScore": 10.25
+          }
+        ]
+      }
+    ]
+  },
+  "privateReferences": [
+    {
+      "questionVersionId": "question_version_synthetic_1",
+      "source": "PRIVATE_SYNTHETIC_REFERENCE\n"
+    }
+  ]
+}
