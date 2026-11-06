@@ -1,4 +1,4 @@
-# 01 - Increment title - YYYY-MM-DD
+# Increment title
 
 ## Request
 
@@ -12,4 +12,6 @@ Name the human owner, bounded objective, OpenSpec change/requirement IDs, and br
 - Evidence or handoff links:
 - Remaining limitations and next owner:
 
-Append the next numbered Request/Results entry in the same file for a substantial follow-up in this increment. Preserve earlier results and do not invent usage metrics.
+Keith retains this existing summary format. Append a Request/Results entry for substantial follow-ups in the same increment; preserve history and do not invent usage metrics.
+
+**Darryl uses [the prompt-experiment template](darryl-prompt-experiment.md) for every prompt**, including questions, corrections and continuations. That additional logging requirement applies only to Darryl.
