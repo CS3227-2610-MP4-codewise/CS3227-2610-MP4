@@ -1,3 +1,30 @@
+# Current SH-AUTH handoff — Firebase/Brevo revision, 2026-11-06
+
+Darryl owns SH-AUTH; Keith owns SH-ID. AUTH-01–03, SHA-01–10, CON-03/07; warm-workbook-v1 UI-01/02/07/08. Darryl approved Firebase/Brevo and coding before external setup. Neither service account exists yet; no real mail/login/deployment is verified.
+
+Producer: committed revision 386b681cf8b352374e748a329691ac158b1cc132 on codex/shared-authentication, after feasibility batch b62165f. Exact producer files are pinned by Git blob and SHA-256 in [firebase-source-manifest.json](../evidence/shared-authentication/firebase-source-manifest.json). Local checks and live integration limits below remain unchanged; PR8 has not been pushed/updated by this request.
+
+## Consumer contract and ownership
+
+- Compose ManagedAuthRoutes(ManagedStore(DB),firebaseConfig,FirebaseCredentials,BrevoMailer,keithCoursePort,destinationAuthorizer,backgroundDispatcher). Production currently omits Keith's ports deliberately; instructor APIs/workspace are unavailable, with no fixture fallback.
+- requireSession returns the existing server-only TrustedPrincipal; public SessionView remains exactly schemaVersion:1,userId,expiresAt. Provider UID/email are never a course role. requireMutationOrigin retains cookie CSRF and exact origin.
+- Supply requireCourse(principal,courseId,'instructor-read'|'instructor-write') and DestinationAuthorization.authorize. Course navigation may open /auth/invitations?courseId=<id>; this is untrusted context, always rechecked. No new enrollment endpoint or membership store is implemented.
+- POST /api/auth/login {email,password,returnTo?}; POST setup/request {invite}; POST setup/confirm {invite,code,password}; POST reset/request {email}; POST reset/confirm {code,password}. Auth mutations require bootstrap preauth cookie + X-CSRF-Token and exact Origin. Requests are closed, bounded JSON.
+- GET bootstrap/session/workspace; POST logout {}; instructor GET invitations?courseId=&after=; POST invitations {courseId,email}; POST invitations/:id/resend|revoke {courseId}. Instructor commands require current authenticated session, CSRF/origin, Keith current authority and trusted inviter scope.
+- Reset request returns generic202 {ok:true}, Retry-After90; provider work is deferred with waitUntil. Confirmation requires current one-use local/provider proof; it cannot activate an uninvited/disabled account. Login requires admitted verified UID and stable provider snapshot. Current-provider reset/disable/revocation invalidates opaque cookies too.
+- Non-expiring pending invitations are distinct from ten-minute proof expiry. Resend retains audit ID and rotates the bearer; dispatch leases/generation prevent stale action/receipt writes. Lists expose only allowlisted recipient/course/status/send fields, no capability/provider UID. queued is provider acknowledgement, never delivery/read.
+- Firebase owns passwords and immutable project/UID credential identity; D1 owns app mapping/sessions/invitation/audit only. Additive0004 preserves0003 and IDs. Existing Google accounts need trusted explicit mapping, not email auto-linking. Local operator bootstrap/map/disable/revoke commands are documented in SETUP.md and grant no roles.
+
+## Verification and reusable checks
+
+[Verification and limitations](../evidence/shared-authentication/firebase-brevo.md), [synthetic payloads](../auth/firebase-examples.json), [reusable C-ID checks](../auth/conformance.ts), [Firebase/D1/security tests](../auth/managed.test.ts), [setup and manual checklist](../auth/SETUP.md). Synthetic payloads are not integration evidence. Independent auth_review inspected provider contracts and security/UI source, found and re-reviewed repairs; actual test execution belongs to main.
+
+Keith: review the revised session-to-course boundary, supply exact SH-ID revision, instructor bootstrap/assignment and destination ports; run shared checks with the real composition. Your review is pending, not inferred from Darryl approval. Darryl: configure Firebase/Brevo and consented NUS verification, complete actual UI/hosted capacity/manual acceptance before claiming integration. No student services, commits/pushes or deployment in this revision.
+
+---
+
+## Historical Google handoff — preserved, superseded target
+
 # Handoff: SH-AUTH / shared-authentication
 
 - Human owner: Darryl. Next consumer/cross-reviewer: Keith (SH-ID).

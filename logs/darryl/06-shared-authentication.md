@@ -581,3 +581,152 @@ Publication usage checkpoint: external recorder refreshed2026-11-06T07:50:02.569
 </details>
 
 <!-- prettier-ignore-end -->
+
+
+## Prompt sh-auth-credential-approval-20261106-01 — 2026-11-06 Asia/Singapore (arrival time unavailable)
+
+### Request
+
+Darryl approved the revised FoC-style NUS credentials/SendGrid/instructor-invitation plan. Continue the same shared-authentication iteration, AUTH-01–03/CON-03/07/SHA-01–10/UI-01/02/07/08. Matching codex/shared-authentication branch reused; only prior planning/log work was pending initially. No new commit/push/merge/deploy authority inferred.
+
+### Agent activity
+
+| Agent | Activity | Assignment / reason | Outcome |
+| --- | --- | --- | --- |
+| /root; session01a1a9fa-d465-76b2-8259-0ae25e4c154c | main | Approved prerequisite/runtime spike, resource evidence, focused checks and budget alternatives | Confirmed scope/default approval; concrete secure candidate rejected for Free; credential implementation held at approved gate |
+| /root/auth_review; session01a1af7a-c5fa-78b3-96ef-a0aa60721cc1 | reused read-only | Investigate maintained static-WASM loader and profiling, then independently inspect concrete helper/results | Three bounded turns; no editing/new agent/recursive delegation. Confirmed narrow rejection, correct labels and memory caveats; missing known-answer-vector limitation recorded |
+
+### Token usage
+
+#### Usage group sh-auth-runtime-20261106
+
+This group covers this approval plus the Workers Free and free-plan-feasibility steering replies below; exact per-prompt allocation unavailable. Count the group once.
+
+| Agent | Source record | Input | Cached input (subset) | Output | Total | Coverage |
+| --- | --- | --- | --- | --- | --- | --- |
+| /root | turn-28f985b5d2b3402ea709cf33 | 10073838 | 10019968 | 30038 | 10103876 | incomplete; per_response_usage; later calls/final excluded |
+| /root/auth_review reused | turn-0f385fd54b6814c95c32bb3c | 1055992 | 1012480 | 2772 | 1058764 | completed; read-only investigation/review |
+| /root/auth_review reused | turn-ee5dc3814b1dc36898fdf849 | 1087079 | 1078528 | 1233 | 1088312 | completed; read-only investigation/review |
+| /root/auth_review reused | turn-45b09f23569f67064a20376c | 480769 | 476800 | 694 | 481463 | completed; read-only investigation/review |
+
+- Correct project C:\Users\darry\CS3227-2610-MP4; recorder checkpoint 2026-11-06T08:40:46.433Z; detailed private recorder/data/records.json remains outside repository. Child subtotal 2628539; attributable parent+child snapshot 12732415. No cache/reasoning additions, no duplicate snapshot sums or invented per-prompt split; unlinked approval sessions excluded. No efficiency claim.
+- Prior planning record reconciliation: turn-53cd5ee0668b0a3a0e9ef760, completed, input 5174783, cached subset 5115776, output 34746, total 5209529. Replaces its older provisional snapshot, outside current group total.
+
+### Results
+
+- Read current branch/status, relevant skill/apply instructions, approved artifacts and shared authority boundary. Recorded named Darryl credential/mail/spike window in Ownership; task1.1 approval complete. Keith instructor/course producer/review not supplied; no membership implementation invented. Task1.2 not marked complete.
+- Runtime prerequisite required by approved design before credential implementation. Registry confirmed argon2id1.0.1; installed scripts-disabled into ignored .wrangler benchmark dependency folder, without root dependency changes. Added only workflow/auth/hash-spike.mjs and hash-spike.worker.mjs plus redacted evidence. Static CompiledWasm import/cached instance; OWASP candidate m19456KiB/t2/p1/tag32; no accounts, DB, provider secrets, live mail or deployment.
+- Isolated local workerd inspector sampled CPU and external wall timings; first warm single hashes110.531–130.493ms non-idle,79.592–91.505ms WASM-only, versus confirmed Free10ms budget. Reproduction with assertions again materially exceeded budget; current JSON holds latest run. No-op profiler overhead and local-versus-deployed distinction explicit. WASM allocation65MiB separated from JS heap/total memory; four-request burst reused memory. Correct/wrong/64-Unicode comparisons pass, labelled two hashes; no independent RFC vector correctness claim.
+- Corrected initial inspector scheme/target errors; failed attempts are not passing evidence. Helper lint and strict OpenSpec passed; standalone actual Worker bundle/execution/assertions passed. No broadened old application tests claimed for new login: application source and root dependencies unchanged, credential flow still incomplete.
+- Independent reviewer confirmed concrete gate conclusion applies to this candidate, not mathematical impossibility of all implementations or measured deployed failure. Source/evidence review only; main actually executed benchmark. No secure parameters reduced. Task1.3 remains unchecked pending hosting/credential-authority decision; progress2/18.
+- During work an external documentation-format commit e3a49bf appeared on the same branch. Preserved it; this session made no commit/reset/discard and does not claim its authorship. Prior log formatting/history preserved; own additions append only.
+- Evidence: workflow/evidence/shared-authentication/hash-spike.md/json. Detailed CPU profiles and installed package remain ignored; no personal skills/orchestration/telemetry copied into Git. Independent investigation/review completed; no application-code clearance implied.
+- Next: Darryl chooses a CPU-capable runtime or approves a revised credential-authority design before dependent edits. Pending real SendGrid setup/NUS inbox/Keith integration remains explicit. No product auth route, migration, secret, paid subscription, live email, archive or deployment changed.
+
+## Prompt sh-auth-host-tier-20261106-01 — 2026-11-06 Asia/Singapore (arrival time unavailable)
+
+### Request
+
+Darryl answered Workers Free to the runtime-tier clarification.
+
+### Agent activity and usage
+
+Main incorporated the confirmed10ms budget into the ongoing spike; the same reused auth_review investigation continued. No separate agent spawned for this reply. Measured source records/parent+child totals are counted once in usage group sh-auth-runtime-20261106 above; per-prompt input/output/total allocation unavailable, not zero.
+
+### Results
+
+Free is confirmed; Paid/tier purchase is not approved. Local candidate exceeds that budget, so source credential work remains gated; no account/billing/tier change. See benchmark and dependency decision above.
+
+## Prompt sh-auth-free-feasibility-20261106-01 — 2026-11-06 Asia/Singapore (arrival time unavailable)
+
+### Request
+
+Darryl asks whether the application can work with a free plan instead of selecting Paid Workers.
+
+### Agent activity and usage
+
+Main researched current primary Supabase and SendGrid sources; same reviewer examined the benchmark evidence, not the proposed managed-provider architecture. No new child spawned. Source records and measured shared-turn parent/child usage are in sh-auth-runtime-20261106; exact per-prompt allocation unavailable and not duplicated.
+
+### Results
+
+- A free-tier architecture is possible to investigate: keep Workers for app/session/invitation/API handling and delegate password work to a managed credential authority. Supabase Auth Free currently documents50000MAU and custom SMTP including SendGrid. Not yet adopted, configured, tested or approved; exact reset/OTP/lockout/password/domain policies, authoritative storage, migration and session mapping require a revised bounded plan.
+- Sources inspected2026-11-06: https://supabase.com/pricing ; https://supabase.com/docs/guides/auth/auth-smtp ; https://www.twilio.com/docs/sendgrid/ui/account-and-settings/upgrading-your-plan ; https://www.twilio.com/en-us/changelog/changes-coming-to-sendgrid-s-free-plans . SendGrid retired its continuing Free plan and currently offers60-day trial; do not promise permanent zero-cost mail or assume account entitlement.
+- Explained possibility without switching providers or weakening hashing. Original instructor-issued/non-expiring invitation, NUS-email/FoC-style user flow and Keith authority remain the intended outcome; credential-authority change needs explicit choice and review before implementation. No external account creation, credential transfer, app changes, commit/push or emails. Next owner: Darryl chooses whether to revise toward the managed-auth/free-Worker option.
+
+
+## Prompt sh-auth-alternative-onboarding-20261106-01 — 2026-11-06 Asia/Singapore (arrival unavailable)
+
+### Request
+
+Darryl asks for another way to onboard students and preserve intended application functionality if the previous approach cannot work on a free plan. Existing shared-authentication / AUTH-01–03, CON-03/07 and UI-02; proposal only, no new provider or product implementation instruction.
+
+### Agent activity
+
+| Agent | Activity | Assignment | Reason | Outcome |
+| --- | --- | --- | --- | --- |
+| /root; session01a1a9fa-d465-76b2-8259-0ae25e4c154c | main | Compare practical free-compute onboarding alternatives and write reviewable fallback | Direct bounded design analysis; no specialist execution needed | Proposed instructor-invited passwordless NUS email-code login in existing design; not selected/implemented |
+
+- Spawned/reused child agents: none this prompt. Earlier hash-spike review is background evidence only; no independent review of this new alternative is claimed.
+
+### Token usage
+
+| Agent | Record / usage group | Input | Cached input (subset) | Output | Total | Coverage |
+| --- | --- | --- | --- | --- | --- | --- |
+| /root | turn-d0530603270495d131f228d6 / sh-auth-alternative-onboarding-20261106-01 | 1185380 | 1176064 | 7293 | 1192673 | incomplete; per_response_usage; later calls/final excluded |
+| No children | none | 0 | 0 | 0 | 0 | activity known none |
+
+- Correct project C:\Users\darry\CS3227-2610-MP4; checkpoint 2026-11-06T08:46:14.008Z; private recorder/data/records.json outside Git. Parent+child snapshot 1192673 counted once; no cache/reasoning additions or invented shared-turn/per-message division. Detailed telemetry outside repo; no efficiency claim.
+- Prior runtime-group reconciliation (not part of current proposal total): main turn-28f985b5d2b3402ea709cf33 completed, input 11231268, cached subset 11175936, output 35082, total 11266350; attributable prior child subtotal 2628539 from turn-0f385fd54b6814c95c32bb3c, turn-ee5dc3814b1dc36898fdf849, turn-45b09f23569f67064a20376c; combined prior group 13894889. Replaces that earlier provisional snapshot; do not add snapshots. Per-prompt split among its approval/Free/feasibility replies remains unavailable.
+
+### Results
+
+- Preserved existing pending plan/runtime/log work. Recommended fallback P2: instructor sends non-expiring one-use NUS invitation; recipient proves mailbox control with short-lived code; account and normal session created atomically; later logins use fresh codes without re-invitation. Stable identity and Keith course/object permissions continue to serve planned teaching features. Invitation acceptance/queued-mail outcomes tracked separately. No public signup or invented memberships.
+- Explicit difference from approved FoC password target: no stored Codewise password or password-reset screens; fresh code supplies recovery. Purpose/email/browser-bound keyed OTP verification, expiry/attempt/cooldown/admission limits, session/revocation/CSRF and real integration checks required. Avoids measured password-KDF bottleneck but does not claim the complete deployed flow already fits Free.
+- Managed-password/Supabase remains another proposed option if password parity is mandatory; nothing adopted. Proposed P2 appended to existing design only, not silently applied to requirements/tasks or application.
+- Email cost kept separate: current SendGrid60-day trial verified from Twilio primary sources. Resend investigated as an optional ongoing Free-mail example: current100/day limit and verified owned sender-domain requirement; exact cohort/peak demand, quota, domain ownership/cost and provider choice must be confirmed before any switch. Sources https://resend.com/pricing ; https://resend.com/docs/dashboard/domains/introduction ; https://www.twilio.com/docs/sendgrid/ui/account-and-settings/upgrading-your-plan . No new account, key, DNS, sends or spending.
+- Strict OpenSpec validation and git diff --check passed for planning changes. No feature tests added/run for this unimplemented alternative; previous password benchmark is not an email-code runtime validation. No application edits, commits/pushes/PR-status change, migrations, mail or deployment.
+- Next owner: Darryl selects the intended alternative; then revise proposal/spec/task/UI-policy/C-ID boundaries coherently before implementation, independently review code and verify real NUS/instructor/Free-resource behavior. Current credential implementation remains gated; no feature or deployment completion claimed.
+
+
+## Prompt sh-auth-firebase-brevo-20261106-01 — 2026-11-06 Asia/Singapore
+
+### Request
+
+Darryl selected Firebase Authentication and Brevo for instructor invitations, student password creation, ordinary password login and recovery. Continue the existing shared-authentication change on codex/shared-authentication; Workers Free confirmed. Subsequent steering says neither account exists and asks to build before user enters configuration. AUTH-01–03, SHA-01–10, CON-03/07, warm-workbook-v1 UI-01/02/07/08. Earlier provider/cost questions supplied selection context, not provider accounts or live evidence.
+
+### Agent activity and measured usage
+
+Main /root implements and verifies. Reused /root/auth_review read-only for official API investigation and independent security/contract/UI review, then focused review of repairs: 4 bounded recorded turns, no new agents/parallel writers/recursive delegation. Concrete reason: independent judgment on managed-provider proofs and asynchronous admission/session security. No Keith work attributed or acceptance invented.
+
+| Agent | Source record | Input | Cached input (subset) | Output | Total | Coverage |
+| --- | --- | --- | --- | --- | --- | --- |
+| /root | turn-46bc052f0ca3c2d28f5a43c4 | 12395177 | 12274816 | 63987 | 12459164 | incomplete; per_response_usage |
+| /root/auth_review reused | turn-5078c607ec3caa97b1502779 | 2360454 | 2189312 | 3499 | 2363953 | completed; per_response_usage |
+| /root/auth_review reused | turn-95b442aa3472694b076ed373 | 1861499 | 1837056 | 2288 | 1863787 | completed; per_response_usage |
+| /root/auth_review reused | turn-a39e8f7fd104c7e2a1420702 | 987087 | 979328 | 1445 | 988532 | completed; per_response_usage |
+| /root/auth_review reused | turn-06228814e56d062bf1fc1641 | 1281118 | 1270784 | 1316 | 1282434 | completed; per_response_usage |
+
+Checkpoint 2026-11-06T14:37:15.515Z, correct project C:\Users\darry\CS3227-2610-MP4. Attributable parent+child snapshot 18957870, counted once. Current parent incomplete: later calls/final response excluded. Cached/reasoning subsets not added; no estimates, duplicated cumulative snapshots or per-message splits. Detailed recorder/telemetry remains outside Git. Unlinked approval agents excluded. No efficiency claim.
+
+### Results
+
+- Reused branch and inspected status before tracked edits. Preserved prior planning/runtime spike and external e3a49bf formatting commit. No reset/discard, generic skill edits, new branch unrelated work, commit/push/PR update or deployment.
+- Applied existing feature-analysis, OpenSpec update/apply, test-design, implementation/UI and verify workflow. Revised four existing artifacts coherently; provider-backed password/recovery policy addendum, current shared context and named Darryl writer window recorded. Firebase/Brevo accepted; real accounts/keys/sender, Keith producer/review, Free capacity and manual acceptance pending.
+- Firebase native REST/admin adapter uses server OAuth/WebCrypto, bounded responses/timeouts and fixed hosts; no local KDF/password store. One shared mapping/session store, additive0004, explicit trusted UID bootstrap/legacy mapping preserving IDs, exact project/UID local disable/revoke. No automatic email account linking, course storage or browser authority. Unexpected external Firebase email collisions fail safely for trusted operator resolution.
+- Instructor own-invite send/list/resend/revoke requires current Keith course interface. Missing producer stops before private records/mail. Non-expiring admission, short-lived provider proofs, random discarded initial password, mailbox proof before chosen-password admission, local action consumption, current provider revocation checks, Origin/CSRF and guarded return paths implemented. Reset acknowledges generically and defers provider/mail work through waitUntil.
+- Independent review found old-password/reset race, reinvitation UID lifecycle, reset timing enumeration, home-anchor removal, expired-proof recovery navigation, predispatch authority/revocation, stale action/receipt generation and local operator gaps. Main repaired them and added controlled regression cases. After repeated async findings, reassessed design: serialize provider generation with a120s lease and fence D1 action/receipt writes by token generation. Same reviewer confirmed dispatch repairs; final narrow operator addition self-checked with actual D1. No clean-review claim implies live correctness.
+- Actual final npm run check passed strict OpenSpec6, types, lint,169 Vitest tests across9 files,4 Node deployment-boundary checks and production build. Final Worker dry-run60.85KiB/gzip14.93KiB passed without publish. Managed suite23 passes, including a focused rerun extending actual legacy-ID mapping assertions after the full check; application unchanged in that extension. Existing verified Gitleaks8.24.2 source-export scan ~1.30MB/no leaks; final documentation export recheck follows in evidence. Initial runner access failure resolved by authorized local-tool execution; no blocked automatic-review rejection remains.
+- Local browser observed explicit synthetic instructor entry, own invitation pending/queued, captured mailbox, password-creation page and token stripping; narrow dark workbook inspected. No real password/email or provider call. Full widths/themes/native200%/keyboard matrix and saved screenshot set remain unverified. Local preview uses invented in-memory provider/mail and isolated D1; no production fixture imports.
+- Setup guide workflow/auth/SETUP.md, exact API/synthetic payloads and reusable C-ID checks prepared for Keith. New working-tree source manifest pins candidate; no new producer commit is invented. Prior Google handoff/evidence preserved under explicit historical status.
+- Open tasks: external provider setup/least privilege/sender/link privacy/quotas, consented NUS inbox and actual login/reset/revocation; real Keith instructor and destination adapters/first-instructor role assignment/review; hosted Free CPU/background-lifetime evidence; complete UI/manual acceptance and exact committed producer handoff. No staging/production completion or archive.
+
+## Prompt sh-auth-config-after-code-20261106-01 — same usage group
+
+Darryl confirms neither Firebase nor Brevo is configured and asks whether credentials can be entered after coding. Main explained .dev.vars for local Worker, Cloudflare secrets for deployed environments and required provider settings/sender approval. Continued isolated implementation/tests; no secrets requested in chat or accounts created. Usage belongs to sh-auth-firebase-brevo-20261106-01 above; exact per-message allocation unavailable, not a second total. Next owner Darryl: account setup via SETUP.md; Keith: authoritative course/revised C-ID review. Real integration stays pending.
+
+
+## Request — 2026-11-06: commit existing changes before UI simplification
+
+Darryl authorized committing existing work in coherent batches, followed by reducing clutter/repetitive copy and using suitable SVG marks in shared/instructor UI. Current phase commits existing reviewed work before any new UI edits; no push, merge or deployment instruction.
+
+Results: inspected status and verified all40 prior source-manifest hashes match. Preserved existing work; reused codex/shared-authentication. Batch1 b62165f records the isolated Workers Free KDF investigation. Batch2 386b681cf8b352374e748a329691ac158b1cc132 commits Firebase/Brevo implementation/specs/tests/configuration templates. This documentation batch pins producer evidence/handoff to that exact revision. Prior fullcheck169 Vitest+4 Node and focused23 managed tests, Worker60.85KiB/gzip14.93KiB and final source Gitleaks1.33MB/no leaks remain applicable: no app change in this commit phase. No new reviewers spawned; this phase records earlier actual review and checks. Live provider/Keith/hosted/manual acceptance remains pending. Current-request usage checkpoint will be recorded with the continuing UI work; unavailable at this receipt, not zero or a second measurement.
