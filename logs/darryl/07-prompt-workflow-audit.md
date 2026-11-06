@@ -562,3 +562,5 @@ Replace historical summary rows with per-prompt sections, recover measured usage
 - Root AGENTS instructions, log policy and template now explicitly require these exact sections before every final response. The original working checkout still follows the older main baseline until the PR is adopted; no claim that an unmerged branch governs main.
 - Prior full repository check passed for this documentation-only branch. Focused structure, numeric/source and whitespace checks repeated for this revision; no application changes or repeated full suite needed.
 - Publication target: existing PR #9; source attribution and mandatory headings are corrections within its original logging scope. No merge or deployment authorized.
+
+- P020 publication outcome: correction committed as `02203b7` and pushed to the existing open [PR #9](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/9). PR description updated for recovered measurements, mandatory headings and adoption boundary. No merge or deployment. This final outcome record follows in the same PR.
