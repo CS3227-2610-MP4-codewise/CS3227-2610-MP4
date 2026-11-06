@@ -23,8 +23,8 @@
 Readiness reconciliation: `project-readiness` records actual independent planning review, named writers, contract drafts and redacted evidence. Tasks 2.1–2.3 remain open for full workflow/security/environment acceptance beyond foundation configuration. New contract scenarios are not executed feature integration checks; no role/AI/recovery task is completed by this document update.
 
 ## 3. Implement identity and persistence
-- [ ] 3.1 Choose maintained identity integration; implement secure sessions and trusted provisioning (AUTH-01, AUTH-03).
-- [ ] 3.2 Implement course/object permissions and revocation checks; test cross-user/course access and CSRF (AUTH-01, AUTH-02, AUTH-03).
+- [ ] 3.1 Darryl owns SH-AUTH: choose the maintained identity/provider and registration/provisioning policy for joint review, implement sign-in/account mapping, secure sessions/logout and CSRF; verify expiry/cancellation/logout, safe return and no self-promotion before handing the trusted subject to Keith (AUTH-01, AUTH-03).
+- [ ] 3.2 Keith owns SH-ID course/membership/object permissions and membership revocation, consuming Darryl's SH-AUTH session/CSRF guards; jointly verify exact C-ID producer revisions, cross-user/course access, session and membership revocation, and CSRF before protected feature integration (AUTH-01, AUTH-02, AUTH-03).
 - [ ] 3.3 Implement versioned schema, constraints, migrations and repositories (SUB-01, SUB-03, GRADE-04).
 
 ## 4. Implement writing and submission workflow

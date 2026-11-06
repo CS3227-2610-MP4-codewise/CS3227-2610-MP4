@@ -33,7 +33,7 @@ The planned routes and entity relationships are in openspec/changes/codewise-mvp
 
 Use one database and shared identity per environment. Keep route handling separate from business rules and persistence. Do not split into separately deployed microservices for each role: independent modules/branches provide development ownership while one API avoids duplicated identity/data and additional hosting complexity.
 
-The agreed writer split is in [Ownership.md](../workflow/Ownership.md): Keith produces identity/course and submission services; Darryl produces publication, assessment/release and the common gateway. [Contract drafts](../workflow/IntegrationContracts.md) specify producer/consumer acceptance cases; field/policy acceptance and reviewed producer handoffs still gate dependent edits. No identity/submission handoff exists yet. Shared DTO/API/migration files require one active writer window, even for different increments.
+The current writer split is in [Ownership.md](../workflow/Ownership.md): Darryl produces shared sign-in/registration/provisioning, provider accounts, sessions/logout and CSRF (SH-AUTH), publication, assessment/release and the common gateway. Keith produces course/membership/object authorization (SH-ID), submissions and student features. Both review the composed C-ID session-to-authorization contract before protected integration; Keith's review of this ownership revision is pending. [Contract drafts](../workflow/IntegrationContracts.md) retain the producer/consumer acceptance cases. No real SH-AUTH/SH-ID/submission handoff exists yet. One authoritative identity store and one active shared DTO/API/migration writer window are required; provider choice and public registration remain undecided.
 
 ## Local development and checks
 

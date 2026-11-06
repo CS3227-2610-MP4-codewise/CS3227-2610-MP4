@@ -4,6 +4,8 @@
 
 Two team members: Darryl owns instructor features; Keith owns student features. Both contribute to shared infrastructure and review shared contracts. See workflow/Ownership.md before changing shared files. Do not implement the full MVP when asked only for foundation or a single feature.
 
+Darryl owns the shared sign-in and registration/provisioning slice (SH-AUTH), including provider integration, account identity, sessions and logout. Keith retains course/membership/object authorization (SH-ID), submissions and student features. Both review the composed C-ID boundary; keep one authoritative identity store and serialize shared schema/API edits. This allocation does not decide public registration or permit instructor self-promotion.
+
 ## Spec-driven work
 
 Read openspec/config.yaml and the relevant change's proposal, design, capability specs and tasks. Use the installed OpenSpec integration for the selected operation. Record requirement IDs in PRs and checks. Keep checkboxes honest: scaffolded configuration is not a verified live deployment. Do not archive unfinished changes.

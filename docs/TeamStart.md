@@ -6,15 +6,19 @@ Before merging role features, both owners should review the shared DTOs, planned
 
 Use [IntegrationContracts.md](../workflow/IntegrationContracts.md) to identify the producer/consumer decisions. Keep your own interaction summaries under [Darryl](../logs/darryl/) or [Keith](../logs/keith/), with one file per PR-sized increment. Shared handoffs and verification live in workflow/handoffs/ and workflow/evidence/. Create bounded OpenSpec changes as each feature is planned; see [the change guide](../openspec/changes/README.md).
 
-The [agreed shared writer split](../workflow/Ownership.md) assigns Keith identity/course and submissions, and Darryl publication, assessment/release, the AI gateway and operations. Contract fields/policies still need joint acceptance. Keith starts SH-ID; Darryl can prepare isolated instructor work, but must consume Keith's reviewed identity/submission handoffs before dependent integration. Fixtures do not prove that integration. Neither member may expose unauthenticated placeholder feature routes.
+The [current shared writer split](../workflow/Ownership.md), revised at Darryl's request on 2026-11-06, assigns Darryl sign-in/registration/provisioning, provider accounts and sessions/logout/CSRF (SH-AUTH), plus publication, assessment/release, the gateway and operations. Keith retains courses/memberships/object authorization (SH-ID), submissions and student features. Both accept the composed C-ID boundary before integration; Keith's revised-boundary review is pending. Darryl supplies the trusted session handoff, Keith supplies authorization/submission handoffs, and neither role duplicates the identity store. Fixtures do not prove integration; protected feature routes remain gated.
 
 ## Darryl
 
 Work under src/server/instructor/ and src/web/instructor/. Start with assignment/rubric authoring and manual assessment/release. Add AI suggestions after the common provider and quota boundary exists. Relevant spec IDs: SUB-01, GRADE-01 through GRADE-04.
 
+Also lead the bounded shared SH-AUTH change: sign-in and registration/provisioning decisions/UI, provider mapping, sessions/logout and CSRF (AUTH-01, AUTH-03; UI-02). Shared auth is one cross-role service, not a student-feature fork. Choose provider and registration policy through review before implementation; agree exact shared schema/API write ownership and Keith's C-ID consumer contract.
+
 ## Keith
 
 Work under src/server/student/ and src/web/student/. Start with editor drafts and immutable submissions, then released feedback, then progress explanations. Relevant spec IDs: SUB-02 through SUB-04, PROG-01 through PROG-03.
+
+Retain SH-ID courses/memberships/course-object permissions and allowed workspace contexts (AUTH-02), consuming Darryl's authenticated session subject. Cross-review SH-AUTH, including revocation/CSRF/role boundaries, before integrating it into student services. Do not build a second sign-in/session store.
 
 ## First checkout
 

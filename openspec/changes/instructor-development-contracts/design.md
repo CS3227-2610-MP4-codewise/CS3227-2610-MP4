@@ -19,7 +19,7 @@ Only foundation source exists. C-ID/C-PUB/C-SUB/C-REL/C-AI in workflow/Integrati
 | Item | Status now | Evidence / next gate |
 | --- | --- | --- |
 | Readiness manual checklist | Accepted by Darryl, 2026-11-05 | Recorded checklist/task 3.4 and prior chat approval |
-| Human workload split | Agreed, Keith agreement reported by Darryl | Keith: identity/course, submission and progress; Darryl: publication, release and gateway |
+| Human workload split | Earlier agreement reported by Darryl; 2026-11-06 auth reassignment requested by Darryl, Keith boundary review pending | Darryl: SH-AUTH accounts/sessions/sign-in plus publication/release/gateway; Keith: SH-ID course/object authorization, submission and progress |
 | Existing five contract profiles | Proposed detailed interfaces | Ownership agreement did not approve shapes/policies |
 | Instructor policy resolutions P1-P4 below | Recommended owner decisions, awaiting Darryl approval of this brief | Keith must also agree to consumer-impacting representations |
 | Cross-owner decisions K1-K6 below | Proposed, Keith review pending | Record actual agreement or corrections; never infer it from readiness acceptance |
@@ -198,14 +198,14 @@ This table is the combined packet; do not send it automatically. Accept/revise e
 
 | ID | Proposed decision | Producer / consumer impact | Current acceptance |
 | --- | --- | --- | --- |
-| K1 | Trusted request-derived session + current course/object ports; public roles never authorize; closed schemaVersion 1 and safe errors | Keith supplies real C-ID adapter; Darryl injects it, no parallel identity store | Darryl approved; Keith pending |
+| K1 | Trusted request-derived session + current course/object ports; public roles never authorize; closed schemaVersion 1 and safe errors | Darryl supplies SH-AUTH session identity; Keith supplies SH-ID course/object authority; compose one C-ID adapter | Darryl ownership revision requested 2026-11-06; Keith revised-boundary review pending |
 | K2 | Stable logical IDs, new question/rubric versions on every publish; immediate availability; deadline/reference edits republish; legacy id means questionVersionId | Darryl owns C-PUB; Keith pins old work and accepts new envelope | Darryl P1 approved; Keith pending |
 | K3 | 0..1000 numeric points, two decimals, no rounding; composite question/rubric/criterion references | Darryl owns rubric/release validation; Keith renders and compares consistent units/keys | Darryl P2 approved; Keith pending |
 | K4 | LF-at-ingress, SHA-256 UTF-8, 32 KiB/source; preserve terminal LF; inclusive one-based split lines and exact excerpts | Keith owns immutable C-SUB; Darryl validates incoming snapshots/annotations | Darryl P3 approved; Keith pending |
 | K5 | Monotonic release/availability versions, reviewed corrections, withdrawal tombstone, no old-release revival; read-time currentness check | Darryl owns release lifecycle; Keith invalidates progress/cache and handles history | Darryl P4 approved; Keith pending |
 | K6 | Discriminated action-specific evidence/validators, configured output caps and exact numeric release versions; missing usage unavailable; no generic progress-success parser | Darryl owns gateway/assessment validation; Keith supplies progress validator/evidence rules | Darryl approved; Keith pending |
 
-Keith also confirms the proposed shape/resource bounds in section 2 or returns exact replacements. Identity provider choice, real submission transaction/deadline policy, quota/model/tokenizer values and real integration evidence remain his/shared producer gates, not hidden defaults. They do not block this isolated contract-artifact package, but block affected runtime composition. Each final handoff records contract version, policy row outcomes, exact producer/consumer revisions (currently unavailable), fixtures, suite commands/results and auth-integration-pending status.
+Keith also confirms the proposed shape/resource bounds in section 2 or returns exact replacements. Under the 2026-11-06 revision, Darryl proposes the identity provider, registration policy and session contract; Keith owns course/object authority and submission transaction/deadline policy; quota/model/tokenizer values retain their existing owners. Shared acceptance and real integration evidence remain gates, not hidden defaults. They do not block isolated contract artifacts, but block affected runtime composition. Each final handoff records contract version, policy row outcomes, exact producer/consumer revisions (currently unavailable), fixtures, suite commands/results and auth-integration-pending status.
 
 ## Risks / Trade-offs
 

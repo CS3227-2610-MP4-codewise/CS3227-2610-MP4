@@ -2,38 +2,45 @@
 
 Confirmed by the team: Darryl implements instructor features; Keith implements student features. Both contribute a substantial share of team-level work.
 
-| Area                                                     | Primary owner                    | Integration rule                                               |
-| -------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------- |
-| src/web/instructor/, src/server/instructor/              | Darryl                           | Instructor feature branch/PR                                   |
-| src/web/student/, src/server/student/                    | Keith                            | Student feature branch/PR                                      |
-| Shared DTOs, API entry, identity, AI gateway, schema, CI | Both                             | Agree interface and assign one write owner before changes      |
-| Assignment publication/rubric                            | Darryl                           | Student-facing projection agreed with Keith                    |
-| Drafts/submission attempts                               | Keith                            | Immutable submission projection agreed with Darryl             |
-| Released feedback                                        | Darryl publishes, Keith consumes | Versioned public DTO; no reference solutions/unreleased drafts |
+| Area                                                            | Primary owner                    | Integration rule                                                 |
+| --------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
+| src/web/instructor/, src/server/instructor/                     | Darryl                           | Instructor feature branch/PR                                     |
+| src/web/student/, src/server/student/                           | Keith                            | Student feature branch/PR                                        |
+| Shared sign-in/registration, provider accounts, sessions/logout | Darryl                           | Keith cross-reviews; course/object authority remains Keith-owned |
+| Courses, memberships and object authorization                   | Keith                            | Consume Darryl's trusted session identity; Darryl cross-reviews  |
+| Shared DTOs, API entry, identity, AI gateway, schema, CI        | Both                             | Agree interface and assign one write owner before changes        |
+| Assignment publication/rubric                                   | Darryl                           | Student-facing projection agreed with Keith                      |
+| Drafts/submission attempts                                      | Keith                            | Immutable submission projection agreed with Darryl               |
+| Released feedback                                               | Darryl publishes, Keith consumes | Versioned public DTO; no reference solutions/unreleased drafts   |
 
 Use feature branches such as codex/instructor-rubrics and codex/student-drafts (or team-agreed names). Merge through reviewed PRs to main. Keep role services in one deployable application for now. If two agents or developers need a shared file, serialize ownership or split interfaces first.
 
 Before role features expose real data, jointly implement the trusted identity/membership boundary. Do not let each role invent its own authentication or separate copy of shared tables. Language remains a draft Python default; execution remains excluded unless a later spec change adds it.
 
-## Agreed shared increment writers — 2026-11-05
+## Current shared increment writers — updated 2026-11-06
 
-Darryl confirmed in the `project-readiness` conversation that Keith agreed to this split. This records reported human agreement, not a review submitted by Keith in this chat. Product policies/interface drafts still require joint acceptance before dependent edits. “Both” above denotes shared review responsibility; the following assigns one writer per bounded increment.
+The original combined split was reported agreed by Keith through Darryl in `project-readiness` on 2026-11-05; that historical acceptance is not a new review by Keith in this chat. The current table incorporates Darryl's later auth reassignment below. Product policies/interface drafts still require joint acceptance before dependent edits. “Both” above denotes shared review responsibility; the following assigns one writer per bounded increment.
 
-| Increment                                             | Writer / migration owner | Consumer and cross-reviewer                   | Dependency / handoff                                                                   |
-| ----------------------------------------------------- | ------------------------ | --------------------------------------------- | -------------------------------------------------------------------------------------- |
-| PR-READY: readiness documents/evidence                | Darryl                   | Keith; independent agent review also recorded | Planning only; no application/schema edits                                             |
-| SH-ID: identity, sessions, courses, membership schema | Keith                    | Darryl                                        | Provider/provisioning decision and C-ID acceptance                                     |
-| SH-PUB: assignment publication/public projection      | Darryl                   | Keith                                         | Reviewed SH-ID handoff; C-PUB acceptance                                               |
-| SH-SUB: drafts/immutable submissions                  | Keith                    | Darryl                                        | Reviewed SH-ID/SH-PUB handoffs; C-SUB acceptance                                       |
-| SH-REL: assessment approval/release/public feedback   | Darryl                   | Keith                                         | Reviewed SH-SUB/rubric handoffs; C-REL acceptance                                      |
-| SH-AI: shared AI gateway/resource controls            | Darryl                   | Keith                                         | C-AI acceptance; auth/evidence before integration; provider evidence before activation |
-| SH-OPS: release evidence/isolation/recovery rehearsal | Darryl                   | Keith                                         | Successful staging and separately authorized release work; recovery still pending      |
+Update requested by Darryl on 2026-11-06: transfer sign-in and registration/provisioning, provider integration, account identity, sessions and logout to Darryl (SH-AUTH). Keith retains course/membership/object authorization (SH-ID) and student/submission work. This supersedes the earlier combined Keith-owned SH-ID assignment for future work; historical logs/evidence retain that earlier allocation. Keith's review of the revised shared boundary remains pending and is not claimed here.
+
+| Increment                                                                       | Writer / migration owner | Consumer and cross-reviewer                   | Dependency / handoff                                                                                          |
+| ------------------------------------------------------------------------------- | ------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| PR-READY: readiness documents/evidence                                          | Darryl                   | Keith; independent agent review also recorded | Planning only; no application/schema edits                                                                    |
+| SH-AUTH: sign-in, registration/provisioning, provider accounts, sessions/logout | Darryl                   | Keith                                         | Provider and registration-policy decision; reviewed session/account handoff and C-ID acceptance               |
+| SH-ID: courses, memberships, course/object authorization                        | Keith                    | Darryl                                        | Consume Darryl's SH-AUTH session identity; reviewed authorization/allowed-context handoff and C-ID acceptance |
+| SH-PUB: assignment publication/public projection                                | Darryl                   | Keith                                         | Reviewed SH-ID handoff; C-PUB acceptance                                                                      |
+| SH-SUB: drafts/immutable submissions                                            | Keith                    | Darryl                                        | Reviewed SH-ID/SH-PUB handoffs; C-SUB acceptance                                                              |
+| SH-REL: assessment approval/release/public feedback                             | Darryl                   | Keith                                         | Reviewed SH-SUB/rubric handoffs; C-REL acceptance                                                             |
+| SH-AI: shared AI gateway/resource controls                                      | Darryl                   | Keith                                         | C-AI acceptance; auth/evidence before integration; provider evidence before activation                        |
+| SH-OPS: release evidence/isolation/recovery rehearsal                           | Darryl                   | Keith                                         | Successful staging and separately authorized release work; recovery still pending                             |
 
 Keith also owns student editor, feedback display and progress implementation, including progress-specific AI context/validation. Darryl owns instructor UI/domain work and assessment-specific validation. Each future increment needs its own approved bounded change; this assignment is not blanket implementation/deployment authorization.
 
 The writer owns relevant tables/repositories, DTO sections and API wiring only during a recorded edit window. Before editing shared DTOs, API entry, runtime bindings or migrations, name exact files/sections and acquire that window in the handoff. Serialize windows and next migration numbering; never assign both active writers to one file. CI/security work outside SH-OPS needs a new named assignment. Both owners record review outcomes for shared contracts/migrations; workload agreement is not a completed review.
 
-No SH-ID/SH-SUB implementation handoff exists at this baseline. Darryl consumes Keith's exact reviewed revision instead of creating another identity/course/submission store. Fixtures support isolated work only, with integration pending.
+No real SH-AUTH/SH-ID/SH-SUB implementation handoff exists at this baseline. Darryl supplies the single shared authentication/account/session producer; Keith supplies course/membership/object authorization and submission producers. Compose their reviewed revisions behind the existing C-ID boundary rather than creating parallel identity stores. SH-PUB and SH-SUB require both authentication and authorization handoffs. Fixtures support isolated work only, with integration pending.
+
+Darryl owns the sign-in UI and provider callback, session expiry/logout/revocation, mutation-origin/CSRF guards and account identity mapping. Keith owns authoritative course membership, course/object permission checks and allowed workspace contexts, consuming Darryl's trusted session identity. Instructor provisioning policy is jointly reviewed; accounts never self-promote. Account/session and course/membership schema sections have named owners but remain in one authoritative store, with one active migration writer per agreed window. Registration method (public, invitation or operator-managed) and provider remain undecided; transferring ownership does not approve either.
 
 ## Records and shared interfaces
 
