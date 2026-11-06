@@ -1,0 +1,121 @@
+{
+  "base": "2d8a8617f86992c71e7c93facabb822455c6fc70",
+  "branch": "codex/shared-authentication",
+  "status": "committed producer source; live Google, Keith review/integration and deployment unverified",
+  "files": [
+    {
+      "path": "package-lock.json",
+      "sha256": "28a5048025af992076208d4bbf55e8d9afaa560d811c5b76901ab0a31118b593"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3891c83b186205ad33dbb7736b985ffaaab5350453ed3df4bf0047f80ba6781c"
+    },
+    {
+      "path": "src/server/auth/composition.ts",
+      "sha256": "d89b4ab60bfa0d61f58373bd40cf456ab2c4a14f58ae8f59b9f6af8e537eadd5"
+    },
+    {
+      "path": "src/server/auth/primitives.ts",
+      "sha256": "4fba6242eaabd94c3120d906cb36268ee633c19c8a054aadae9ed0a4c6e7696d"
+    },
+    {
+      "path": "src/server/auth/provider.ts",
+      "sha256": "2f2b1ca42c83c48b4add121317bb2c98994bee3462c87ae2d96bf88f75416700"
+    },
+    {
+      "path": "src/server/auth/routes.ts",
+      "sha256": "adb6548648faa9896f3e51706982cea6353066641e61f2e77db11f7a01738345"
+    },
+    {
+      "path": "src/server/auth/store.ts",
+      "sha256": "094bb2a74ea5858236a342f668065f20c976840b371147d066de72024e3f1f74"
+    },
+    {
+      "path": "src/server/db/migrations/0003_authentication.sql",
+      "sha256": "3dc3f4855d8b4c9e3f6a2717b2ae4d06eac1b8d4342127f1612928cebc7d89cb"
+    },
+    {
+      "path": "src/server/environment.ts",
+      "sha256": "b3ffe7ec85ebb7633874c0d3dea70816b4b2c236a37c9b26bc2a3aa43a4a562a"
+    },
+    {
+      "path": "src/server/index.ts",
+      "sha256": "36a974850188723f8381d36aa9c7430c1e79a4b468cf7367271c24cfd188dfbe"
+    },
+    {
+      "path": "src/server/instructor/ports/contracts.ts",
+      "sha256": "75f69de0f0acc221862d3b9fb8a2381bf79cc54ec3a6cef619bc60f46e3efe31"
+    },
+    {
+      "path": "src/shared/auth.ts",
+      "sha256": "e7f2ac402fe82ae34aecf21fc6ba9f4bab45431e139e6e1d4139fb276cb8dbd3"
+    },
+    {
+      "path": "src/shared/instructor-contracts/identity.ts",
+      "sha256": "670195516d21669816c27b6534c3c422abc1433881648a3fb4a512597f58770c"
+    },
+    {
+      "path": "src/web/auth/App.tsx",
+      "sha256": "925e3288d69ff5b9d460b9cfa1a8d71195123a6e36f8333331ca1d401095c5f0"
+    },
+    {
+      "path": "src/web/auth/client.ts",
+      "sha256": "3c0fd6f2b1fd3fed8a7808f0e9d671ac5c7ffdfda5af4c962e593412f2d9747a"
+    },
+    {
+      "path": "src/web/auth/styles.css",
+      "sha256": "a3797b78cffaed79de250a746a6f4f80b3b8381b0d74394303ecbdbc69def5a0"
+    },
+    {
+      "path": "src/web/main.tsx",
+      "sha256": "83f131de4558e4b062bedc7d3c760bad2d1d6e4efe7f9aa2a797f3e60a5746c6"
+    },
+    {
+      "path": "workflow/auth/auth.test.ts",
+      "sha256": "6a5b8802a9105652d8a8ff77bab5cd0ff8a3902f75f27d449a934b042e22e2fd"
+    },
+    {
+      "path": "workflow/auth/conformance.ts",
+      "sha256": "4d29ff92a58d90d8a9ac1f1c88b748d0d3921c0ec16d357c45f3e7022a38cb7b"
+    },
+    {
+      "path": "workflow/auth/database.ts",
+      "sha256": "5605f211cd2583e329118a461ddc9fe73f8c2779e997646dba2e294ebd5d85dd"
+    },
+    {
+      "path": "workflow/auth/examples.json",
+      "sha256": "e479560ef9a0627fb94e6b05a9cbac3dd35b7ad6b461699b3dfaeb3d58cb2dc4"
+    },
+    {
+      "path": "workflow/auth/operator-plan.mjs",
+      "sha256": "884c01cb149e26fe2c0535f088e5ad0aa7d3873484f6a279a22966c06124f2d3"
+    },
+    {
+      "path": "workflow/auth/operator.mjs",
+      "sha256": "d8b45c69a6f4b3d5741bc65bc807c8f4069b7860a8f59736f828b8a66fcccfa5"
+    },
+    {
+      "path": "workflow/auth/operator.test.ts",
+      "sha256": "21b102d66b998be793e51e43832be37c560f0261ac36984b9a0da413a875c2cb"
+    },
+    {
+      "path": "workflow/auth/preview.html",
+      "sha256": "685bf6f628384bfe7ac5e3dccb6e36ab29c92f3c5786924be3552a92e368752a"
+    },
+    {
+      "path": "workflow/auth/provider.test.ts",
+      "sha256": "2bd7fd0ed2d7894d9f804b0df73c26d1d2a1c1326c95873cf38d7604b6567f5b"
+    },
+    {
+      "path": "workflow/auth/README.md",
+      "sha256": "b2a0470f09fd37121fb45b4a83b40e8b447dc4841a80b9cf5b42fcc7d843e8d1"
+    },
+    {
+      "path": "workflow/auth/vite.config.ts",
+      "sha256": "8d8012d126559d51c280cb7b81eb59cd63efecbf79e9fd58c3c81a05c5f5469d"
+    }
+  ],
+  "sourceRevision": "1c1174d4429bdad1e63acaa932eaac5d86d70982",
+  "hashBasis": "SHA-256 of Git blob bytes at sourceRevision"
+}
