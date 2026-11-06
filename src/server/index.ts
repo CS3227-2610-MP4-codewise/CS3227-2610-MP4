@@ -1,9 +1,9 @@
 import type { ApiError, HealthResponse } from '../shared/contracts';
 import type { Environment } from './environment';
-import { AuthRoutes } from './auth/routes';
-import { AuthStore } from './auth/store';
-import { authConfig } from './auth/primitives';
-import { GoogleProvider } from './auth/provider';
+import { ManagedAuthRoutes } from './auth/managed-routes';
+import { ManagedStore } from './auth/managed-store';
+import { FirebaseCredentials, firebaseConfig } from './auth/firebase';
+import { BrevoMailer } from './auth/brevo';
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -44,14 +44,30 @@ async function health(env: Environment): Promise<Response> {
 }
 
 export default {
-  async fetch(request: Request, env: Environment): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Environment,
+    context?: ExecutionContext,
+  ): Promise<Response> {
     const pathname = new URL(request.url).pathname;
     if (pathname.startsWith('/api/auth/')) {
-      const config = authConfig(env);
-      return new AuthRoutes(
-        new AuthStore(env.DB),
+      const config = firebaseConfig(env);
+      return new ManagedAuthRoutes(
+        new ManagedStore(env.DB),
         config,
-        config ? new GoogleProvider(config) : undefined,
+        config ? new FirebaseCredentials(config) : undefined,
+        env.BREVO_API_KEY &&
+          env.BREVO_SENDER_EMAIL &&
+          env.BREVO_AUTH_LINKS_VERIFIED === 'true'
+          ? new BrevoMailer({
+              key: env.BREVO_API_KEY,
+              sender: env.BREVO_SENDER_EMAIL,
+              name: 'Codewise',
+            })
+          : undefined,
+        undefined,
+        undefined,
+        context ? (work) => context.waitUntil(work()) : undefined,
       ).fetch(request);
     }
     if (pathname === '/api/health' && request.method === 'GET') {
@@ -76,9 +92,14 @@ export default {
       headers.set(name, value);
     }
     if (
-      ['/sign-in', '/auth/finish', '/auth/invitations', '/workspace'].includes(
-        pathname,
-      )
+      [
+        '/sign-in',
+        '/auth/finish',
+        '/auth/invitations',
+        '/auth/reset',
+        '/auth/forgot',
+        '/workspace',
+      ].includes(pathname)
     ) {
       headers.set('Cache-Control', 'no-store');
       headers.set('Referrer-Policy', 'no-referrer');

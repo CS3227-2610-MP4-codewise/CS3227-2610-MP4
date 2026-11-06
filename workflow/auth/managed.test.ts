@@ -1,0 +1,960 @@
+import { beforeAll, afterAll, describe, it, expect, vi } from 'vitest';
+import { authDatabase } from './database';
+import { ManagedStore } from '../../src/server/auth/managed-store';
+import { ManagedAuthRoutes } from '../../src/server/auth/managed-routes';
+import {
+  FirebaseCredentials,
+  firebaseConfig,
+  nusEmail,
+  passwordValue,
+  boundedProviderJson,
+} from '../../src/server/auth/firebase';
+import { type AuthMailer, BrevoMailer } from '../../src/server/auth/brevo';
+import {
+  cookieName,
+  csrfToken,
+  hash,
+  randomToken,
+} from '../../src/server/auth/primitives';
+import { managedInvitationListSchema } from '../../src/shared/managed-auth';
+import examples from './firebase-examples.json';
+import { sessionViewSchema } from '../../src/shared/instructor-contracts/identity';
+import { BoundaryError } from '../../src/shared/instructor-contracts/schema';
+import { takeAuthProof } from '../../src/web/auth/client';
+import { trustedSessionChecks } from './conformance';
+// @ts-expect-error Local operator is a standalone Node module.
+import { operatorPlan } from './operator-plan.mjs';
+const config = {
+  origin: 'https://app.example.test',
+  secure: true,
+  clientId: '',
+  clientSecret: '',
+};
+const password = 'synthetic student passphrase';
+import { SyntheticFirebase } from './synthetic-firebase';
+
+let database: Awaited<ReturnType<typeof authDatabase>>,
+  store: ManagedStore,
+  now = Date.now();
+const provider = new SyntheticFirebase(),
+  sent: { email: string; text: string }[] = [];
+let mailState: 'queued' | 'failed' | 'unknown' = 'queued';
+const mailer: AuthMailer = {
+  async send(email, _subject, text) {
+    sent.push({ email, text });
+    return { state: mailState, messageId: 'synthetic-receipt' };
+  },
+};
+const courses = { requireCourse: vi.fn(async () => {}) };
+const queued: Array<() => Promise<void>> = [];
+const routes = () =>
+  new ManagedAuthRoutes(
+    store,
+    config,
+    provider,
+    mailer,
+    courses,
+    undefined,
+    (work) => queued.push(work),
+  );
+async function call(
+  path: string,
+  input?: unknown,
+  token?: string,
+  kind: 'session' | 'preauth' = 'preauth',
+  target = routes(),
+  origin = config.origin,
+) {
+  const response = await target.fetch(
+    new Request(config.origin + '/api/auth/' + path, {
+      method: input === undefined ? 'GET' : 'POST',
+      headers: {
+        ...(token
+          ? {
+              cookie: cookieName(config, kind) + '=' + token,
+              'x-csrf-token': await csrfToken(token),
+            }
+          : {}),
+        ...(input === undefined
+          ? {}
+          : { 'content-type': 'application/json', origin }),
+      },
+      ...(input === undefined ? {} : { body: JSON.stringify(input) }),
+    }),
+  );
+  while (queued.length) await queued.shift()!();
+  return response;
+}
+async function seed() {
+  const uid = crypto.randomUUID(),
+    email = uid + '@u.nus.edu',
+    invite = randomToken(),
+    browser = randomToken();
+  await provider.provision(uid, email);
+  await provider.verifyEmail(uid);
+  provider.passwords.set(uid, password);
+  await database.db
+    .prepare(
+      'INSERT INTO auth_invites(id,token_hash,email,created_at,expires_at) VALUES(?,?,?,?,?)',
+    )
+    .bind(crypto.randomUUID(), await hash(invite), email, now, now + 86400000)
+    .run();
+  const token = await store.loginManaged(
+    browser,
+    await provider.current(uid),
+    provider.issuer,
+    '/workspace',
+    invite,
+  );
+  return { uid, email, token, browser, session: await store.session(token) };
+}
+async function invite(
+  admin: Awaited<ReturnType<typeof seed>>,
+  email = crypto.randomUUID() + '@u.nus.edu',
+) {
+  const response = await call(
+    'invitations',
+    { courseId: 'course-one', email },
+    admin.token,
+    'session',
+  );
+  expect(response.status).toBe(201);
+  const data = (await response.json()) as { invitation: { id: string } };
+  const mail = sent.filter((s) => s.email === email).at(-1)!;
+  const fragment = new URLSearchParams(
+    new URL(
+      mail.text.split('\n').find((s) => s.startsWith(config.origin))!,
+    ).hash.slice(1),
+  );
+  return {
+    id: data.invitation.id,
+    email,
+    invite: fragment.get('invite')!,
+    code: fragment.get('code')!,
+  };
+}
+describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () => {
+  beforeAll(async () => {
+    database = await authDatabase();
+    store = new ManagedStore(database.db, () => now);
+  });
+  afterAll(async () => {
+    await database?.close();
+  });
+  trustedSessionChecks('Firebase managed', async () => {
+    const user = await seed(),
+      target = routes();
+    return {
+      request: new Request(config.origin + '/api/private', {
+        headers: { cookie: cookieName(config, 'session') + '=' + user.token },
+      }),
+      requireSession: async (request: Request) =>
+        (await target.requireSession(request)).principal,
+      revoke: () => store.logout(user.token),
+    };
+  });
+  it('invitation setup, password login, closed C-ID and unavailable workspace', async () => {
+    const admin = await seed(),
+      i = await invite(admin),
+      browser = randomToken();
+    expect((await call('setup/confirm', undefined)).status).toBe(401);
+    const setup = await call(
+      'setup/confirm',
+      { invite: i.invite, code: i.code, password },
+      browser,
+    );
+    expect(setup.status).toBe(200);
+    expect(setup.headers.has('set-cookie')).toBe(false);
+    const login = await call('login', { email: i.email, password }, browser);
+    expect(login.status).toBe(200);
+    const token = login.headers.get('set-cookie')!.split('=')[1].split(';')[0];
+    const data = (await (
+      await call('session', undefined, token, 'session')
+    ).json()) as { session: unknown };
+    expect(sessionViewSchema.parse(data.session).schemaVersion).toBe(1);
+    expect(
+      await (await call('workspace', undefined, token, 'session')).json(),
+    ).toEqual({ state: 'unavailable', destination: null });
+    expect(
+      (
+        await call(
+          'setup/confirm',
+          { invite: i.invite, code: i.code, password },
+          browser,
+        )
+      ).status,
+    ).toBe(401);
+    expect(
+      (
+        await call(
+          'login',
+          { email: i.email, password: 'incorrect synthetic passphrase' },
+          browser,
+        )
+      ).status,
+    ).toBe(401);
+  });
+  it('non-expiring admission and expiring proof, without scanner side effects', async () => {
+    const admin = await seed(),
+      i = await invite(admin),
+      browser = randomToken();
+    now += 14 * 86400000;
+    expect((await store.pending(i.invite)).id).toBe(i.id);
+    expect(
+      (
+        await call(
+          'setup/confirm',
+          { invite: i.invite, code: i.code, password },
+          browser,
+        )
+      ).status,
+    ).toBe(401);
+    expect(
+      (await call('setup/request', { invite: i.invite }, browser)).status,
+    ).toBe(202);
+    expect(
+      (
+        await database.db
+          .prepare('SELECT accepted_at FROM auth_invites WHERE id=?')
+          .bind(i.id)
+          .first<{ accepted_at: number | null }>()
+      )?.accepted_at,
+    ).toBeNull();
+  });
+  it('missing/denied Keith stops records/mail; other instructors cannot read or revoke', async () => {
+    const admin = await seed(),
+      email = crypto.randomUUID() + '@u.nus.edu',
+      before = sent.length;
+    const absent = new ManagedAuthRoutes(store, config, provider, mailer);
+    expect(
+      (
+        await call(
+          'invitations',
+          { courseId: 'course-one', email },
+          admin.token,
+          'session',
+          absent,
+        )
+      ).status,
+    ).toBe(503);
+    courses.requireCourse.mockRejectedValueOnce(new BoundaryError('FORBIDDEN'));
+    expect(
+      (
+        await call(
+          'invitations',
+          { courseId: 'course-one', email },
+          admin.token,
+          'session',
+        )
+      ).status,
+    ).toBe(403);
+    expect(sent.length).toBe(before);
+    const i = await invite(admin),
+      other = await seed();
+    expect(
+      (
+        await call(
+          'invitations/' + i.id + '/revoke',
+          { courseId: 'course-one' },
+          other.token,
+          'session',
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      managedInvitationListSchema.parse(
+        await (
+          await call(
+            'invitations?courseId=course-one',
+            undefined,
+            other.token,
+            'session',
+          )
+        ).json(),
+      ).items,
+    ).toEqual([]);
+  });
+  it('cross-origin, forged role and suffix-domain denial occurs before send', async () => {
+    const admin = await seed(),
+      before = sent.length;
+    expect(
+      (
+        await call(
+          'invitations',
+          { courseId: 'course-one', email: 'x@u.nus.edu.attacker.test' },
+          admin.token,
+          'session',
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await call(
+          'invitations',
+          { courseId: 'course-one', email: 'x@u.nus.edu', role: 'instructor' },
+          admin.token,
+          'session',
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await call(
+          'invitations',
+          { courseId: 'course-one', email: 'x@u.nus.edu' },
+          admin.token,
+          'session',
+          routes(),
+          'https://attacker.test',
+        )
+      ).status,
+    ).toBe(403);
+    expect(sent.length).toBe(before);
+  });
+  it('resend rotates proofs, lists exclude capabilities, revocation blocks setup', async () => {
+    const admin = await seed(),
+      i = await invite(admin),
+      browser = randomToken();
+    expect(
+      (
+        await call(
+          'invitations/' + i.id + '/resend',
+          { courseId: 'course-one' },
+          admin.token,
+          'session',
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await call(
+          'setup/confirm',
+          { invite: i.invite, code: i.code, password },
+          browser,
+        )
+      ).status,
+    ).toBe(401);
+    const list = await (
+      await call(
+        'invitations?courseId=course-one',
+        undefined,
+        admin.token,
+        'session',
+      )
+    ).text();
+    expect(list).not.toContain(i.invite);
+    expect(list).not.toContain('firebase_uid');
+    expect(
+      (
+        await call(
+          'invitations/' + i.id + '/revoke',
+          { courseId: 'course-one' },
+          admin.token,
+          'session',
+        )
+      ).status,
+    ).toBe(200);
+  });
+  it('reset changes password, rejects replay and revokes opaque sessions', async () => {
+    const user = await seed();
+    expect(
+      (await call('reset/request', { email: user.email }, user.browser)).status,
+    ).toBe(202);
+    const mail = sent.filter((s) => s.email === user.email).at(-1)!;
+    const code = new URLSearchParams(
+      new URL(
+        mail.text.split('\n').find((s) => s.startsWith(config.origin))!,
+      ).hash.slice(1),
+    ).get('code')!;
+    expect(
+      (
+        await call(
+          'reset/confirm',
+          { code, password: 'replacement synthetic passphrase' },
+          user.browser,
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (await call('session', undefined, user.token, 'session')).status,
+    ).toBe(401);
+    expect(
+      (await call('reset/confirm', { code, password }, user.browser)).status,
+    ).toBe(401);
+    expect(
+      (await call('login', { email: user.email, password }, user.browser))
+        .status,
+    ).toBe(401);
+    expect(
+      (
+        await call(
+          'login',
+          { email: user.email, password: 'replacement synthetic passphrase' },
+          user.browser,
+        )
+      ).status,
+    ).toBe(200);
+  });
+  it('external reset/disable invalidates D1 session; provider outage fails closed', async () => {
+    const user = await seed();
+    provider.users.get(user.uid)!.passwordAt++;
+    expect(
+      (await call('session', undefined, user.token, 'session')).status,
+    ).toBe(401);
+    const disabled = await seed();
+    provider.users.get(disabled.uid)!.disabled = true;
+    expect(
+      (await call('session', undefined, disabled.token, 'session')).status,
+    ).toBe(401);
+    const unavailable = await seed();
+    provider.unavailable = true;
+    expect(
+      (await call('session', undefined, unavailable.token, 'session')).status,
+    ).toBe(503);
+    provider.unavailable = false;
+  });
+  it('generic reset parity, consistent cooldown, unsolicited provider account denied', async () => {
+    const user = await seed(),
+      browser = randomToken(),
+      unknown = crypto.randomUUID() + '@u.nus.edu';
+    const known = await call('reset/request', { email: user.email }, browser),
+      absent = await call('reset/request', { email: unknown }, browser);
+    expect([known.status, absent.status]).toEqual([202, 202]);
+    expect(await known.json()).toEqual(await absent.json());
+    expect(
+      (await call('reset/request', { email: unknown }, browser)).status,
+    ).toBe(429);
+    const uid = crypto.randomUUID();
+    await provider.provision(uid, unknown);
+    await provider.verifyEmail(uid);
+    provider.passwords.set(uid, password);
+    expect(
+      (await call('login', { email: unknown, password }, browser)).status,
+    ).toBe(401);
+  });
+  it('unknown transport outcomes never claim accepted invitation or inbox delivery', async () => {
+    const admin = await seed();
+    mailState = 'unknown';
+    const i = await invite(admin);
+    mailState = 'queued';
+    const list = managedInvitationListSchema.parse(
+      await (
+        await call(
+          'invitations?courseId=course-one',
+          undefined,
+          admin.token,
+          'session',
+        )
+      ).json(),
+    );
+    expect(list.items.find((v) => v.id === i.id)).toMatchObject({
+      status: 'pending',
+      sendState: 'unknown',
+    });
+  });
+  it('rejects old-password authentication racing a provider credential change', async () => {
+    const user = await seed(),
+      original = provider.login.bind(provider);
+    const spy = vi
+      .spyOn(provider, 'login')
+      .mockImplementationOnce(async (email, value) => {
+        const authenticated = await original(email, value);
+        provider.users.get(authenticated.uid)!.passwordAt++;
+        provider.users.get(authenticated.uid)!.validSince++;
+        return provider.current(authenticated.uid);
+      });
+    expect(
+      (await call('login', { email: user.email, password }, user.browser))
+        .status,
+    ).toBe(401);
+    spy.mockRestore();
+  });
+  it('reinvites using trusted prior UID provenance, without linking arbitrary email accounts', async () => {
+    const admin = await seed(),
+      i = await invite(admin),
+      uid = (await store.pending(i.invite)).firebase_uid;
+    await call(
+      'invitations/' + i.id + '/revoke',
+      { courseId: 'course-one' },
+      admin.token,
+      'session',
+    );
+    now += 91000;
+    const replacement = await invite(admin, i.email);
+    expect((await store.pending(replacement.invite)).firebase_uid).toBe(uid);
+    expect(
+      (
+        await call(
+          'setup/confirm',
+          { invite: replacement.invite, code: replacement.code, password },
+          randomToken(),
+        )
+      ).status,
+    ).toBe(200);
+  });
+  it('acknowledges recovery before any provider/mail dispatch for known and unknown accounts', async () => {
+    const user = await seed(),
+      browser = randomToken(),
+      work: Array<() => Promise<void>> = [];
+    const target = new ManagedAuthRoutes(
+      store,
+      config,
+      provider,
+      mailer,
+      courses,
+      undefined,
+      (fn) => work.push(fn),
+    );
+    const providerRead = vi.spyOn(provider, 'current'),
+      mail = vi.spyOn(mailer, 'send');
+    const before = providerRead.mock.calls.length,
+      sentBefore = mail.mock.calls.length;
+    expect(
+      (
+        await call(
+          'reset/request',
+          { email: user.email },
+          browser,
+          'preauth',
+          target,
+        )
+      ).status,
+    ).toBe(202);
+    expect(
+      (
+        await call(
+          'reset/request',
+          { email: crypto.randomUUID() + '@u.nus.edu' },
+          browser,
+          'preauth',
+          target,
+        )
+      ).status,
+    ).toBe(202);
+    expect(providerRead.mock.calls.length).toBe(before);
+    expect(mail.mock.calls.length).toBe(sentBefore);
+    expect(work).toHaveLength(2);
+    for (const dispatch of work) await dispatch();
+    providerRead.mockRestore();
+    mail.mockRestore();
+  });
+  it('rechecks invitation and instructor authority after provider awaits, before dispatch', async () => {
+    for (const revoke of ['invitation', 'authority']) {
+      const admin = await seed(),
+        email = crypto.randomUUID() + '@u.nus.edu',
+        before = sent.length;
+      let release!: () => void, entered!: () => void;
+      const held = new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+        started = new Promise<void>((resolve) => {
+          entered = resolve;
+        });
+      const original = provider.action.bind(provider);
+      const spy = vi
+        .spyOn(provider, 'action')
+        .mockImplementationOnce(async (address) => {
+          entered();
+          await held;
+          return original(address);
+        });
+      const sending = call(
+        'invitations',
+        { courseId: 'course-one', email },
+        admin.token,
+        'session',
+      );
+      await started;
+      const i = await database.db
+        .prepare('SELECT * FROM auth_invites WHERE email=?')
+        .bind(email)
+        .first<import('../../src/server/auth/managed-store').ManagedInvite>();
+      await expect(store.rotate(i!)).rejects.toThrow(); // In-flight provider generation is serialized.
+      if (revoke === 'invitation') await store.revoke(i!);
+      else
+        courses.requireCourse.mockRejectedValue(new BoundaryError('FORBIDDEN'));
+      release();
+      expect((await sending).status).toBe(201);
+      expect(sent.length).toBe(before);
+      spy.mockRestore();
+      courses.requireCourse.mockImplementation(async () => {});
+    }
+  });
+  it('fences stale action/receipt writes without invalidating a fresh generation', async () => {
+    const admin = await seed(),
+      i = await invite(admin),
+      row = await store.pending(i.invite);
+    const next = await store.rotate(row),
+      fresh = await provider.action(i.email);
+    await store.action(
+      fresh,
+      { uid: row.firebase_uid, email: i.email },
+      i.id,
+      null,
+      next,
+    );
+    await expect(
+      store.action(
+        randomToken(),
+        { uid: row.firebase_uid, email: i.email },
+        i.id,
+        null,
+        i.invite,
+      ),
+    ).rejects.toThrow();
+    expect((await store.proof(fresh, 'setup', next)).email).toBe(i.email);
+    await store.receipt(i.id, 'queued', 'new-synthetic', next);
+    await store.receipt(i.id, 'failed', 'old-synthetic', i.invite);
+    expect(
+      (await store.owned(admin.session.user_id, 'course-one', i.id)).send_state,
+    ).toBe('queued');
+  });
+  it('trusted operator bootstrap/mapping preserve IDs and Firebase disable/revoke target exact identities', async () => {
+    const uid = crypto.randomUUID(),
+      email = crypto.randomUUID() + '@u.nus.edu';
+    await provider.provision(uid, email);
+    await provider.verifyEmail(uid);
+    provider.passwords.set(uid, password);
+    const bootstrap = operatorPlan(
+      ['bootstrap-firebase', 'synthetic-project', uid, email],
+      now,
+    );
+    await database.db.batch(
+      bootstrap.sql
+        .split(';')
+        .map((sql: string) => sql.trim())
+        .filter(Boolean)
+        .map((sql: string) => database.db.prepare(sql)),
+    );
+    const account = await store.account(email, provider.issuer);
+    expect(account?.subject).toBe(uid);
+    const token = await store.loginManaged(
+      randomToken(),
+      await provider.current(uid),
+      provider.issuer,
+      '/workspace',
+      null,
+    );
+    const wrong = operatorPlan(
+      ['disable-firebase', 'wrong-project', uid, account!.id],
+      now,
+    );
+    await database.db.batch(
+      wrong.sql
+        .split(';')
+        .map((sql: string) => sql.trim())
+        .filter(Boolean)
+        .map((sql: string) => database.db.prepare(sql)),
+    );
+    expect((await store.account(email, provider.issuer))?.active).toBe(1);
+    const disable = operatorPlan(
+      ['disable-firebase', 'synthetic-project', uid, account!.id],
+      now,
+    );
+    await database.db.batch(
+      disable.sql
+        .split(';')
+        .map((sql: string) => sql.trim())
+        .filter(Boolean)
+        .map((sql: string) => database.db.prepare(sql)),
+    );
+    expect((await call('session', undefined, token, 'session')).status).toBe(
+      401,
+    );
+    expect((await store.account(email, provider.issuer))?.active).toBe(0);
+    const legacyEmail = crypto.randomUUID() + '@u.nus.edu',
+      legacySubject = crypto.randomUUID(),
+      capability = randomToken(),
+      browser = randomToken();
+    await database.db
+      .prepare(
+        'INSERT INTO auth_invites(id,token_hash,email,created_at,expires_at) VALUES(?,?,?,?,?)',
+      )
+      .bind(
+        crypto.randomUUID(),
+        await hash(capability),
+        legacyEmail,
+        now,
+        now + 86400000,
+      )
+      .run();
+    const start = await store.begin(browser, capability, '/workspace'),
+      oldToken = await store.complete(await store.claim(start.state, browser), {
+        issuer: 'https://accounts.google.com',
+        subject: legacySubject,
+        email: legacyEmail,
+      });
+    const legacy = await store.session(oldToken),
+      newUid = crypto.randomUUID();
+    await provider.provision(newUid, legacyEmail);
+    await provider.verifyEmail(newUid);
+    provider.passwords.set(newUid, password);
+    const mapping = operatorPlan(
+      [
+        'map-firebase',
+        'synthetic-project',
+        newUid,
+        legacy.user_id,
+        legacySubject,
+      ],
+      now,
+    );
+    await database.db.batch(
+      mapping.sql
+        .split(';')
+        .map((sql: string) => sql.trim())
+        .filter(Boolean)
+        .map((sql: string) => database.db.prepare(sql)),
+    );
+    expect((await store.account(legacyEmail, provider.issuer))?.id).toBe(
+      legacy.user_id,
+    );
+    await expect(store.session(oldToken)).rejects.toMatchObject({
+      code: 'UNAUTHENTICATED',
+    });
+    const fresh = await store.loginManaged(
+      browser,
+      await provider.current(newUid),
+      provider.issuer,
+      '/workspace',
+      null,
+    );
+    expect((await store.session(fresh)).user_id).toBe(legacy.user_id);
+  });
+  it('competing confirmation succeeds once and pre-staged credential collision never auto-links', async () => {
+    const admin = await seed(),
+      i = await invite(admin),
+      browser = randomToken();
+    const results = await Promise.all([
+      call(
+        'setup/confirm',
+        { invite: i.invite, code: i.code, password },
+        browser,
+      ),
+      call(
+        'setup/confirm',
+        { invite: i.invite, code: i.code, password },
+        browser,
+      ),
+    ]);
+    expect(results.filter((r) => r.status === 200)).toHaveLength(1);
+    const email = crypto.randomUUID() + '@u.nus.edu';
+    await provider.provision(crypto.randomUUID(), email);
+    const r = await call(
+      'invitations',
+      { email, courseId: 'course-one' },
+      admin.token,
+      'session',
+    );
+    expect(r.status).toBe(201);
+    expect(
+      ((await r.json()) as { invitation: { sendState: string } }).invitation
+        .sendState,
+    ).toBe('failed');
+    expect(await store.account(email, provider.issuer)).toBeNull();
+  });
+});
+describe('provider request contracts', () => {
+  it('preserves ordinary page anchors and removes only auth capabilities', () => {
+    const replace = vi.fn();
+    expect(
+      takeAuthProof(
+        { pathname: '/', search: '', hash: '#workspaces' },
+        replace,
+      ),
+    ).toEqual({ invite: null, code: null });
+    expect(replace).not.toHaveBeenCalled();
+    expect(
+      takeAuthProof(
+        { pathname: '/auth/reset', search: '', hash: '#code=synthetic-code' },
+        replace,
+      ).code,
+    ).toBe('synthetic-code');
+    expect(replace).toHaveBeenCalledWith('/auth/reset');
+  });
+  it('validates configuration, exact domains, Unicode password bounds and closed DTOs', () => {
+    expect(
+      managedInvitationListSchema.parse(examples.invitationList).items[0]
+        .status,
+    ).toBe('pending');
+    expect(sessionViewSchema.parse(examples.session).userId).toBe(
+      'synthetic-user',
+    );
+    expect(firebaseConfig({ APP_ENV: 'development' })).toBeNull();
+    expect(nusEmail('Student@U.NUS.EDU')).toBe('student@u.nus.edu');
+    expect(() => nusEmail('x@u.nus.edu.attacker.test')).toThrow();
+    expect(() => passwordValue('short')).toThrow();
+    expect(passwordValue('😀'.repeat(64))).toBe('😀'.repeat(64));
+    expect(() => passwordValue('😀'.repeat(65))).toThrow();
+    expect(() =>
+      managedInvitationListSchema.parse({
+        items: [],
+        nextCursor: null,
+        role: 'instructor',
+      }),
+    ).toThrow();
+  });
+  it('maps expired provider proofs to safe authentication failure', async () => {
+    const firebase = new FirebaseCredentials(
+      {
+        ...config,
+        project: 'synthetic-project',
+        apiKey: 'synthetic',
+        serviceEmail: 'synthetic@example.test',
+        privateKey: '',
+      },
+      vi.fn(async () =>
+        Response.json(
+          { error: { message: 'EXPIRED_OOB_CODE' } },
+          { status: 400 },
+        ),
+      ) as typeof fetch,
+    );
+    await expect(firebase.inspect('expired-synthetic')).rejects.toMatchObject({
+      code: 'UNAUTHENTICATED',
+    });
+    await expect(
+      firebase.reset('expired-synthetic', password),
+    ).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+  });
+  it('bounds provider response size and rejects malformed data', async () => {
+    await expect(boundedProviderJson(new Response('['))).rejects.toThrow();
+    await expect(
+      boundedProviderJson(new Response('x'.repeat(65537))),
+    ).rejects.toThrow();
+  });
+  it('Brevo distinguishes queue acknowledgement, rejection and unknown timeout', async () => {
+    const make = (transport: typeof fetch) =>
+      new BrevoMailer(
+        { key: 'synthetic', sender: 'sender@example.test', name: 'Codewise' },
+        transport,
+      );
+    expect(
+      await make(
+        vi.fn(async () =>
+          Response.json({ messageId: 'synthetic-message' }, { status: 201 }),
+        ) as typeof fetch,
+      ).send('x@u.nus.edu', 'Invitation', 'text'),
+    ).toEqual({ state: 'queued', messageId: 'synthetic-message' });
+    expect(
+      (
+        await make(
+          vi.fn(async () => new Response('', { status: 400 })) as typeof fetch,
+        ).send('x@u.nus.edu', 'a', 'b')
+      ).state,
+    ).toBe('failed');
+    expect(
+      (
+        await make(
+          vi.fn(async () => {
+            throw new Error();
+          }) as typeof fetch,
+        ).send('x@u.nus.edu', 'a', 'b')
+      ).state,
+    ).toBe('unknown');
+  });
+  it('Firebase signs OAuth, uses exact project/UID and validates provider reset purpose/email', async () => {
+    const keys = await crypto.subtle.generateKey(
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: 'SHA-256',
+      },
+      true,
+      ['sign', 'verify'],
+    );
+    const pem = btoa(
+      String.fromCharCode(
+        ...new Uint8Array(
+          await crypto.subtle.exportKey('pkcs8', keys.privateKey),
+        ),
+      ),
+    );
+    const calls: { url: string; input: Record<string, unknown> }[] = [];
+    const transport = vi.fn(
+      async (url: RequestInfo | URL, init?: RequestInit) => {
+        const target = String(url);
+        if (target === 'https://oauth2.googleapis.com/token') {
+          const form = new URLSearchParams(String(init?.body));
+          expect(form.get('grant_type')).toBe(
+            'urn:ietf:params:oauth:grant-type:jwt-bearer',
+          );
+          const jwt = form.get('assertion')!.split('.'),
+            sig = Uint8Array.from(
+              atob(jwt[2].replace(/-/g, '+').replace(/_/g, '/')),
+              (v) => v.charCodeAt(0),
+            );
+          expect(
+            await crypto.subtle.verify(
+              'RSASSA-PKCS1-v1_5',
+              keys.publicKey,
+              sig,
+              new TextEncoder().encode(jwt[0] + '.' + jwt[1]),
+            ),
+          ).toBe(true);
+          return Response.json({
+            access_token: 'synthetic-access',
+            expires_in: 3600,
+          });
+        }
+        const input = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        calls.push({ url: target, input });
+        if (target.includes('accounts:signInWithPassword'))
+          return Response.json({
+            localId: 'synthetic-uid',
+            email: 'x@u.nus.edu',
+          });
+        if (target.endsWith(':lookup'))
+          return Response.json({
+            users: [
+              {
+                localId: 'synthetic-uid',
+                email: 'x@u.nus.edu',
+                emailVerified: true,
+                passwordUpdatedAt: 1,
+                validSince: '1',
+              },
+            ],
+          });
+        if (target.endsWith(':sendOobCode'))
+          return Response.json({
+            oobLink:
+              'https://synthetic-project.firebaseapp.com/__/auth/action?mode=resetPassword&oobCode=synthetic-code',
+          });
+        if (target.includes('accounts:resetPassword'))
+          return Response.json({
+            requestType: 'PASSWORD_RESET',
+            email: 'x@u.nus.edu',
+          });
+        return Response.json({});
+      },
+    );
+    const firebase = new FirebaseCredentials(
+      {
+        ...config,
+        project: 'synthetic-project',
+        apiKey: 'synthetic-api',
+        serviceEmail: 'synthetic@example.test',
+        privateKey:
+          '-----BEGIN PRIVATE KEY-----\n' + pem + '\n-----END PRIVATE KEY-----',
+      },
+      transport as typeof fetch,
+    );
+    expect((await firebase.login('x@u.nus.edu', password)).uid).toBe(
+      'synthetic-uid',
+    );
+    expect(await firebase.action('x@u.nus.edu')).toBe('synthetic-code');
+    expect(await firebase.inspect('synthetic-code')).toBe('x@u.nus.edu');
+    expect(await firebase.reset('synthetic-code', password)).toBe(
+      'x@u.nus.edu',
+    );
+    await firebase.verifyEmail('synthetic-uid');
+    expect(
+      calls.some((c) =>
+        c.url.includes('/projects/synthetic-project/accounts:lookup'),
+      ),
+    ).toBe(true);
+    expect(calls.some((c) => c.input.emailVerified === true)).toBe(true);
+  });
+});

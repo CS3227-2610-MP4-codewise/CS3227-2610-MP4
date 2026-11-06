@@ -1,7 +1,13 @@
-# Copy to .dev.vars for local-only secrets when those integrations are implemented.
-# Keep real secrets out of Git and browser-prefixed environment variables.
+# Firebase Authentication and Brevo — server-only local settings.
+# Copy to .dev.vars; keep it ignored. Do not prefix any secret with VITE_.
+AUTH_ORIGIN=http://127.0.0.1:8787
+FIREBASE_PROJECT_ID=
+FIREBASE_API_KEY=
+FIREBASE_SERVICE_ACCOUNT_EMAIL=
+# PEM from Firebase service account, with escaped newline sequences in one quoted value.
+FIREBASE_PRIVATE_KEY=
+BREVO_API_KEY=
+BREVO_SENDER_EMAIL=
+# Set only after verifying actual sender/link delivery configuration; see workflow/auth/SETUP.md.
+BREVO_AUTH_LINKS_VERIFIED=false
 # SOCLAAS_API_KEY=
-# Shared authentication: server only. Use the exact app origin, without a trailing slash.
-# AUTH_ORIGIN=http://127.0.0.1:8787
-# GOOGLE_CLIENT_ID=
-# GOOGLE_CLIENT_SECRET=

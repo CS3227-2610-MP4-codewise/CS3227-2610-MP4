@@ -1,28 +1,36 @@
-# Shared authentication producer
-
-## Review follow-up — 2026-11-06
-
-After implementation, Darryl requested invitations without expiry and asked about NUS-only/institutional sign-in, explicitly instructing no implementation of those changes yet. This PR preserves the previously approved Google + 24-hour invitation implementation for review. Non-expiring invitations are the requested future policy; the NUS provider/admission choice remains proposed, not confirmed. Neither change is implemented or covered by the recorded passing tests. Final manual acceptance, real Google and Keith integration remain pending. Commit/push/PR authorization is separate from feature or policy acceptance.
+# Shared authentication — Firebase passwords and Brevo invitations
 
 ## Why
 
-The merged instructor feature still relies on synthetic identity. Darryl's approved SH-AUTH slice must establish real identity/sessions without duplicating Keith's courses, memberships or object authority (AUTH-01–AUTH-03, CON-03/CON-07).
+Darryl wants instructors to email invitations, students to create passwords in Codewise, and password recovery without repeated login OTPs or a paid Workers tier. On 2026-11-06 Darryl selected Firebase Authentication and Brevo and authorized implementation before accounts/keys are available. This supersedes the earlier SendGrid/local-password and proposed passwordless/Supabase options in this bounded SH-AUTH change.
+
+## Decision status
+
+Confirmed: Workers Free; Firebase as sole password authority; Brevo invitation delivery; non-expiring, revocable instructor-issued admission; email/password login and emailed recovery links; unchanged stable Codewise IDs, opaque cookie sessions and Keith-owned authorization. User will configure accounts and secrets later. No account creation, spending, deployment or automatic email-based linking of old Google identities is authorized.
+
+Implementation is authorized; actual provider/account/sender configuration, Free-runtime capacity, live NUS delivery, Keith's boundary review/composed authority and manual acceptance remain pending. Google producer 1c1174d/PR8 and its earlier checks are historical. FoC-team-12 User Service d6fdc85 remains a UX reference; its custom OTP/reset protocol, local password storage and exact lockout implementation are superseded by provider-managed proofs/abuse controls, not claimed as exact protocol parity.
 
 ## What Changes
 
-- Google OIDC through maintained openid-client6.8.9, server-side code/PKCE/state/nonce validation and invitation-only first account creation. One D1 issuer/subject account/session store.
-- Approved24-hour single-use invitations managed in-app by trusted authentication administrators: create, copy once, list status and revoke; manually send links. No email provider or public signup. Operator bootstrap is outside browser roles and course authority.
-- Secure opaque sessions,30-minute idle/8-hour absolute expiry, logout/revocation, origin/CSRF guards and safe return-destination authorization composition. Missing Keith producer means a signed-in/unavailable workspace, never synthetic memberships.
-- Warm-workbook-v1 sign-in, onboarding and invitation management with pending/cancel/error/expired states; UI-01/UI-02/UI-07/UI-08. Reuse existing C-ID session schema and safe errors; supply exact producer handoff and reusable checks.
+- **BREAKING:** replace Google-only sign-in with invited NUS email/password backed by Firebase. Firebase owns passwords and project/UID identity; Codewise keeps only the authoritative app mapping/session/invitation store.
+- Keith's injected current instructor/course authorization gates own-invite send/list/resend/revoke. Missing producer means unavailable before recipient records/mail; no fake memberships or automatic enrollment.
+- Invitations remain pending until accepted/revoked. Separate verification/recovery proofs expire and are single-use; GET never consumes them. Users choose a password through Codewise, then use ordinary email/password login.
+- Brevo sends invitations; Firebase supplies maintained verification/reset proofs. Use the verified API contract in design.md for delivery. Track pending/accepted/revoked separately from queued/failed/unknown; queue acknowledgement is not inbox delivery.
+- Preserve warm-workbook-v1 and UI-01/02/07/08, with an explicit provider-backed password/recovery policy addendum. No public registration, role choice or instructor self-promotion.
+- Preserve closed SessionView, stable account IDs, Secure/HttpOnly opaque cookies, 30-minute idle/eight-hour absolute expiry, Origin/CSRF, logout/revocation and authorized local returns. Provider reset/disable/revocation must invalidate D1 sessions too.
 
 ## Capabilities
 
 ### New Capabilities
-- `shared-authentication`: SH-AUTH identity, invitations, sessions, secure transport and role-free workspace handoff, specializing existing AUTH/CON/UI requirements.
+
+- shared-authentication: revise existing in-flight SHA-01–10, AUTH-01–03 and CON-03/07, not a duplicate capability.
 
 ### Modified Capabilities
-None under canonical openspec/specs. Reuse existing in-flight C-ID/MVP/UI requirements rather than duplicate or weaken Keith's boundary.
+
+None in canonical specs. Reconcile existing UI policy/C-ID status under Darryl's serialized window.
 
 ## Impact
 
-Base main2d8a861; branch codex/shared-authentication. Darryl approved Google/invite/session policy and added in-app invitation management before approving implementation. Exact single-writer window is recorded in workflow/Ownership.md. Product auth modules, API/web entry wiring, next0003 migration, minimal dependency/binding support and scoped workflow/docs/log/evidence are included. No Keith services, course/role tables, CI/deployment workflows, email delivery, auth-admin self-enrollment or provider-global logout. Live Google credentials/callback verification and Keith revised-boundary review remain pending unless actually supplied; no deployment authorized.
+Continue matching codex/shared-authentication from reviewed main 2d8a861; preserve e3a49bf and all existing work. Darryl owns auth/UI/compatible DTOs/additive migration/minimal API and configuration wiring, existing policy/docs/log/evidence/handoff. Keith retains course/membership/object producers and cross-review. No commit/push/deploy inferred.
+
+Dependencies: Firebase Spark project, provider/password/action URL settings and server credential; approved Brevo account/sender/key; actual NUS inbox; first-instructor bootstrap and Keith authority. User confirms neither account exists yet. Synthetic local checks can proceed; real-provider login/mail, composed authority and hosted capacity remain pending. Free quotas are not an unlimited-service guarantee.

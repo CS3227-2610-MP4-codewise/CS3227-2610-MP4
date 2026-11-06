@@ -2,22 +2,22 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { Readable } from 'node:stream';
 import { authDatabase } from './database';
-import { AuthStore } from '../../src/server/auth/store';
-import { AuthRoutes } from '../../src/server/auth/routes';
-import {
-  INVITE_TTL,
-  hash,
-  randomToken,
-  setCookie,
-} from '../../src/server/auth/primitives';
+import { ManagedStore } from '../../src/server/auth/managed-store';
+import { ManagedAuthRoutes } from '../../src/server/auth/managed-routes';
+import { SyntheticFirebase } from './synthetic-firebase';
+import { BoundaryError } from '../../src/shared/instructor-contracts/schema';
+import { hash, randomToken, setCookie } from '../../src/server/auth/primitives';
 const origin = 'http://127.0.0.1:5176',
-  config = {
-    origin,
-    clientId: 'synthetic-preview',
-    clientSecret: 'synthetic-preview-only',
-    secure: false,
-  };
-/** Explicit loopback fixture composition, never imported by src/server or a production build. */
+  config = { origin, clientId: '', clientSecret: '', secure: false };
+const escape = (value: string) =>
+  value.replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[
+        c
+      ]!,
+  );
+/** Loopback-only synthetic composition; never imported by production. */
 export default defineConfig({
   plugins: [
     react(),
@@ -29,31 +29,40 @@ export default defineConfig({
             tag: 'aside',
             attrs: { class: 'cw-status', role: 'note' },
             children:
-              'Synthetic authentication preview — invented accounts, isolated local D1. Google and course integration are not verified.',
+              'Synthetic Firebase/Brevo preview — invented identities, isolated D1 and captured emails. No real provider or course integration. Use invented passwords only.',
             injectTo: 'body-prepend' as const,
           },
         ];
       },
       async configureServer(server) {
         const database = await authDatabase(),
-          store = new AuthStore(database.db);
-        const provider = {
-          async authorization(input: { state: string }) {
-            return (
-              origin +
-              '/api/auth/callback?code=synthetic-preview&state=' +
-              input.state
-            );
-          },
-          async exchange() {
-            return {
-              issuer: 'https://accounts.google.com',
-              subject: 'synthetic-preview-member',
-              email: 'member@example.test',
-            };
+          store = new ManagedStore(database.db),
+          provider = new SyntheticFirebase();
+        const mails: { email: string; subject: string; text: string }[] = [];
+        let adminId = '';
+        const mailer = {
+          async send(email: string, subject: string, text: string) {
+            mails.unshift({ email, subject, text });
+            return { state: 'queued' as const, messageId: 'synthetic-preview' };
           },
         };
-        const routes = new AuthRoutes(store, config, provider);
+        const courses = {
+          async requireCourse(principal: { userId: string }, courseId: string) {
+            if (principal.userId !== adminId || courseId !== 'synthetic-course')
+              throw new BoundaryError('FORBIDDEN');
+          },
+        };
+        const routes = new ManagedAuthRoutes(
+          store,
+          config,
+          provider,
+          mailer,
+          courses,
+          undefined,
+          (work) => {
+            void work().catch(() => {});
+          },
+        );
         server.httpServer?.once('close', () => {
           void database.close();
         });
@@ -73,43 +82,75 @@ export default defineConfig({
               res.end();
               return;
             }
-            const invite = randomToken(),
+            const uid = 'synthetic-instructor',
+              email = 'instructor@u.nus.edu',
+              token = randomToken(),
               now = Date.now();
+            await provider.provision(uid, email);
+            await provider.verifyEmail(uid);
+            provider.passwords.set(uid, 'preview instructor passphrase');
             await database.db
               .prepare(
                 'INSERT INTO auth_invites(id,token_hash,email,created_at,expires_at) VALUES(?,?,?,?,?)',
               )
               .bind(
                 crypto.randomUUID(),
-                await hash(invite),
-                'admin@example.test',
+                await hash(token),
+                email,
                 now,
-                now + INVITE_TTL,
+                now + 86400000,
               )
               .run();
-            const browser = randomToken(),
-              start = await store.begin(browser, invite, '/workspace');
-            const token = await store.complete(
-              await store.claim(start.state, browser),
-              {
-                issuer: 'https://accounts.google.com',
-                subject: 'synthetic-admin',
-                email: 'admin@example.test',
-              },
+            const cookie = await store.loginManaged(
+              randomToken(),
+              await provider.current(uid),
+              provider.issuer,
+              '/workspace',
+              token,
             );
-            const session = await store.session(token);
-            await database.db
-              .prepare(
-                'INSERT INTO auth_administrators(user_id) VALUES(?) ON CONFLICT DO NOTHING',
-              )
-              .bind(session.user_id)
-              .run();
+            adminId = (await store.session(cookie)).user_id;
             res.writeHead(303, {
-              'Set-Cookie': setCookie(config, 'session', token, 28800),
-              Location: '/auth/invitations',
+              'Set-Cookie': setCookie(config, 'session', cookie, 28800),
+              Location: '/auth/invitations?courseId=synthetic-course',
               'Cache-Control': 'no-store',
             });
             res.end();
+            return;
+          }
+          if (req.url === '/__auth-preview/mail' && req.method === 'GET') {
+            res.writeHead(200, {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Cache-Control': 'no-store',
+              'Referrer-Policy': 'no-referrer',
+              'Content-Security-Policy':
+                "default-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+            });
+            res.end(
+              '<h1>Synthetic mailbox</h1><p>No real email is sent. Refresh to see new captured messages.</p>' +
+                mails
+                  .map(
+                    (m) =>
+                      '<article><h2>' +
+                      escape(m.subject) +
+                      '</h2><p>' +
+                      escape(m.email) +
+                      '</p><pre>' +
+                      escape(m.text) +
+                      '</pre><p>' +
+                      m.text
+                        .split('\n')
+                        .filter((line) => line.startsWith(origin + '/'))
+                        .map(
+                          (line) =>
+                            '<a href="' +
+                            escape(line) +
+                            '">Open synthetic email link</a>',
+                        )
+                        .join('') +
+                      '</p></article>',
+                  )
+                  .join(''),
+            );
             return;
           }
           if (!req.url?.startsWith('/api/auth/')) {
@@ -118,9 +159,12 @@ export default defineConfig({
           }
           try {
             const headers = new Headers();
-            for (const [k, v] of Object.entries(req.headers))
-              if (v !== undefined)
-                headers.set(k, Array.isArray(v) ? v.join(',') : v);
+            for (const [key, value] of Object.entries(req.headers))
+              if (value !== undefined)
+                headers.set(
+                  key,
+                  Array.isArray(value) ? value.join(',') : value,
+                );
             const method = req.method ?? 'GET',
               body =
                 method === 'GET' || method === 'HEAD'

@@ -83,3 +83,7 @@ The initial change lives in openspec/changes/codewise-mvp/. Canonical openspec/s
 ## Instructor contract approval — 2026-11-05
 
 Darryl explicitly approved instructor-development-contracts, P1–P4 and the isolated contract-artifact edit window. Runtime/schema and synthetic conformance do not establish real integration. The [K1–K6 packet](../workflow/IntegrationContracts.md#keith-review-packet--pending-agreement) is the single combined request for Keith; all rows await his detailed agreement. Score units are finite 0..1000 point numbers with two decimals/no rounding. No feature, authentication, provider or producer persistence is declared complete.
+
+## SH-AUTH provider revision — 2026-11-06
+
+Confirmed by Darryl: Firebase Authentication + Brevo, Workers Free, instructor-issued non-expiring/revocable invitations, student password setup, ordinary password login and email recovery. Neither external account is configured; coding before keys is authorized. FoC is the user-flow reference, not a commitment to its custom OTP/reset/JWT/lockout internals. Supabase/passwordless/SendGrid/local-KDF are superseded targets. Stable app IDs/cookies/C-ID remain; provider passwords are not stored in D1. Keith owns all course permissions and still needs to review the revised boundary. Actual provider/mail/authorization/runtime/manual acceptance remains pending; no deployment verified.

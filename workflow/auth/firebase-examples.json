@@ -1,0 +1,48 @@
+{
+  "session": {
+    "schemaVersion": 1,
+    "userId": "synthetic-user",
+    "expiresAt": "2030-01-01T00:00:00.000Z"
+  },
+  "login": {
+    "email": "learner@u.nus.edu",
+    "password": "synthetic passphrase only"
+  },
+  "invitationRequest": {
+    "courseId": "synthetic-course",
+    "email": "learner@u.nus.edu"
+  },
+  "invitationList": {
+    "items": [
+      {
+        "id": "synthetic-invitation",
+        "email": "learner@u.nus.edu",
+        "courseId": "synthetic-course",
+        "createdAt": "2026-11-06T00:00:00.000Z",
+        "status": "pending",
+        "sendState": "queued",
+        "sentAt": "2026-11-06T00:00:00.000Z"
+      }
+    ],
+    "nextCursor": null
+  },
+  "setupConfirm": {
+    "invite": "0000000000000000000000000000000000000000000000000000000000000000",
+    "code": "synthetic-oob-code",
+    "password": "synthetic passphrase only"
+  },
+  "resetRequest": {
+    "email": "learner@u.nus.edu"
+  },
+  "resetConfirm": {
+    "code": "synthetic-oob-code",
+    "password": "replacement synthetic passphrase"
+  },
+  "resetAcknowledgement": {
+    "ok": true
+  },
+  "workspace": {
+    "state": "unavailable",
+    "destination": null
+  }
+}

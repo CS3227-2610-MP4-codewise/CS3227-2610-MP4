@@ -18,6 +18,7 @@ export async function authRequest(
     if (response.status === 401) throw new BoundaryError('UNAUTHENTICATED');
     if (response.status === 403) throw new BoundaryError('FORBIDDEN');
     if (response.status === 429) throw new BoundaryError('RATE_LIMITED');
+    if (response.status === 400) throw new BoundaryError('INVALID_CONTRACT');
     throw new BoundaryError('UPSTREAM_UNAVAILABLE');
   }
   return response.json();
@@ -43,6 +44,29 @@ export function authMessage(error: unknown) {
     : error instanceof BoundaryError && error.code === 'FORBIDDEN'
       ? 'You no longer have access to this action. Refresh your session or contact the administrator.'
       : error instanceof BoundaryError && error.code === 'RATE_LIMITED'
-        ? 'Too many attempts. Please wait a minute and try again.'
-        : 'We could not complete that request. Please try again.';
+        ? 'Too many attempts. Please wait 90 seconds and try again.'
+        : error instanceof BoundaryError && error.code === 'INVALID_CONTRACT'
+          ? 'Check your NUS email, password length and required details, then try again.'
+          : 'We could not complete that request. Please try again.';
+}
+export function takeAuthProof(
+  location: { pathname: string; search: string; hash: string },
+  replace: (url: string) => void,
+) {
+  if (!['/sign-in', '/auth/reset'].includes(location.pathname))
+    return { invite: null, code: null };
+  const fragment = new URLSearchParams(location.hash.slice(1));
+  const invite =
+    location.pathname === '/sign-in' &&
+    fragment.getAll('invite').length === 1 &&
+    /^[a-f0-9]{64}$/.test(fragment.get('invite') ?? '')
+      ? fragment.get('invite')
+      : null;
+  const code =
+    fragment.getAll('code').length === 1 &&
+    /^[A-Za-z0-9_-]{1,2048}$/.test(fragment.get('code') ?? '')
+      ? fragment.get('code')
+      : null;
+  if (location.hash) replace(location.pathname + location.search);
+  return { invite, code };
 }

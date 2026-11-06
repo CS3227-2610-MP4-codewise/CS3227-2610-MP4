@@ -7,15 +7,28 @@
   </head>
   <body>
     <main>
-      <h1>Synthetic authentication preview</h1>
+      <h1>Synthetic Firebase/Brevo preview</h1>
       <p>
-        Local D1 and invented identities only. This does not verify Google or
-        course integration. Closing the preview deletes this isolated database.
+        Invented identities, captured emails and isolated local D1 only. This
+        does not verify Firebase, Brevo, NUS email or Keith course integration.
+        Closing the preview deletes this database. Use invented passwords only.
       </p>
       <form method="post" action="/__auth-preview/start">
-        <button type="submit">Open synthetic administrator session</button>
+        <button type="submit">Open synthetic instructor session</button>
       </form>
-      <p><a href="/sign-in">Review the sign-in screen</a></p>
+      <p>
+        The synthetic instructor session selects an invented course for
+        invitation tracking. Invite an invented address ending in @u.nus.edu.
+      </p>
+      <p>
+        <a href="/__auth-preview/mail" target="_blank" rel="noopener"
+          >Open synthetic mailbox</a
+        >
+      </p>
+      <p>
+        <a href="/sign-in">Review sign-in</a> ·
+        <a href="/auth/forgot">Review recovery</a>
+      </p>
     </main>
   </body>
 </html>

@@ -43,8 +43,8 @@ function App() {
             <p className="cw-kicker">Where we are</p>
             <h2 id="foundation-heading">The workbook is taking shape.</h2>
             <p>
-              Sign in with your invited Google account. Course workspaces become
-              available after course access is connected.
+              Sign in with your invited NUS email and Codewise password. Course
+              workspaces become available after course access is connected.
             </p>
             <div className="cw-foundation-notes">
               <p>
@@ -116,9 +116,14 @@ function App() {
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {['/sign-in', '/auth/finish', '/workspace', '/auth/invitations'].includes(
-      window.location.pathname,
-    ) ? (
+    {[
+      '/sign-in',
+      '/auth/finish',
+      '/workspace',
+      '/auth/invitations',
+      '/auth/reset',
+      '/auth/forgot',
+    ].includes(window.location.pathname) ? (
       <AuthApp />
     ) : (
       <App />

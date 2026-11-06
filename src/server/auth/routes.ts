@@ -47,7 +47,7 @@ const redirect = (destination: string, cookie?: string) =>
       ...(cookie ? { 'Set-Cookie': cookie } : {}),
     },
   });
-async function body(request: Request) {
+export async function readAuthBody(request: Request) {
   assert(
     request.headers.get('content-type')?.split(';')[0] === 'application/json',
     '$',
@@ -62,7 +62,7 @@ async function body(request: Request) {
       const part = await reader.read();
       if (part.done) break;
       size += part.value.length;
-      assert(size <= 2048, '$', 'size');
+      assert(size <= 8192, '$', 'size');
       chunks.push(part.value);
     }
   } finally {
@@ -82,6 +82,7 @@ async function body(request: Request) {
     throw new BoundaryError('INVALID_CONTRACT');
   }
 }
+const body = readAuthBody;
 export class AuthRoutes {
   constructor(
     readonly store: AuthStore,

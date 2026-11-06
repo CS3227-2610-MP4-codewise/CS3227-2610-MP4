@@ -18,22 +18,26 @@ export async function authDatabase(persist?: string) {
       'CREATE TABLE IF NOT EXISTS _auth_test_migrations(name TEXT PRIMARY KEY)',
     )
     .run();
-  const name = '0003_authentication.sql';
-  if (
-    !(await db
-      .prepare('SELECT name FROM _auth_test_migrations WHERE name=?')
-      .bind(name)
-      .first())
-  ) {
-    const sql = await readFile('src/server/db/migrations/' + name, 'utf8');
-    await db.batch([
-      ...sql
-        .split(/^-- statement\s*$/m)
-        .map((s) => s.trim())
-        .filter((s) => s.replace(/^--.*$/gm, '').trim())
-        .map((s) => db.prepare(s)),
-      db.prepare('INSERT INTO _auth_test_migrations VALUES(?)').bind(name),
-    ]);
+  for (const name of [
+    '0003_authentication.sql',
+    '0004_firebase_invitations.sql',
+  ]) {
+    if (
+      !(await db
+        .prepare('SELECT name FROM _auth_test_migrations WHERE name=?')
+        .bind(name)
+        .first())
+    ) {
+      const sql = await readFile('src/server/db/migrations/' + name, 'utf8');
+      await db.batch([
+        ...sql
+          .split(/^-- statement\s*$/m)
+          .map((s) => s.trim())
+          .filter((s) => s.replace(/^--.*$/gm, '').trim())
+          .map((s) => db.prepare(s)),
+        db.prepare('INSERT INTO _auth_test_migrations VALUES(?)').bind(name),
+      ]);
+    }
   }
   return { db, close: () => mf.dispose() };
 }
