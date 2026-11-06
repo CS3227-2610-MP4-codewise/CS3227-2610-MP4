@@ -30,7 +30,10 @@
       ]
     }
   },
-  "publish": { "expectedRevision": 2, "idempotencyKey": "publish_synthetic_1" },
+  "publish": {
+    "expectedRevision": 2,
+    "idempotencyKey": "publish-1"
+  },
   "public": {
     "schemaVersion": 1,
     "assignmentId": "assignment_synthetic",

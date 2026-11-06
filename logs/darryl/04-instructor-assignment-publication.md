@@ -95,3 +95,16 @@ Darryl explicitly requested “commit, push and create the PR,” authorizing th
 - UX committed locally as31abab0; clean rebase of the two unpublished commits onto reviewed main7621ec7 succeeded without conflicts, producing implementation80317f3 and UX5075779. Application source unchanged by the rebase. Updated current handoff/guide/proposal to the merged Darryl SH-AUTH / Keith SH-ID split and corrected stale planning-only/uncommitted wording; historical checkpoint records retain their original commit identifiers.
 - After rebase, npm run check passed5 strict specs, types/lint,116 Vitest+4 Node tests/build. No additional source edits; documentation reconciliation validated before final commit. Real integration/deployment and final manual acceptance remain pending. The final publication-record commit preserves these outcomes before pushing.
 - External usage checkpoint2026-11-06T05:41:54.668Z (13:41:54 Singapore), per_response_usage, root turn-5f927981d349d967ac895032 incomplete/provisional3,244,043 reported tokens; no agents delegated in this shipping turn. Later calls/final response excluded; detailed telemetry outside Git and no efficiency claim.
+
+# 07 - Repair PR7 secret-scan false positive - 2026-11-06
+
+## Request
+
+Darryl supplied PR7's failed Gitleaks output. Continue the authorized commit/push/PR work by diagnosing and repairing that CI finding. Existing branch was clean at e4660ff; no unrelated changes.
+
+## Results
+
+- GitHub run42170164939 checks job passed application checks/audit/Worker dry-run; secrets job alone failed. Native checksum-verified official Gitleaks8.24.2 reproduced exactly one redacted finding in workflow/instructor-preview/payloads.json:33, generic-api-key. Confirmed it is the deliberately authored publication retry fixture ID, not a real credential; raw scanner report/binary/downloads stay outside Git.
+- Shortened that test ID; payload schema/producer checks pass. No .gitleaks ignore/allowlist, scanner-policy or CI edit. Main self-reviewed this trivial fixture-only repair; no extra agent needed. Same-version clean tracked-source export scan returns0 findings/exit0; final staged tree is scanned before committing/pushing the PR repair.
+- npm run check passed5 specs, types/lint,116 Vitest+4 Node tests/build. [Redacted repair evidence](../../workflow/evidence/instructor-assignment-publication/secret-scan.md). The remote Docker scan is checked after push rather than asserted from the native result. No merge/deployment/manual acceptance invented.
+- External checkpoint2026-11-06T05:50:58.535Z (13:50:58 Singapore), per_response_usage, root turn-2449b9f633df21083afb62b7 incomplete/provisional3,871,075 tokens; no child agents this turn. Subsequent calls/final response outside snapshot; detailed telemetry remains outside Git and no efficiency claim.
