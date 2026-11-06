@@ -1,0 +1,148 @@
+.ia-workspace {
+  overflow-wrap: anywhere;
+}
+.ia-workspace h2 {
+  font-family: var(--cw-font-editorial);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 16px 0;
+}
+.ia-list {
+  border-top: 2px solid var(--cw-ink);
+  padding-top: 20px;
+}
+.ia-list ul,
+.ia-history ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ia-list li,
+.ia-history li {
+  border-bottom: 1px solid var(--cw-rule);
+  padding: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.ia-list li > div,
+.ia-history li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ia-list li p,
+.ia-context,
+.ia-history li p {
+  font-size: 0.8125rem;
+  color: var(--cw-secondary);
+}
+.ia-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  margin: 20px 0;
+}
+.ia-field {
+  display: grid;
+  gap: 8px;
+  font-size: 0.875rem;
+  margin: 16px 0;
+  min-width: 0;
+}
+.ia-field input,
+.ia-field textarea,
+.ia-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--cw-secondary);
+  border-radius: 2px;
+  background: var(--cw-page);
+  color: var(--cw-ink);
+  line-height: 1.6;
+}
+.ia-field textarea {
+  resize: vertical;
+}
+.ia-field [readonly] {
+  border-style: dashed;
+}
+.ia-field .ia-source {
+  font-family: var(--cw-font-code);
+  font-size: 0.9375rem;
+  line-height: 1.9;
+  white-space: pre;
+  overflow: auto;
+}
+.ia-metadata {
+  border-top: 1px solid var(--cw-rule);
+  padding: 16px 0 24px;
+}
+.ia-status {
+  margin: 24px 0;
+}
+.ia-context {
+  overflow-wrap: anywhere;
+}
+.ia-criterion {
+  min-width: 0;
+  border: 0;
+  border-top: 1px solid var(--cw-rule);
+  padding: 16px 0;
+  margin: 24px 0;
+}
+.ia-criterion legend {
+  padding-right: 12px;
+}
+.ia-score {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.ia-review {
+  background: var(--cw-page);
+  border-top: 2px solid var(--cw-ink);
+  padding: 24px;
+}
+.ia-review li {
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.ia-brief summary {
+  min-height: 44px;
+  cursor: pointer;
+  display: list-item;
+  padding: 12px 0;
+}
+.ia-history {
+  margin: 32px 0;
+}
+.ia-workspace .cw-question-navigation {
+  margin-top: 24px;
+}
+.ia-workspace .cw-header .ia-field {
+  margin: 0;
+}
+.ia-workspace .cw-header-context {
+  flex: 1;
+}
+.ia-actions > .ia-field {
+  margin: 0;
+  max-width: 100%;
+}
+@media (max-width: 480px) {
+  .ia-list li,
+  .ia-history li {
+    align-items: start;
+    flex-direction: column;
+  }
+  .ia-score {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ia-review {
+    padding: 20px 16px;
+  }
+}

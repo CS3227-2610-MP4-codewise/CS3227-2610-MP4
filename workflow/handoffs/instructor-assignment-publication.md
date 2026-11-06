@@ -1,0 +1,32 @@
+# Handoff: instructor-assignment-publication
+
+- Human owner / next owners: Darryl implements publication; Keith reviews/consumes C-PUB and supplies real identity/course integration. No Keith student service implemented here.
+- Agent: main /root implementation and actual checks; independent /root/publication_review read-only source/security/UI state review, no editing or recursive delegation. Model/coverage metadata lives in the external recorder; reviewed summary in the member log.
+- Requirements: SUB-01, AUTH-02, IAS-01–IAS-07; warm-workbook-v1 UI-01/04/05/07/08.
+- Input revision: main7e3e7293152de512a3081e8149caa55ae6d715e8. Output branch codex/instructor-assignment-publication, uncommitted; [source hashes](../evidence/instructor-assignment-publication/source-sha256.json) pin exact source/migration/payload revision. Do not treat uncommitted output as a deployed producer revision.
+- Owned files: src/web/instructor/assignments/, src/server/instructor/assignments/, src/shared/instructor-contracts/authoring.ts, additive0002 migration, workflow/instructor-preview/, minimal package/lock, this change's OpenSpec/log/evidence/handoff and Ownership window. Production entrypoints, deployment configuration, CI, shared primitives, generic personal skills, Keith code untouched.
+- Context: MVP/OpenSpec contracts, Ownership/IntegrationContracts, instructor-development-contracts handoff, actual UI foundation and design revision. Darryl's explicit brief/window approval on2026-11-06; no additional joint K1–K6 acceptance invented.
+
+## Producer contract and consumer acceptance
+
+[Exact runtime/HTTP/adapters guide](../instructor-preview/README.md); [synthetic commands/public/private fields](../instructor-preview/payloads.json); [reusable public admission check](../instructor-preview/producer-checks.ts). Existing C-PUB publicationSchema is authoritative. New authoring schema is separate; partial drafts never pass as published DTOs. Private history/read is instructor-only and public SQL never selects private_reference.
+
+| Producer → consumer scenario                                                                           | Actual acceptance / next gate                                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Instructor publishes valid saved draft → Keith reads exact assignmentVersionId                         | Local D1-produced envelope passes C-PUB; producer-checks also refuses wrong version/extra private fields. Keith's real consumer must pin exact question/rubric versions and run its contract checks against the reviewed producer revision. |
+| Instructor changes only reference/deadline and republishes → older submission stays pinned             | Local tests: fresh version IDs, stable logical IDs and original snapshots/deadlines unchanged. No submissions created here; actual immutable-attempt integration pending Keith SH-SUB.                                                      |
+| Student course member reads public version → private history remains restricted                        | Injected synthetic student read passes C-PUB, private read denied. Real membership/session integration pending SH-ID; synthetic success is not completed integration.                                                                       |
+| Missing/revoked session/course/object or forged role → no private data/receipt                         | Isolated tests and running guarded HTTP refuse missing/foreign/forged access before private operations. Inject Keith's real IdentityCoursePort with repository.scope metadata seam; no duplicate storage.                                   |
+| Save/publish race, ambiguous retry or child failure → consumer sees complete immutable version or none | Actual local D1 exercises conflict, same-key concurrency, rollback, root-abort and immutable triggers; max20×50 bounded snapshot statements. Remote D1/load/production not verified.                                                        |
+
+Migration0002 creates instructor drafts/publication/question/rubric/criterion snapshots with external opaque course/actor IDs, no identity/course/submission/assessment tables. Apply only through later reviewed release work once real integration is ready; no cloud migration ran. Existing0001 is unchanged. Schema version health remains platform metadata, not a claim that this feature is deployed.
+
+## Checks, review and limitations
+
+Manual-review refinement2026-11-06: New/Open now navigate from the list to a dedicated local authoring page; saved page URL reloads with the same trusted authorization boundary. Back/native unsaved-work guard preserve deliberate navigation. Shared producer/API/schema are unchanged; refreshed source hashes/UI evidence cover this refinement.
+
+[Verification](../evidence/instructor-assignment-publication/verification.md), [UI review/manual checklist](../evidence/instructor-assignment-publication/ui-review.md), [member log](../../logs/darryl/04-instructor-assignment-publication.md). Actual local D1+controller tests, full project checks and production exclusion scan recorded there. All independent findings returned to main and repaired; reviewer test execution itself was blocked before collection, so its approval is source-review evidence only.
+
+Real authentication/provisioning/session/object revocation behavior, K1–K6/joint contract acceptance and real student consumer integration remain pending. Sign-in, student editor/submission/progress, grading/release and AI gateway implementation are excluded. No deployment/merge/archive; Darryl manual acceptance pending. Local fixture cookie is loopback development only, not an authentication implementation to reuse in production.
+
+Next action: Darryl performs manual checklist and accepts/returns this slice. Keith reviews this exact version and supplies his producer handoff; future real-auth wiring needs a new named shared write window and tests before any deployed feature route. Commit/push/PR require applicable separate instruction for this increment; no review/deployment status invented.

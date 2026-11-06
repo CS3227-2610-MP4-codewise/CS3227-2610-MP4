@@ -49,3 +49,7 @@ Darryl owns logs/darryl/; Keith owns logs/keith/. Choose one human log owner for
 ## Instructor contract artifact window — approved 2026-11-05
 
 Darryl is the single writer for src/shared/instructor-contracts/, src/server/instructor/ports/, workflow/fixtures/instructor-contracts/, workflow/contracts/, existing IntegrationContracts/PlanningDecisions documents and this change’s planning/evidence/handoff/member log. One independent reviewer is read-only. Existing src/shared/contracts.ts, API entry, runtime environment, migrations, dependencies/CI and Keith role services are untouched. Detailed Keith K1–K6 agreement and real producer/auth integration remain pending; this window does not transfer his implementations to Darryl.
+
+## Instructor assignment publication window — approved 2026-11-06
+
+Darryl approved the bounded authoring/publication brief and expanded single-writer window: src/web/instructor/assignments/, src/server/instructor/assignments/, new authoring contract/tests, next migration 0002_instructor_assignments.sql (number rechecked before creation), workflow/instructor-preview/ and its local HTML entry, minimal package/lockfile development support and this change's docs/log/evidence/handoff/UI review. The independent reviewer is read-only. Production Worker/frontend entrypoints, root deployment configuration, CI and Keith identity/course/submission/progress services are not part of this window. Synthetic local composition is explicitly authorized; real authentication/K1–K6/consumer integration remains pending.

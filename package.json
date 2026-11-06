@@ -20,7 +20,8 @@
     "check": "npm run specs:validate && npm run typecheck && npm run lint && npm run test && npm run build",
     "db:local": "wrangler d1 migrations apply codewise-development --local --env development",
     "deploy:prepare": "node workflow/scripts/prepare-deploy.mjs",
-    "smoke": "node workflow/scripts/smoke.mjs"
+    "smoke": "node workflow/scripts/smoke.mjs",
+    "dev:instructor": "vite --config workflow/instructor-preview/vite.config.ts"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -37,6 +38,7 @@
     "concurrently": "^9.2.1",
     "eslint": "^9.39.0",
     "globals": "^16.5.0",
+    "miniflare": "5.20261103.0-beta",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0",

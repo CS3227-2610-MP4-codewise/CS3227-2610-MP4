@@ -1,0 +1,74 @@
+[
+  {
+    "innerWidth": 320,
+    "panes": "272.667px",
+    "requestedWidth": 320,
+    "rootSize": "16px",
+    "scrollWidth": 305,
+    "shortTargets": [],
+    "theme": "light"
+  },
+  {
+    "innerWidth": 320,
+    "panes": "272.667px",
+    "requestedWidth": 320,
+    "rootSize": "16px",
+    "scrollWidth": 305,
+    "shortTargets": [],
+    "theme": "dark"
+  },
+  {
+    "innerWidth": 768,
+    "panes": "275.458px 413.208px",
+    "requestedWidth": 768,
+    "rootSize": "16px",
+    "scrollWidth": 753,
+    "shortTargets": [],
+    "theme": "light"
+  },
+  {
+    "innerWidth": 768,
+    "panes": "275.458px 413.208px",
+    "requestedWidth": 768,
+    "rootSize": "16px",
+    "scrollWidth": 753,
+    "shortTargets": [],
+    "theme": "dark"
+  },
+  {
+    "innerWidth": 1024,
+    "panes": "377.865px 566.802px",
+    "requestedWidth": 1024,
+    "rootSize": "16px",
+    "scrollWidth": 1009,
+    "shortTargets": [],
+    "theme": "light"
+  },
+  {
+    "innerWidth": 1024,
+    "panes": "377.865px 566.802px",
+    "requestedWidth": 1024,
+    "rootSize": "16px",
+    "scrollWidth": 1009,
+    "shortTargets": [],
+    "theme": "dark"
+  },
+  {
+    "innerWidth": 1440,
+    "panes": "438.396px 657.604px",
+    "requestedWidth": 1440,
+    "rootSize": "16px",
+    "scrollWidth": 1425,
+    "shortTargets": [],
+    "theme": "light"
+  },
+  {
+    "innerWidth": 1440,
+    "panes": "438.396px 657.604px",
+    "requestedWidth": 1440,
+    "rootSize": "16px",
+    "scrollWidth": 1425,
+    "shortTargets": [],
+    "theme": "dark"
+  }
+]
