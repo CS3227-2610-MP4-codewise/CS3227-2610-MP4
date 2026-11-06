@@ -2,16 +2,20 @@
 
 ## Purpose
 
-Establish instructor-invited NUS email/password identity through Firebase, Brevo invitations and secure recovery while preserving stable identity/session and Keith course/object boundaries. Darryl selected this target on 2026-11-06; implementation and real integration are not yet verified.
+Establish instructor-invited NUS email/password identity through Firebase credentials and Gmail delivery and secure recovery while preserving stable identity/session and Keith course/object boundaries. Darryl selected this target on 2026-11-06; implementation and real integration are not yet verified.
 
 ## ADDED Requirements
 
 ### Requirement: SHA-01 Firebase-backed invited identity
-The system SHALL authenticate active admitted NUS accounts using Firebase email/password, key identity by configured project and UID, preserve stable Codewise IDs and grant no course roles (AUTH-01/03, CON-03).
+The system SHALL enforce password lengths of8–64 Unicode characters without truncation for password setup/reset/login and authenticate active admitted NUS accounts using Firebase email/password, key identity by configured project and UID, preserve stable Codewise IDs and grant no course roles (AUTH-01/03, CON-03).
 
 #### Scenario: Correct credentials or unsolicited provider account
 - **WHEN** a permitted account signs in, or an unsolicited Firebase UID/browser role/email match requests access
 - **THEN** only the admitted verified UID receives a session; wrong/disabled/unadmitted identities are denied without automatic email linking.
+
+#### Scenario: Revised password length bounds
+- **WHEN** a user supplies a password of7,8,64 or65 Unicode characters for creation/reset/login
+- **THEN** length validation rejects7/65 and permits8/64 to proceed to the normal identity/proof checks; valid length alone never grants admission.
 
 ### Requirement: SHA-02 Non-expiring invitation admission
 The system SHALL require an instructor-issued email-bound, single-use, revocable pending invitation for new admission. Pending invitations SHALL remain valid until accepted/revoked; separate provider proofs may expire (AUTH-03).
@@ -69,9 +73,27 @@ The system SHALL provide generic reset-request acknowledgement, bounded consiste
 - **WHEN** an unknown/disabled account requests recovery, a proof expires/is replayed or reset occurs outside the app
 - **THEN** no account existence/provider internals are disclosed; invalid proof changes nothing and old credentials/cookies cannot retain app access after reset.
 
-### Requirement: SHA-10 Brevo invitation audit
-The system SHALL send instructor invitations through server-only Brevo with approved sender and scoped audit. Pending/accepted/revoked invitation state SHALL remain distinct from queued/failed/unknown send attempts (AUTH-02/03, UI-08, CON-07).
+### Requirement: SHA-10 Gmail invitation audit
+The system SHALL send instructor invitations through server-only Gmail implicit-TLS SMTP with configured sender/app password and scoped audit. Pending/accepted/revoked invitation state SHALL remain distinct from queued/failed/unknown send attempts (AUTH-02/03, UI-08, CON-07).
 
 #### Scenario: Queue acknowledgement or ambiguous timeout
-- **WHEN** Brevo acknowledges, times out or the recipient accepts
+- **WHEN** Gmail acknowledges, times out or the recipient accepts
 - **THEN** tracking distinguishes queue acceptance from delivery/read and invitation acceptance; retries retain audit identity with bounded capability rotation and no duplicate accounts.
+
+### Requirement: SHA-11 Direct delivery ticket and in-app password entry
+The system SHALL bind direct emailed password actions to a hashed, one-use, ten-minute local ticket and current intended UID/email/purpose/invitation generation. The app SHALL strip emailed proof fragments from history before bootstrap and keep password creation/reset/login inside Codewise. The mailer SHALL validate same-origin proof URLs and require TLS. No Firebase custom email-template URL SHALL be necessary. Firebase codes SHALL remain transient (AUTH-01/03, CON-07).
+
+#### Scenario: Native code, ticket or continuation mismatch
+- **WHEN** a different mailbox code, expired/replayed ticket, stale invitation generation, duplicate action parameter or external continuation is supplied
+- **THEN** no admission/password change/session is granted, no arbitrary redirect occurs and recovery remains available through a fresh valid email.
+
+### Requirement: SHA-12 One-time operator owner
+The system SHALL support explicit operator-configured one-time persistent owner admission without shipped credentials or public role selection. Completion SHALL grant authentication administration only and SHALL never bypass course/object authorization. An operator alias SHALL NOT be marked as a verified mailbox. Owner login/session SHALL match immutable provider credential metadata even when provider email verification changes (AUTH-01–03, CON-03/07).
+
+#### Scenario: First sign-in, restart or attempted takeover
+- **WHEN** correct configured operator credentials bootstrap the owner, application instances restart, bootstrap secrets change/disappear, or an external mailbox controller changes provider credentials
+- **THEN** at most one owner is admitted, completed state persists, bootstrap cannot reopen/reset/reactivate it, unknown credential changes deny owner authority, and missing course authorization remains unavailable.
+
+#### Scenario: Forged bootstrap, collision or interruption
+- **WHEN** a wrong password/browser-admin flag/cross-site request, existing foreign UID/email, concurrent attempt or interrupted provisioning is encountered
+- **THEN** no unauthorized owner is granted, credentials/mailbox verification are not overwritten, partial work grants no owner access and a correct same-reservation retry may finish once.

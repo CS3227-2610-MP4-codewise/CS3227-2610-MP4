@@ -16,7 +16,7 @@ import {
 } from './routes';
 import { ManagedStore, inviteView, type ManagedInvite } from './managed-store';
 import { nusEmail, passwordValue, type CredentialProvider } from './firebase';
-import { requireMailer, type AuthMailer } from './brevo';
+import { requireMailer, type AuthMailer } from './mail';
 import {
   ABSOLUTE,
   LOGIN_TTL,
@@ -32,6 +32,7 @@ import {
   type AuthConfig,
 } from './primitives';
 import { readAuthBody } from './routes';
+import type { OwnerBootstrap } from './owner';
 const json = (v: unknown, status = 200, headers: Record<string, string> = {}) =>
   Response.json(v, { status, headers: { ...authHeaders, ...headers } });
 function bearer(v: unknown) {
@@ -57,6 +58,7 @@ export class ManagedAuthRoutes extends AuthRoutes {
     readonly courses?: Pick<IdentityCoursePort, 'requireCourse'>,
     destinations?: DestinationAuthorization,
     readonly background?: (work: () => Promise<void>) => void,
+    readonly owner?: OwnerBootstrap,
   ) {
     super(managed, config, undefined, destinations);
   }
@@ -70,9 +72,14 @@ export class ManagedAuthRoutes extends AuthRoutes {
     )
       throw new BoundaryError('UNAUTHENTICATED');
     const user = await this.credentials.current(binding.subject);
+    const ownerStatus = await this.managed.ownerStatus(
+      user,
+      this.credentials.issuer,
+    );
     if (
       user.disabled ||
-      !user.verified ||
+      ownerStatus === 'invalid' ||
+      (!user.verified && ownerStatus !== 'valid') ||
       user.email !== result.session.email ||
       user.passwordAt !== binding.provider_password_at ||
       user.validSince !== binding.provider_valid_since
@@ -105,8 +112,9 @@ export class ManagedAuthRoutes extends AuthRoutes {
         provider = this.credentials!;
       await provider.provision(i.firebase_uid, i.email);
       const code = await provider.action(i.email);
+      const ticket = randomToken();
       await this.managed.action(
-        code,
+        ticket,
         { uid: i.firebase_uid, email: i.email },
         i.id,
         null,
@@ -116,17 +124,13 @@ export class ManagedAuthRoutes extends AuthRoutes {
         this.config!.origin +
         '/sign-in#invite=' +
         token +
+        '&ticket=' +
+        ticket +
         '&code=' +
         encodeURIComponent(code);
       if (authorize) await authorize();
       await this.managed.pending(token);
-      const receipt = await mailer.send(
-        i.email,
-        'Your Codewise invitation',
-        'Your instructor invited you to Codewise. Open this link to choose your password:\n' +
-          url +
-          '\nThe password setup proof expires after 10 minutes. Your invitation remains valid until accepted or revoked; reopen its link to request a fresh setup email. Course access is assigned separately.',
-      );
+      const receipt = await mailer.send(i.email, url);
       await this.managed.receipt(i.id, receipt.state, receipt.messageId, token);
       return receipt;
     } finally {
@@ -184,11 +188,16 @@ export class ManagedAuthRoutes extends AuthRoutes {
           const email = nusEmail(input.email),
             password = passwordValue(input.password);
           await store.rate('password:' + email, 5);
+          await this.owner?.ensure(email, password, browser);
           const account = await store.account(email, this.credentials.issuer);
           const before = account
             ? await this.credentials.current(account.subject)
             : null;
           const user = await this.credentials.login(email, password);
+          const ownerStatus = await store.ownerStatus(
+            user,
+            this.credentials.issuer,
+          );
           if (
             !account ||
             !account.active ||
@@ -196,7 +205,8 @@ export class ManagedAuthRoutes extends AuthRoutes {
             !before ||
             before.passwordAt !== user.passwordAt ||
             before.validSince !== user.validSince ||
-            !user.verified ||
+            ownerStatus === 'invalid' ||
+            (!user.verified && ownerStatus !== 'valid') ||
             user.disabled
           )
             throw new BoundaryError('UNAUTHENTICATED');
@@ -238,17 +248,22 @@ export class ManagedAuthRoutes extends AuthRoutes {
             if (account?.active) {
               try {
                 const user = await credentials.current(account.subject);
-                if (!user.disabled && user.verified && user.email === email) {
+                if (
+                  !user.disabled &&
+                  user.verified &&
+                  user.email === email &&
+                  (await store.ownerStatus(user, credentials.issuer)) === 'none'
+                ) {
+                  const ticket = randomToken();
                   const code = await credentials.action(email);
-                  await store.action(code, user, null, account.id);
+                  await store.action(ticket, user, null, account.id);
                   await this.mailer!.send(
                     email,
-                    'Reset your Codewise password',
-                    'Choose a new password using this single-use link (valid for 10 minutes):\n' +
-                      config.origin +
-                      '/auth/reset#code=' +
-                      encodeURIComponent(code) +
-                      '\nIf you did not request this, ignore this email.',
+                    config.origin +
+                      '/auth/reset#ticket=' +
+                      ticket +
+                      '&code=' +
+                      encodeURIComponent(code),
                   );
                 }
               } catch {
@@ -261,12 +276,18 @@ export class ManagedAuthRoutes extends AuthRoutes {
         const setup = path === 'setup/confirm';
         const input = object(
           raw,
-          setup ? ['invite', 'code', 'password'] : ['code', 'password'],
+          setup
+            ? ['invite', 'ticket', 'code', 'password']
+            : ['ticket', 'code', 'password'],
         );
         const code = codeValue(input.code),
           password = passwordValue(input.password),
           token = setup ? bearer(input.invite) : undefined;
-        const proof = await store.proof(code, setup ? 'setup' : 'reset', token);
+        const proof = await store.proof(
+          bearer(input.ticket),
+          setup ? 'setup' : 'reset',
+          token,
+        );
         if ((await this.credentials.inspect(code)) !== proof.email)
           throw new BoundaryError('UNAUTHENTICATED');
         const before = await this.credentials.current(proof.firebase_uid);
@@ -299,7 +320,7 @@ export class ManagedAuthRoutes extends AuthRoutes {
         return json({
           session: this.view(session),
           email: session.email,
-          administrator: false,
+          administrator: session.administrator === 1,
           csrfToken: await csrfToken(token),
         });
       if (request.method === 'POST') await verifyCsrf(request, token);

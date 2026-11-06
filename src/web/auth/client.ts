@@ -40,33 +40,75 @@ export function takeInvitation(
 }
 export function authMessage(error: unknown) {
   return error instanceof BoundaryError && error.code === 'UNAUTHENTICATED'
-    ? 'Your session has expired. Sign in again to continue.'
+    ? 'Session expired. Sign in again.'
     : error instanceof BoundaryError && error.code === 'FORBIDDEN'
-      ? 'You no longer have access to this action. Refresh your session or contact the administrator.'
+      ? 'You do not have access to this action.'
       : error instanceof BoundaryError && error.code === 'RATE_LIMITED'
-        ? 'Too many attempts. Please wait 90 seconds and try again.'
+        ? 'Too many attempts. Try again in 90 seconds.'
         : error instanceof BoundaryError && error.code === 'INVALID_CONTRACT'
-          ? 'Check your NUS email, password length and required details, then try again.'
-          : 'We could not complete that request. Please try again.';
+          ? 'Check your NUS email and required details.'
+          : 'Could not complete the request. Try again.';
 }
 export function takeAuthProof(
-  location: { pathname: string; search: string; hash: string },
+  location: { pathname: string; search: string; hash: string; origin?: string },
   replace: (url: string) => void,
 ) {
-  if (!['/sign-in', '/auth/reset'].includes(location.pathname))
-    return { invite: null, code: null };
-  const fragment = new URLSearchParams(location.hash.slice(1));
+  // window.location is live: replaceState mutates it synchronously.
+  const source = {
+    pathname: location.pathname,
+    search: location.search,
+    hash: location.hash,
+    origin: location.origin,
+  };
+  const empty = { invite: null, code: null, ticket: null };
+  let pathname = location.pathname,
+    hash = location.hash,
+    nativeCode: string | null = null;
+  if (pathname === '/auth/action') {
+    // Strip even malformed secrets before bootstrap; never navigate to continueUrl.
+    replace('/auth/reset');
+    try {
+      const query = new URLSearchParams(source.search),
+        continuation = new URL(query.get('continueUrl') ?? '');
+      if (
+        query.getAll('mode').length !== 1 ||
+        query.get('mode') !== 'resetPassword' ||
+        query.getAll('oobCode').length !== 1 ||
+        query.getAll('continueUrl').length !== 1 ||
+        !source.origin ||
+        continuation.origin !== source.origin ||
+        continuation.username ||
+        continuation.password ||
+        continuation.search ||
+        !['/sign-in', '/auth/reset'].includes(continuation.pathname)
+      )
+        return empty;
+      nativeCode = query.get('oobCode');
+      pathname = continuation.pathname;
+      hash = continuation.hash;
+    } catch {
+      return empty;
+    }
+  } else if (!['/sign-in', '/auth/reset'].includes(pathname)) return empty;
+  const fragment = new URLSearchParams(hash.slice(1));
   const invite =
-    location.pathname === '/sign-in' &&
+    pathname === '/sign-in' &&
     fragment.getAll('invite').length === 1 &&
     /^[a-f0-9]{64}$/.test(fragment.get('invite') ?? '')
       ? fragment.get('invite')
       : null;
-  const code =
-    fragment.getAll('code').length === 1 &&
-    /^[A-Za-z0-9_-]{1,2048}$/.test(fragment.get('code') ?? '')
-      ? fragment.get('code')
+  const ticket =
+    fragment.getAll('ticket').length === 1 &&
+    /^[a-f0-9]{64}$/.test(fragment.get('ticket') ?? '')
+      ? fragment.get('ticket')
       : null;
-  if (location.hash) replace(location.pathname + location.search);
-  return { invite, code };
+  const candidate =
+    nativeCode ??
+    (fragment.getAll('code').length === 1 ? fragment.get('code') : null);
+  const code =
+    ticket && /^[A-Za-z0-9_-]{1,2048}$/.test(candidate ?? '')
+      ? candidate
+      : null;
+  if (source.pathname === '/auth/action' || source.hash) replace(pathname);
+  return { invite, code, ticket };
 }

@@ -12,6 +12,7 @@ export type FirebaseUser = {
 export interface CredentialProvider {
   readonly issuer: string;
   provision(uid: string, email: string): Promise<void>;
+  provisionOwner(uid: string, email: string, password: string): Promise<void>;
   login(email: string, password: string): Promise<FirebaseUser>;
   current(uid: string): Promise<FirebaseUser>;
   action(email: string): Promise<string>;
@@ -81,7 +82,7 @@ export function nusEmail(value: unknown) {
 export function passwordValue(value: unknown): string {
   if (
     typeof value !== 'string' ||
-    [...value].length < 15 ||
+    [...value].length < 8 ||
     [...value].length > 64
   )
     throw new BoundaryError('INVALID_CONTRACT');
@@ -140,7 +141,7 @@ export class FirebaseCredentials implements CredentialProvider {
   private access?: { token: string; until: number };
   constructor(
     private config: FirebaseConfig,
-    private transport: typeof fetch = fetch,
+    private transport: typeof fetch = fetch.bind(globalThis),
   ) {
     this.issuer = 'https://securetoken.google.com/' + config.project;
   }
@@ -154,7 +155,8 @@ export class FirebaseCredentials implements CredentialProvider {
       const oauth = url === 'https://oauth2.googleapis.com/token';
       response = await this.transport(url, {
         method: 'POST',
-        redirect: 'error',
+        // Workers does not implement redirect:error. Never forward credentials to a redirect.
+        redirect: 'manual',
         signal: AbortSignal.timeout(10_000),
         headers: {
           'Content-Type': oauth
@@ -167,6 +169,10 @@ export class FirebaseCredentials implements CredentialProvider {
           : JSON.stringify(input),
       });
     } catch {
+      throw new BoundaryError('UPSTREAM_UNAVAILABLE');
+    }
+    if (response.status >= 300 && response.status < 400) {
+      await response.body?.cancel();
       throw new BoundaryError('UPSTREAM_UNAVAILABLE');
     }
     const data = await boundedProviderJson(response);
@@ -291,11 +297,15 @@ export class FirebaseCredentials implements CredentialProvider {
     };
   }
   async provision(uid: string, email: string) {
+    return this.provisionOwner(uid, email, randomToken());
+  }
+  async provisionOwner(uid: string, email: string, password: string) {
+    passwordValue(password);
     try {
       await this.admin('', {
         localId: uid,
         email,
-        password: randomToken(),
+        password,
         emailVerified: false,
         disabled: false,
       });
@@ -337,6 +347,13 @@ export class FirebaseCredentials implements CredentialProvider {
       throw new BoundaryError('UNAUTHENTICATED');
     return this.current(data.localId);
   }
+  async inspect(code: string) {
+    const data = await this.proofCall({ oobCode: code });
+    if (data.requestType !== 'PASSWORD_RESET' || typeof data.email !== 'string')
+      throw new BoundaryError('UNAUTHENTICATED');
+    return emailAddress(data.email);
+  }
+  /** Generate a proof only. The mail transport delivers the Codewise URL; no Firebase template edit. */
   async action(email: string) {
     const data = await this.admin(':sendOobCode', {
       requestType: 'PASSWORD_RESET',
@@ -345,22 +362,16 @@ export class FirebaseCredentials implements CredentialProvider {
     });
     if (typeof data.oobLink !== 'string')
       throw new BoundaryError('UPSTREAM_UNAVAILABLE');
-    const link = new URL(data.oobLink);
-    const code = link.searchParams.get('oobCode');
+    const link = new URL(data.oobLink),
+      code = link.searchParams.get('oobCode');
     if (
       link.protocol !== 'https:' ||
+      link.searchParams.get('mode') !== 'resetPassword' ||
       !code ||
-      code.length > 2048 ||
-      link.searchParams.get('mode') !== 'resetPassword'
+      !/^[A-Za-z0-9_-]{1,2048}$/.test(code)
     )
       throw new BoundaryError('UPSTREAM_UNAVAILABLE');
     return code;
-  }
-  async inspect(code: string) {
-    const data = await this.proofCall({ oobCode: code });
-    if (data.requestType !== 'PASSWORD_RESET' || typeof data.email !== 'string')
-      throw new BoundaryError('UNAUTHENTICATED');
-    return emailAddress(data.email);
   }
   async reset(code: string, password: string) {
     const data = await this.proofCall({

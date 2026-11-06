@@ -10,8 +10,8 @@ context: |
   courses/memberships/object authorization (SH-ID), submissions and student features.
   Both review the composed C-ID boundary; Keith's revised-boundary review is pending.
   One authoritative identity store; serialize shared schema/API edits. Darryl approved
-  Firebase Authentication and Brevo invitation-only onboarding in shared-authentication on 2026-11-06.
-  This supersedes earlier Google/SendGrid targets; provider setup is pending. Public registration and instructor self-promotion are not approved. Live Firebase/Brevo,
+  Firebase Authentication with Gmail-delivered generated proof links for invitation-only onboarding in shared-authentication on 2026-11-06.
+  This supersedes earlier Google/SendGrid/Brevo targets; Native-mail template edits were rejected; Darryl selected an alternate sender and retained in-app password forms on2026-11-07. User reports credentials entered; live verification is pending. Public registration and instructor self-promotion are not approved. Live Firebase credentials/Gmail delivery,
   Keith's revised-boundary review and composed authorization remain pending.
   Cloudflare foundation staging/production passed run 41799944040 at 281cc13;
   role features remain separate work. See workflow/Ownership.md and evidence.
@@ -33,7 +33,7 @@ context: |
   versioned work, Previous/Next navigation, source observations and accessible states.
   The shared visual foundation is applied to the public foundation screen;
   shared-authentication implements local sign-in/session/invitation behavior with
-  revised Firebase/Brevo implementation and real provider verification pending. Role workspaces still await
+  revised Firebase credentials/Gmail delivery implementation and real provider verification pending. Role workspaces still await
   their reviewed producer handoffs. Client roles never grant privileges.
 
 rules:

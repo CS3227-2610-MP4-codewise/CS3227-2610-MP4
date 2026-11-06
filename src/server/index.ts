@@ -3,7 +3,9 @@ import type { Environment } from './environment';
 import { ManagedAuthRoutes } from './auth/managed-routes';
 import { ManagedStore } from './auth/managed-store';
 import { FirebaseCredentials, firebaseConfig } from './auth/firebase';
-import { BrevoMailer } from './auth/brevo';
+import { AuthEmail } from './auth/mail';
+import { GmailTransport } from './auth/gmail';
+import { OwnerBootstrap, ownerConfig } from './auth/owner';
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -52,22 +54,31 @@ export default {
     const pathname = new URL(request.url).pathname;
     if (pathname.startsWith('/api/auth/')) {
       const config = firebaseConfig(env);
+      const store = new ManagedStore(env.DB),
+        credentials = config ? new FirebaseCredentials(config) : undefined,
+        bootstrap = ownerConfig(env);
       return new ManagedAuthRoutes(
-        new ManagedStore(env.DB),
+        store,
         config,
-        config ? new FirebaseCredentials(config) : undefined,
-        env.BREVO_API_KEY &&
-          env.BREVO_SENDER_EMAIL &&
-          env.BREVO_AUTH_LINKS_VERIFIED === 'true'
-          ? new BrevoMailer({
-              key: env.BREVO_API_KEY,
-              sender: env.BREVO_SENDER_EMAIL,
-              name: 'Codewise',
-            })
+        credentials,
+        config &&
+          env.GMAIL_SENDER_EMAIL &&
+          env.GMAIL_APP_PASSWORD &&
+          env.AUTH_MAIL_ENABLED === 'true'
+          ? new AuthEmail(
+              { sender: env.GMAIL_SENDER_EMAIL, origin: config.origin },
+              new GmailTransport({
+                sender: env.GMAIL_SENDER_EMAIL,
+                appPassword: env.GMAIL_APP_PASSWORD,
+              }),
+            )
           : undefined,
         undefined,
         undefined,
         context ? (work) => context.waitUntil(work()) : undefined,
+        credentials && bootstrap
+          ? new OwnerBootstrap(store, credentials, bootstrap)
+          : undefined,
       ).fetch(request);
     }
     if (pathname === '/api/health' && request.method === 'GET') {
@@ -97,6 +108,7 @@ export default {
         '/auth/finish',
         '/auth/invitations',
         '/auth/reset',
+        '/auth/action',
         '/auth/forgot',
         '/workspace',
       ].includes(pathname)

@@ -38,6 +38,14 @@ Operator helper is deliberately fixed to **LOCAL codewise-development**, refuses
 
 `npm run dev:auth` opens a loopback-only ephemeral-D1 preview at `http://127.0.0.1:5176/workflow/auth/preview.html`. Its explicit **Open synthetic administrator session** button is only for invitation/workspace/logout UI checks. Every page carries a synthetic banner. Normal Google sign-in success is **not** provided by this preview: the production UI retains its strict Google-origin guard. Use signed protocol/route tests for simulated success and actual configured Google for live browser success. Preview state disappears on server restart. No preview module is imported into the production Worker or frontend build.
 
-## Current Firebase/Brevo revision
+## Current Firebase native email revision
 
-The Google-only instructions above are historical. Follow [SETUP.md](SETUP.md) for current configuration, trusted local bootstrap/mapping, synthetic preview and pending real integration. The deployed composition uses FirebaseCredentials + BrevoMailer + ManagedAuthRoutes. The previous Google implementation remains for regression/history but is not composed into the Worker. Keys alone do not supply Keith course authorization.
+The Google-only instructions above are historical. Follow [SETUP.md](SETUP.md) for current native-email configuration (superseding old Google/Brevo instructions), trusted local bootstrap/mapping, synthetic preview and pending real integration. The deployed composition uses FirebaseCredentials + FirebaseMailer + ManagedAuthRoutes. The previous Google implementation remains for regression/history but is not composed into the Worker. Keys alone do not supply Keith course authorization.
+
+## Current Gmail transport (supersedes native-mail/SMTP2GO setup)
+
+Follow SETUP.md. Production composes FirebaseCredentials + AuthEmail + GmailTransport, with GMAIL_SENDER_EMAIL/GMAIL_APP_PASSWORD and AUTH_MAIL_ENABLED. Firebase generates proof only; email links open app password forms directly. No template URL edit/new project or hosted password screen. Reusable C-ID boundary and missing Keith behavior unchanged. No real delivery/deployment verified.
+
+## Persistent first operator owner
+
+See SETUP.md one-time operator owner. BOOTSTRAP_OWNER_EMAIL/PASSWORD authorize first admission through guarded sign-in after reviewed0006. No default credentials or course rights. Completed marker plus provider credential pins persist after bootstrap secrets are removed. Actual local owner created/verified; production admission remains pending. Fakealias is unverified and external resets invalidate pinned authority. Codewise forms/server now use8–64.

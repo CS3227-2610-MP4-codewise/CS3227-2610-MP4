@@ -42,6 +42,32 @@ export function inviteView(i: ManagedInvite) {
   };
 }
 export class ManagedStore extends AuthStore {
+  async ownerStatus(
+    user: FirebaseUser,
+    issuer: string,
+  ): Promise<'none' | 'valid' | 'invalid'> {
+    const row = await this.db
+      .prepare(
+        `SELECT o.*, EXISTS(SELECT 1 FROM auth_accounts a JOIN auth_administrators d ON d.user_id=a.id WHERE a.id=o.account_id AND a.issuer=o.issuer AND a.subject=o.subject AND a.email=o.email AND a.active=1) AS admitted FROM auth_owner_bootstrap o WHERE o.singleton=1 AND o.issuer=? AND o.subject=?`,
+      )
+      .bind(issuer, user.uid)
+      .first<{
+        completed_at: number | null;
+        email: string;
+        password_at: number | null;
+        valid_since: number | null;
+        admitted: number;
+      }>();
+    if (!row) return 'none';
+    return row.completed_at !== null &&
+      row.admitted === 1 &&
+      row.email === user.email &&
+      !user.disabled &&
+      row.password_at === user.passwordAt &&
+      row.valid_since === user.validSince
+      ? 'valid'
+      : 'invalid';
+  }
   async cooldown(key: string, duration = 90_000) {
     const now = this.clock();
     const row = await this.db
@@ -210,7 +236,7 @@ export class ManagedStore extends AuthStore {
       .run();
   }
   async action(
-    code: string,
+    ticket: string,
     user: { uid: string; email: string },
     inviteId: string | null,
     userId: string | null,
@@ -229,7 +255,8 @@ export class ManagedStore extends AuthStore {
         )
         .bind(
           crypto.randomUUID(),
-          await hash(code),
+          // Legacy column name retained; only an app-generated dispatch ticket is stored.
+          await hash(ticket),
           user.email,
           user.uid,
           inviteId,
@@ -241,12 +268,12 @@ export class ManagedStore extends AuthStore {
         ),
     ]);
   }
-  async proof(code: string, purpose: 'setup' | 'reset', token?: string) {
+  async proof(ticket: string, purpose: 'setup' | 'reset', token?: string) {
     const row = await this.db
       .prepare(
         'SELECT * FROM auth_actions WHERE code_hash=? AND purpose=? AND consumed_at IS NULL AND expires_at>?',
       )
-      .bind(await hash(code), purpose, this.clock())
+      .bind(await hash(ticket), purpose, this.clock())
       .first<ActionProof>();
     if (!row) throw new BoundaryError('UNAUTHENTICATED');
     if (purpose === 'setup') {

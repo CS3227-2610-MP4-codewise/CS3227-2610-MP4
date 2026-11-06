@@ -29,14 +29,16 @@
   "setupConfirm": {
     "invite": "0000000000000000000000000000000000000000000000000000000000000000",
     "code": "synthetic-oob-code",
-    "password": "synthetic passphrase only"
+    "password": "synthetic passphrase only",
+    "ticket": "1111111111111111111111111111111111111111111111111111111111111111"
   },
   "resetRequest": {
     "email": "learner@u.nus.edu"
   },
   "resetConfirm": {
     "code": "synthetic-oob-code",
-    "password": "replacement synthetic passphrase"
+    "password": "replacement synthetic passphrase",
+    "ticket": "1111111111111111111111111111111111111111111111111111111111111111"
   },
   "resetAcknowledgement": {
     "ok": true

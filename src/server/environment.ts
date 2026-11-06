@@ -12,9 +12,11 @@ export interface Environment {
   FIREBASE_API_KEY?: string;
   FIREBASE_SERVICE_ACCOUNT_EMAIL?: string;
   FIREBASE_PRIVATE_KEY?: string;
-  BREVO_API_KEY?: string;
-  BREVO_SENDER_EMAIL?: string;
-  BREVO_AUTH_LINKS_VERIFIED?: string;
+  GMAIL_SENDER_EMAIL?: string;
+  GMAIL_APP_PASSWORD?: string;
+  AUTH_MAIL_ENABLED?: string;
+  BOOTSTRAP_OWNER_EMAIL?: string;
+  BOOTSTRAP_OWNER_PASSWORD?: string;
   // Future AI integration reads this only on the server. No AI routes exist yet.
   SOCLAAS_API_KEY?: string;
 }

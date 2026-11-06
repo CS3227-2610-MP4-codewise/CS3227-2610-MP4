@@ -9,7 +9,7 @@ import {
   passwordValue,
   boundedProviderJson,
 } from '../../src/server/auth/firebase';
-import { type AuthMailer, BrevoMailer } from '../../src/server/auth/brevo';
+import { type AuthMailer, AuthEmail } from '../../src/server/auth/mail';
 import {
   cookieName,
   csrfToken,
@@ -40,7 +40,8 @@ const provider = new SyntheticFirebase(),
   sent: { email: string; text: string }[] = [];
 let mailState: 'queued' | 'failed' | 'unknown' = 'queued';
 const mailer: AuthMailer = {
-  async send(email, _subject, text) {
+  async send(email, continuation) {
+    const text = continuation;
     sent.push({ email, text });
     return { state: mailState, messageId: 'synthetic-receipt' };
   },
@@ -108,6 +109,10 @@ async function seed() {
   );
   return { uid, email, token, browser, session: await store.session(token) };
 }
+function readMail(text: string) {
+  const link = new URL(text);
+  return takeAuthProof(link, () => {});
+}
 async function invite(
   admin: Awaited<ReturnType<typeof seed>>,
   email = crypto.randomUUID() + '@u.nus.edu',
@@ -121,19 +126,16 @@ async function invite(
   expect(response.status).toBe(201);
   const data = (await response.json()) as { invitation: { id: string } };
   const mail = sent.filter((s) => s.email === email).at(-1)!;
-  const fragment = new URLSearchParams(
-    new URL(
-      mail.text.split('\n').find((s) => s.startsWith(config.origin))!,
-    ).hash.slice(1),
-  );
+  const proof = readMail(mail.text);
   return {
     id: data.invitation.id,
     email,
-    invite: fragment.get('invite')!,
-    code: fragment.get('code')!,
+    invite: proof.invite!,
+    code: proof.code!,
+    ticket: proof.ticket!,
   };
 }
-describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () => {
+describe('Firebase native mail real isolated D1, synthetic provider boundaries', () => {
   beforeAll(async () => {
     database = await authDatabase();
     store = new ManagedStore(database.db, () => now);
@@ -160,7 +162,7 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
     expect((await call('setup/confirm', undefined)).status).toBe(401);
     const setup = await call(
       'setup/confirm',
-      { invite: i.invite, code: i.code, password },
+      { invite: i.invite, code: i.code, ticket: i.ticket, password },
       browser,
     );
     expect(setup.status).toBe(200);
@@ -179,7 +181,7 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
       (
         await call(
           'setup/confirm',
-          { invite: i.invite, code: i.code, password },
+          { invite: i.invite, code: i.code, ticket: i.ticket, password },
           browser,
         )
       ).status,
@@ -194,6 +196,45 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
       ).status,
     ).toBe(401);
   });
+  it('rejects a different mailbox proof or dispatch ticket without consuming valid admission', async () => {
+    const admin = await seed(),
+      first = await invite(admin),
+      second = await invite(admin),
+      browser = randomToken();
+    for (const input of [
+      {
+        invite: first.invite,
+        ticket: first.ticket,
+        code: second.code,
+        password,
+      },
+      {
+        invite: first.invite,
+        ticket: second.ticket,
+        code: first.code,
+        password,
+      },
+      { invite: first.invite, code: first.code, password },
+    ])
+      expect((await call('setup/confirm', input, browser)).status).not.toBe(
+        200,
+      );
+    expect(await store.account(first.email, provider.issuer)).toBeNull();
+    expect(
+      (
+        await call(
+          'setup/confirm',
+          {
+            invite: first.invite,
+            ticket: first.ticket,
+            code: first.code,
+            password,
+          },
+          browser,
+        )
+      ).status,
+    ).toBe(200);
+  });
   it('non-expiring admission and expiring proof, without scanner side effects', async () => {
     const admin = await seed(),
       i = await invite(admin),
@@ -204,7 +245,7 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
       (
         await call(
           'setup/confirm',
-          { invite: i.invite, code: i.code, password },
+          { invite: i.invite, code: i.code, ticket: i.ticket, password },
           browser,
         )
       ).status,
@@ -329,7 +370,7 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
       (
         await call(
           'setup/confirm',
-          { invite: i.invite, code: i.code, password },
+          { invite: i.invite, code: i.code, ticket: i.ticket, password },
           browser,
         )
       ).status,
@@ -361,16 +402,12 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
       (await call('reset/request', { email: user.email }, user.browser)).status,
     ).toBe(202);
     const mail = sent.filter((s) => s.email === user.email).at(-1)!;
-    const code = new URLSearchParams(
-      new URL(
-        mail.text.split('\n').find((s) => s.startsWith(config.origin))!,
-      ).hash.slice(1),
-    ).get('code')!;
+    const { code, ticket } = readMail(mail.text);
     expect(
       (
         await call(
           'reset/confirm',
-          { code, password: 'replacement synthetic passphrase' },
+          { code, ticket, password: 'replacement synthetic passphrase' },
           user.browser,
         )
       ).status,
@@ -379,7 +416,8 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
       (await call('session', undefined, user.token, 'session')).status,
     ).toBe(401);
     expect(
-      (await call('reset/confirm', { code, password }, user.browser)).status,
+      (await call('reset/confirm', { code, ticket, password }, user.browser))
+        .status,
     ).toBe(401);
     expect(
       (await call('login', { email: user.email, password }, user.browser))
@@ -486,7 +524,12 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
       (
         await call(
           'setup/confirm',
-          { invite: replacement.invite, code: replacement.code, password },
+          {
+            invite: replacement.invite,
+            code: replacement.code,
+            ticket: replacement.ticket,
+            password,
+          },
           randomToken(),
         )
       ).status,
@@ -728,12 +771,12 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
     const results = await Promise.all([
       call(
         'setup/confirm',
-        { invite: i.invite, code: i.code, password },
+        { invite: i.invite, code: i.code, ticket: i.ticket, password },
         browser,
       ),
       call(
         'setup/confirm',
-        { invite: i.invite, code: i.code, password },
+        { invite: i.invite, code: i.code, ticket: i.ticket, password },
         browser,
       ),
     ]);
@@ -755,6 +798,134 @@ describe('Firebase/Brevo real isolated D1, synthetic provider boundaries', () =>
   });
 });
 describe('provider request contracts', () => {
+  it('uses Worker-compatible manual redirects and rejects redirects without forwarding any request', async () => {
+    const transport = vi.fn(
+      async (_url: RequestInfo | URL, init?: RequestInit) => {
+        expect(init?.redirect).toBe('manual');
+        return new Response(null, {
+          status: 302,
+          headers: { Location: 'https://attacker.example/collect' },
+        });
+      },
+    );
+    const firebase = new FirebaseCredentials(
+      {
+        ...config,
+        project: 'synthetic-project',
+        apiKey: 'synthetic',
+        serviceEmail: 'server@example.test',
+        privateKey: '',
+      },
+      transport as typeof fetch,
+    );
+    await expect(firebase.inspect('synthetic-proof')).rejects.toMatchObject({
+      code: 'UPSTREAM_UNAVAILABLE',
+    });
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
+  it('snapshots a live Location before replaceState clears its query', () => {
+    const continuation =
+      config.origin +
+      '/sign-in#invite=' +
+      'b'.repeat(64) +
+      '&ticket=' +
+      'a'.repeat(64);
+    const location = new URL(
+      config.origin +
+        '/auth/action?' +
+        new URLSearchParams({
+          mode: 'resetPassword',
+          oobCode: 'synthetic-live-proof',
+          continueUrl: continuation,
+        }),
+    );
+    const proof = takeAuthProof(location, (path) => {
+      location.href = new URL(path, location.origin).href;
+    });
+    expect(proof).toEqual({
+      invite: 'b'.repeat(64),
+      ticket: 'a'.repeat(64),
+      code: 'synthetic-live-proof',
+    });
+    expect(location.href).toBe(config.origin + '/sign-in');
+  });
+  it('native action handler strips secrets, validates the exact origin and rejects duplicate or unsupported actions', () => {
+    const ticket = 'a'.repeat(64),
+      invite = 'b'.repeat(64),
+      replace = vi.fn();
+    const native = (continuation: string, mode = 'resetPassword') =>
+      new URL(
+        config.origin +
+          '/auth/action?' +
+          new URLSearchParams({
+            mode,
+            oobCode: 'synthetic-proof',
+            continueUrl: continuation,
+          }),
+      );
+    const accepted = native(
+      config.origin + '/sign-in#invite=' + invite + '&ticket=' + ticket,
+    );
+    expect(takeAuthProof(accepted, replace)).toEqual({
+      invite,
+      ticket,
+      code: 'synthetic-proof',
+    });
+    expect(replace.mock.calls.at(-1)).toEqual(['/sign-in']);
+    for (const link of [
+      native('https://attacker.example/sign-in#ticket=' + ticket),
+      native(config.origin + '/workspace#ticket=' + ticket),
+      native(config.origin + '/auth/reset#ticket=' + ticket, 'verifyEmail'),
+      new URL(accepted.href + '&oobCode=second-code'),
+      native(
+        config.origin + '/auth/reset#ticket=' + ticket + '&ticket=' + ticket,
+      ),
+      native(config.origin + '/auth/reset'),
+    ]) {
+      const result = takeAuthProof(link, replace);
+      expect(result.code).toBeNull();
+      expect(replace.mock.calls.at(-1)![0]).toMatch(/^\/auth\/reset$/);
+    }
+    expect(
+      takeAuthProof(
+        new URL(
+          config.origin + '/sign-in#invite=' + invite + '&code=legacy-code',
+        ),
+        replace,
+      ).code,
+    ).toBeNull();
+  });
+  it('builds direct same-origin Codewise proof links without a Firebase email template', async () => {
+    const transport = {
+      send: vi.fn(async () => ({ state: 'queued' as const })),
+    };
+    const mailer = new AuthEmail(
+      { sender: 'sender@gmail.com', origin: config.origin },
+      transport,
+    );
+    const link =
+      config.origin +
+      '/auth/reset#ticket=' +
+      'a'.repeat(64) +
+      '&code=synthetic-code';
+    expect((await mailer.send('x@u.nus.edu', link)).state).toBe('queued');
+    expect(transport.send.mock.calls[0][0]).toMatchObject({
+      sender: 'sender@gmail.com',
+      recipient: 'x@u.nus.edu',
+      subject: 'Reset your Codewise password',
+    });
+    expect(transport.send.mock.calls[0][0].text).toContain(link);
+    await expect(
+      mailer.send('x@u.nus.edu', 'https://attacker.example/auth/reset'),
+    ).rejects.toThrow();
+    await expect(
+      mailer.send(
+        'x@u.nus.edu',
+        config.origin + '/auth/reset#code=synthetic-code',
+      ),
+    ).rejects.toThrow();
+    expect(transport.send).toHaveBeenCalledTimes(1);
+  });
   it('preserves ordinary page anchors and removes only auth capabilities', () => {
     const replace = vi.fn();
     expect(
@@ -762,11 +933,15 @@ describe('provider request contracts', () => {
         { pathname: '/', search: '', hash: '#workspaces' },
         replace,
       ),
-    ).toEqual({ invite: null, code: null });
+    ).toEqual({ invite: null, code: null, ticket: null });
     expect(replace).not.toHaveBeenCalled();
     expect(
       takeAuthProof(
-        { pathname: '/auth/reset', search: '', hash: '#code=synthetic-code' },
+        {
+          pathname: '/auth/reset',
+          search: '',
+          hash: '#code=synthetic-code&ticket=' + 'a'.repeat(64),
+        },
         replace,
       ).code,
     ).toBe('synthetic-code');
@@ -822,36 +997,6 @@ describe('provider request contracts', () => {
     await expect(
       boundedProviderJson(new Response('x'.repeat(65537))),
     ).rejects.toThrow();
-  });
-  it('Brevo distinguishes queue acknowledgement, rejection and unknown timeout', async () => {
-    const make = (transport: typeof fetch) =>
-      new BrevoMailer(
-        { key: 'synthetic', sender: 'sender@example.test', name: 'Codewise' },
-        transport,
-      );
-    expect(
-      await make(
-        vi.fn(async () =>
-          Response.json({ messageId: 'synthetic-message' }, { status: 201 }),
-        ) as typeof fetch,
-      ).send('x@u.nus.edu', 'Invitation', 'text'),
-    ).toEqual({ state: 'queued', messageId: 'synthetic-message' });
-    expect(
-      (
-        await make(
-          vi.fn(async () => new Response('', { status: 400 })) as typeof fetch,
-        ).send('x@u.nus.edu', 'a', 'b')
-      ).state,
-    ).toBe('failed');
-    expect(
-      (
-        await make(
-          vi.fn(async () => {
-            throw new Error();
-          }) as typeof fetch,
-        ).send('x@u.nus.edu', 'a', 'b')
-      ).state,
-    ).toBe('unknown');
   });
   it('Firebase signs OAuth, uses exact project/UID and validates provider reset purpose/email', async () => {
     const keys = await crypto.subtle.generateKey(
@@ -949,6 +1094,15 @@ describe('provider request contracts', () => {
     expect(await firebase.reset('synthetic-code', password)).toBe(
       'x@u.nus.edu',
     );
+    await firebase.provisionOwner('synthetic-uid', 'x@u.nus.edu', 'testpass');
+    expect(
+      calls.some(
+        (c) =>
+          c.input.localId === 'synthetic-uid' &&
+          c.input.password === 'testpass' &&
+          c.input.emailVerified === false,
+      ),
+    ).toBe(true);
     await firebase.verifyEmail('synthetic-uid');
     expect(
       calls.some((c) =>

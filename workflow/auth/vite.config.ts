@@ -27,9 +27,9 @@ export default defineConfig({
         return [
           {
             tag: 'aside',
-            attrs: { class: 'cw-status', role: 'note' },
+            attrs: { class: 'cw-preview-notice', role: 'note' },
             children:
-              'Synthetic Firebase/Brevo preview — invented identities, isolated D1 and captured emails. No real provider or course integration. Use invented passwords only.',
+              'Synthetic preview · No live authentication or email. Use invented passwords.',
             injectTo: 'body-prepend' as const,
           },
         ];
@@ -41,7 +41,9 @@ export default defineConfig({
         const mails: { email: string; subject: string; text: string }[] = [];
         let adminId = '';
         const mailer = {
-          async send(email: string, subject: string, text: string) {
+          async send(email: string, continuation: string) {
+            const subject = 'Codewise password setup or recovery';
+            const text = continuation;
             mails.unshift({ email, subject, text });
             return { state: 'queued' as const, messageId: 'synthetic-preview' };
           },

@@ -21,6 +21,8 @@ export async function authDatabase(persist?: string) {
   for (const name of [
     '0003_authentication.sql',
     '0004_firebase_invitations.sql',
+    '0005_firebase_native_email.sql',
+    '0006_owner_bootstrap.sql',
   ]) {
     if (
       !(await db
