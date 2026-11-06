@@ -36,3 +36,10 @@ Planning artifacts and repository guidance were delivered first. The user's subs
 
 - Sync/archive only after all scoped implementation and verification is completed through the installed OpenSpec workflow. Do not archive to make a selected design look implemented.
 - Deployment is separate authorized release work through the existing reviewed staging/production workflow.
+
+## 6. Current shared/instructor UI clarity continuation — Darryl
+
+- [x] 6.1 Commit prior auth work first, inspect existing screens and record user-approved compact copy/layout/SVG scope and named writer (UI-01/02/07/08).
+- [x] 6.2 Simplify shared home/auth and instructor authoring presentation, retain visible labels/contextual requirements/privacy/version/error states and accessible inline SVG controls; no student/security/domain changes (UI-01/02/07/08).
+- [x] 6.3 Review/repair presentation and asynchronous invitation states; run npm run check and observe representative desktop/narrow/keyboard/theme screens, recording actual evidence (UI-01/02/07/08).
+- [ ] 6.4 Obtain Darryl manual acceptance of the revised UI; keep unavailable real-provider/course and full cross-role matrix gates open.

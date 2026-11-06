@@ -26,3 +26,7 @@ None. No canonical specs are populated. This new UI capability complements the i
 ## Impact
 
 The initial increment covered planning, guidance and documentation; shared visual foundations were subsequently implemented. Current ownership as requested 2026-11-06: Darryl owns sign-in/registration/provider accounts/sessions/logout (SH-AUTH) and shared workspace-entry presentation; Keith retains course/membership/object authorization (SH-ID), submissions and student features. Both review the composed C-ID boundary before protected integration. This ownership revision introduces no runtime dependency, schema, provider choice, public-registration policy or implementation; existing UI progress stays 3/15. No deployment, canonical spec sync or archive is claimed.
+
+## Current clarity continuation — 2026-11-06
+
+Darryl explicitly requested simpler shared/instructor UI after committing the current authentication producer. Scope: compact auth/home layouts, remove repetitive introductions/hints, retain actionable errors and private/version status, use small accessible inline SVG brand/action marks, and simplify instructor authoring labels. Preserve warm-workbook-v1 with the user-selected compact auth layout addendum. No student feature/API/security/storage changes or new dependencies. Existing foundation-only/no-implementation statements describe the earlier planning increment; this continuation authorizes the named shared/instructor presentation window. Manual acceptance and real integration remain pending.
