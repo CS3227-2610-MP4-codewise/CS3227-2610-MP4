@@ -1,3 +1,369 @@
+# Darryl prompt experiments — shared authentication
+
+Owner: **Darryl only**. Each prompt has an agents-spawned sub-list and a token report directly below it. These are measured source-turn totals, not cost estimates. Original log text, including previous provisional checkpoints and uncommitted follow-ups, is preserved at the bottom.
+
+## Prompt index
+
+- [AUTH-001 — Propose and implement the bounded shared-authentication slice, starting with provider/onboarding decisions.](#auth-001)
+- [AUTH-002 — Explain Google invitation-only onboarding.](#auth-002)
+- [AUTH-003 — Ask whether invitation management is handled inside the app.](#auth-003)
+- [AUTH-004 — Approve the proposed authentication policy and implementation.](#auth-004)
+- [AUTH-005 — Continue the approved authentication implementation.](#auth-005)
+- [AUTH-006 — Request non-expiring invitations and discuss NUS-only sign-in without implementation.](#auth-006)
+- [AUTH-007 — Commit, push and create the authentication PR.](#auth-007)
+- [AUTH-008 — Ask why the authentication PR was created as a draft.](#auth-008)
+- [AUTH-009 — Ask whether real sign-in is future scope or incomplete work.](#auth-009)
+- [AUTH-010 — Revise the plan for NUS email/password, SendGrid invitations and password reset, using the reference User Service.](#auth-010)
+
+<a id="auth-001"></a>
+
+## Prompt AUTH-001 — 2026-11-06 13:57:23.286 +08:00
+
+**Prompt (redacted):** Propose and implement the bounded shared-authentication slice, starting with provider/onboarding decisions.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Initial main-agent analysis/decision brief; no delegated review was needed before policy approval.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-001:**
+
+| Agent        | Input     | Cached input (subset) | Output | Total tokens  |
+| ------------ | --------- | --------------------- | ------ | ------------- |
+| `/root`      | 3,105,883 | 3,073,792             | 13,845 | **3,119,728** |
+| Child agents | 0         | 0                     | 0      | **0**         |
+
+- **Total for AUTH-001: 3,119,728 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-0cc05cf7109608ea9340566c`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<a id="auth-002"></a>
+
+## Prompt AUTH-002 — 2026-11-06 14:07:17.519 +08:00
+
+**Prompt (redacted):** Explain Google invitation-only onboarding.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Main agent answered a clarification; no independent investigation or review needed.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-002:**
+
+| Agent        | Input   | Cached input (subset) | Output | Total tokens |
+| ------------ | ------- | --------------------- | ------ | ------------ |
+| `/root`      | 409,106 | 408,960               | 146    | **409,252**  |
+| Child agents | 0       | 0                     | 0      | **0**        |
+
+- **Total for AUTH-002: 409,252 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-bf0dedc083eca9dd6ef1b8b7`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<a id="auth-003"></a>
+
+## Prompt AUTH-003 — 2026-11-06 14:09:00.288 +08:00
+
+**Prompt (redacted):** Ask whether invitation management is handled inside the app.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Main agent clarified the proposed onboarding scope; no delegated work needed.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-003:**
+
+| Agent        | Input   | Cached input (subset) | Output | Total tokens |
+| ------------ | ------- | --------------------- | ------ | ------------ |
+| `/root`      | 409,272 | 409,088               | 131    | **409,403**  |
+| Child agents | 0       | 0                     | 0      | **0**        |
+
+- **Total for AUTH-003: 409,403 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-70f89a4da1bcc208e1726c8a`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<a id="auth-004"></a>
+
+## Prompt AUTH-004 — 2026-11-06 14:09:22.396 +08:00
+
+**Prompt (redacted):** Approve the proposed authentication policy and implementation.
+
+### Agents spawned
+
+- **New agents:**
+  - `auth_review`
+    - Why: Independent security/functional review of the authentication boundary, invitation redemption and session lifecycle.
+    - Assignment: independent read-only security/functional review; report findings for the main agent to repair.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+- **Reviewer identity:** `auth_review` = `01a1af7a-c5fa-78b3-96ef-a0aa60721cc1`. Findings and repairs are retained in the historical narrative; review is not human acceptance.
+
+### Token count
+
+**Usage report for AUTH-004:**
+
+| Agent                                | Input     | Cached input (subset) | Output | Total tokens  |
+| ------------------------------------ | --------- | --------------------- | ------ | ------------- |
+| `/root`                              | 5,146,861 | 5,122,816             | 21,430 | **5,168,291** |
+| `auth_review` (1 linked review turn) | 207,837   | 161,408               | 1,258  | **209,095**   |
+
+- **Total for AUTH-004: 5,377,386 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-be518bade7457bb91ea32b28`.
+- **Reviewer usage reports:**
+  - `turn-6b283cb68627e63e8733ffa7`: 209,095 tokens; completed.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Implementation began with one independent reviewer. The historical log records protocol/session guard findings and resulting repairs; measured reviewer usage is separate above.
+
+<a id="auth-005"></a>
+
+## Prompt AUTH-005 — 2026-11-06 15:04:46.844 +08:00
+
+**Prompt (redacted):** Continue the approved authentication implementation.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — existing reviewer reused; no new spawn.
+- **Reused agents:**
+  - `auth_review`
+    - Why: Reuse the existing independent reviewer for source/security findings and focused repair checks; no replacement reviewer or parallel editing.
+    - Linked review turns: 5.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+- **Reviewer identity:** `auth_review` = `01a1af7a-c5fa-78b3-96ef-a0aa60721cc1`. Findings and repairs are retained in the historical narrative; review is not human acceptance.
+
+### Token count
+
+**Usage report for AUTH-005:**
+
+| Agent                                 | Input      | Cached input (subset) | Output | Total tokens   |
+| ------------------------------------- | ---------- | --------------------- | ------ | -------------- |
+| `/root`                               | 12,658,015 | 12,150,656            | 65,136 | **12,723,151** |
+| `auth_review` (5 linked review turns) | 2,267,744  | 2,164,352             | 5,740  | **2,273,484**  |
+
+- **Total for AUTH-005: 14,996,635 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-9a366c2da49ef5e68570bbd8`.
+- **Reviewer usage reports:**
+  - `turn-2234657b95286ce7842c9091`: 477,763 tokens; completed.
+  - `turn-d3fbd3ec2480fab0726248fc`: 706,480 tokens; completed.
+  - `turn-1bb08d6c668064a7f78b97da`: 576,845 tokens; completed.
+  - `turn-fc34bd7c5feef4117eb8b139`: 202,479 tokens; completed.
+  - `turn-fbc3378ad83f1935a81cd8f0`: 309,917 tokens; completed.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+The existing reviewer was reused across five linked turns. The historical log records findings, repairs, checks and remaining live-provider/human/Keith gates. Reuse and token totals do not by themselves prove efficiency.
+
+<a id="auth-006"></a>
+
+## Prompt AUTH-006 — 2026-11-06 15:42:13.420 +08:00
+
+**Prompt (redacted):** Request non-expiring invitations and discuss NUS-only sign-in without implementation.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Main-agent policy explanation; no delegated implementation or review performed.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-006:**
+
+| Agent        | Input   | Cached input (subset) | Output | Total tokens |
+| ------------ | ------- | --------------------- | ------ | ------------ |
+| `/root`      | 354,474 | 347,648               | 1,118  | **355,592**  |
+| Child agents | 0       | 0                     | 0      | **0**        |
+
+- **Total for AUTH-006: 355,592 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-eb7213db4be3803eed281e56`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<a id="auth-007"></a>
+
+## Prompt AUTH-007 — 2026-11-06 15:48:32.536 +08:00
+
+**Prompt (redacted):** Commit, push and create the authentication PR.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Main agent performed publication of the reviewed work; no new reviewer needed for publication-only changes.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-007:**
+
+| Agent        | Input     | Cached input (subset) | Output | Total tokens  |
+| ------------ | --------- | --------------------- | ------ | ------------- |
+| `/root`      | 3,567,667 | 3,550,848             | 17,050 | **3,584,717** |
+| Child agents | 0         | 0                     | 0      | **0**         |
+
+- **Total for AUTH-007: 3,584,717 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-9d97096b6f9dc95c45e5719f`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<a id="auth-008"></a>
+
+## Prompt AUTH-008 — 2026-11-06 16:01:05.116 +08:00
+
+**Prompt (redacted):** Ask why the authentication PR was created as a draft.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Main agent explained the publication decision; no delegated work needed.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-008:**
+
+| Agent        | Input   | Cached input (subset) | Output | Total tokens |
+| ------------ | ------- | --------------------- | ------ | ------------ |
+| `/root`      | 643,510 | 640,896               | 1,454  | **644,964**  |
+| Child agents | 0       | 0                     | 0      | **0**        |
+
+- **Total for AUTH-008: 644,964 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-9e12212af5803fc8b694b312`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<a id="auth-009"></a>
+
+## Prompt AUTH-009 — 2026-11-06 16:02:46.235 +08:00
+
+**Prompt (redacted):** Ask whether real sign-in is future scope or incomplete work.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Main agent clarified implemented versus unverified behavior; no delegated work needed.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-009:**
+
+| Agent        | Input   | Cached input (subset) | Output | Total tokens |
+| ------------ | ------- | --------------------- | ------ | ------------ |
+| `/root`      | 648,768 | 648,064               | 1,560  | **650,328**  |
+| Child agents | 0       | 0                     | 0      | **0**        |
+
+- **Total for AUTH-009: 650,328 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-c52d67b47a3ea4babdf28469`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<a id="auth-010"></a>
+
+## Prompt AUTH-010 — 2026-11-06 16:07:42.580 +08:00
+
+**Prompt (redacted):** Revise the plan for NUS email/password, SendGrid invitations and password reset, using the reference User Service.
+
+### Agents spawned
+
+- **New agents:**
+  - **None** — Main agent handled bounded planning/research. No reviewer spawned or reused in the measured source turn; no independent-review claim.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`, model `gpt-6.1-sol`.
+
+### Token count
+
+**Usage report for AUTH-010:**
+
+| Agent        | Input     | Cached input (subset) | Output | Total tokens  |
+| ------------ | --------- | --------------------- | ------ | ------------- |
+| `/root`      | 5,174,783 | 5,115,776             | 34,746 | **5,209,529** |
+| Child agents | 0         | 0                     | 0      | **0**         |
+
+- **Total for AUTH-010: 5,209,529 tokens** (main + attributable children, each source record counted once).
+- **Main usage report:** `turn-53cd5ee0668b0a3a0e9ef760`.
+- **Source/checkpoint:** `per_response_usage`, `2026-11-06T08:23:16.013Z`; configured private recorder matches this repository. Source files remain outside Git.
+- **Status:** completed; 1 observed prompt item(s). No shared-turn division needed.
+- **Coverage:** no parent-turn warnings; unlinked approval-agent usage excluded. Cached input/reasoning subtotals are not added again. Historical zero-child rows reflect no observed linked child work; complete recorder coverage is not assumed.
+
+### Experiment outcome
+
+Historical results and verification are preserved below. No new application test or live-provider outcome is asserted by this formatting backfill.
+
+<!-- prettier-ignore-start -->
+
+<details>
+<summary>Original authentication log — preserved, including all prior entries</summary>
+
 # 01 - Shared authentication decision proposal - 2026-11-06
 
 ## Request
@@ -112,3 +478,106 @@ Publication usage checkpoint: external recorder refreshed2026-11-06T07:50:02.569
 - GitHub CLI absent; narrowly scoped GitHub API used existing repository authentication in memory, with credentials neither printed nor saved. An initial empty-array response was not treated as success; corrected lookup and confirmed PR number, URL, draft/open state and head.
 - Exact staged-index source export scanned with verified Gitleaks8.24.2: ~1.14MB, no leaks. Strict OpenSpec and git diff --check passed. Source unchanged from fullcheck145+4; remote CI is not yet verified and local tests are not represented as GitHub results.
 - Unrelated concurrent logging/instruction/template changes remain outside these commits. No merge, deployment, production migration, policy implementation, archive, new agent or final manual acceptance implied. Deferred invitation/NUS, live Google, Keith/SH-ID and accessibility gates remain explicitly pending in PR body and handoff.
+
+
+## Prompt sh-auth-draft-question-20261106-01 — 2026-11-06 Asia/Singapore (exact arrival unavailable)
+
+### Request
+
+- Darryl asks why PR8 was created as draft. SH-AUTH publication clarification; branch codex/shared-authentication; https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/8 .
+
+### Agent activity
+
+| Agent identity | Activity | Assignment | Reason | Outcome |
+| --- | --- | --- | --- | --- |
+| /root; session01a1a9fa-d465-76b2-8259-0ae25e4c154c | main | Explain draft choice | Direct explanation of prior publication judgment | Draft was discretionary due to pending policy/manual/integration gates, not required by the user or workflow |
+
+- Spawned/reused child agents: none; clarification needs no delegation. No new independent review needed.
+
+### Token usage
+
+| Agent identity | Source record | Input | Cached input (subset) | Output | Total | Coverage |
+| --- | --- | --- | --- | --- | --- | --- |
+| /root | turn-9e12212af5803fc8b694b312 | 213733 | 211584 | 677 | 214410 | incomplete; per_response_usage; current-turn later calls/final excluded |
+| No children | none | 0 | 0 | 0 | 0 | activity known none |
+
+- Recorder checkpoint 2026-11-06T08:01:31.662Z; correct project C:\Users\darry\CS3227-2610-MP4; private detailed reports outside Git. Parent+child snapshot 214410; count this source once, no cached/reasoning addition, no per-prompt split of any shared turn. Earlier provisional records retained; no complete historical reconciliation claimed by this clarification.
+
+### Results
+
+- Explained draft was main-agent judgment, not a user requirement or required approval barrier. A normal PR can carry the same unresolved decisions in its description.
+- No application edits, PR status change, commit, push, deployment or tests for this explanation. This required prompt-log entry is the only repository edit; not automatically committed.
+- Next owner: Darryl chooses whether to mark ready for review; unresolved NUS/invitation policies remain unchanged.
+
+
+## Prompt sh-auth-completion-question-20261106-01 — 2026-11-06 Asia/Singapore (exact arrival unavailable)
+
+### Request
+
+- Darryl asks whether actual sign-in is future iteration scope or incomplete work. SH-AUTH/AUTH-01; PR8: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/8 .
+
+### Agent activity
+
+| Agent identity | Activity | Assignment | Why | Outcome |
+| --- | --- | --- | --- | --- |
+| /root; session01a1a9fa-d465-76b2-8259-0ae25e4c154c | main | Clarify delivered versus unverified authentication | Explain existing implementation/evidence without new implementation | Real provider integration/end-to-end verification is incomplete within current SH-AUTH; synthetic preview is not completion |
+
+- Spawned/reused child agents: none; factual clarification requires no delegation. No new independent review.
+
+### Token usage
+
+| Agent identity | Source record | Input | Cached input (subset) | Output | Total | Status/coverage |
+| --- | --- | --- | --- | --- | --- | --- |
+| /root | turn-c52d67b47a3ea4babdf28469 | 215463 | 215168 | 685 | 216148 | incomplete; per_response_usage; later calls/final excluded |
+| No children | none | 0 | 0 | 0 | 0 | known no child activity |
+
+- Source/checkpoint: private configured codewise-recorder/data/records.json, 2026-11-06T08:03:13.869Z; project C:\Users\darry\CS3227-2610-MP4. Parent+child snapshot 216148; one usage group, no duplicate snapshots or added cached/reasoning subtotals; per-prompt allocation for any shared turn unavailable. Detailed telemetry outside Git. Historical records retained; no claim of full reconciliation.
+
+### Results
+
+- Clarified Google adapter/routes/session/UI exist with signed synthetic protocol and local-D1 checks, but actual provider configuration/callback/browser sign-in remains unverified and current feature is not complete. Preview synthetic administrator entry is only isolated development evidence. NUS provider replacement and non-expiring invitations are separately deferred changes, not an excuse to mark real authentication complete.
+- No application edits, PR changes, commits/pushes/deployment or tests. Only mandatory prompt log appended. Next owner: Darryl settles provider choice; actual chosen-provider setup/integration and end-to-end sign-in evidence must close the authentication requirement.
+
+
+## Prompt sh-auth-sendgrid-plan-20261106-01 — 2026-11-06 Asia/Singapore (exact arrival unavailable)
+
+### Request
+
+- Darryl invokes codewise-iterate-feature to revise existing SH-AUTH plan: SendGrid to NUS email, FoC User Service login/password reset, instructor sends first invitation and tracks invitees. Prior non-expiring invitation request carries forward. Request/skill attachment share turn usage; per-message allocation unavailable.
+- Scope: shared-authentication; AUTH-01–03, CON-03/07, SHA-01–10, UI-01/02/07/08, warm-workbook-v1 with proposed auth-policy addendum; codex/shared-authentication / PR8. Planning only; no publication or application implementation requested.
+
+### Agent activity
+
+| Agent identity | Activity | Assignment | Why | Outcome |
+| --- | --- | --- | --- | --- |
+| /root; session01a1a9fa-d465-76b2-8259-0ae25e4c154c | main | Inspect reference/contracts, revise existing artifacts, validate | Bounded planning can be completed directly | Proposal/design/spec/tasks revised; current application unchanged |
+
+- Spawned/reused child agents: none; no implementation changes to independently review. Future credential/mail code needs independent review; old Google review is not new-flow clearance.
+- Applied supplied codewise-iterate-feature, local feature-analysis and installed openspec-update-change integration. Explicit request authorizes planning revision; product changes await revised-brief approval. No personal skills changed.
+
+### Token usage
+
+| Agent identity | Record / usage group | Input | Cached input (subset) | Output | Total | Coverage |
+| --- | --- | --- | --- | --- | --- | --- |
+| /root | turn-53cd5ee0668b0a3a0e9ef760 / sh-auth-sendgrid-plan-20261106-01 | 3958582 | 3901952 | 27178 | 3985760 | incomplete; per_response_usage; later calls/final excluded |
+| No children | none | 0 | 0 | 0 | 0 | activity known none |
+
+- Source/checkpoint: private configured recorder/data/records.json, 2026-11-06T08:19:50.877Z; project C:\Users\darry\CS3227-2610-MP4 confirmed. Parent+child snapshot 3985760, one group counted once; per-message allocation unavailable. Cache/reasoning subtotals not added; unlinked approval sessions excluded. Detailed telemetry outside Git; no efficiency claim.
+- Previous clarification-turn reconciliation (outside current-request total):
+- turn-9e12212af5803fc8b694b312: completed; input 643510, cached subset 640896, output 1454, total 644964. Replaces earlier provisional snapshot; not additional consumption.
+- turn-c52d67b47a3ea4babdf28469: completed; input 648768, cached subset 648064, output 1560, total 650328. Replaces earlier provisional snapshot; not additional consumption.
+
+### Results
+
+- Initial status: matching codex/shared-authentication at a9a81b0, only prior log changes. Preserved work and reused branch from reviewed main2d8a861; no reset/discard/rebase/commit/push/PR-status changes.
+- Read-only FoC User Service reference at d6fdc85ad982ffd2dbfa65e9928aa449f1b4e5dc; user-service status clean. Inspected README/login/reset/SendGrid/password config/lockout and OTP behavior, frontend pointers. No env/secrets read or reference edits/execution. Command-local safe.directory only; no global Git configuration.
+- Revised only existing proposal/design/capability scenarios/tasks plus this increment log. Earlier Google plan remains in Git at a9a81b0 and source/evidence1c1174d/PR8 remains historical. Reopened revised-target tasks; no duplicate capability/store.
+- Requested target: non-expiring one-use revocable instructor invitations, Codewise NUS credentials and SendGrid invitation/verification/reset mail. Proposed FoC exact domain/username/password/OTP/cooldown/lockout defaults await approval. Retain Codewise revocable sessions and Keith current instructor/course/object authority; minimal tracking separates send acknowledgement from recipient acceptance, with no fabricated delivery/read status.
+- Dependencies: exact domain/staff policy, old UI-02 local-password prohibition requiring approved addendum, secure Workers password-hash feasibility, verified sender/key/limits/consented NUS inbox, first-instructor bootstrap and Keith reviewed interface. Missing authority means unavailable/no send, not synthetic membership. No automatic enrollment/self-promotion or edit to published0003.
+- Validation: strict OpenSpec initially flagged overly long requirement text; policy details moved to scenarios and validation passed. Full npm run check passed6 OpenSpec changes, types/lint,145 Vitest+4 Node and frontend build for UNCHANGED Google code; this does not verify the proposed credential/mail flow. No new tests/dependencies/app/config edits or emails. Owned-file whitespace/newline repair performed. A log command quoting error was corrected without application changes.
+- Future window proposed: Darryl account/credential/session/mail/invitation and scoped UI/API/additive migration; Keith owns instructor/course/membership/object authority. Agreement before dependent edits, no tier purchase or deployment authorized.
+- Next: Darryl approves revised brief/defaults; Keith boundary review; then separate apply phase, independent review, actual NUS mail/login/reset evidence and manual acceptance. Current plan is not implemented/accepted/archived; deployment gates remain pending.
+
+</details>
+
+<!-- prettier-ignore-end -->
