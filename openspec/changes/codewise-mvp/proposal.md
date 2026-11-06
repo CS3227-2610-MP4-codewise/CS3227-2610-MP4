@@ -20,6 +20,7 @@ Readiness reconciliation (2026-11-05): foundation deployment and shared workload
 ### Working assumptions
 
 - Confirmed: two team members and two roles. Darryl owns instructor features; Keith owns student features. Both contribute to shared engineering work.
+- Ownership revision requested by Darryl on 2026-11-06: Darryl also owns shared sign-in/registration/provider accounts/sessions/logout/CSRF (SH-AUTH); Keith retains course/membership/object authorization (SH-ID) and submissions. Both review the composed C-ID boundary; Keith's revised-boundary acceptance is pending. Provider/public-registration choices and runtime implementation remain separate gates.
 - Python only, one text source file per question; syntax highlighting does not imply execution.
 - Assignments may contain multiple questions; all questions are submitted atomically as an assignment attempt.
 - No code execution, automatic test grading, live tutoring, textbook retrieval, or AI-detection features in MVP.

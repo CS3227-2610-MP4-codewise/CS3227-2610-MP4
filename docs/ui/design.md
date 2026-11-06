@@ -67,6 +67,8 @@ Use a quiet, responsive two-part composition: Codewise wordmark, a short workboo
 
 The maintained identity provider is unresolved in C-ID. Use the approved provider's sign-in action once selected; do not create a local password store, password-reset flow, public instructor-registration form or pretend authenticated demo. No role selection at login grants privileges. Before provider integration, any demonstration must be clearly synthetic and must not expose protected routes.
 
+Ownership update requested by Darryl on 2026-11-06: Darryl implements shared sign-in and registration/provisioning presentation, provider/account integration and session/logout handling (SH-AUTH); Keith retains courses, memberships, object authorization and student features (SH-ID). Both review the composed C-ID contract. This assignment does not choose a provider or approve public registration; trusted instructor provisioning remains mandatory.
+
 Required states: ready; redirect/signing in with duplicate action prevented; provider cancellation; safe failure with retry; expired session; authenticated but no course membership. Do not reveal account existence or provider internals. Preserve only a validated local return destination and reauthorize it after sign-in. Offer logout and a clear session identity inside the app. Session loss must not falsely report an unsaved draft as saved; safe recovery follows the agreed identity/storage contract, without shared-browser disclosure of learner code.
 
 ## Shared chrome and role switch — UI-03
@@ -119,7 +121,7 @@ State coverage for every implemented slice: loading; empty/no membership/no subm
 ## Implementation and review discipline — UI-01, UI-08
 
 1. A UI change names this design revision and applicable UI IDs in its proposal/design/tasks and PR. Scope role files to their human owners and agree shared components before edits.
-2. Derive theme tokens and shared components from this document in an authorized implementation slice. Reuse them across roles. Student/identity implementation remains Keith's; Darryl does not implement those features by writing this guide.
+2. Derive theme tokens and shared components from this document in an authorized implementation slice. Reuse them across roles. Darryl owns shared sign-in/account/session work; Keith owns course/object authorization and student features. An ownership/design update does not implement or authorize a broader feature slice.
 3. Attach a completed [UI review](../../workflow/templates/ui-review.md), representative desktop/narrow screenshots and keyboard/state verification under `workflow/evidence/<change>/`. Include light/dark evidence where the slice introduces a themed surface.
 4. Reviewers return unexplained departures to the owner. Mark unavailable states/checks unverified; do not mark feature tasks complete from screenshots or mocks alone.
 5. Run `npm run check` plus the slice's appropriate authorization, state and accessibility checks. OpenSpec validation validates the specification structure, not pixel fidelity or live authentication. PR template/checklists require human review; no automatic screenshot gate or branch-protection change is claimed here.

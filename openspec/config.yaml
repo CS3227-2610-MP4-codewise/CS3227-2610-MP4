@@ -4,9 +4,13 @@ context: |
   Codewise is a proposed programming education application for NUS CS3227 MP4.
   Status: MVP product baseline remains draft; verified foundation is deployed.
   Confirmed team: Darryl owns instructor features; Keith owns student features.
-  Shared writer split agreed via Darryl on 2026-11-05: Keith owns identity/course
-  and submissions; Darryl owns publication, assessment/release, AI gateway and
-  operations. Contract fields/policies require joint acceptance before integration.
+  Updated ownership requested by Darryl on 2026-11-06: Darryl owns shared sign-in,
+  registration/provisioning, provider accounts, sessions/logout and CSRF (SH-AUTH),
+  plus publication, assessment/release, AI gateway and operations. Keith retains
+  courses/memberships/object authorization (SH-ID), submissions and student features.
+  Both review the composed C-ID boundary; Keith's revised-boundary review is pending.
+  One authoritative identity store; serialize shared schema/API edits. Provider and
+  public registration policy remain undecided; client roles never grant privileges.
   Cloudflare foundation staging/production passed run 41799944040 at 281cc13;
   role features remain separate work. See workflow/Ownership.md and evidence.
   Working assumptions: one language (Python),

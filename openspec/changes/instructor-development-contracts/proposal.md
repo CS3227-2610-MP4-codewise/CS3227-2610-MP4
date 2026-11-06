@@ -9,7 +9,7 @@ The accepted readiness package assigns owners but deliberately leaves C-ID/C-PUB
 - Verify readiness acceptance from the recorded manual checklist, task 3.4 and Darryl's explicit approval; do not mistake workload agreement for acceptance of detailed contracts.
 - Refine the existing five drafts in workflow/IntegrationContracts.md, preserving their IDs and scenarios. Add strict runtime schemas/parsers, synthetic cross-linked examples, server-only adapter interfaces and reusable producer/consumer contract suites after brief approval.
 - Propose exact instructor-owned publication/release policies: stable logical IDs with immutable version IDs, two-decimal point scores, canonical LF source/line rules and auditable feedback withdrawal. Present the consumer-impacting decisions together for Keith, with per-decision acceptance status.
-- Separate schema/fixture conformance, synthetic adapter tests and verified real-producer integration. Keep identity/course/submission/progress implementations owned by Keith and replaceable through dependency injection.
+- Separate schema/fixture conformance, synthetic adapter tests and verified real-producer integration. Under the 2026-11-06 ownership revision, Darryl produces account/session/sign-in integration (SH-AUTH); Keith retains course/object authorization (SH-ID), submissions and progress. Both integrate through the same injected C-ID boundary; no duplicate identity service is introduced.
 - Identify isolated work Darryl can start without real authentication, and gates that still prevent deployed feature routes, provider activation or claims of integration.
 
 ### Boundaries and assumptions
@@ -30,4 +30,4 @@ None under canonical openspec/specs (not yet populated). Existing MVP capability
 
 ## Impact
 
-After approval, target a small shared contract package, server-only adapter types, synthetic fixtures, contract tests and the existing integration/decision documents. Darryl is the proposed single writer for this contract-artifact edit window; Keith remains producer of identity/course and submissions and reviewer of consumer-impacting decisions. No changes to src/server/index.ts, existing DTO scaffolds, databases, student feature modules or deployment workflows are planned. Exact shared-file ownership and Keith's review are recorded before dependent edits; isolated proposed-contract development is clearly labelled and cannot expose runtime routes.
+The original contract-artifact window covered the small schema/port/fixture/test package and integration documents. For future real integration, Darryl now produces SH-AUTH accounts/sessions/sign-in; Keith produces SH-ID course/object authorization, submissions and student features. Both review C-ID and consumer-impacting decisions. This ownership-only revision changes no runtime port, source module, database, feature route or deployment. Exact shared-file windows and accepted producer revisions still gate composition.

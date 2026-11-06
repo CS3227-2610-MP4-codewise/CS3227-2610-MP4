@@ -8,6 +8,8 @@ Readiness update 2026-11-05: the Cloudflare foundation is deployed to staging an
 
 ## Goals / Non-Goals
 
+Current ownership revision (2026-11-06): Darryl produces shared account authentication, sign-in/registration/provisioning, provider mapping, sessions/logout and CSRF (SH-AUTH). Keith produces courses/memberships/object authorization (SH-ID), consuming that authenticated subject, and retains submissions/student features. Both review the composed C-ID handoff; one authoritative identity/course store and serialized migration/API write windows remain required. This supersedes only the prior combined identity ownership, not security requirements or provider/registration policy decisions.
+
 Goals: durable submissions, rubric-driven assistance, private evidence-based learning feedback, testable security, and auditable development/deployment.
 
 Non-goals: student-code execution, hidden tests, automatic grade release, plagiarism/AI-authorship detection, multi-language runtimes, textbook ingestion, collaborative editing, and a production claim before verification.

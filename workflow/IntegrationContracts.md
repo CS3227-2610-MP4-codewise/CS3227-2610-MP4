@@ -38,9 +38,9 @@ All protected service operations, lists, result reads and cache hits authorize t
 
 Runtime candidate: [sessionViewSchema/courseMembershipSchema](../src/shared/instructor-contracts/identity.ts) and server-only [IdentityCoursePort/withAuthorizedObject](../src/server/instructor/ports/contracts.ts). Session → authoritative object-to-course metadata → current course permission → mutation-origin guard → private read. Parsed/browser roles and principal-shaped JSON never authorize. No real adapter/fallback is composed into routing.
 
-**Producer/writer:** Keith. **Consumers/reviewer:** Darryl's instructor services and Keith's student services. **Requirements:** AUTH-01–AUTH-03. **Gate:** identity provider/session/provisioning decision and identity schema ownership.
+**Producer/writers:** Darryl for SH-AUTH (sign-in, registration/provisioning, provider/account mapping, sessions/logout and CSRF); Keith for SH-ID (courses, memberships, course/object authorization and allowed workspace contexts). **Consumers/reviewers:** both role services; each owner cross-reviews the composed C-ID boundary. **Requirements:** AUTH-01–AUTH-03. **Gate:** provider/registration-policy decision, accepted session-to-authorization contract and serialized schema ownership. This is Darryl's 2026-11-06 ownership revision; Keith's revised-boundary review is pending.
 
-Keith supplies trusted subject mapping, expiration/logout/revocation, one authoritative user/course/membership store and documented errors. Consumers pass the target course/object and recheck membership for result reads; neither role builds parallel identity storage.
+Darryl supplies trusted subject/account mapping, authenticated session validation, expiry/logout/session revocation and mutation-origin/CSRF guards. Keith consumes the trusted subject to resolve current courses/memberships and object permissions, including membership revocation and allowed workspace contexts. Keep one authoritative identity/course store and the existing server-only injected port; no competing per-role session store, client role authority or duplicate C-ID contract. Both owners agree failure/revocation semantics and exact producer revisions before composing protected routes.
 
 | Scenario | WHEN                                                               | Producer guarantee / consumer acceptance                                             |
 | -------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
@@ -50,7 +50,7 @@ Keith supplies trusted subject mapping, expiration/logout/revocation, one author
 | ID-04    | Membership is revoked after AI admission, before result/cache read | Current membership rejects read; neither role displays private cached content        |
 | ID-05    | Student guesses another student's attempt                          | Denied before content/context assembly; no code, feedback or AI status leaks         |
 
-**Open:** provider, callback/logout flow, cookie/CSRF settings, trusted setup operator, membership lifecycle and demo accounts. Keith proposes them in SH-ID; Darryl reviews before depending on it.
+**Open:** Darryl proposes provider, sign-in/callback/logout, cookie/session/CSRF settings, registration method and trusted account-provisioning/demo process in SH-AUTH; Keith reviews. Keith proposes course/membership lifecycle, object scope and allowed workspace contexts in SH-ID; Darryl reviews. Public registration and instructor self-provisioning are not approved. Accepted SH-AUTH and SH-ID handoffs are both required for real C-ID integration.
 
 ## C-PUB: published assignment
 
@@ -135,7 +135,7 @@ Darryl's gateway owns endpoint/model configuration, shared atomic request/token/
 
 Before dependent edits, producer and consumer jointly accept relevant fields, policies and scenarios in a bounded OpenSpec feature change. Record both review outcomes, active writer, exact producer revision, public/internal runtime schemas, safe errors and synthetic payloads using the [handoff template](handoffs/TEMPLATE.md). Consumer records its revision and executed integration/security checks against that producer. Fixture-only consumption remains integration pending; type checks alone are insufficient.
 
-Order: identity/course → publication → submission → manual assessment/release → feedback/progress consumption. Gateway can use isolated synthetic adapters after interface agreement, but consumers/activation wait for auth, evidence and provider gates. Serialize migration numbering and shared DTO/API wiring by active producer. Consume Keith's identity/submission handoffs when available; absent handoffs block dependent integration rather than justify substitute services.
+Order: Darryl's authentication/session producer plus Keith's course/object authorization → publication → submission → manual assessment/release → feedback/progress consumption. Gateway can use isolated synthetic adapters after interface agreement, but consumers/activation wait for auth, evidence and provider gates. Serialize migration numbering and shared DTO/API wiring by active producer. Compose reviewed SH-AUTH/SH-ID revisions and consume Keith's submission handoff; absent handoffs block dependent integration rather than justify substitute services.
 
 ## Candidate policy and evidence status
 
@@ -149,13 +149,13 @@ P1 accepted by Darryl: stable logical identities and fresh assignment/question/r
 
 One combined packet through Darryl; no message was automatically sent. Every row is Darryl-approved on 2026-11-05; **Keith pending**. Real producer/consumer implementation revisions remain unavailable. Accept or return exact replacements before dependent runtime composition.
 
-| ID  | Concrete decision                                                                                                                                   | Producer / consumer                                     |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| K1  | Request-derived trusted session/course/object port; schemaVersion 1/closed shapes/safe errors; parsed roles never authorize                         | Keith identity/course, Darryl consumer                  |
-| K2  | Stable logical IDs, fresh immutable publish versions; deadline/reference edits republish; immediate visibility; legacy id maps to questionVersionId | Darryl publication, Keith pins work                     |
-| K3  | 0..1000 numeric point scores, two decimals/no rounding; composite question/rubric/criterion joins and comparison-key governance                     | Darryl rubric/release, Keith display/comparison         |
-| K4  | 32 KiB UTF-8 source, LF ingress/SHA-256; preserved final LF, exact inclusive one-based excerpts                                                     | Keith submission producer, Darryl evidence consumer     |
-| K5  | Exact reviewed release, monotonic availability; withdrawal tombstones/no historical revival; recheck before cached reads                            | Darryl release/currentness, Keith progress invalidation |
-| K6  | Typed action/evidence/validators; real configured output cap; missing usage unavailable; no generic progress success parser                         | Darryl gateway/assessment, Keith progress validation    |
+| ID  | Concrete decision                                                                                                                                   | Producer / consumer                                                               |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| K1  | Request-derived trusted session/course/object port; schemaVersion 1/closed shapes/safe errors; parsed roles never authorize                         | Darryl authentication/session + Keith course/object authorization; both consumers |
+| K2  | Stable logical IDs, fresh immutable publish versions; deadline/reference edits republish; immediate visibility; legacy id maps to questionVersionId | Darryl publication, Keith pins work                                               |
+| K3  | 0..1000 numeric point scores, two decimals/no rounding; composite question/rubric/criterion joins and comparison-key governance                     | Darryl rubric/release, Keith display/comparison                                   |
+| K4  | 32 KiB UTF-8 source, LF ingress/SHA-256; preserved final LF, exact inclusive one-based excerpts                                                     | Keith submission producer, Darryl evidence consumer                               |
+| K5  | Exact reviewed release, monotonic availability; withdrawal tombstones/no historical revival; recheck before cached reads                            | Darryl release/currentness, Keith progress invalidation                           |
+| K6  | Typed action/evidence/validators; real configured output cap; missing usage unavailable; no generic progress success parser                         | Darryl gateway/assessment, Keith progress validation                              |
 
 The runtime modules define candidate text/array/error bounds for review in this same packet. Real model/quota/tokenizer values, identity choice and submission transaction/deadline rules remain producer gates. Darryl can proceed independently with isolated candidate contract artifacts and pure instructor design. Actual feature implementation/composition requires approved bounded changes, joint agreement and real reviewed handoffs. Existing unimplemented API paths stay unavailable.

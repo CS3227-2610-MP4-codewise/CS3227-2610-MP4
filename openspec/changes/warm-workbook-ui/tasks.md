@@ -1,6 +1,6 @@
 # Warm workbook implementation tasks
 
-Planning artifacts and repository guidance were delivered first. The user's subsequent continuation request authorized the shared foundation slice on `codex/warm-workbook-foundation`; completed tasks are recorded below with evidence in `workflow/evidence/warm-workbook-ui/foundation/review.md`. Remaining slices need exact shared-file ownership windows and producer handoffs. Darryl's shared presentation work is not implementation of Keith's identity or student features.
+Planning artifacts and repository guidance were delivered first. The user's subsequent continuation request authorized the shared foundation slice on `codex/warm-workbook-foundation`; completed tasks are recorded below with evidence in `workflow/evidence/warm-workbook-ui/foundation/review.md`. Ownership update requested 2026-11-06: Darryl owns SH-AUTH sign-in/account/session work and entry UI; Keith retains SH-ID course/object authorization and student features. Remaining slices need exact shared-file windows and joint C-ID producer handoffs; reassignment does not complete an implementation task.
 
 ## 1. Shared design foundations
 
@@ -8,11 +8,11 @@ Planning artifacts and repository guidance were delivered first. The user's subs
 - [x] 1.2 Implement shared warm light/dark tokens and proportional/serif/monospace typography; verify representative screens against the token table and attach light/dark desktop and narrow screenshots plus measured contrast outcomes (UI-01, UI-07).
 - [x] 1.3 Implement shared focus, action, status and navigation primitives; verify keyboard/200% zoom behavior and document usage in the feature handoff with completed applicable UI review rows (UI-01, UI-07, UI-08).
 
-## 2. Identity and workspace entry — Keith producer, Darryl consumer/reviewer
+## 2. Sign-in and workspace entry — Darryl; Keith authorization producer/cross-reviewer
 
-- [ ] 2.1 Obtain accepted C-ID provider/session/allowed-context handoff; verify exact producer revision and unauthenticated/denied responses are recorded before protected UI integration (UI-02, UI-03; AUTH-01–AUTH-03).
-- [ ] 2.2 Implement the warm sign-in page and approved provider flow; verify pending/cancel/error/session-expiry/logout, safe return destinations and no-membership states with synthetic integration cases, then document actual outcomes (UI-02, UI-07, UI-08).
-- [ ] 2.3 Implement the conditional Student/Instructor switch and static single-role label from trusted context; verify pointer/Space/accessible state, unsaved-work recovery, denied/forged/revoked roles and no private cached data after transition; attach consumer review and screenshots (UI-03; AUTH-02, AUTH-03).
+- [ ] 2.1 Darryl proposes SH-AUTH provider, registration/provisioning, account/session/logout/CSRF contract; Keith supplies SH-ID course/object authorization and allowed contexts. Obtain both owners' C-ID acceptance and exact producer revisions; verify unauthenticated/denied responses before protected integration (UI-02, UI-03; AUTH-01–AUTH-03).
+- [ ] 2.2 Darryl implements the warm sign-in and approved registration/provisioning/provider flow without duplicating identity storage; verify pending/cancel/error/session-expiry/logout, safe return and no-membership states with Keith's authorization producer, and document actual outcomes (UI-02, UI-07, UI-08; AUTH-01, AUTH-03).
+- [ ] 2.3 Darryl implements the shared conditional Student/Instructor switch and static single-role label from Keith's trusted contexts in an agreed shared-file window; verify pointer/Space/accessible state, unsaved recovery, denied/forged/revoked roles and no private cached data; obtain Keith's consumer/security review and screenshots (UI-03; AUTH-02, AUTH-03).
 
 ## 3. Student workbook and question navigation — Keith
 

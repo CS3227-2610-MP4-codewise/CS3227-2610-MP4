@@ -30,5 +30,5 @@ Darryl approved the brief, P1–P4 and isolated contract-artifact scope on 2026-
 
 ## Workflow follow-up
 
-- Real integration remains pending until Keith supplies reviewed producer adapters/revisions and joint contract decisions. Run the same factory suites against real producers then, recording exact revisions and security results in the relevant future feature change.
+- Real integration remains pending until Darryl supplies reviewed SH-AUTH account/session/sign-in and Keith supplies SH-ID course/object authorization and submission adapters, with joint C-ID/consumer decisions. Run the same factory suites against the composed real producers, recording exact revisions and security results in the relevant future feature change. This 2026-11-06 ownership revision completes no runtime task.
 - Instructor authoring/publication and assessment implementation are separate iterations; preserve the interrupted publication scaffold. Do not archive unfinished changes, or commit/push/merge/deploy without separate applicable instruction.

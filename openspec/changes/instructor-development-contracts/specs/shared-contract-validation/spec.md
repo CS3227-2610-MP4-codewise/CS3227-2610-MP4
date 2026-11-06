@@ -83,10 +83,10 @@ C-AI SHALL use server-configured action/evidence envelopes, injected action vali
 ### Requirement: CON-07 Reusable producer and consumer suites
 Each C-* boundary SHALL have cross-linked synthetic valid/invalid examples, reusable factory-based producer/consumer checks and an evidence ledger distinguishing schema conformance, synthetic adapters and real producer integration (DEV-01, DEV-02).
 
-#### Scenario: Real Keith adapter is unavailable
+#### Scenario: Real producer adapter is unavailable
 - **WHEN** instructor tests inject a synthetic identity or submission adapter
 - **THEN** tests exercise the same port/schemas without creating identity/course/submission storage and report real authentication/producer integration pending.
 
 #### Scenario: Real producer becomes available
-- **WHEN** Keith supplies a reviewed producer revision
+- **WHEN** the responsible producer supplies a reviewed revision, with Darryl supplying account/session authentication and Keith supplying course/object authorization or submissions as applicable
 - **THEN** the same conformance suite runs against that adapter and records producer/consumer revisions plus actual security/integration results before acceptance.
