@@ -1,0 +1,120 @@
+{
+  "library": "argon2id@1.0.1",
+  "runtime": "local workerd through Miniflare",
+  "parameters": {
+    "memoryKiB": 19456,
+    "passes": 2,
+    "parallelism": 1,
+    "tagBytes": 32
+  },
+  "workersFreeCpuBudgetMs": 10,
+  "rows": [
+    {
+      "path": "/noop",
+      "wallMs": 38.254,
+      "sampledNonIdleMs": 41.932,
+      "sampledWasmMs": 0,
+      "hashes": 0,
+      "wasmBytes": 0,
+      "jsHeapBefore": 828208,
+      "jsHeapAfter": 875556
+    },
+    {
+      "path": "/hash",
+      "wallMs": 174.223,
+      "sampledNonIdleMs": 168.807,
+      "sampledWasmMs": 102.961,
+      "hashes": 1,
+      "tagBytes": 32,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 875556,
+      "jsHeapAfter": 2473840
+    },
+    {
+      "path": "/hash",
+      "wallMs": 154.674,
+      "sampledNonIdleMs": 150.297,
+      "sampledWasmMs": 85.606,
+      "hashes": 1,
+      "tagBytes": 32,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 2473840,
+      "jsHeapAfter": 4349128
+    },
+    {
+      "path": "/hash",
+      "wallMs": 135.246,
+      "sampledNonIdleMs": 129.532,
+      "sampledWasmMs": 89.925,
+      "hashes": 1,
+      "tagBytes": 32,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 4349128,
+      "jsHeapAfter": 4260788
+    },
+    {
+      "path": "/hash",
+      "wallMs": 125.515,
+      "sampledNonIdleMs": 120.353,
+      "sampledWasmMs": 77.925,
+      "hashes": 1,
+      "tagBytes": 32,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 4260788,
+      "jsHeapAfter": 4243940
+    },
+    {
+      "path": "/hash",
+      "wallMs": 120.779,
+      "sampledNonIdleMs": 115.236,
+      "sampledWasmMs": 86.522,
+      "hashes": 1,
+      "tagBytes": 32,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 4243940,
+      "jsHeapAfter": 6829936
+    },
+    {
+      "path": "/verify",
+      "wallMs": 231.311,
+      "sampledNonIdleMs": 226.807,
+      "sampledWasmMs": 168.969,
+      "hashes": 2,
+      "tagBytes": 32,
+      "verified": true,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 6829936,
+      "jsHeapAfter": 5883136
+    },
+    {
+      "path": "/wrong",
+      "wallMs": 209.673,
+      "sampledNonIdleMs": 205.22,
+      "sampledWasmMs": 156.526,
+      "hashes": 2,
+      "tagBytes": 32,
+      "verified": false,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 5883136,
+      "jsHeapAfter": 4297188
+    },
+    {
+      "path": "/unicode",
+      "wallMs": 209.812,
+      "sampledNonIdleMs": 202.92,
+      "sampledWasmMs": 155.88,
+      "hashes": 2,
+      "tagBytes": 32,
+      "verified": true,
+      "wasmBytes": 68157440,
+      "jsHeapBefore": 4297188,
+      "jsHeapAfter": 9461844
+    }
+  ],
+  "burst": {
+    "requests": 4,
+    "wallMs": 376.373,
+    "maximumWasmBytes": 68157440
+  },
+  "limits": "Sampled non-idle CPU estimate and external wall latency are local measurements, not deployed per-invocation CPU or total isolate memory. JS heap excludes WASM allocation. No deployed limit test performed. Detailed profiles stay in ignored local storage."
+}
