@@ -4,7 +4,7 @@ This is a workflow specification, not evidence that agents have already run.
 
 The repository now includes role instructions under agents/, a handoff template under handoffs/, and Ownership.md for Darryl/Keith's integration agreement. Use these in actual development and retain evidence; templates alone do not satisfy the multi-agent requirement.
 
-Shared implementation decisions are tracked in [IntegrationContracts.md](IntegrationContracts.md). Put redacted verification under [evidence/](evidence/), using one folder per real change. Every user prompt gets a structured workflow entry in [logs/darryl/](../logs/darryl/) or [logs/keith/](../logs/keith/), following the [log policy](../logs/README.md) and [entry template](templates/member-log.md): actual agents spawned/reused, why, and measured main/child tokens with source and coverage. Questions and continuation prompts are included. Handoffs stay shared here so producers and consumers can find the same transition record.
+Shared implementation decisions are tracked in [IntegrationContracts.md](IntegrationContracts.md). Put redacted verification under [evidence/](evidence/), using one folder per real change. Darryl records every user prompt as a prompt experiment in [logs/darryl/](../logs/darryl/), using [his template](templates/darryl-prompt-experiment.md) and the [log policy](../logs/README.md): actual agents spawned/reused, rationale, measured main/child tokens and observed quality/rework outcomes. Keith retains [logs/keith/](../logs/keith/) and the [existing summary template](templates/member-log.md); Darryl's added per-prompt requirements do not apply to Keith. Handoffs stay shared here so producers and consumers can find the same transition record.
 
 ## Roles and handoffs
 

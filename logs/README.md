@@ -1,12 +1,17 @@
-# Prompt workflow logs
+# Member logs and Darryl prompt experiments
 
 - Darryl's work: [darryl/](darryl/).
 - Keith's work: [keith/](keith/).
-- New-entry format: [member log template](../workflow/templates/member-log.md).
+- Darryl: [prompt-experiment template](../workflow/templates/darryl-prompt-experiment.md).
+- Keith: [existing member-summary template](../workflow/templates/member-log.md).
 
-Create one file per PR-sized increment under the named human owner's folder. Reuse it through planning, implementation, corrections and verification. **Every user prompt requires its own structured entry**, including questions, approvals, corrections, cancellations and "continue". This supersedes the former substantial-request-only rule and routine-question exemption. Do not collapse several prompts into one narrative. Transport/UI metadata and tool results are not user prompts.
+## Darryl only — prompt experiments
 
-Use the [template](../workflow/templates/member-log.md) for each prompt. Record:
+Purpose: retain evidence for Darryl's post-project reflection on prompt design, agent selection, token use, review benefit and repair/rework. These additional per-prompt requirements do not apply to Keith.
+
+Create one file per PR-sized increment under logs/darryl/. Reuse it through planning, implementation, corrections and verification. **Every user prompt requires its own structured entry**, including questions, approvals, corrections, cancellations and "continue". This supersedes the former substantial-request-only rule and routine-question exemption. Do not collapse several prompts into one narrative. Transport/UI metadata and tool results are not user prompts.
+
+Use the [Darryl template](../workflow/templates/darryl-prompt-experiment.md) for each prompt. Record:
 
 - Stable prompt ID, sequence/time (or unavailable), human owner, redacted request, change/requirements and branch/PR when applicable.
 - Every agent spawned or reused for that prompt: actual identity, new/reused/main status, assignment, reason, outcome and review/repair returns. If none were spawned or reused, explicitly record **none** and why. A role/skill name is not a spawned agent. Historical missing evidence is **unavailable**, not proof of none.
@@ -23,4 +28,8 @@ For shared work choose one log owner and identify both contributors. Human owner
 
 The three dated setup summaries were moved into Darryl's folder because they originated in his setup session. Their historical filenames and separate records are retained; they are not retroactively claimed to be one PR each. Keith's folder intentionally contains no invented contribution records.
 
-Before every final response, confirm that the current prompt has its own `### Agents spawned` and `### Token count` sections in the member log, even when no agent was spawned or usage is unavailable. A summary table covering several prompts does not satisfy this structure. Reconcile the preceding prompt at the next checkpoint. These instructions apply to future logs after this branch is adopted; do not claim an unmerged PR has changed main.
+For Darryl, before every final response confirm that the current prompt has its own `### Agents spawned` and `### Token count` sections in the member log, even when no agent was spawned or usage is unavailable. A summary table covering several prompts does not satisfy this structure. Reconcile the preceding prompt at the next checkpoint. These instructions apply to future logs after this branch is adopted; do not claim an unmerged PR has changed main.
+
+## Keith — existing summary policy retained
+
+Keith keeps one member-summary file per PR-sized increment in logs/keith/, using workflow/templates/member-log.md. Append Request/Results entries for substantial requests; routine questions need no entry under this policy. Darryl's every-prompt agent/token tables and prompt-experiment requirements do not apply to Keith. No Keith contribution, prompt, usage or reviewer activity is invented.
