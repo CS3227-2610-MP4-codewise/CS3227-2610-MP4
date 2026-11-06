@@ -1,3 +1,164 @@
+# 03 instructor development contracts — per-prompt workflow log
+
+Human/log owner: Darryl. Each prompt below has its own **Agents spawned** and **Token count** sections. Measurements were backfilled from original user-item/turn records at `2026-11-06T08:11:21.254Z`. Raw prompts, credentials, tool outputs and hidden reasoning are not copied. Original narrative is preserved at the end. Shared source IDs are one usage group, not independently additive counts.
+
+<a id="prompt-impl-008"></a>
+
+## Prompt IMPL-008 — 2026-11-05 13:17:44.280 +08:00
+
+### Request
+
+Prepare instructor development contracts after checking readiness acceptance.
+
+### Agents spawned
+
+- Main agent: `/root`, model `gpt-6.1-sol`, session `01a1a9fa-d465-76b2-8259-0ae25e4c154c`.
+- **New agents spawned:** `contracts_review` (1 recorded spawn requests).
+- **Existing agents with linked work:** `contracts_review`.
+- **Why:** Independent read-only review/focused re-review of this increment; the historical narrative below records findings, repairs and scope. Reuse preserves review continuity; no parallel edits claimed.
+- Reviewer identity: `contracts_review` = `01a1aa26-c4d1-7ab0-bcfb-2df59f4176f8`.
+
+### Token count
+
+| Agent              | Input     | Cached input (subset) | Output | Total         | Source record                   | Status                        |
+| ------------------ | --------- | --------------------- | ------ | ------------- | ------------------------------- | ----------------------------- |
+| `/root`            | 4,519,488 | 4,488,960             | 26,335 | **4,545,823** | `turn-8c287230f6ce83b1de1ff8c9` | completed; per_response_usage |
+| `contracts_review` | 184,596   | 164,096               | 1,733  | **186,329**   | `turn-336af4805f458d1fffd48fe8` | completed; per_response_usage |
+| `contracts_review` | 190,867   | 177,280               | 1,223  | **192,090**   | `turn-d0614351c2618213bef053b1` | completed; per_response_usage |
+| `contracts_review` | 109,743   | 106,240               | 370    | **110,113**   | `turn-f192f00c1ef699991bbded3f` | completed; per_response_usage |
+
+- **Measured main + linked-child turn-group total: 5,034,355 tokens.** One user prompt item in this turn; main/linked-child usage is attributable at that granularity.
+- Checkpoint: `2026-11-06T08:11:21.254Z`; private recorder project scope matches Codewise. Cached input/reasoning output are subsets, not additions. Unlinked approval-agent usage excluded.
+- Coverage: no parent-turn warnings; session warnings: unknown_record_type:inter_agent_communication_metadata. Zero recorded spawns is an observation, not proof of complete agent coverage. Missing numbers mean unavailable. Completed observed usage.
+
+### Results and verification
+
+Historical decisions, checks and limitations are retained verbatim in the expandable narrative below. This backfill adds attribution/measurements; it does not rerun those checks or establish new live deployment evidence.
+
+<a id="prompt-impl-009"></a>
+
+## Prompt IMPL-009 — 2026-11-05 13:34:32.779 +08:00
+
+### Request
+
+Approve the contract plan for implementation.
+
+### Agents spawned
+
+- Main agent: `/root`, model `gpt-6.1-sol`, session `01a1a9fa-d465-76b2-8259-0ae25e4c154c`.
+- **New agents spawned:** none observed (0 recorded spawn requests).
+- **Existing agents with linked work:** `contracts_review`.
+- **Why:** Independent read-only review/focused re-review of this increment; the historical narrative below records findings, repairs and scope. Reuse preserves review continuity; no parallel edits claimed.
+- Reviewer identity: `contracts_review` = `01a1aa26-c4d1-7ab0-bcfb-2df59f4176f8`.
+
+### Token count
+
+| Agent              | Input     | Cached input (subset) | Output | Total         | Source record                   | Status                        |
+| ------------------ | --------- | --------------------- | ------ | ------------- | ------------------------------- | ----------------------------- |
+| `/root`            | 7,913,484 | 7,884,288             | 44,898 | **7,958,382** | `turn-cc589f62a91c519618b96044` | completed; per_response_usage |
+| `contracts_review` | 1,133,145 | 1,105,408             | 4,289  | **1,137,434** | `turn-1c86b77e7f199efd0cfe5a26` | completed; per_response_usage |
+| `contracts_review` | 357,793   | 351,104               | 653    | **358,446**   | `turn-a1308df48d3d31ebd56ce688` | completed; per_response_usage |
+
+- **Measured main + linked-child turn-group total: 9,454,262 tokens.** One user prompt item in this turn; main/linked-child usage is attributable at that granularity.
+- Checkpoint: `2026-11-06T08:11:21.254Z`; private recorder project scope matches Codewise. Cached input/reasoning output are subsets, not additions. Unlinked approval-agent usage excluded.
+- Coverage: no parent-turn warnings; session warnings: unknown_record_type:inter_agent_communication_metadata. Zero recorded spawns is an observation, not proof of complete agent coverage. Missing numbers mean unavailable. Completed observed usage.
+
+### Results and verification
+
+Historical decisions, checks and limitations are retained verbatim in the expandable narrative below. This backfill adds attribution/measurements; it does not rerun those checks or establish new live deployment evidence.
+
+<a id="prompt-impl-010"></a>
+
+## Prompt IMPL-010 — 2026-11-05 15:15:03.439 +08:00
+
+### Request
+
+Continue contract work.
+
+### Agents spawned
+
+- Main agent: `/root`, model `gpt-6.1-sol`, session `01a1a9fa-d465-76b2-8259-0ae25e4c154c`.
+- **New agents spawned:** none observed (0 recorded spawn requests).
+- **Existing agents with linked work:** none observed.
+- **Why:** Main agent handled the request. A contemporaneous reason for skipping delegation was not recorded; no rationale is invented during backfill.
+
+### Token count
+
+| Agent   | Input     | Cached input (subset) | Output | Total         | Source record                   | Status                        |
+| ------- | --------- | --------------------- | ------ | ------------- | ------------------------------- | ----------------------------- |
+| `/root` | 1,346,735 | 1,340,544             | 1,526  | **1,348,261** | `turn-ce066f8333a96c7bb43fa406` | completed; per_response_usage |
+
+- **Measured main + linked-child turn-group total: 1,348,261 tokens.** One user prompt item in this turn; main/linked-child usage is attributable at that granularity.
+- Checkpoint: `2026-11-06T08:11:21.254Z`; private recorder project scope matches Codewise. Cached input/reasoning output are subsets, not additions. Unlinked approval-agent usage excluded.
+- Coverage: no parent-turn warnings; session warnings: unknown_record_type:inter_agent_communication_metadata. Zero recorded spawns is an observation, not proof of complete agent coverage. Missing numbers mean unavailable. Completed observed usage.
+
+### Results and verification
+
+Historical decisions, checks and limitations are retained verbatim in the expandable narrative below. This backfill adds attribution/measurements; it does not rerun those checks or establish new live deployment evidence.
+
+<a id="prompt-impl-011"></a>
+
+## Prompt IMPL-011 — 2026-11-05 15:17:26.148 +08:00
+
+### Request
+
+Confirm approval of the contract outcome.
+
+### Agents spawned
+
+- Main agent: `/root`, model `gpt-6.1-sol`, session `01a1a9fa-d465-76b2-8259-0ae25e4c154c`.
+- **New agents spawned:** none observed (0 recorded spawn requests).
+- **Existing agents with linked work:** none observed.
+- **Why:** Main agent handled the request. A contemporaneous reason for skipping delegation was not recorded; no rationale is invented during backfill.
+
+### Token count
+
+| Agent   | Input     | Cached input (subset) | Output | Total         | Source record                   | Status                        |
+| ------- | --------- | --------------------- | ------ | ------------- | ------------------------------- | ----------------------------- |
+| `/root` | 1,021,263 | 1,018,240             | 1,080  | **1,022,343** | `turn-c0325c084f4649ef250bc013` | completed; per_response_usage |
+
+- **Measured main + linked-child turn-group total: 1,022,343 tokens.** One user prompt item in this turn; main/linked-child usage is attributable at that granularity.
+- Checkpoint: `2026-11-06T08:11:21.254Z`; private recorder project scope matches Codewise. Cached input/reasoning output are subsets, not additions. Unlinked approval-agent usage excluded.
+- Coverage: no parent-turn warnings; session warnings: unknown_record_type:inter_agent_communication_metadata. Zero recorded spawns is an observation, not proof of complete agent coverage. Missing numbers mean unavailable. Completed observed usage.
+
+### Results and verification
+
+Historical decisions, checks and limitations are retained verbatim in the expandable narrative below. This backfill adds attribution/measurements; it does not rerun those checks or establish new live deployment evidence.
+
+<a id="prompt-impl-012"></a>
+
+## Prompt IMPL-012 — 2026-11-05 15:20:31.247 +08:00
+
+### Request
+
+Request incremental commits, push and contract PR.
+
+### Agents spawned
+
+- Main agent: `/root`, model `gpt-6.1-sol`, session `01a1a9fa-d465-76b2-8259-0ae25e4c154c`.
+- **New agents spawned:** none observed (0 recorded spawn requests).
+- **Existing agents with linked work:** none observed.
+- **Why:** Main agent handled the request. A contemporaneous reason for skipping delegation was not recorded; no rationale is invented during backfill.
+
+### Token count
+
+| Agent   | Input     | Cached input (subset) | Output | Total         | Source record                   | Status                        |
+| ------- | --------- | --------------------- | ------ | ------------- | ------------------------------- | ----------------------------- |
+| `/root` | 2,793,059 | 2,785,664             | 6,590  | **2,799,649** | `turn-d6e950611749d75ce3415b04` | completed; per_response_usage |
+
+- **Measured main + linked-child turn-group total: 2,799,649 tokens.** One user prompt item in this turn; main/linked-child usage is attributable at that granularity.
+- Checkpoint: `2026-11-06T08:11:21.254Z`; private recorder project scope matches Codewise. Cached input/reasoning output are subsets, not additions. Unlinked approval-agent usage excluded.
+- Coverage: no parent-turn warnings; session warnings: unknown_record_type:inter_agent_communication_metadata. Zero recorded spawns is an observation, not proof of complete agent coverage. Missing numbers mean unavailable. Completed observed usage.
+
+### Results and verification
+
+Historical decisions, checks and limitations are retained verbatim in the expandable narrative below. This backfill adds attribution/measurements; it does not rerun those checks or establish new live deployment evidence.
+
+<!-- prettier-ignore-start -->
+
+<details>
+<summary>Historical narrative — preserved unchanged</summary>
+
 # 01 - Instructor development contracts planning - 2026-11-05
 
 ## Request
@@ -62,3 +223,7 @@ Darryl explicitly requested incremental commits, push and PR creation for the ac
 - Darryl's package acceptance remains recorded. Keith's K1–K6 agreement is still pending and task 1.4 remains open; no real producer/authentication/provider integration is claimed or archived as complete.
 - External usage checkpoint refreshed 2026-11-05 15:22:37 Singapore time. Completed prior record turn-c0325c084f4649ef250bc013 and current publication record turn-d6e950611749d75ce3415b04 (incomplete/provisional, turn_not_observed_complete), source per_response_usage. Later calls/PR updates/final response are outside the snapshot. No numeric usage or efficiency claim; detailed telemetry remains outside Git.
 - Next owners: Darryl and Keith review PR #4, with Keith's policy/producer acceptance recorded separately. No merge, deployment, production mutation, credential use or archive performed.
+
+</details>
+
+<!-- prettier-ignore-end -->
