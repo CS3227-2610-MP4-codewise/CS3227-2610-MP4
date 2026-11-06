@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-07",
+  "projectId": "codewise-staging",
+  "intendedProductionActionUrl": "https://codewise-production.codewise-cs3227-2610.workers.dev/auth/action",
+  "observedAuthorizedDomains": [
+    "codewise-production.codewise-cs3227-2610.workers.dev",
+    "codewise-staging.codewise-cs3227-2610.workers.dev"
+  ],
+  "attempt": "Firebase console Customize action URL Save through authenticated browser UI",
+  "response": {
+    "code": 400,
+    "message": "EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED",
+    "status": "INVALID_ARGUMENT"
+  },
+  "result": "Rejected; original Firebase-hosted action URL remains unchanged",
+  "cloudflare": "Dashboard requires sign-in; no runtime settings/keys inspected or changed",
+  "liveHealth": "Production health HTTP request unsuccessful; deployment status not inferred",
+  "limitations": [
+    "No email sent",
+    "No credentials opened or changed",
+    "No cloud account or paid plan created",
+    "No deployment or migration performed",
+    "No Firebase support message sent"
+  ],
+  "nextGate": "Resolve Firebase template restriction or explicitly approve a compatible hosted-handler flow before enabling native email."
+}

@@ -1,0 +1,221 @@
+{
+  "status": "uncommitted working-tree snapshot; not a committed producer",
+  "baseRevision": "b169c11b02959ca60191aef1e8dced29941c4968",
+  "branch": "codex/shared-authentication",
+  "createdAt": "2026-11-06T17:57:13.453Z",
+  "scope": "Native email producer including existing UI clarity dependencies. No .dev.vars/secrets. Real integration pending.",
+  "files": [
+    {
+      "path": "src/server/auth/firebase-mail.ts",
+      "sha256": "3f25d53e049d65186dc5e01c1031a793c581e548ff59e4bc4d2bcf5768ecf5d8"
+    },
+    {
+      "path": "src/server/db/migrations/0005_firebase_native_email.sql",
+      "sha256": "9b724b606a0fcf430a83bdece9d6506645ec15c4e9ccca5ea419f6bccc5d3e46"
+    },
+    {
+      "path": "src/web/ui/brand.tsx",
+      "sha256": "2c38c220b0de0acdec91c7dc91d1666b61c03aa2894222e794ae6b03265c0ca7"
+    },
+    {
+      "path": ".dev.vars.example",
+      "sha256": "48c4f948cfc136c75780580e378a8ea4ab4e31d2a98bdfac05d864eac735a9b4"
+    },
+    {
+      "path": "src/server/auth/composition.ts",
+      "sha256": "d89b4ab60bfa0d61f58373bd40cf456ab2c4a14f58ae8f59b9f6af8e537eadd5"
+    },
+    {
+      "path": "src/server/auth/firebase.ts",
+      "sha256": "0aa24bda6460516aa0b49be46777f4de3929863c2116231820b5e38075050e23"
+    },
+    {
+      "path": "src/server/auth/managed-routes.ts",
+      "sha256": "e8f12ff113eb866230fc169dfbaaf533942584fd5a1284e51c2e31b83926d17e"
+    },
+    {
+      "path": "src/server/auth/managed-store.ts",
+      "sha256": "762f9fb32b669c25890a106507f82022a6dc05f5c2ec23f6647d74bc4e523163"
+    },
+    {
+      "path": "src/server/auth/primitives.ts",
+      "sha256": "4fba6242eaabd94c3120d906cb36268ee633c19c8a054aadae9ed0a4c6e7696d"
+    },
+    {
+      "path": "src/server/auth/provider.ts",
+      "sha256": "2f2b1ca42c83c48b4add121317bb2c98994bee3462c87ae2d96bf88f75416700"
+    },
+    {
+      "path": "src/server/auth/routes.ts",
+      "sha256": "5ed8d88e2c6f58be39d47b91a3c4168d2967879385d196d0e72d5986fd4c0e89"
+    },
+    {
+      "path": "src/server/auth/store.ts",
+      "sha256": "094bb2a74ea5858236a342f668065f20c976840b371147d066de72024e3f1f74"
+    },
+    {
+      "path": "src/server/db/migrations/0001_platform_metadata.sql",
+      "sha256": "041c4c86ad89a8df184aa9895d8d8dbaab0218553f19b1187d8b83c44c16a40a"
+    },
+    {
+      "path": "src/server/db/migrations/0002_instructor_assignments.sql",
+      "sha256": "f44440cb7f3b3770f998611c2e663f8dd7986c2ead69b8be67830eeafc511d37"
+    },
+    {
+      "path": "src/server/db/migrations/0003_authentication.sql",
+      "sha256": "3dc3f4855d8b4c9e3f6a2717b2ae4d06eac1b8d4342127f1612928cebc7d89cb"
+    },
+    {
+      "path": "src/server/db/migrations/0004_firebase_invitations.sql",
+      "sha256": "7cc65e90651aa68c02baef09e2ce0b1355bcb180c761cac1a9b172794ad60a08"
+    },
+    {
+      "path": "src/server/environment.ts",
+      "sha256": "ab06b04c64a8d55bce232089a3bb8ced88c2ef9634c0ba7ece7ea220778909af"
+    },
+    {
+      "path": "src/server/index.ts",
+      "sha256": "e026683105ad4c6d00356d5f1ea09f348e193e68893030c46e42b07d3335f789"
+    },
+    {
+      "path": "src/shared/auth.ts",
+      "sha256": "e7f2ac402fe82ae34aecf21fc6ba9f4bab45431e139e6e1d4139fb276cb8dbd3"
+    },
+    {
+      "path": "src/shared/contracts.ts",
+      "sha256": "bf60d090151cd75fb9871963a2a02abb4328ff5f8638214112211785e49d3b25"
+    },
+    {
+      "path": "src/shared/instructor-contracts/ai.ts",
+      "sha256": "c6e8b0e3b50bebd6d77b7a8a2f43e8a7962d212f76466bc8565b6091e040e547"
+    },
+    {
+      "path": "src/shared/instructor-contracts/authoring.ts",
+      "sha256": "3bb4251d32a7221c8cefa5b9ce3ae4cd4c57ece2f804582ff488072caf681b10"
+    },
+    {
+      "path": "src/shared/instructor-contracts/contracts.test.ts",
+      "sha256": "b7c53cf8dba4dadeb6a84572ac86c0de5aa604f43feb39a0c3a05f737a6bb703"
+    },
+    {
+      "path": "src/shared/instructor-contracts/identity.ts",
+      "sha256": "670195516d21669816c27b6534c3c422abc1433881648a3fb4a512597f58770c"
+    },
+    {
+      "path": "src/shared/instructor-contracts/publication.ts",
+      "sha256": "305d74adc7eac8ed44486681b1f188be0f5e1a54aea16306d984eea1292d4a18"
+    },
+    {
+      "path": "src/shared/instructor-contracts/release.ts",
+      "sha256": "941e67f700dd3aad4d583225aba09a5d7ae7d78c92791a4379b7bd8d4bff3e36"
+    },
+    {
+      "path": "src/shared/instructor-contracts/schema.ts",
+      "sha256": "eff27abd7a8c27c8e183404aa7d01dd8bc58fab5e80886a217aec60f8c64cac8"
+    },
+    {
+      "path": "src/shared/instructor-contracts/submission.ts",
+      "sha256": "206991a0432c8912c1ae59b4f6651b9cdb00afec1c2f5ef1df2e822573688bff"
+    },
+    {
+      "path": "src/shared/managed-auth.ts",
+      "sha256": "9d4e1cc9bf489606e7e1733cf359dbc10ed683ee37fc08c586016d61607f8457"
+    },
+    {
+      "path": "src/web/auth/App.tsx",
+      "sha256": "8f8a8fcab054024d2652b7390c82c83847a20f2eea2c360568f6d52675412764"
+    },
+    {
+      "path": "src/web/auth/client.ts",
+      "sha256": "24a94145489de6511e8a64fca93d0bfe504e4a50a89a5db0532cea38de2c37f2"
+    },
+    {
+      "path": "src/web/auth/styles.css",
+      "sha256": "9d0b274f25fa0a7475a26e2423419143c8ab4da415a4399393f0c24c4be3c986"
+    },
+    {
+      "path": "src/web/main.tsx",
+      "sha256": "c6f3e6eb84435041184b37abcb0cf843782d0f5c53df8e4a73d6902a655e61e2"
+    },
+    {
+      "path": "src/web/styles.css",
+      "sha256": "ce6d5c0a3eacec0090cc0545feba1ed4be81dede0c4a576a4e7c5d4f4a71ef7a"
+    },
+    {
+      "path": "src/web/ui/primitives.test.ts",
+      "sha256": "4696ed736eeae2fd9729314b7f6b04af0a8873c588910b9a3a4c42824c098db3"
+    },
+    {
+      "path": "src/web/ui/primitives.tsx",
+      "sha256": "d39d94924d69b8bb3a15383db2882965ab0168866e9b1b1ef741de4c6e558866"
+    },
+    {
+      "path": "workflow/auth/README.md",
+      "sha256": "99ed6ea7a94b3000714d28eb1840f1934b715f1d07f55ddd404d7122de4124b4"
+    },
+    {
+      "path": "workflow/auth/SETUP.md",
+      "sha256": "10272afffa9352c6b8ec591e9f7e752b481a045dd27cec96f716266e78ffb018"
+    },
+    {
+      "path": "workflow/auth/auth.test.ts",
+      "sha256": "6a5b8802a9105652d8a8ff77bab5cd0ff8a3902f75f27d449a934b042e22e2fd"
+    },
+    {
+      "path": "workflow/auth/conformance.ts",
+      "sha256": "4d29ff92a58d90d8a9ac1f1c88b748d0d3921c0ec16d357c45f3e7022a38cb7b"
+    },
+    {
+      "path": "workflow/auth/database.ts",
+      "sha256": "d3395f4ca804b910585c58998b32a5a9b3fb4e1104679f3af4f5230e0e3f13fd"
+    },
+    {
+      "path": "workflow/auth/examples.json",
+      "sha256": "e479560ef9a0627fb94e6b05a9cbac3dd35b7ad6b461699b3dfaeb3d58cb2dc4"
+    },
+    {
+      "path": "workflow/auth/firebase-examples.json",
+      "sha256": "611adb0c6bf77be2d7c912f5ee889983bc49c72d15b8de352ecc7a71a7f7a752"
+    },
+    {
+      "path": "workflow/auth/hash-spike.mjs",
+      "sha256": "f96d64c5cf625f669795c4abd26f6ec742da2447e50bbe1629afed440b24f91b"
+    },
+    {
+      "path": "workflow/auth/hash-spike.worker.mjs",
+      "sha256": "8b2e8b41ee660d514ba3cabe7bcec04b25ed0b1f769f74db9933cf106e3eddc6"
+    },
+    {
+      "path": "workflow/auth/managed.test.ts",
+      "sha256": "01237f9eec0afb14fca2d3e8c54f4072cc6a4c178f73611c1eec777e94919ef4"
+    },
+    {
+      "path": "workflow/auth/operator-plan.mjs",
+      "sha256": "c50f848cc700f8dbc8e42d8ac41e7f12d44e62327ef9b781c45bbb72cede1723"
+    },
+    {
+      "path": "workflow/auth/operator.mjs",
+      "sha256": "d8b45c69a6f4b3d5741bc65bc807c8f4069b7860a8f59736f828b8a66fcccfa5"
+    },
+    {
+      "path": "workflow/auth/operator.test.ts",
+      "sha256": "b452b3d090bbe80bae377ad05601c9d1b21f23dd21d45a63f192d038374abc73"
+    },
+    {
+      "path": "workflow/auth/preview.html",
+      "sha256": "a2e34480874c52dc4fbdc7f0c7ba9d733c944323caf3b9dc2c95fcb88cc1f872"
+    },
+    {
+      "path": "workflow/auth/provider.test.ts",
+      "sha256": "2bd7fd0ed2d7894d9f804b0df73c26d1d2a1c1326c95873cf38d7604b6567f5b"
+    },
+    {
+      "path": "workflow/auth/synthetic-firebase.ts",
+      "sha256": "afcf977ea0756f2a4ec8972360731917d807b26f6e8420940ec817edde5ec51d"
+    },
+    {
+      "path": "workflow/auth/vite.config.ts",
+      "sha256": "1b2966530540285956382c4d0f738e1ef159fb8f42fb6d52498524b0354d04b6"
+    }
+  ]
+}

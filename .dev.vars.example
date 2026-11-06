@@ -1,3 +1,18 @@
-# Copy to .dev.vars for local-only secrets when those integrations are implemented.
-# Keep real secrets out of Git and browser-prefixed environment variables.
+# Firebase passwords and Gmail SMTP — server-only local settings.
+# Copy to .dev.vars; keep it ignored. Do not prefix any secret with VITE_.
+AUTH_ORIGIN=http://127.0.0.1:8787
+FIREBASE_PROJECT_ID=
+FIREBASE_API_KEY=
+FIREBASE_SERVICE_ACCOUNT_EMAIL=
+# PEM from Firebase service account, with escaped newline sequences in one quoted value.
+FIREBASE_PRIVATE_KEY=
+GMAIL_SENDER_EMAIL=
+# Google app password, not your normal Gmail password. Never prefix with VITE_.
+GMAIL_APP_PASSWORD=
+# Enable on staging for a consented real-delivery test, then during the approved production release.
+AUTH_MAIL_ENABLED=false
+# Optional one-time operator owner, no default credentials or course permissions.
+# After completion these may be removed; the owner identity remains in D1/Firebase.
+BOOTSTRAP_OWNER_EMAIL=
+BOOTSTRAP_OWNER_PASSWORD=
 # SOCLAAS_API_KEY=

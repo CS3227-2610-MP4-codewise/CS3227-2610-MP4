@@ -62,6 +62,14 @@ Initial recommendation was to evaluate Cloudflare first for a lightweight API an
 5. Confirm authenticated browser -> backend -> SoCLaaS path, error mapping, and shared quota configuration. Test 429 handling with a mock rather than exhausting the service.
 6. If blocked, distinguish DNS/TLS, authentication, model capability, quota and networking failures before changing hosts. Obtain service-owner clarification for provider restrictions.
 
+## SH-AUTH approved policy — 2026-11-06
+
+Later review follow-up: Darryl requested non-expiring, single-use/revocable invitations and asked about NUS-only/institutional authentication, with an explicit instruction not to implement changes yet. Existing code still uses the earlier Google/24-hour invitation policy described below. NUS institutional sign-in and NUS-email verification are options under discussion, not accepted integrations; institutional registration/consent is unverified. The pending PR records these differences and does not claim final feature acceptance.
+
+Darryl approved Google OIDC and invitation-only account onboarding, with 24-hour single-use links matched to verified Google email. Trusted authentication administrators manage invitations in the app; delivery is manual. This supersedes earlier open provider/registration statements for SH-AUTH. An account/invitation never grants course roles. Sessions expire after 30 minutes idle or 8 hours absolute, with server-side logout/revocation and no remember-me option. The local operator bootstraps a verified account's auth-admin authority separately from instructor membership.
+
+Local implementation and synthetic/provider-protocol checks are distinct from live Google, Keith's revised-boundary review, composed course authorization, deployment and final manual feature acceptance. Those gates remain pending; see [handoff](../workflow/handoffs/shared-authentication.md). Earlier release evidence verifies the foundation revision only.
+
 ## OpenSpec provenance
 
 Structure follows the upstream spec-driven schema and proposal template:
@@ -75,3 +83,25 @@ The initial change lives in openspec/changes/codewise-mvp/. Canonical openspec/s
 ## Instructor contract approval — 2026-11-05
 
 Darryl explicitly approved instructor-development-contracts, P1–P4 and the isolated contract-artifact edit window. Runtime/schema and synthetic conformance do not establish real integration. The [K1–K6 packet](../workflow/IntegrationContracts.md#keith-review-packet--pending-agreement) is the single combined request for Keith; all rows await his detailed agreement. Score units are finite 0..1000 point numbers with two decimals/no rounding. No feature, authentication, provider or producer persistence is declared complete.
+
+## SH-AUTH provider revision — 2026-11-06
+
+Confirmed by Darryl: Firebase Authentication + Brevo, Workers Free, instructor-issued non-expiring/revocable invitations, student password setup, ordinary password login and email recovery. Neither external account is configured; coding before keys is authorized. FoC is the user-flow reference, not a commitment to its custom OTP/reset/JWT/lockout internals. Supabase/passwordless/SendGrid/local-KDF are superseded targets. Stable app IDs/cookies/C-ID remain; provider passwords are not stored in D1. Keith owns all course permissions and still needs to review the revised boundary. Actual provider/mail/authorization/runtime/manual acceptance remains pending; no deployment verified.
+
+## SH-AUTH native email decision — 2026-11-07
+
+Confirmed by Darryl: replace Brevo with Firebase native password-action emails on Spark. Existing instructor-owned invitation audit/non-expiring admission, passwords, session projection and Keith course boundary remain. The local ticket+Firebase code contract and custom /auth/action handler replace generated-code mail; POST setup/confirm now requires {invite,ticket,code,password}, reset/confirm {ticket,code,password}. Old actions are invalidated by additive0005, accounts/sessions/invitations preserved. User reports credentials configured, not independently verified. Separate Firebase projects are needed for simultaneous environment-specific custom action URLs. No live delivery, composed Keith integration, manual acceptance, deployment or cross-review is claimed. Historical Brevo decisions/evidence above are superseded for future work.
+
+## Current SH-AUTH Gmail delivery — 2026-11-07
+
+Firebase native custom email URL rejected EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED; hosted-password UX rejected by Darryl; SMTP2GO signup unavailable. Current selection is existing personal Gmail app-password sender with fixed implicitTLS465. Firebase generates proof only, Gmail delivers direct Codewise link; all password screens remain in app. Add GMAIL_SENDER_EMAIL/GMAIL_APP_PASSWORD/AUTH_MAIL_ENABLED; existing five Firebase/origin settings unchanged. No Firebase custom action URL/additional project required. Same closed C-ID, ticket/UID/email/purpose/generation, session/revocation/CSRF and Keith course ports. Actual Gmail auth/NUS delivery/hosted CPU/background lifetime, first instructor/real Keith composition/revised review/manual acceptance pending. No deployed/accepted claim.
+
+## Password minimum revision — confirmed2026-11-07
+
+Darryl confirmed an 8-character minimum on2026-11-07 and reports changing Firebase accordingly. The intended policy is8–64 Unicode characters; maximum64 and no truncation remain. This is a documentation update: src/server/auth/firebase.ts and src/web/auth/App.tsx still enforce15, and runtime/test alignment is pending. Firebase console configuration was not independently verified in this request. No account was created by this documentation request, and this decision grants no instructor/course authority.
+
+## Operator-owned first account — confirmed2026-11-07
+
+User explicitly requested a persistent bootstrap owner with an invented NUS-format alias and operator-chosen8-character test password. This is not a mailbox-verified student/instructor identity or a copied preview fixture. Optional server secrets authorize first creation; permanent D1 marker, stable FirebaseUID, current provider credential pins and auth admin record retain identity after restart. No default source credential, email verification claim, automatic rebootstrap or course/role bypass. An external Firebase password reset cannot transfer owner authority; it disables the pinned-owner login until explicit operator recovery. Local real-provider mail does not require merging;5176 captures only synthetic mail,8787 can send configured Gmail. Production changes remain reviewed release work.
+
+Current follow-up2026-11-07:8–64 validation is now implemented in app/server as part of one-time owner bootstrap. Prior documentation-only statements about15-character runtime describe the earlier state. Real Firebase policy/provider and production verification remain separate gates. Owner administration grants no course rights.

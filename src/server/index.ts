@@ -1,5 +1,11 @@
 import type { ApiError, HealthResponse } from '../shared/contracts';
 import type { Environment } from './environment';
+import { ManagedAuthRoutes } from './auth/managed-routes';
+import { ManagedStore } from './auth/managed-store';
+import { FirebaseCredentials, firebaseConfig } from './auth/firebase';
+import { AuthEmail } from './auth/mail';
+import { GmailTransport } from './auth/gmail';
+import { OwnerBootstrap, ownerConfig } from './auth/owner';
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -40,8 +46,41 @@ async function health(env: Environment): Promise<Response> {
 }
 
 export default {
-  async fetch(request: Request, env: Environment): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Environment,
+    context?: ExecutionContext,
+  ): Promise<Response> {
     const pathname = new URL(request.url).pathname;
+    if (pathname.startsWith('/api/auth/')) {
+      const config = firebaseConfig(env);
+      const store = new ManagedStore(env.DB),
+        credentials = config ? new FirebaseCredentials(config) : undefined,
+        bootstrap = ownerConfig(env);
+      return new ManagedAuthRoutes(
+        store,
+        config,
+        credentials,
+        config &&
+          env.GMAIL_SENDER_EMAIL &&
+          env.GMAIL_APP_PASSWORD &&
+          env.AUTH_MAIL_ENABLED === 'true'
+          ? new AuthEmail(
+              { sender: env.GMAIL_SENDER_EMAIL, origin: config.origin },
+              new GmailTransport({
+                sender: env.GMAIL_SENDER_EMAIL,
+                appPassword: env.GMAIL_APP_PASSWORD,
+              }),
+            )
+          : undefined,
+        undefined,
+        undefined,
+        context ? (work) => context.waitUntil(work()) : undefined,
+        credentials && bootstrap
+          ? new OwnerBootstrap(store, credentials, bootstrap)
+          : undefined,
+      ).fetch(request);
+    }
     if (pathname === '/api/health' && request.method === 'GET') {
       return health(env);
     }
@@ -62,6 +101,20 @@ export default {
     const headers = new Headers(response.headers);
     for (const [name, value] of Object.entries(securityHeaders)) {
       headers.set(name, value);
+    }
+    if (
+      [
+        '/sign-in',
+        '/auth/finish',
+        '/auth/invitations',
+        '/auth/reset',
+        '/auth/action',
+        '/auth/forgot',
+        '/workspace',
+      ].includes(pathname)
+    ) {
+      headers.set('Cache-Control', 'no-store');
+      headers.set('Referrer-Policy', 'no-referrer');
     }
     return new Response(response.body, { status: response.status, headers });
   },

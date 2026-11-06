@@ -1,0 +1,303 @@
+{
+  "status": "Committed source producer; not a deployed or jointly accepted integration",
+  "revision": "9b3d007e3f3d796b60b5e101f2758d3c443165d7",
+  "branch": "codex/shared-authentication",
+  "createdAt": "2026-11-06T19:11:58.237Z",
+  "files": [
+    {
+      "path": "src/server/auth/gmail.ts",
+      "gitBlob": "a348543d0dd80a983a6df8c7f4113eff7f6a8ddc",
+      "sha256": "3ca8e2277fa415b8fcd008e14eeda0317573bbe5c0ea7f7482058d400a86a723"
+    },
+    {
+      "path": "src/server/auth/mail.ts",
+      "gitBlob": "246a7f32d5a90855621210ff54a7a72b955a5da5",
+      "sha256": "9c8bd8cc12b6e95f16d7e8bff93a377771d7c4844e01b3a668603ed57a64ac54"
+    },
+    {
+      "path": "src/server/auth/owner.ts",
+      "gitBlob": "7a3a3d24e63759cc5b94b09af8c5afb1e7f036da",
+      "sha256": "bdb6e85fd17ad4b43c275c3b5ae83214f4f1d027c761977e02d72ae240a92ac5"
+    },
+    {
+      "path": "src/server/db/migrations/0005_firebase_native_email.sql",
+      "gitBlob": "03e08154276c93c4dafc754e8e61dbc20d80e810",
+      "sha256": "9b724b606a0fcf430a83bdece9d6506645ec15c4e9ccca5ea419f6bccc5d3e46"
+    },
+    {
+      "path": "src/server/db/migrations/0006_owner_bootstrap.sql",
+      "gitBlob": "260d9a48482d36f925a764802a9543fd655080d3",
+      "sha256": "67c9c78d0ecdd79b31e98e3aff0c904e13be672f97e68587c339ab641bd531d9"
+    },
+    {
+      "path": "src/web/ui/brand.tsx",
+      "gitBlob": "125a59b22b846311539d67ce42efaf896a1cc1fe",
+      "sha256": "2c38c220b0de0acdec91c7dc91d1666b61c03aa2894222e794ae6b03265c0ca7"
+    },
+    {
+      "path": "workflow/auth/firebase-worker.test.ts",
+      "gitBlob": "472b2b05740ea801ee4d9f8d8a99e23514c71ec8",
+      "sha256": "8cf334d652da2309e8f724f7c68e53314df4cf78599872386178a23e88698227"
+    },
+    {
+      "path": "workflow/auth/gmail.test.ts",
+      "gitBlob": "0929d26c26385236e04832d0f29cd10c281395ad",
+      "sha256": "277a47bd6a8ac3d195e7ceb5a075705a35bfb69130870f25ad3f54d4cc8f1084"
+    },
+    {
+      "path": "workflow/auth/owner.test.ts",
+      "gitBlob": "7ba5643b5321960e7cdb4f298ac54423603e4587",
+      "sha256": "f0b88eea1ae2a705b3758b26c7717966d3594da3dfcef5ae6b0f15f6ec8e43b8"
+    },
+    {
+      "path": ".dev.vars.example",
+      "gitBlob": "8df7076a255554e09047b8458771a97cf930a207",
+      "sha256": "4a2fcb98716b99e9864878bac820def3418dda04d5d95dfda7c393d58c7f226b"
+    },
+    {
+      "path": "src/server/auth/composition.ts",
+      "gitBlob": "ca00168eaa30100c069e36b738290f3fdb16f97f",
+      "sha256": "d89b4ab60bfa0d61f58373bd40cf456ab2c4a14f58ae8f59b9f6af8e537eadd5"
+    },
+    {
+      "path": "src/server/auth/firebase.ts",
+      "gitBlob": "b2bf139a1c37acdaa1b68f9689ade1f21b3d28a5",
+      "sha256": "b36c707ff9f83633791c059237469087bd39929b7a30ba9e3e0c6b511823a46e"
+    },
+    {
+      "path": "src/server/auth/managed-routes.ts",
+      "gitBlob": "69a0b15356c122904d069af0a0a064ae46b54761",
+      "sha256": "334680bde8eac26e7b0f2b7397f8c9cb5c44cf634b10685eb3004f4d2c1a8894"
+    },
+    {
+      "path": "src/server/auth/managed-store.ts",
+      "gitBlob": "b5a439e053002ba89121f693ed5cf9360b4b5063",
+      "sha256": "60e01fbf2642d92fff211e04338779ec09715d1c59365cc4043f5f63efc981de"
+    },
+    {
+      "path": "src/server/auth/primitives.ts",
+      "gitBlob": "61009620e245833459517b7e0e82474acbb9496b",
+      "sha256": "4fba6242eaabd94c3120d906cb36268ee633c19c8a054aadae9ed0a4c6e7696d"
+    },
+    {
+      "path": "src/server/auth/provider.ts",
+      "gitBlob": "c1005b046416c94e688573224d527f334dee01b3",
+      "sha256": "2f2b1ca42c83c48b4add121317bb2c98994bee3462c87ae2d96bf88f75416700"
+    },
+    {
+      "path": "src/server/auth/routes.ts",
+      "gitBlob": "9b25f25cb1414e1e9ec19908c31aa145194828c4",
+      "sha256": "5ed8d88e2c6f58be39d47b91a3c4168d2967879385d196d0e72d5986fd4c0e89"
+    },
+    {
+      "path": "src/server/auth/store.ts",
+      "gitBlob": "9a51fb7b02f30e65991df505a92f463d091048b2",
+      "sha256": "094bb2a74ea5858236a342f668065f20c976840b371147d066de72024e3f1f74"
+    },
+    {
+      "path": "src/server/db/migrations/0001_platform_metadata.sql",
+      "gitBlob": "774ae5a52f705d8d4f7a8796ac9ca26b42fc5c0a",
+      "sha256": "041c4c86ad89a8df184aa9895d8d8dbaab0218553f19b1187d8b83c44c16a40a"
+    },
+    {
+      "path": "src/server/db/migrations/0002_instructor_assignments.sql",
+      "gitBlob": "5771feaeb979f8f8f7c94cb722135603410d188a",
+      "sha256": "f44440cb7f3b3770f998611c2e663f8dd7986c2ead69b8be67830eeafc511d37"
+    },
+    {
+      "path": "src/server/db/migrations/0003_authentication.sql",
+      "gitBlob": "f4f030e15425bd6d65407ffe823b0aed38556ddc",
+      "sha256": "3dc3f4855d8b4c9e3f6a2717b2ae4d06eac1b8d4342127f1612928cebc7d89cb"
+    },
+    {
+      "path": "src/server/db/migrations/0004_firebase_invitations.sql",
+      "gitBlob": "db2fc35dfd1a50f571784d956fb8c3d09545b609",
+      "sha256": "6d462ff48dbe52f2dc0256b3573366939d4759fb0b038918be4e5b2244b09181"
+    },
+    {
+      "path": "src/server/environment.ts",
+      "gitBlob": "53e98764670de5859c02de22afdc21fa6fdb3f8c",
+      "sha256": "ab405f578976a59c35d50b18169433e31b74e792ffbe5368dbd03f09852ff320"
+    },
+    {
+      "path": "src/server/index.ts",
+      "gitBlob": "d5e9578c1a3df1924d6477f9bf04c916cf9e053d",
+      "sha256": "804175ae880f81d0d71efd62843e50c91a4fd8f63078750e9df71cce7f7b2ed1"
+    },
+    {
+      "path": "src/shared/auth.ts",
+      "gitBlob": "0740488567a69f59cfffba64b556dbbb01a65ad9",
+      "sha256": "e7f2ac402fe82ae34aecf21fc6ba9f4bab45431e139e6e1d4139fb276cb8dbd3"
+    },
+    {
+      "path": "src/shared/contracts.ts",
+      "gitBlob": "15b6e5f2b18d2323d1abd1a1bbb4544b0cd32bfc",
+      "sha256": "bf60d090151cd75fb9871963a2a02abb4328ff5f8638214112211785e49d3b25"
+    },
+    {
+      "path": "src/shared/instructor-contracts/ai.ts",
+      "gitBlob": "f4b1662209feb3e612423d48708f2e5efdaa77b1",
+      "sha256": "c6e8b0e3b50bebd6d77b7a8a2f43e8a7962d212f76466bc8565b6091e040e547"
+    },
+    {
+      "path": "src/shared/instructor-contracts/authoring.ts",
+      "gitBlob": "274f5210f6d1476748aec1e3bd55a34b14490ff9",
+      "sha256": "3bb4251d32a7221c8cefa5b9ce3ae4cd4c57ece2f804582ff488072caf681b10"
+    },
+    {
+      "path": "src/shared/instructor-contracts/contracts.test.ts",
+      "gitBlob": "7b3307c443f4fc1cb0967ab27d9e66d666041306",
+      "sha256": "b7c53cf8dba4dadeb6a84572ac86c0de5aa604f43feb39a0c3a05f737a6bb703"
+    },
+    {
+      "path": "src/shared/instructor-contracts/identity.ts",
+      "gitBlob": "58664100ba2199e9682023ba40ae9b635be200ec",
+      "sha256": "670195516d21669816c27b6534c3c422abc1433881648a3fb4a512597f58770c"
+    },
+    {
+      "path": "src/shared/instructor-contracts/publication.ts",
+      "gitBlob": "7a499508658de840556d78fd417b5c664deb6db2",
+      "sha256": "305d74adc7eac8ed44486681b1f188be0f5e1a54aea16306d984eea1292d4a18"
+    },
+    {
+      "path": "src/shared/instructor-contracts/release.ts",
+      "gitBlob": "c7a215d1021a8943286c14dbaf74dfa57258c2be",
+      "sha256": "941e67f700dd3aad4d583225aba09a5d7ae7d78c92791a4379b7bd8d4bff3e36"
+    },
+    {
+      "path": "src/shared/instructor-contracts/schema.ts",
+      "gitBlob": "3f66b9355ddbe4f0accda957c4ae2c280e6fc83d",
+      "sha256": "eff27abd7a8c27c8e183404aa7d01dd8bc58fab5e80886a217aec60f8c64cac8"
+    },
+    {
+      "path": "src/shared/instructor-contracts/submission.ts",
+      "gitBlob": "1baad4cbff5c50563d794dc7180f3d0529e4fff2",
+      "sha256": "206991a0432c8912c1ae59b4f6651b9cdb00afec1c2f5ef1df2e822573688bff"
+    },
+    {
+      "path": "src/shared/managed-auth.ts",
+      "gitBlob": "b025f706ee742d3624f8ce6a25a7c2c1cddc2f3e",
+      "sha256": "9d4e1cc9bf489606e7e1733cf359dbc10ed683ee37fc08c586016d61607f8457"
+    },
+    {
+      "path": "src/web/auth/App.tsx",
+      "gitBlob": "ae2d247b6ee8bd94b243d73e4cdfd5b731e0d2dd",
+      "sha256": "c5833f4caf47da76751b6cee6311ff1cdb2f8ed29d6b71a8923bc04b1d9022aa"
+    },
+    {
+      "path": "src/web/auth/client.ts",
+      "gitBlob": "2ac14eb51b6bbcf803ae227f068c103897766ff1",
+      "sha256": "24a94145489de6511e8a64fca93d0bfe504e4a50a89a5db0532cea38de2c37f2"
+    },
+    {
+      "path": "src/web/auth/styles.css",
+      "gitBlob": "c0b8aa23efd876773a26cc62c2858579e92e4ff7",
+      "sha256": "9d0b274f25fa0a7475a26e2423419143c8ab4da415a4399393f0c24c4be3c986"
+    },
+    {
+      "path": "src/web/main.tsx",
+      "gitBlob": "05284b3e8206b01efd752acfe7627d7283378e9a",
+      "sha256": "c6f3e6eb84435041184b37abcb0cf843782d0f5c53df8e4a73d6902a655e61e2"
+    },
+    {
+      "path": "src/web/styles.css",
+      "gitBlob": "52d0970dc83c8740a42530843eaf5fb056bf111c",
+      "sha256": "ce6d5c0a3eacec0090cc0545feba1ed4be81dede0c4a576a4e7c5d4f4a71ef7a"
+    },
+    {
+      "path": "src/web/ui/primitives.test.ts",
+      "gitBlob": "affd89e48aa9d04dc187c626709450f0de303528",
+      "sha256": "4696ed736eeae2fd9729314b7f6b04af0a8873c588910b9a3a4c42824c098db3"
+    },
+    {
+      "path": "src/web/ui/primitives.tsx",
+      "gitBlob": "47a43366636c3b2151139c6a38948efe557008ee",
+      "sha256": "d39d94924d69b8bb3a15383db2882965ab0168866e9b1b1ef741de4c6e558866"
+    },
+    {
+      "path": "workflow/auth/README.md",
+      "gitBlob": "5b9f2a9c933bfc30333de0d3ae2f051eb7cf9b99",
+      "sha256": "eb1aa25037bb7007e5ca8050107ad1c7ebfbe6573cc63de0eda33399a8db5e50"
+    },
+    {
+      "path": "workflow/auth/SETUP.md",
+      "gitBlob": "cf6cd51bf800c916f44a9ce90675a212132b2d54",
+      "sha256": "8b83b42d3264b7250b3797fdad9c767aec27b693b867fa5163c2ec419fadf3d8"
+    },
+    {
+      "path": "workflow/auth/auth.test.ts",
+      "gitBlob": "522fdaedd131ca0ab3a1059c4b8527395f976a96",
+      "sha256": "6a5b8802a9105652d8a8ff77bab5cd0ff8a3902f75f27d449a934b042e22e2fd"
+    },
+    {
+      "path": "workflow/auth/conformance.ts",
+      "gitBlob": "2189985a13b6b21e8fbc5055e47240c89ca7524b",
+      "sha256": "4d29ff92a58d90d8a9ac1f1c88b748d0d3921c0ec16d357c45f3e7022a38cb7b"
+    },
+    {
+      "path": "workflow/auth/database.ts",
+      "gitBlob": "44ac1e60e4947780b2c0159087756ecd23aa7c41",
+      "sha256": "c5eafe27875fe3d136245cdd97177b171126089c5a2cab1fd6ead221bb46bfa1"
+    },
+    {
+      "path": "workflow/auth/examples.json",
+      "gitBlob": "1a1e7abfe801b622bd4e4bbd3831034ec2df0e09",
+      "sha256": "e479560ef9a0627fb94e6b05a9cbac3dd35b7ad6b461699b3dfaeb3d58cb2dc4"
+    },
+    {
+      "path": "workflow/auth/firebase-examples.json",
+      "gitBlob": "b7601d5a70d75b9ae393ef2afb05ef2f3da32fa8",
+      "sha256": "611adb0c6bf77be2d7c912f5ee889983bc49c72d15b8de352ecc7a71a7f7a752"
+    },
+    {
+      "path": "workflow/auth/hash-spike.mjs",
+      "gitBlob": "1648bc5c9815c3e674e3c5c39a244d22fd678913",
+      "sha256": "f96d64c5cf625f669795c4abd26f6ec742da2447e50bbe1629afed440b24f91b"
+    },
+    {
+      "path": "workflow/auth/hash-spike.worker.mjs",
+      "gitBlob": "810f8bdbf21b698f81175cbafb54dc4aff449edb",
+      "sha256": "8b2e8b41ee660d514ba3cabe7bcec04b25ed0b1f769f74db9933cf106e3eddc6"
+    },
+    {
+      "path": "workflow/auth/managed.test.ts",
+      "gitBlob": "2e0a4253312ed7f1e40d137bc57e276ac391516c",
+      "sha256": "e8982b6844b11623fe45d20e8a184da97861ca6245fcd1688d83cfe9220cea47"
+    },
+    {
+      "path": "workflow/auth/operator-plan.mjs",
+      "gitBlob": "d50066a427da917fb4da51ff94beab879fbf10ff",
+      "sha256": "c50f848cc700f8dbc8e42d8ac41e7f12d44e62327ef9b781c45bbb72cede1723"
+    },
+    {
+      "path": "workflow/auth/operator.mjs",
+      "gitBlob": "82b88911ac581c0b3afd23db92ad5fc7a3e19f23",
+      "sha256": "d8b45c69a6f4b3d5741bc65bc807c8f4069b7860a8f59736f828b8a66fcccfa5"
+    },
+    {
+      "path": "workflow/auth/operator.test.ts",
+      "gitBlob": "527db50d7140110659fc7c77dc7cd6ba688111db",
+      "sha256": "b452b3d090bbe80bae377ad05601c9d1b21f23dd21d45a63f192d038374abc73"
+    },
+    {
+      "path": "workflow/auth/preview.html",
+      "gitBlob": "5db1dfe354294cbcc091f0b0d3d13b55b2bdd5f4",
+      "sha256": "a140daf3d29f51a7403f0f7dcc38346c200618c511d3c76e386a8c2b0dc8e3b5"
+    },
+    {
+      "path": "workflow/auth/provider.test.ts",
+      "gitBlob": "ad7bac8173216f6d0d1b1590fd929e71d885f81f",
+      "sha256": "2bd7fd0ed2d7894d9f804b0df73c26d1d2a1c1326c95873cf38d7604b6567f5b"
+    },
+    {
+      "path": "workflow/auth/synthetic-firebase.ts",
+      "gitBlob": "38ef970cda0e4401950d1d5e0998a540ac3b21e1",
+      "sha256": "9b3c6a877b082b8ba0c1a1f14a67d66e8eb49b6816aeeae1db2691d29a3eaaac"
+    },
+    {
+      "path": "workflow/auth/vite.config.ts",
+      "gitBlob": "00c91ae122485b80049655a275e2dd61feaf2239",
+      "sha256": "9a497e353d008f245fe1c559b3f4e6cd59f74db1601c2db0444857767c2311ef"
+    }
+  ]
+}

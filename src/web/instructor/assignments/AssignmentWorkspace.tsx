@@ -18,6 +18,7 @@ import {
   errorMessage,
   type WorkspaceState,
 } from './controller';
+import { Brand, Icon } from '../../ui/brand';
 import './styles.css';
 type Question = Authoring['questions'][number];
 const key = () => crypto.randomUUID();
@@ -231,16 +232,12 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
         Skip to assignment
       </a>
       <header className="cw-header">
-        <div className="cw-wordmark">
-          code<span>wise</span>
-        </div>
-        <p className="cw-header-context">
-          Sample course <span aria-hidden="true">/</span> Instructor
-        </p>
+        <Brand href={window.location.pathname} />
+        <p className="cw-header-context">Instructor · Synthetic preview</p>
         <details className="ia-preview-settings">
-          <summary>Local preview</summary>
+          <summary>Preview settings</summary>
           <div>
-            <p>Synthetic instructor and course. Real sign-in is pending.</p>
+            <p>Synthetic course · Sign-in not connected.</p>
             <Field label="Appearance">
               <select
                 defaultValue="light dark"
@@ -264,7 +261,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
             disabled={!!state.pending}
             onClick={() => window.location.assign(window.location.pathname)}
           >
-            Back to assignments
+            <Icon name="arrow-left" /> Assignments
           </Action>
         )}
         <p className="cw-kicker">
@@ -272,7 +269,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
             ? readOnly
               ? 'Published assignment'
               : 'Assignment draft'
-            : 'Instructor workbook'}
+            : 'Instructor'}
         </p>
         <h1 ref={pageHeading} tabIndex={-1}>
           {editorPage
@@ -281,9 +278,6 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
               : payload?.title || 'New assignment'
             : 'Assignments'}
         </h1>
-        {!editorPage && (
-          <p>Create assignments and prepare them for your students.</p>
-        )}
       </div>
       <main id="assignment-work">
         {!editorPage && (
@@ -298,9 +292,14 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                   })
                 }
               >
-                {state.pending === 'Creating'
-                  ? 'Creating assignment…'
-                  : 'Create assignment'}
+                {state.pending === 'Creating' ? (
+                  'Creating assignment…'
+                ) : (
+                  <>
+                    <Icon name="plus" />
+                    New assignment
+                  </>
+                )}
               </Action>
             </div>
             {state.error && (
@@ -322,11 +321,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                 {listing && <StatusMessage>Loading assignments…</StatusMessage>}
                 {!listing && rows.length === 0 && (
                   <div className="ia-empty">
-                    <h2>Your first assignment starts here</h2>
-                    <p>
-                      Add questions, prepare a rubric, and publish when you are
-                      ready.
-                    </p>
+                    <h2>No assignments yet.</h2>
                   </div>
                 )}
                 <ul>
@@ -352,7 +347,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                           'Edit ' + (row.title || 'untitled assignment')
                         }
                       >
-                        Edit assignment
+                        <Icon name="edit" /> Edit
                       </Action>
                     </li>
                   ))}
@@ -400,14 +395,21 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                       disabled={!!state.pending || !state.dirty}
                       onClick={() => void controller.save()}
                     >
-                      {state.pending === 'Saving' ? 'Saving…' : 'Save draft'}
+                      {state.pending === 'Saving' ? (
+                        'Saving…'
+                      ) : (
+                        <>
+                          <Icon name="save" />
+                          Save draft
+                        </>
+                      )}
                     </Action>
                     <Action
                       variant="secondary"
                       disabled={!!state.pending || state.dirty}
                       onClick={() => controller.review()}
                     >
-                      Review &amp; publish
+                      <Icon name="publish" /> Review &amp; publish
                     </Action>
                     {state.dirty && (
                       <details className="ia-options">
@@ -436,8 +438,8 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                   Ready to publish?
                 </h2>
                 <p>
-                  Students will receive a fixed version of this assignment.
-                  Later edits will stay in your draft until you publish again.
+                  Publishing creates a fixed version for students. Later edits
+                  stay in your draft.
                 </p>
                 <dl className="ia-review-details">
                   <div>
@@ -519,7 +521,6 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                   aria-label="Assignment details"
                 >
                   <div className="ia-section-title">
-                    <span className="cw-kicker">01</span>
                     <h2>Assignment details</h2>
                   </div>
                   {readOnly ? (
@@ -537,7 +538,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                     </dl>
                   ) : (
                     <div className="ia-details-grid">
-                      <Field label="Assignment title">
+                      <Field label="Title">
                         <input
                           maxLength={200}
                           value={payload.title}
@@ -548,10 +549,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                           }
                         />
                       </Field>
-                      <Field
-                        label="Due date (Singapore time)"
-                        hint="UTC+08:00. Set a future date before publishing."
-                      >
+                      <Field label="Due date (Singapore time)">
                         <input
                           type="datetime-local"
                           value={singaporeInput(payload.deadlineAt)}
@@ -572,7 +570,6 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                   aria-label="Assignment questions"
                 >
                   <div className="ia-section-title">
-                    <span className="cw-kicker">02</span>
                     <h2>Questions</h2>
                   </div>
                   {payload.questions.length > 0 ? (
@@ -598,19 +595,15 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                           disabled={locked || payload.questions.length >= 20}
                           onClick={addQuestion}
                         >
-                          Add question
+                          <Icon name="plus" /> Add question
                         </Action>
                       )}
                     </div>
                   ) : (
                     <div className="ia-empty">
-                      <h3>Add your first question</h3>
-                      <p>
-                        Write the instructions, provide starter code, and choose
-                        how you will assess the answer.
-                      </p>
+                      <h3>No questions yet.</h3>
                       <Action disabled={locked} onClick={addQuestion}>
-                        Add first question
+                        <Icon name="plus" /> Add question
                       </Action>
                     </div>
                   )}
@@ -712,17 +705,13 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                           className="cw-workbook-work"
                           aria-label="Code and marking rubric"
                         >
-                          <h3>Starter code</h3>
                           {readOnly ? (
                             <Code
                               label="Starter code (Python)"
                               source={question.starterCode}
                             />
                           ) : (
-                            <Field
-                              label="Starter code (Python)"
-                              hint="Students start with this code. It may be left blank."
-                            >
+                            <Field label="Starter code (Python)">
                               <textarea
                                 className="ia-source"
                                 rows={6}
@@ -746,7 +735,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                             }
                           >
                             <summary>
-                              Reference solution{' '}
+                              <Icon name="lock" /> Reference solution{' '}
                               <span className="ia-hint">Instructor only</span>
                             </summary>
                             {readOnly ? (
@@ -755,10 +744,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                                 source={question.privateReference}
                               />
                             ) : (
-                              <Field
-                                label="Reference code"
-                                hint="Only instructors can see this. Students never receive it."
-                              >
+                              <Field label="Reference code">
                                 <textarea
                                   className="ia-source"
                                   rows={5}
@@ -776,10 +762,6 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                           </details>
                           <div className="ia-rubric-heading">
                             <h3>Marking rubric</h3>
-                            <p className="ia-hint">
-                              Describe what you will assess and the points
-                              available.
-                            </p>
                           </div>
                           {question.criteria.length === 0 && (
                             <p className="ia-hint">
@@ -824,7 +806,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                                     }
                                   />
                                 </Field>
-                                <Field label="Assessment guidance">
+                                <Field label="Scoring guidance">
                                   <textarea
                                     rows={3}
                                     maxLength={4000}
@@ -913,13 +895,9 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                                 })
                               }
                             >
-                              Add criterion
+                              <Icon name="plus" /> Add criterion
                             </Action>
                           )}
-                          <p className="ia-code-note">
-                            Python · Code is reviewed, not executed. Up to 32 KB
-                            per code field.
-                          </p>
                         </section>
                       </div>
                       {readOnly ? (
@@ -988,14 +966,10 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                 </summary>
                 <div>
                   {state.history.length === 0 && (
-                    <p className="ia-hint">
-                      No versions loaded. Refresh to check for published
-                      versions.
-                    </p>
+                    <p className="ia-hint">No published versions loaded.</p>
                   )}
                   <p className="ia-hint">
-                    Published versions stay unchanged when you edit the draft.
-                    Showing the latest 100 versions.
+                    Published versions are read only. Latest 100 shown.
                   </p>
                   <ul>
                     {state.history.map((version) => (
@@ -1023,7 +997,7 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
                     disabled={!!state.pending}
                     onClick={() => void controller.retryHistory()}
                   >
-                    Refresh versions
+                    <Icon name="refresh" /> Refresh
                   </Action>
                 </div>
               </details>
@@ -1047,10 +1021,6 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
           </section>
         )}
       </main>
-      <footer className="cw-footer">
-        <p>Codewise · Instructor workspace</p>
-        <p>Local preview · Synthetic data · Real sign-in pending</p>
-      </footer>
     </div>
   );
 }

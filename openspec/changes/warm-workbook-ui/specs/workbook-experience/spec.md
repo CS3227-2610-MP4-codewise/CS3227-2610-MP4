@@ -17,6 +17,10 @@ Application screens SHALL follow `docs/ui/design.md` revision `warm-workbook-v1`
 - **WHEN** the user changes between light and dark appearance
 - **THEN** the warm identity, readable content, visible selection and accessible focus remain intact.
 
+#### Scenario: Concise current shared and instructor screens
+- **WHEN** a user opens sign-in, recovery, shared entry or instructor authoring after the approved 2026-11-06 clarity refinement
+- **THEN** the interface presents one task heading and the needed controls without repeated introductions or duplicate field hints; optional guidance is disclosed, privacy/version/errors remain clear, and SVG marks preserve labelled keyboard-operable actions without implying provider or course access.
+
 ### Requirement: UI-02 Sign-in and session recovery
 The interface SHALL provide a sign-in page using the approved maintained identity integration, clear pending/cancelled/failed/expired states and logout. It SHALL restore only a validated, authorized local destination after successful sign-in. Sign-in SHALL NOT provision a role from a browser selection.
 

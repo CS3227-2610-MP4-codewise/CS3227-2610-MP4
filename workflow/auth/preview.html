@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Synthetic authentication preview</title>
+  </head>
+  <body>
+    <main>
+      <h1>Synthetic Firebase/Gmail preview</h1>
+      <p>
+        Invented identities, captured emails and isolated local D1 only. This
+        does not verify Firebase, Gmail delivery, NUS email or Keith course integration.
+        Closing the preview deletes this database. Use invented passwords only.
+      </p>
+      <form method="post" action="/__auth-preview/start">
+        <button type="submit">Open synthetic instructor session</button>
+      </form>
+      <p>
+        The synthetic instructor session selects an invented course for
+        invitation tracking. Invite an invented address ending in @u.nus.edu.
+      </p>
+      <p>
+        <a href="/__auth-preview/mail" target="_blank" rel="noopener"
+          >Open synthetic mailbox</a
+        >
+      </p>
+      <p>
+        <a href="/sign-in">Review sign-in</a> ·
+        <a href="/auth/forgot">Review recovery</a>
+      </p>
+    </main>
+  </body>
+</html>
