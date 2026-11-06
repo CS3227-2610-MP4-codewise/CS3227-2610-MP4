@@ -2,7 +2,7 @@
 
 ## Why
 
-Instructors need a durable authoring workflow that saves incomplete work and deliberately publishes validated immutable assignment/question/rubric versions (SUB-01). The merged contract and warm-workbook foundations now support this bounded slice, while Keith's real identity/course integration remains unavailable (AUTH-02).
+Instructors need a durable authoring workflow that saves incomplete work and deliberately publishes validated immutable assignment/question/rubric versions (SUB-01). The merged contract and warm-workbook foundations support this bounded slice; real SH-AUTH (Darryl) and SH-ID course/object authorization (Keith) handoffs remain unavailable (AUTH-02).
 
 ## What Changes
 
@@ -18,7 +18,7 @@ Instructors need a durable authoring workflow that saves incomplete work and del
 
 Authoring and publication remain one PR-sized increment: draft revisions, review/confirmation and the snapshot transaction are one user outcome. Splitting now would leave the publication transition unverified. No identity/course/submission storage, Keith student features, grading/release/AI integration, scheduling, unpublishing, destructive deletion, production deployment or production migration execution is included.
 
-Analysis/planning only until Darryl approves the brief and expanded writer window. Existing P1–P3 contract policies are reused for isolated development; this request does not establish Keith's detailed agreement. Synthetic adapters do not demonstrate real authentication. Readiness and the contract package were manually accepted earlier; that acceptance is not reused as approval of this feature implementation.
+Darryl approved the brief and expanded writer window on2026-11-06; implementation, local verification and independent source review are complete, with final human manual acceptance pending. Existing P1–P3 contract policies are reused for isolated development; this does not establish Keith's detailed agreement. Synthetic adapters do not demonstrate real authentication. Darryl separately authorized commit/push/PR publication; deployment and real integration remain pending.
 
 ## Capabilities
 
@@ -32,4 +32,4 @@ None under canonical `openspec/specs/` (not populated). Reuse the existing in-fl
 
 ## Impact
 
-Base: `7e3e7293152de512a3081e8149caa55ae6d715e8` (main after reviewed PRs #4/#5). Reuse `codex/instructor-assignment-publication`; it previously held only its preserved OpenSpec metadata scaffold and no unique commits. Expected files: instructor UI/domain/repositories, new authoring contract additions, one D1 migration, local helpers/tests, minimal test/runtime dependency declarations, and this increment's docs/evidence/handoff/log. Proposed exact shared-file writer window is in design.md for Darryl approval. Deployed authentication and feature routing remain separate work.
+Original implementation base: `7e3e7293152de512a3081e8149caa55ae6d715e8` (main after reviewed PRs #4/#5); publication branch updated on reviewed main`7621ec7` (PR#6). Reused `codex/instructor-assignment-publication` and preserved its scaffold. Owned files: instructor UI/domain/repositories, new authoring contract additions, one D1 migration, local helpers/tests, minimal development dependency declaration, and this increment's docs/evidence/handoff/log. Darryl approved the exact shared writer window before product edits. Deployed authentication and feature routing remain separate work.

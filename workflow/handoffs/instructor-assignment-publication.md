@@ -1,9 +1,9 @@
 # Handoff: instructor-assignment-publication
 
-- Human owner / next owners: Darryl implements publication; Keith reviews/consumes C-PUB and supplies real identity/course integration. No Keith student service implemented here.
+- Human owner / next owners: Darryl implements publication and SH-AUTH sign-in/accounts/sessions; Keith reviews/consumes C-PUB and supplies SH-ID course/membership/object authorization. Both real producer handoffs remain pending. No Keith student service implemented here.
 - Agent: main /root implementation and actual checks; independent /root/publication_review read-only source/security/UI state review, no editing or recursive delegation. Model/coverage metadata lives in the external recorder; reviewed summary in the member log.
 - Requirements: SUB-01, AUTH-02, IAS-01–IAS-07; warm-workbook-v1 UI-01/04/05/07/08.
-- Input revision: main7e3e7293152de512a3081e8149caa55ae6d715e8. Output branch codex/instructor-assignment-publication, uncommitted; [source hashes](../evidence/instructor-assignment-publication/source-sha256.json) pin exact source/migration/payload revision. Do not treat uncommitted output as a deployed producer revision.
+- Input implementation revision: main7e3e7293152de512a3081e8149caa55ae6d715e8; publication branch updated on reviewed main7621ec7. Output branch codex/instructor-assignment-publication: implementation80317f3, UX5075779, followed by publication-record reconciliation. [Source hashes](../evidence/instructor-assignment-publication/source-sha256.json) preserve the historical implementation checkpoint; ux-source-sha256.json pins the latest UI source. These are local/contract verifications, not a deployed producer revision.
 - Owned files: src/web/instructor/assignments/, src/server/instructor/assignments/, src/shared/instructor-contracts/authoring.ts, additive0002 migration, workflow/instructor-preview/, minimal package/lock, this change's OpenSpec/log/evidence/handoff and Ownership window. Production entrypoints, deployment configuration, CI, shared primitives, generic personal skills, Keith code untouched.
 - Context: MVP/OpenSpec contracts, Ownership/IntegrationContracts, instructor-development-contracts handoff, actual UI foundation and design revision. Darryl's explicit brief/window approval on2026-11-06; no additional joint K1–K6 acceptance invented.
 
@@ -23,7 +23,7 @@ Migration0002 creates instructor drafts/publication/question/rubric/criterion sn
 
 ## Checks, review and limitations
 
-Subsequent UX cleanup after committed baseline62da9f2: [separate UI review/checks](../evidence/instructor-assignment-publication/ux-cleanup.md) and ux-source-sha256.json pin the uncommitted refinement. Same producer/API/schema; changed presentation/error labels and read-only rendering. User requested the baseline commit before this separate UX diff. Final acceptance remains pending.
+Subsequent UX cleanup after initial local baseline62da9f2: [separate UI review/checks](../evidence/instructor-assignment-publication/ux-cleanup.md) and ux-source-sha256.json pin the refinement. Preparing publication replayed the two unpublished commits on reviewed main7621ec7:62da9f2 became80317f3 and UX31abab0 became5075779, preserving content/history evidence. Same producer/API/schema; changed presentation/error labels and read-only rendering. Final manual acceptance remains pending.
 
 Manual-review refinement2026-11-06: New/Open now navigate from the list to a dedicated local authoring page; saved page URL reloads with the same trusted authorization boundary. Back/native unsaved-work guard preserve deliberate navigation. Shared producer/API/schema are unchanged; refreshed source hashes/UI evidence cover this refinement.
 
@@ -31,4 +31,4 @@ Manual-review refinement2026-11-06: New/Open now navigate from the list to a ded
 
 Real authentication/provisioning/session/object revocation behavior, K1–K6/joint contract acceptance and real student consumer integration remain pending. Sign-in, student editor/submission/progress, grading/release and AI gateway implementation are excluded. No deployment/merge/archive; Darryl manual acceptance pending. Local fixture cookie is loopback development only, not an authentication implementation to reuse in production.
 
-Next action: Darryl performs manual checklist and accepts/returns this slice. Keith reviews this exact version and supplies his producer handoff; future real-auth wiring needs a new named shared write window and tests before any deployed feature route. Commit/push/PR require applicable separate instruction for this increment; no review/deployment status invented.
+Next action: Darryl performs manual checklist and accepts/returns this slice. Darryl supplies SH-AUTH and Keith supplies SH-ID producer handoffs; future real-auth wiring needs a new named shared write window and tests before any deployed feature route. Darryl explicitly authorized commit/push/PR publication on2026-11-06; merge/deployment/archive remain unauthorized and incomplete.

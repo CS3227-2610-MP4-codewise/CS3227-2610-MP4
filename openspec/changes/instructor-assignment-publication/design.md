@@ -38,7 +38,7 @@ After Darryl approves this brief, Darryl is the single active writer for:
 - Minimal `package.json`/lockfile edits for an explicit Miniflare development dependency and an opt-in preview command, if required. Reuse the installed compatible dependency version; no production dependency/framework/font addition.
 - Existing ownership/integration/decision docs where needed, this OpenSpec change, one `logs/darryl/04-instructor-assignment-publication.md`, evidence, handoff and a completed copy of workflow/templates/ui-review.md under this change's evidence directory.
 
-One independent reviewer is read-only. All other active writer windows remain separate. This proposed window expands beyond the earlier contract-only assignment and must be confirmed before implementation; it grants no write ownership of Keith's services or real identity schema.
+One independent reviewer is read-only. All other active writer windows remain separate. Darryl confirmed this expanded window before implementation on2026-11-06; it grants no write ownership of Keith's services or any real identity schema. The later SH-AUTH ownership revision assigns future authentication work to Darryl without expanding this feature's implementation scope.
 
 ### 2. Domain and transport boundaries
 
@@ -157,7 +157,7 @@ Additive instructor-only schema; test first on isolated local D1. Do not execute
 
 ## Deferred integration decisions
 
-Keith's real identity/session/provider choice, object-scope producer handshake, detailed K1–K6 agreement and consumer integration can be completed later because this slice uses explicit injected seams and no deployed routes. They remain gates before real data or feature exposure. They do not authorize alternative storage or guessed authentication. The exact isolated artifact/migration/harness writer window above is the approval sought now.
+Darryl's SH-AUTH identity/session/provider work, Keith's SH-ID course/object producer handshake, detailed K1–K6 agreement and consumer integration remain gates before real data or feature exposure. This slice uses explicit injected seams and no deployed routes; it does not authorize alternative storage or guessed authentication. The isolated artifact/migration/harness writer window above was approved on2026-11-06; final manual feature acceptance remains pending.
 
 ## Planning checkpoint — 2026-11-06
 

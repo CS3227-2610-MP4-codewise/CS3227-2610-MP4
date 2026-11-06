@@ -1,6 +1,6 @@
 # Instructor authoring UX cleanup —2026-11-06
 
-Human owner Darryl; same bounded instructor slice, warm-workbook-v1 UI-01/04/05/07/08 and IAS-01–IAS-07/SUB-01/AUTH-02. Input baseline committed62da9f2 at Darryl's explicit “commit the changes first” request. This subsequent UX diff is uncommitted and awaits manual review; no push/merge/deployment. Source identity: ux-source-sha256.json. Existing baseline evidence remains historical.
+Human owner Darryl; same bounded instructor slice, warm-workbook-v1 UI-01/04/05/07/08 and IAS-01–IAS-07/SUB-01/AUTH-02. At the verification checkpoint, input baseline was the local commit62da9f2 and this UX diff was uncommitted. Darryl subsequently authorized publication: the implementation and UX commits were replayed onto reviewed main7621ec7 as80317f3 and5075779. Source identity: ux-source-sha256.json, with historical checkpoint identifiers preserved. Final manual acceptance and live integration/deployment remain pending.
 
 ## Changes and actual review
 

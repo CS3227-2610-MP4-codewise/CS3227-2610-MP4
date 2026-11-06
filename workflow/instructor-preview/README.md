@@ -1,6 +1,6 @@
 # Instructor authoring/publication — local composition
 
-Requirements: SUB-01, AUTH-02, IAS-01–IAS-07. UI: warm-workbook-v1, UI-01/04/05/07/08. Darryl owns this producer; Keith's real identity/course and student consumers remain pending.
+Requirements: SUB-01, AUTH-02, IAS-01–IAS-07. UI: warm-workbook-v1, UI-01/04/05/07/08. Darryl owns publication and SH-AUTH sign-in/accounts/sessions; Keith owns SH-ID courses/membership/object authorization and student consumers. Both real C-ID producer handoffs remain pending under the merged sign-in ownership revision.
 
 Run `npm run dev:instructor`, then open `http://127.0.0.1:5175/workflow/instructor-preview/index.html`. The dedicated configuration binds only 127.0.0.1:5175 and uses persistent **local** D1 at ignored `.wrangler/instructor-preview`. No remote binding/account is used. Restart preserves drafts/publications and rotates the random process-only fixture cookie. Opening the local HTML bootstraps that HttpOnly SameSite=Strict capability for a fixed server-owned synthetic instructor/course. This is a development capability, not real login. Nothing selects browser roles. Do not deploy this configuration.
 
@@ -41,7 +41,7 @@ Publication retry key scope is actor + course + assignment + exact saved revisio
 
 ## Keith's replaceable producer/consumer boundary
 
-Inject Keith's reviewed IdentityCoursePort into AssignmentService. Its requireObject must map both assignment and assignment-version IDs to authoritative course scope using the instructor repository's **scope metadata** seam (`D1Assignments.scope`), then verify current membership; it must not load private payloads to discover ownership. Existing branded principal types are not authentication. No duplicated user/course/submission/assessment storage is introduced here.
+Inject the jointly reviewed IdentityCoursePort composition into AssignmentService: Darryl's SH-AUTH trusted session/origin producer plus Keith's SH-ID course/membership/object authorization. Its requireObject must map both assignment and assignment-version IDs to authoritative course scope using the instructor repository's **scope metadata** seam (`D1Assignments.scope`), then verify current membership; it must not load private payloads to discover ownership. Existing branded principal types are not authentication. No duplicated user/course/submission/assessment storage is introduced here.
 
 For publication consumption, call authorized `AssignmentService.publicVersion(request, assignmentVersionId)` at a future real-auth composition boundary, or adapt the existing PublicationReadPort with equivalent current object/course guards. Never expose D1Assignments directly as an unguarded route. Public SQL explicitly excludes private_reference, then reconstructs the closed C-PUB allowlist. Private snapshots are a separate instructor-only read. Consumers pin exact assignment/question/rubric versions, never substitute logical IDs for version IDs or read the mutable authoring draft.
 
