@@ -87,3 +87,21 @@ Darryl explicitly approved instructor-development-contracts, P1–P4 and the iso
 ## SH-AUTH provider revision — 2026-11-06
 
 Confirmed by Darryl: Firebase Authentication + Brevo, Workers Free, instructor-issued non-expiring/revocable invitations, student password setup, ordinary password login and email recovery. Neither external account is configured; coding before keys is authorized. FoC is the user-flow reference, not a commitment to its custom OTP/reset/JWT/lockout internals. Supabase/passwordless/SendGrid/local-KDF are superseded targets. Stable app IDs/cookies/C-ID remain; provider passwords are not stored in D1. Keith owns all course permissions and still needs to review the revised boundary. Actual provider/mail/authorization/runtime/manual acceptance remains pending; no deployment verified.
+
+## SH-AUTH native email decision — 2026-11-07
+
+Confirmed by Darryl: replace Brevo with Firebase native password-action emails on Spark. Existing instructor-owned invitation audit/non-expiring admission, passwords, session projection and Keith course boundary remain. The local ticket+Firebase code contract and custom /auth/action handler replace generated-code mail; POST setup/confirm now requires {invite,ticket,code,password}, reset/confirm {ticket,code,password}. Old actions are invalidated by additive0005, accounts/sessions/invitations preserved. User reports credentials configured, not independently verified. Separate Firebase projects are needed for simultaneous environment-specific custom action URLs. No live delivery, composed Keith integration, manual acceptance, deployment or cross-review is claimed. Historical Brevo decisions/evidence above are superseded for future work.
+
+## Current SH-AUTH Gmail delivery — 2026-11-07
+
+Firebase native custom email URL rejected EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED; hosted-password UX rejected by Darryl; SMTP2GO signup unavailable. Current selection is existing personal Gmail app-password sender with fixed implicitTLS465. Firebase generates proof only, Gmail delivers direct Codewise link; all password screens remain in app. Add GMAIL_SENDER_EMAIL/GMAIL_APP_PASSWORD/AUTH_MAIL_ENABLED; existing five Firebase/origin settings unchanged. No Firebase custom action URL/additional project required. Same closed C-ID, ticket/UID/email/purpose/generation, session/revocation/CSRF and Keith course ports. Actual Gmail auth/NUS delivery/hosted CPU/background lifetime, first instructor/real Keith composition/revised review/manual acceptance pending. No deployed/accepted claim.
+
+## Password minimum revision — confirmed2026-11-07
+
+Darryl confirmed an 8-character minimum on2026-11-07 and reports changing Firebase accordingly. The intended policy is8–64 Unicode characters; maximum64 and no truncation remain. This is a documentation update: src/server/auth/firebase.ts and src/web/auth/App.tsx still enforce15, and runtime/test alignment is pending. Firebase console configuration was not independently verified in this request. No account was created by this documentation request, and this decision grants no instructor/course authority.
+
+## Operator-owned first account — confirmed2026-11-07
+
+User explicitly requested a persistent bootstrap owner with an invented NUS-format alias and operator-chosen8-character test password. This is not a mailbox-verified student/instructor identity or a copied preview fixture. Optional server secrets authorize first creation; permanent D1 marker, stable FirebaseUID, current provider credential pins and auth admin record retain identity after restart. No default source credential, email verification claim, automatic rebootstrap or course/role bypass. An external Firebase password reset cannot transfer owner authority; it disables the pinned-owner login until explicit operator recovery. Local real-provider mail does not require merging;5176 captures only synthetic mail,8787 can send configured Gmail. Production changes remain reviewed release work.
+
+Current follow-up2026-11-07:8–64 validation is now implemented in app/server as part of one-time owner bootstrap. Prior documentation-only statements about15-character runtime describe the earlier state. Real Firebase policy/provider and production verification remain separate gates. Owner administration grants no course rights.

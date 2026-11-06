@@ -1,3 +1,62 @@
+# Current SH-AUTH handoff — committed Firebase/Gmail and owner bootstrap, 2026-11-07
+
+Producer revision: 9b3d007e3f3d796b60b5e101f2758d3c443165d7 on codex/shared-authentication. Authentication implementation commit: 59560cf; instructor interface cleanup: 9b3d007. [Source manifest](../evidence/shared-authentication/owner-bootstrap/source-manifest.json) pins committed Git blobs and SHA-256 bytes. Earlier working-tree/native/Brevo manifests below are historical. This is source publication, not a deployment or Keith acceptance.
+
+Darryl owns SH-AUTH; Keith owns course/membership/object authorization and student features. AUTH-01–03, SHA-01–12, CON-03/07; warm-workbook-v1 UI-01/02/07/08. Current password policy is 8–64 Unicode characters in UI/server. Firebase is the password authority; Gmail app-password SMTP delivers direct Codewise setup/recovery links. Password entry remains in Codewise. Use [setup and secret names](../auth/SETUP.md), [synthetic payloads](../auth/firebase-examples.json) and [trusted-session checks](../auth/conformance.ts).
+
+Compose ManagedAuthRoutes(ManagedStore(DB), firebaseConfig, FirebaseCredentials, AuthEmail(GmailTransport), keithCoursePort, destinationAuthorizer, backgroundDispatcher, optionalOwnerBootstrap). The Worker supplies no synthetic fallback or Keith implementation. SessionView remains schemaVersion:1,userId,expiresAt. Setup confirmation requires {invite,ticket,code,password}; reset confirmation requires {ticket,code,password}. Origin, preauth/session CSRF, current provider identity/revocation and bound single-use proof checks remain mandatory. Invitations do not expire; generated password proofs expire after ten minutes.
+
+Apply additive migrations 0005 and 0006 through the reviewed release workflow. 0005 invalidates older proof records without deleting accounts/sessions/invitations. 0006 records one-time owner completion and immutable provider credential pins; optional explicit bootstrap secrets use normal guarded login. Account administration never grants course permissions. Local owner provisioning/login with the configured Firebase project was actually verified, including login after removing bootstrap secrets. No remote D1 owner, course membership, staging or production deployment is claimed. The invented operator alias has no app email recovery; an external credential change blocks it pending trusted operator recovery.
+
+Final npm run check passed: six strict OpenSpec changes, types, lint, 191 Vitest tests across 12 files, four Node deployment tests, and production browser build. Redacted source-export Gitleaks 8.24.2 scan passed; ignored local credentials/data and Git history were excluded. Existing read-only auth_review supplied independent source review; main ran checks. [Owner verification and manual checklist](../evidence/shared-authentication/owner-bootstrap/verification.md), [Gmail limitations](../evidence/shared-authentication/gmail/verification.md), and [UI review](../evidence/shared-authentication/ui-clarity/review.md) record actual evidence.
+
+Pending: Keith's revised-boundary review and exact requireCourse/destination producer revision; real instructor authorization; Gmail authentication and consented NUS inbox delivery; normal student setup/recovery integration; hosted Free CPU/background lifetime; complete UI/manual acceptance; reviewed staging/release. Missing Keith authority returns unavailable, including for the account owner. Keith should consume the pinned producer and reusable checks, then provide his exact producer and composed authorization evidence.
+
+---
+
+## Historical working-tree Gmail handoff — superseded by committed producer above
+
+Darryl owns SH-AUTH; Keith owns course/membership/object authority and student features. AUTH-01–03 SHA-01–11 CON-03/07; UI-01/02/07/08 warm-workbook-v1. User rejected hosted password entry; it remains inside Codewise. Native Firebase template update blocked in actual account; SMTP2GO signup unavailable. Current mail uses existing personal Gmail app password via implicitTLS465. No template editor/new Firebase project required.
+
+Uncommitted producer on codex/shared-authentication, base b169c11b02959ca60191aef1e8dced29941c4968. [Gmail source manifest](../evidence/shared-authentication/gmail/source-manifest.json) pins working-tree bytes, not a new Git revision. Native/Brevo manifests below are historical. No commit/push/deploy is claimed. Prior UI edits preserved.
+
+Compose ManagedAuthRoutes(ManagedStore(DB),firebaseConfig,FirebaseCredentials,AuthEmail(GmailTransport),keithCoursePort,destinationAuthorizer,backgroundDispatcher). index.ts enables mail only with GMAIL_SENDER_EMAIL/GMAIL_APP_PASSWORD/AUTH_MAIL_ENABLED=true; no provider fixture in production. Keith ports are still absent deliberately, so instructor APIs/workspace fail unavailable.
+
+Credential generation now precedes final current instructor/pending recheck. Gmail sends direct app fragments containing code+ticket(+invite), so POST setup/confirm {invite,ticket,code,password} and reset/confirm {ticket,code,password} remain. Public closed SessionView, trusted principal, CSRF/origin/current-provider/revocation and admission boundaries unchanged. One-use ticket/UID/email/purpose/invite-generation/ten-minute TTL, non-expiring pending invitations, no automatic email identity merge or enrollment.0005 invalidates older generated-code proof records only, preserves accounts/sessions/invitations; no0006 hosted-action schema exists.
+
+SMTP connection fixed to Gmail465implicitTLS; validated sender/recipient/subject, base64 plain-text body76cols,15s total deadline, bounded responses, no transcript/credentials logging or automatic retry. Queue receipt only after DATA250; explicit failure vs ambiguous unknown. Real account policies/quota/delivery and hosted lifetime remain gates, not synthetic claims.
+
+[Setup/secrets](../auth/SETUP.md), [verification/manual checklist](../evidence/shared-authentication/gmail/verification.md), [synthetic payloads](../auth/firebase-examples.json), [reusable trusted-session checks](../auth/conformance.ts), [D1/auth tests](../auth/managed.test.ts), [SMTP tests](../auth/gmail.test.ts). Main executed179Vitest+4Node/specs/types/lint/build, local TLS greeting (noauth/mail) and dryrun. Existing auth_review independently inspected source/read-only. Keith's boundary review and producer revision remain pending; supply exact reviewed requireCourse/destination ports/first-instructor authority before integration. No implementation of his services or fabricated memberships.
+
+Actual Gmail auth/NUS inbox, real Firebase chosen password/reset/session denial, hosted Free CPU/background lifetime, full UI/manual acceptance and reviewed staging/release pending. Consumer must pin a committed Gmail revision after separate publication authorization before dependent integration. Shared Firebase project can use both origins; cross-environment account mappings require verified same UID, not implicit email linking.
+
+---
+
+## Password policy follow-up — 2026-11-07
+
+Darryl confirmed an 8-character minimum on2026-11-07 and reports changing Firebase accordingly. The intended policy is8–64 Unicode characters; maximum64 and no truncation remain. This is a documentation update: src/server/auth/firebase.ts and src/web/auth/App.tsx still enforce15, and runtime/test alignment is pending. Firebase console configuration was not independently verified in this request. Task8.2 is pending;179-test results above verify the prior15-character runtime, not the new policy.
+
+## Historical native-mail handoff — superseded by Gmail direct delivery
+
+# Current SH-AUTH handoff — Firebase native email, 2026-11-07
+
+Darryl approved replacement of Brevo with Firebase native password-action email. AUTH-01–03, SHA-01–11, CON-03/07; warm-workbook-v1 UI-01/02/07/08. Keith revised-boundary review is pending. No course/student code or real integration claimed.
+
+Producer is an UNCOMMITTED working-tree revision on codex/shared-authentication based on b169c11b02959ca60191aef1e8dced29941c4968. Native source identity is recorded in [native-email/source-manifest.json](../evidence/shared-authentication/native-email/source-manifest.json); do not consume the old386b681 source manifest as native-mail implementation. No commit/push/deployment authorized by this request. Prior UI clarity edits remain preserved.
+
+- Compose ManagedAuthRoutes(ManagedStore(DB),firebaseConfig,FirebaseCredentials,FirebaseMailer,keithCoursePort,destinationAuthorizer,backgroundDispatcher). The mailer is enabled only when FIREBASE_EMAIL_ACTIONS_READY is true. No Brevo keys. Keith ports remain absent in production; invitation APIs/workspace unavailable.
+- Closed SessionView and trusted-session/mutation guards unchanged; no memberships, roles, passwords or Firebase tokens added to DTOs. Require current provider identity and Keith course/object authorization on each protected request.
+- POST setup/confirm now requires {invite,ticket,code,password}; reset/confirm {ticket,code,password}. Other current routes below remain. The one-use local ticket hashes into legacy code_hash and binds UID/email/purpose/invite generation/ten-minute TTL; native Firebase code is inspected for PASSWORD_RESET and exact email before mutation.
+- Additive0005 invalidates old generated-code actions only; preserves stable accounts/sessions/non-expiring invitations. GET does not consume. Pending old invitation capabilities can request a new setup email. Proof expiry/replay/mismatch/stale generation cannot grant admission. Native setup ends without an authenticated session; explicit sign-in follows.
+- /auth/action accepts Firebase query parameters only with supported mode, unique code/continueUrl and exact-origin /sign-in or /auth/reset continuation. It snapshots live Location before clearing query/fragment, never follows arbitrary URLs, and passes code/ticket transiently. No request-URL/proof logging.
+- Firebase sends its native password-reset template for both setup and recovery. Queued means provider acknowledgement, not inbox delivery/read.150/day Spark native-email quota is shared across all such sends. Separate Spark projects are needed for simultaneous environment-specific custom action URLs.
+
+[Setup/secrets/manual checklist](../auth/SETUP.md), [synthetic payloads](../auth/firebase-examples.json), [reusable C-ID checks](../auth/conformance.ts), [security/D1/provider tests](../auth/managed.test.ts), [verification](../evidence/shared-authentication/native-email/verification.md). User reports credentials entered in local/staging/production; values were not inspected. Live native-link shape/fragment, email-enumeration response shape, NUS inbox delivery/privacy, real Free capacity, first instructor and Keith course composition, full UI/manual acceptance and staging/release all remain pending. Keith should consume only a pinned committed producer once separately authorized and supply his exact SH-ID revision/review.
+
+---
+
+## Historical Firebase/Brevo handoff — superseded mail protocol
+
 # Current SH-AUTH handoff — Firebase/Brevo revision, 2026-11-06
 
 Darryl owns SH-AUTH; Keith owns SH-ID. AUTH-01–03, SHA-01–10, CON-03/07; warm-workbook-v1 UI-01/02/07/08. Darryl approved Firebase/Brevo and coding before external setup. Neither service account exists yet; no real mail/login/deployment is verified.
@@ -52,3 +111,11 @@ Review account identity/session expiry/revocation and the server-only principal 
 - Separately configure real Google and test invited matching email, rejected/non-invited account, cancellation/retry, session expiry and logout on the real single-origin app. These live gates cannot be accepted from synthetic tests.
 
 Final manual UI acceptance, live integration and release are separate gates; this change remains unarchived.
+
+## Current owner-bootstrap continuation — 2026-11-07
+
+Darryl implemented optional BOOTSTRAP_OWNER_EMAIL/PASSWORD, singleton0006 state and pinned operator identity through normal guarded login. Current owner source manifest/evidence is workflow/evidence/shared-authentication/owner-bootstrap/ (relative from repository root). Actual local owner now created with Firebase emailVerified:false; local login/session200, admintrue, then successful login after removing temporary local bootstrap settings. No email or staging/production D1 mutation. Real shared Firebase test identity exists; this is distinct from deployed app-owner admission. Global8–64 validation now aligned.
+
+No course permissions are implied. Keith producer is still absent, workspace unavailable; fakealias cannot receive recovery, external credential changes deny pinned owner even after mailbox verification. Bootstrap is not a public default password or self-promotion route. Deploy reviewed0006/code, configure explicit per-environment operator secrets, first sign-in and then remove bootstrap secrets; do not copy local D1/fixtures. Owner/course revised-boundary review by Keith remains pending.
+
+Actual runtime debugging fixed Firebase client defaultfetch binding and unsupported redirect:error. Client uses boundfetch, manualredirect and rejects3xx before parsing. New nativeMiniflare regression covers actualWorkerfetch and no-redirect credential forwarding; defaultNode unit tests alone had missed these incompatibilities.
