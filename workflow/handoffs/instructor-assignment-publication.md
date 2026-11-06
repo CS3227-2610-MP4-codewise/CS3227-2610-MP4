@@ -23,6 +23,8 @@ Migration0002 creates instructor drafts/publication/question/rubric/criterion sn
 
 ## Checks, review and limitations
 
+Subsequent UX cleanup after committed baseline62da9f2: [separate UI review/checks](../evidence/instructor-assignment-publication/ux-cleanup.md) and ux-source-sha256.json pin the uncommitted refinement. Same producer/API/schema; changed presentation/error labels and read-only rendering. User requested the baseline commit before this separate UX diff. Final acceptance remains pending.
+
 Manual-review refinement2026-11-06: New/Open now navigate from the list to a dedicated local authoring page; saved page URL reloads with the same trusted authorization boundary. Back/native unsaved-work guard preserve deliberate navigation. Shared producer/API/schema are unchanged; refreshed source hashes/UI evidence cover this refinement.
 
 [Verification](../evidence/instructor-assignment-publication/verification.md), [UI review/manual checklist](../evidence/instructor-assignment-publication/ui-review.md), [member log](../../logs/darryl/04-instructor-assignment-publication.md). Actual local D1+controller tests, full project checks and production exclusion scan recorded there. All independent findings returned to main and repaired; reviewer test execution itself was blocked before collection, so its approval is source-review evidence only.

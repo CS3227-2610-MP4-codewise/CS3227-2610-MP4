@@ -37,6 +37,12 @@ Schema: spec-driven. Design reference: `docs/ui/design.md`, `warm-workbook-v1`. 
 
 - [x] 6.1 Separate assignment list and dedicated authoring page per Darryl's2026-11-06 feedback; verify acknowledged create navigation, saved open/reload/back, hidden list, unsaved-navigation protection and denied heading privacy; obtain independent focused source review and update UI evidence (IAS-01/02/05/06, UI-01/07/08).
 
+## 7. Manual-review UX cleanup after committed baseline62da9f2
+
+- [x] 7.1 Preserve warm-workbook-v1 while simplifying task order/labels, action priority, rare-control disclosures and read-only published rendering; retain explicit save/review/publish and permission/revision boundaries (IAS-02/05/06, UI-01/04/05/08).
+- [x] 7.2 Verify question/criterion-specific validation recovery, native keyboard disclosures and first-question focus, actual save/review/publish/read-only workflow, all4 widths/both appearances and minimum targets; repair independent review findings and record limits (IAS-03/06/07, UI-07/08).
+- [x] 7.3 Record separate UX source/evidence snapshot and handoff/checks while preserving prior history; final human acceptance remains in5.3 and real integration/deployment stay pending (IAS-07).
+
 ## Workflow follow-up
 
 - Real authentication/authorized route composition and Keith consumer integration require their real reviewed producer handoffs and joint decisions; do not implement them as a substitute in this change.

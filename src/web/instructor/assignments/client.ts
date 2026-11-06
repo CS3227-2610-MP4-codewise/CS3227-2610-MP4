@@ -7,6 +7,7 @@ import {
   type AssignmentClient,
 } from '../../../shared/instructor-contracts/authoring';
 import { safeErrorSchema } from '../../../shared/instructor-contracts/identity';
+import { describeIssue } from './messages';
 const base = '/__instructor-preview/api';
 async function call(
   path: string,
@@ -28,13 +29,12 @@ async function call(
       FORBIDDEN: 'Access denied. Your edits remain in memory.',
       NOT_FOUND: 'This assignment is unavailable in your course.',
       REVISION_CONFLICT:
-        'Save conflict: a newer draft exists. Your edits are retained. Reopen only after copying or discarding them.',
+        'Save conflict: a newer draft exists. Your edits are still here. Copy what you need, then use Draft options to reload the saved draft.',
       IDEMPOTENCY_CONFLICT:
         'This publication retry no longer matches the saved revision.',
       INVALID_CONTRACT:
-        'Check the fields: ' +
-        (error.issues?.map((i) => `${i.path} (${i.code})`).join(', ') ??
-          'invalid content'),
+        error.issues?.map(describeIssue).join(' ') ??
+        'Check the assignment fields and try again.',
     };
     throw new Error(
       text[error.code] ??

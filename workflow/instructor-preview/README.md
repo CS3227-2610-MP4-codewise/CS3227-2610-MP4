@@ -12,6 +12,8 @@ The list lives at the base HTML URL. New assignment waits for the persisted crea
 
 ## Exact transport
 
+The UX cleanup after baseline62da9f2 keeps details and questions in the main flow, Save draft and Review & publish in a persistent action bar, and private references/question options/version history in native disclosures. Criterion Name maps to the unchanged comparisonKey; Assessment guidance maps to descriptor. Published snapshots render as read-only content. Human-readable errors preserve the same server validation. Storage revisions remain exact protocol values without appearing in routine UI. No transport/authorization/contract changes result from these label/layout refinements.
+
 All paths below have local-only prefix `/__instructor-preview/api`. JSON commands/responses use runtime schemas in `src/shared/instructor-contracts/authoring.ts`; C-PUB remains `publication.ts`. All responses are no-store. Request JSON is streamed with a 1 MiB limit. Unexpected exceptions are sanitized; errors use the existing safeErrorSchema.
 
 | Method/path                            | Input                                                  | Result / authorization                                                      |

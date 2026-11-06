@@ -1,5 +1,7 @@
 # UI review: instructor-assignment-publication
 
+Latest screen arrangement/control labels are reviewed in [UX cleanup](ux-cleanup.md), after the separately committed baseline62da9f2. The checks below retain their historical scope rather than imply the old screenshots depict the latest UI.
+
 - Human owner: Darryl, instructor only.
 - Source: codex/instructor-assignment-publication, uncommitted working tree based on 7e3e729; source-sha256.json pins reviewed implementation files.
 - Design: docs/ui/design.md, warm-workbook-v1; SUB-01, AUTH-02, IAS-01–IAS-07; UI-01/04/05/07/08.

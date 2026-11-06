@@ -16,6 +16,8 @@ The editor omits assignment rows and list actions, retains the warm-workbook for
 
 ## Goals / Non-Goals
 
+Manual-review UX cleanup (Darryl,2026-11-06; baseline committed62da9f2): keep warm-workbook-v1 while organizing the editor around Assignment details, Questions, and an explicit final review. Save draft and Review & publish remain in one persistent action bar. Draft recovery/reordering, instructor reference code and version history use native disclosures; history retry remains discoverable for empty/error cases. Routine UI hides storage revisions and calls the comparison key a criterion Name, descriptor Assessment guidance, source Starter code and deadline Due date (Singapore time). Existing payloads/permissions/version semantics remain authoritative. New criterion forms start at an editable minimum0 with an empty maximum; no scoring policy changes. Published versions use selectable read-only content instead of disabled edit fields. Errors name the question/criterion and action needed, not raw schema paths. This is an explicit user-requested refinement of the same instructor slice, not a visual-system departure or new shared-service increment.
+
 **Goals:** one usable local-D1-backed create/save/reopen/edit/review/publish workflow; durable private drafts; atomic immutable snapshots; a safe C-PUB producer for Keith; version/conflict/privacy/security tests and actual UI evidence.
 
 **Non-Goals:** identity provisioning, login/role-switch implementation, student editor/submissions/progress, assessment/AI/release, scheduling, unpublishing, destructive assignment deletion, cloud provisioning or deployment. Removing a question from an editable draft is an explicit authoring operation; it cannot delete historical published rows.

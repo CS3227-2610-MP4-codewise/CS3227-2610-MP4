@@ -45,6 +45,55 @@ function fixture() {
   return { client, c: new AssignmentController(client) };
 }
 describe('revision-aware assignment controller', () => {
+  it('points to the incomplete question and criterion, then permits review after correction', async () => {
+    const { c, client } = fixture();
+    await c.open('a');
+    const question = {
+      questionId: 'q1',
+      rubricId: 'r1',
+      title: 'First',
+      instructions: 'Write a function.',
+      language: 'python' as const,
+      starterCode: '',
+      privateReference: '',
+      criteria: [
+        {
+          criterionId: 'c1',
+          comparisonKey: 'Correctness',
+          descriptor: 'Meets the task',
+          minimumScore: 0,
+          maximumScore: 10 as number | null,
+        },
+      ],
+    };
+    const payload = {
+      title: 'Loops',
+      deadlineAt: '2099-01-01T00:00:00.000Z',
+      questions: [
+        question,
+        {
+          ...question,
+          questionId: 'q2',
+          rubricId: 'r2',
+          title: 'Second',
+          criteria: [{ ...question.criteria[0], maximumScore: null }],
+        },
+      ],
+    };
+    c.edit(payload);
+    await c.save();
+    c.review();
+    expect(c.state.review).toBe(false);
+    expect(c.state.message).toContain('question 2, criterion 1');
+    expect(c.state.message).not.toContain('$.questions');
+    expect(client.publish).not.toHaveBeenCalled();
+    payload.questions[1].criteria[0].maximumScore = 10;
+    c.edit(payload);
+    await c.save();
+    c.review();
+    expect(c.state.review).toBe(true);
+    expect(client.publish).not.toHaveBeenCalled();
+  });
   it('hides denied content and restores access without overwriting retained edits or silently rebasing', async () => {
     const { c, client } = fixture();
     await c.open('a');

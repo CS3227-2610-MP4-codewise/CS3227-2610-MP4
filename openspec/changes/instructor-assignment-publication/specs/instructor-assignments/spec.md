@@ -84,7 +84,16 @@ The instructor UI SHALL follow warm-workbook-v1 and applicable UI-01/UI-04/UI-05
 - **WHEN** an instructor creates a draft or opens a saved assignment from the list
 - **THEN** the UI navigates to a dedicated authoring page without the assignment list, permits authorized reload of that exact draft and provides Back to assignments with unsaved-navigation protection.
 
+#### Scenario: Author with task-focused controls
+- **WHEN** the instructor edits or reviews an assignment
+- **THEN** the UI prioritizes details, questions, saving and deliberate publication; less frequent controls use accessible disclosures, field errors identify the affected question/criterion, and version-history recovery remains reachable after errors.
+
+#### Scenario: Inspect a published version
+- **WHEN** the instructor opens a published version
+- **THEN** it presents read-only instructions, code and rubric values with a clear version label, private-reference disclosure and Back to draft action rather than an editable-looking form.
+
 ### Requirement: IAS-07 Isolated synthetic composition and honest integration
+
 Synthetic identity/course adapters SHALL be injected only by an explicit guarded local-development/test composition. Deployed entrypoints SHALL expose no publication feature route before real authentication/object authorization exists. Local D1, schema, UI and synthetic checks SHALL be distinguished from real integration evidence (AUTH-02).
 
 #### Scenario: Local preview request lacks its fixture capability or valid origin

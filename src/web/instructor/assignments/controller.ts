@@ -8,6 +8,7 @@ import {
 } from '../../../shared/instructor-contracts/authoring';
 import { projectPublication } from '../../../shared/instructor-contracts/publication';
 import { ContractError } from '../../../shared/instructor-contracts/schema';
+import { describeIssue } from './messages';
 export type WorkspaceState = {
   draft: AssignmentDraft | null;
   payload: Authoring | null;
@@ -23,11 +24,7 @@ export type WorkspaceState = {
 };
 export function errorMessage(error: unknown) {
   if (error instanceof ContractError)
-    return (
-      'Check the fields: ' +
-      error.issues.map((i) => `${i.path} (${i.code})`).join(', ') +
-      '. Your edits are retained.'
-    );
+    return error.issues.map(describeIssue).join(' ');
   return error instanceof Error
     ? error.message
     : 'The request failed. Your edits are retained; try again.';
@@ -210,11 +207,13 @@ export class AssignmentController {
         message: `Review saved revision ${draft.revision}. Confirm publication separately.`,
         error: false,
       });
-    } catch {
+    } catch (error) {
       this.update({
         review: false,
         message:
-          'Publication needs a title, future deadline, and complete questions with valid rubric criteria and unique comparison keys. Scores must have at most two decimal places.',
+          error instanceof ContractError
+            ? errorMessage(error)
+            : 'Check the assignment details and questions before publishing.',
         error: true,
       });
     }

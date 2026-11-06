@@ -64,3 +64,31 @@ Darryl requested broader UX cleanup while preserving the warm workbook feel, the
 - Confirmed matching codex/instructor-assignment-publication branch, empty pre-existing index and only this increment's files in the working tree. All21 pinned implementation/config/fixture hashes match the last verified snapshot; no product edits for the broader UX cleanup have begun.
 - Commit scope: instructor authoring/publication, guarded local preview, dedicated editor page, bounded OpenSpec artifacts, required evidence/handoff/log and named writer window. Previous npm run check115+4 results remain applicable; git diff --check and source-hash verification passed.
 - Final manual feature acceptance remains pending. The next change will simplify task flow/control naming in a separate diff; preserve the current committed baseline for review. Commit identity is available in Git history rather than self-referentially embedded here.
+
+# 05 - Purpose-focused instructor UX cleanup - 2026-11-06
+
+## Request
+
+Darryl asked to keep the UI feel while removing clutter, confusing names and unintuitive controls. First committed the prior implementation/dedicated-page refinement as62da9f2, confirmed clean tree, then continued the requested UX cleanup as a separate uncommitted diff. Same instructor scope/writer window and existing bounded change; no Keith/server/shared producer work.
+
+## Results
+
+- Details→Questions→Review→separate Publish flow, one persistent Save/Review bar, human labels/errors, zero empty question selector, native disclosures for recovery/reorder/private reference/history, and genuine read-only published content. Warm tokens/typography/40–60 workbook preserved. New criterion minimum starts at editable0, maximum blank; runtime/domain policy unchanged.
+- Main implemented; reused independent read-only /root/publication_review. It found history retry could vanish after errors; collapsed history now always retains recovery for authorized loaded drafts. Same reviewer accepted focused repair; source review only. Main improved first-question focus and hides stale list metadata on denial/read failure.
+- Actual npm run check passed5 specs, types/lint,116 Vitest+4 Node tests/build. New eighth controller regression follows invalid question2/criterion1→human-readable error→correct/save→review with no implicit publish. Later small focus/denial/help refinements passed types/lint. No backend changes or cloud activity.
+- Actual local-D1 browser: filled details/question/starter/rubric/private reference, saved, reviewed, separately published1, opened history/read-only contents and returned to draft. Native Enter first-question/reference navigation worked and heading focus was observed. All4 widths/light+dark measured no page-wide overflow and no essential visible target below44px. Native viewport captures saved after full-page/clip/developer screenshot APIs failed; capture limitation disclosed. Viewport/appearance restored; no new native200%/screen-reader audit claimed.
+- [Latest UI review/manual checklist](../../workflow/evidence/instructor-assignment-publication/ux-cleanup.md); ux-source-sha256.json pins this separate working-tree source. Original baseline snapshots retained. Updated existing spec/design/tasks/guide/handoff; no duplicate contracts. No new commit/push/merge/deployment for this UX diff.
+- External usage checkpoint2026-11-06T04:31:39.110Z (12:31:39 Singapore), per_response_usage: root turn-73f9c5f6d4e5c9ab92df9866 incomplete/provisional12,293,758 tokens; completed reviewer turn-d8dfa65b69a04b410f11dcef: 713,567 and turn-4766945698d03a0637d2095d: 250,967; observed combined13,258,292. Cached/reasoning subtotals not added; subsequent calls/final response excluded, no efficiency/optimality claim. Detailed telemetry stays outside repository.
+- Next: Darryl manually reviews cleaned workflow under existing final acceptance5.3. Real authentication/Keith integration/deployment stay pending. Commit authorization used for the previous baseline only; UX diff remains separately reviewable.
+
+# 06 - Commit, push and PR publication - 2026-11-06
+
+## Request
+
+Darryl explicitly requested “commit, push and create the PR,” authorizing the reviewed UX increment and publication of this instructor branch. No merge/deployment/archive is requested. This does not invent a completed human manual checklist or real authentication integration.
+
+## Results
+
+- Confirmed matching branch, empty pre-existing index and only this increment's pending UX/docs/evidence. All6 UX source hashes match the verified snapshot; git diff --check passed. Existing116 Vitest+4 Node/type/lint/build evidence remains linked; source unchanged since verification.
+- Fetched origin/main at7621ec7, which merges the reviewed sign-in ownership revision (PR6). Darryl now owns SH-AUTH sign-in/accounts/sessions; Keith owns SH-ID courses/membership/object authorization. Both real producer handoffs are still pending. Preserve that upstream documentation while bringing this unpublished branch current; no application producer is invented or implemented by this shipping request.
+- Prepare the separate UX commit, update against reviewed main, then push normally and open one instructor authoring/publication PR with requirement IDs, screenshots, verification, migration recovery and pending integration/manual checks. Publication outcomes/PR link are reported in chat and GitHub; this pre-publication record does not falsely assert success.
