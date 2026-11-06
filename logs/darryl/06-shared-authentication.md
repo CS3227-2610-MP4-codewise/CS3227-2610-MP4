@@ -104,3 +104,11 @@ Publication usage checkpoint: external recorder refreshed2026-11-06T07:50:02.569
 - Implementation commit1c1174d; unchanged source hashes and prior fullcheck145 Vitest+4 Node. Strict OpenSpec and whitespace checks rerun; no code changes during publication. Evidence and handoff identify producer revision, pending policy/live/Keith/manual gates.
 - Concurrent unrelated modifications to AGENTS.md, logs/README.md, workflow/README.md and workflow/templates/member-log.md appeared during publication. Read updated policy, preserve them unstaged and exclude them from this iteration. Adopted new structured format here; historical prompt coverage is not newly claimed complete. Other audit/backfill work remains outside this commit scope.
 - PR/push result will be recorded below once actually obtained; no merge/deploy/archive. Next owner: Darryl/Keith review draft and settle deferred provider/invitation policy before dependent changes.
+
+### Publication receipt — sh-auth-publish-20261106-01
+
+- Committed1c1174d implementation/spec/tests and c6e5b5e evidence/handoff/log; pushed codex/shared-authentication with tracking to origin.
+- Created and verified open **draft PR#8** against main: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/8 . Initial PR head c6e5b5ec0ca303576fa61cfe8672a255a58e7a0a. Attached PR to this chat. This receipt/handoff link is the final documentation increment and will be pushed to the same PR.
+- GitHub CLI absent; narrowly scoped GitHub API used existing repository authentication in memory, with credentials neither printed nor saved. An initial empty-array response was not treated as success; corrected lookup and confirmed PR number, URL, draft/open state and head.
+- Exact staged-index source export scanned with verified Gitleaks8.24.2: ~1.14MB, no leaks. Strict OpenSpec and git diff --check passed. Source unchanged from fullcheck145+4; remote CI is not yet verified and local tests are not represented as GitHub results.
+- Unrelated concurrent logging/instruction/template changes remain outside these commits. No merge, deployment, production migration, policy implementation, archive, new agent or final manual acceptance implied. Deferred invitation/NUS, live Google, Keith/SH-ID and accessibility gates remain explicitly pending in PR body and handoff.

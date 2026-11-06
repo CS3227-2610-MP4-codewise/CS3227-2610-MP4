@@ -1,6 +1,7 @@
 # Handoff: SH-AUTH / shared-authentication
 
 - Human owner: Darryl. Next consumer/cross-reviewer: Keith (SH-ID).
+- Review PR: [draft #8](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/8), opened against main by Darryl's separate publication authorization. Draft status preserves the pending policy/manual/integration gates below.
 - Agent work: main implements, one independent read-only `/root/auth_review` reviews security, contracts and UI source. Same inherited model configuration; no parallel writers or recursive delegation.
 - Requirements: AUTH-01–03, CON-03/07, SHA-01–07; warm-workbook-v1 UI-01/02/07/08. Existing C-ID remains authoritative.
 - Input: reviewed main `2d8a8617f86992c71e7c93facabb822455c6fc70`; matching `codex/shared-authentication` branch reused for continuation. Producer source commit: `1c1174d` (exact file SHA-256 identity in [source-manifest.json](../evidence/shared-authentication/source-manifest.json)). Darryl separately authorized commit/push/PR on 2026-11-06. Merge/deployment remain unauthorized and unperformed.
