@@ -69,6 +69,30 @@ export class CourseAuthority {
       throw new BoundaryError('FORBIDDEN');
   }
 
+  /** A selected authorized course may fall outside the bounded first list page. */
+  async get(principal: TrustedPrincipal, courseId: string) {
+    await this.requireCourse(principal, courseId, 'instructor-read');
+    const now = this.clock();
+    const row = await this.db
+      .prepare(
+        `SELECT c.id,c.name FROM courses c
+      JOIN course_memberships m ON m.course_id=c.id AND m.role='instructor' AND m.active=1
+      JOIN auth_accounts a ON a.id=m.user_id AND a.active=1
+      JOIN auth_sessions s ON s.user_id=a.id AND s.id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?
+      WHERE c.id=? AND c.active=1 AND m.user_id=?`,
+      )
+      .bind(
+        principal.sessionHandle,
+        now,
+        now - 30 * 60_000,
+        courseId,
+        principal.userId,
+      )
+      .first<{ id: string; name: string }>();
+    if (!row) throw new BoundaryError('FORBIDDEN');
+    return row;
+  }
+
   async requireObject(
     principal: TrustedPrincipal,
     target: ObjectTarget,

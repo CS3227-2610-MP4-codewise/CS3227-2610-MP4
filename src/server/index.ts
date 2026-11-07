@@ -7,6 +7,8 @@ import { AuthEmail } from './auth/mail';
 import { GmailTransport } from './auth/gmail';
 import { OwnerBootstrap, ownerConfig } from './auth/owner';
 import { CourseAuthority } from './courses/authority';
+import { CourseCreation } from './courses/creation';
+import { courseHandler } from './courses/http';
 import { composeIdentityCourse } from './auth/composition';
 import { AssignmentService } from './instructor/assignments/service';
 import { D1Assignments } from './instructor/assignments/repository';
@@ -86,6 +88,7 @@ export function createApplication(ports: DevelopmentPorts = {}) {
       if (
         pathname.startsWith('/api/auth/') ||
         pathname === '/api/courses' ||
+        pathname.startsWith('/api/courses/') ||
         pathname.startsWith('/api/instructor/')
       ) {
         const config = firebaseConfig(env);
@@ -163,28 +166,14 @@ export function createApplication(ports: DevelopmentPorts = {}) {
           );
         };
         if (pathname.startsWith('/api/auth/')) return auth.fetch(request);
-        if (pathname === '/api/courses' && request.method === 'GET') {
-          try {
-            const { principal } = await auth.requireSession(request);
-            return json({ courses: await courses.list(principal) });
-          } catch (error) {
-            return json(
-              {
-                error: {
-                  code:
-                    error instanceof BoundaryError
-                      ? error.code
-                      : 'UPSTREAM_UNAVAILABLE',
-                  message: 'Course access unavailable.',
-                  requestId: crypto.randomUUID(),
-                },
-              },
-              error instanceof BoundaryError && error.code === 'UNAUTHENTICATED'
-                ? 401
-                : 503,
-            );
-          }
-        }
+        if (pathname === '/api/courses' || pathname.startsWith('/api/courses/'))
+          return courseHandler(
+            request,
+            auth,
+            store,
+            courses,
+            new CourseCreation(env.DB),
+          );
         if (
           pathname.startsWith('/api/instructor/review') ||
           pathname.startsWith('/api/instructor/assessments')
