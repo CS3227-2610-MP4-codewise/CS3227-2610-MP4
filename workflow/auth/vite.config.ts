@@ -7,6 +7,15 @@ import { ManagedStore } from '../../src/server/auth/managed-store';
 import { ManagedAuthRoutes } from '../../src/server/auth/managed-routes';
 import { SyntheticFirebase } from './synthetic-firebase';
 import { CourseAuthority } from '../../src/server/courses/authority';
+import { CourseCreation } from '../../src/server/courses/creation';
+import { courseHandler } from '../../src/server/courses/http';
+import { BoundaryError } from '../../src/shared/instructor-contracts/schema';
+import { composeIdentityCourse } from '../../src/server/auth/composition';
+import { AssignmentService } from '../../src/server/instructor/assignments/service';
+import { D1Assignments } from '../../src/server/instructor/assignments/repository';
+import { assignmentHandler } from '../../src/server/instructor/assignments/http';
+import { AssessmentWorkflow } from '../../src/server/instructor/assessments/workflow';
+import { AssessmentRepository } from '../../src/server/instructor/assessments/repository';
 import { hash, randomToken, setCookie } from '../../src/server/auth/primitives';
 const origin = 'http://127.0.0.1:5176',
   config = { origin, clientId: '', clientSecret: '', secure: false };
@@ -38,7 +47,9 @@ export default defineConfig({
       async configureServer(server) {
         const database = await authDatabase();
         for (const name of [
+          '0002_instructor_assignments.sql',
           '0007_courses.sql',
+          '0008_instructor_assessments.sql',
           '0009_course_creation.sql',
           '0010_invitation_target_role.sql',
           '0011_invitation_identity_recovery.sql',
@@ -71,16 +82,30 @@ export default defineConfig({
           },
         };
         const courses = new CourseAuthority(database.db);
+        const creation = new CourseCreation(database.db);
         const routes = new ManagedAuthRoutes(
           store,
           config,
           provider,
           mailer,
           courses,
-          undefined,
+          {
+            async authorize(_principal, destination) {
+              if (destination !== '/workspace')
+                throw new BoundaryError('FORBIDDEN');
+            },
+          },
           (work) => {
             void work().catch(() => {});
           },
+        );
+        const identity = composeIdentityCourse(routes, courses);
+        const assignmentRepository = new D1Assignments(database.db, {
+          enforceAuthority: true,
+        });
+        const assignments = new AssignmentService(
+          assignmentRepository,
+          identity,
         );
         server.httpServer?.once('close', () => {
           void database.close();
@@ -130,9 +155,21 @@ export default defineConfig({
             const instructorId = (await store.session(cookie)).user_id;
             await database.db
               .prepare(
-                "INSERT OR IGNORE INTO course_memberships(course_id,user_id,role) VALUES(?,?,'instructor')",
+                "INSERT INTO course_memberships(course_id,user_id,role) VALUES(?,?,'instructor') ON CONFLICT(course_id,user_id,role) DO UPDATE SET active=1",
               )
               .bind('synthetic-course', instructorId)
+              .run();
+            await database.db
+              .prepare(
+                'INSERT OR IGNORE INTO course_creation_receipts(user_id,request_key,name,course_id,created_at) VALUES(?,?,?,?,?)',
+              )
+              .bind(
+                instructorId,
+                'synthetic-preview',
+                'Synthetic course',
+                'synthetic-course',
+                now,
+              )
               .run();
             res.writeHead(303, {
               'Set-Cookie': setCookie(config, 'session', cookie, 28800),
@@ -178,7 +215,11 @@ export default defineConfig({
             );
             return;
           }
-          if (!req.url?.startsWith('/api/auth/')) {
+          if (
+            !req.url?.startsWith('/api/auth/') &&
+            !req.url?.startsWith('/api/courses') &&
+            !req.url?.startsWith('/api/instructor/')
+          ) {
             next();
             return;
           }
@@ -195,13 +236,34 @@ export default defineConfig({
                 method === 'GET' || method === 'HEAD'
                   ? undefined
                   : Readable.toWeb(req);
-            const response = await routes.fetch(
-              new Request(new URL(req.url, origin), {
-                method,
-                headers,
-                ...(body ? { body, duplex: 'half' } : {}),
-              } as RequestInit),
-            );
+            const request = new Request(new URL(req.url, origin), {
+              method,
+              headers,
+              ...(body ? { body, duplex: 'half' } : {}),
+            } as RequestInit);
+            const response = req.url.startsWith('/api/auth/')
+              ? await routes.fetch(request)
+              : req.url.startsWith('/api/courses')
+                ? await courseHandler(request, routes, store, courses, creation)
+                : req.url.startsWith('/api/instructor/review') ||
+                    req.url.startsWith('/api/instructor/assessments')
+                  ? await new AssessmentWorkflow(
+                      request,
+                      identity,
+                      assignments,
+                      new AssessmentRepository(database.db, {
+                        guardedBatch: (statements, principal, course) =>
+                          assignmentRepository.guarded(
+                            statements,
+                            principal,
+                            course,
+                          ),
+                      }),
+                    ).handle()
+                  : await assignmentHandler(
+                      assignments,
+                      '/api/instructor',
+                    )(request);
             const out: Record<string, string | string[]> = {};
             response.headers.forEach((v, k) => {
               out[k] = v;
