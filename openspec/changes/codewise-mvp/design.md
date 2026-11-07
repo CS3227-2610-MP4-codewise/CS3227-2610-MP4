@@ -8,7 +8,7 @@ Readiness update 2026-11-05: the Cloudflare foundation is deployed to staging an
 
 ## Goals / Non-Goals
 
-Current ownership revision (2026-11-06): Darryl produces shared account authentication, sign-in/registration/provisioning, provider mapping, sessions/logout and CSRF (SH-AUTH). Darryl produces courses/memberships/object authorization (SH-ID), consuming that authenticated subject, and retains submissions/student features. Both review the composed C-ID handoff; one authoritative identity/course store and serialized migration/API write windows remain required. This supersedes only the prior combined identity ownership, not security requirements or provider/registration policy decisions.
+Current ownership revision (2026-11-06): Darryl produces shared account authentication, sign-in/registration/provisioning, provider mapping, sessions/logout and CSRF (SH-AUTH). Darryl produces courses/memberships/object authorization (SH-ID), consuming that authenticated subject, and Keith retains submissions/student features. Both review the composed C-ID handoff; one authoritative identity/course store and serialized migration/API write windows remain required. This supersedes only the prior combined identity ownership, not security requirements or provider/registration policy decisions.
 
 Goals: durable submissions, rubric-driven assistance, private evidence-based learning feedback, testable security, and auditable development/deployment.
 
@@ -53,7 +53,8 @@ All routes require session and scope checks except sign-in/health. Responses use
 
 | Route | Intent |
 | --- | --- |
-| GET /api/courses | Accessible courses |
+| GET /api/courses | Accessible courses filtered by trusted workspace role; COU-06 target |
+| POST /api/courses | Proposed guarded first-admin/current-instructor course creation plus creator membership; COU-01/02 |
 | GET/POST /api/courses/:course/assignments | List / instructor create |
 | POST /api/assignments/:id/publish | Validate and publish a new version |
 | GET/PUT /api/questions/:version/draft | Read / revision-checked save |
@@ -136,3 +137,7 @@ Darryl owns SH-ID: courses, memberships, object authorization and allowed worksp
 ## Shared foundation implementation — authorized 2026-11-07
 
 Darryl writes SH-ID and the serialized shared integration; Keith reviews C-ID and retains student/submission ownership. The server derives course membership from one D1 database, checks current membership for each course/object request, and composes existing Firebase-backed SH-AUTH with course authority and instructor assignment routes. Trusted operator provisioning explicitly assigns an existing account to a course; account administration and invitation acceptance do not imply membership. Local setup uses synthetic course data. Deployment follows reviewed staging and production workflows only. Instructor workspace follows warm-workbook-v1, UI-01–04 and UI-07–08; UI review remains pending actual evidence. Requirements AUTH-01–03, DEV-02, SUB-01.
+
+## Course-onboarding implementation target — confirmed2026-11-07
+
+[Course-onboarding design](../course-onboarding/design.md) and COU-01–07 are the bounded next implementation plan. Current operator-only course setup remains runtime history; the new target provides in-app course creation for the first admin/current instructors, role-targeted invitations, account-aware setup/sign-in, atomic course-role acceptance and shared dual-role discovery. A trusted invitation accepted into a current course is now an approved membership-provisioning process, not public self-promotion. Existing role-capable membership schema is reused. Darryl writes SH-AUTH/SH-ID/shared switch/instructor UI; Keith supplies student dashboard consumers and cross-review. Student rendering, real integration and hosted verification are pending, not implemented by these docs.

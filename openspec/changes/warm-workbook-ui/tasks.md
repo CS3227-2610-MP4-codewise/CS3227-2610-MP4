@@ -43,3 +43,7 @@ Planning artifacts and repository guidance were delivered first. The user's subs
 - [x] 6.2 Simplify shared home/auth and instructor authoring presentation, retain visible labels/contextual requirements/privacy/version/error states and accessible inline SVG controls; no student/security/domain changes (UI-01/02/07/08).
 - [x] 6.3 Review/repair presentation and asynchronous invitation states; run npm run check and observe representative desktop/narrow/keyboard/theme screens, recording actual evidence (UI-01/02/07/08).
 - [ ] 6.4 Obtain Darryl manual acceptance of the revised UI; keep unavailable real-provider/course and full cross-role matrix gates open.
+
+## Course-onboarding follow-up
+
+- [ ] 7.1 Verify the planned first-admin/course creation, account-aware invite/join states and top dual-role switch against COU-01–07 and UI-01/02/03/04/07/08 using actual desktop/narrow/light/dark/keyboard/zoom/async evidence. Darryl supplies shared/instructor UI; Keith supplies student dashboard consumer. Planning alone does not complete this task.
