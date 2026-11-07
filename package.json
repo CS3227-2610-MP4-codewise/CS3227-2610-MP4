@@ -24,7 +24,8 @@
     "dev:instructor": "vite --config workflow/instructor-preview/vite.config.ts",
     "dev:auth": "vite --config workflow/auth/vite.config.ts",
     "auth:local": "node workflow/auth/operator.mjs",
-    "course:local": "node workflow/course/operator.mjs"
+    "course:local": "node workflow/course/operator.mjs",
+    "dev:assessment": "vite --config workflow/assessment-preview/vite.config.ts"
   },
   "dependencies": {
     "openid-client": "6.8.9",
