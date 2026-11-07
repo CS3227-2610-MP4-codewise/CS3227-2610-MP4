@@ -420,7 +420,7 @@ export function AssessmentWorkspace({
                         {marked.length ? (
                           <button
                             aria-label={`Line ${index + 1}, observation ${marked[0].index + 1}`}
-                            aria-pressed={active}
+                            aria-pressed={selected === marked[0].index}
                             onClick={() => select(marked[0].index)}
                           >
                             {index + 1}
@@ -838,7 +838,9 @@ export function AssessmentWorkspace({
                             version: withdrawVersion,
                             reason,
                           })
-                          .then(() => setWithdrawVersion(null));
+                          .then((succeeded) => {
+                            if (succeeded) setWithdrawVersion(null);
+                          });
                       }}
                     >
                       Confirm withdrawal

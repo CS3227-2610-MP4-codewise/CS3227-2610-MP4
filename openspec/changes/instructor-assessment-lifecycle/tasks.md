@@ -1,6 +1,6 @@
 # Tasks
 
-Implementation approval is confirmed; UI/manual acceptance and real submission/assessment-authority composition remain pending. Main969a062 governs existing specs and ownership. Checkboxes below measure work/evidence, not planning file existence. Requirements: GRADE-02–04, CON-05, IAL-01–10; warm-workbook-v1 UI-01/04/06/07/08 and UI-05 for pinned multi-question navigation.
+Implementation approval is confirmed. On 2026-11-08 Darryl accepted closure of tasks 4.2, 4.3, 4.5 and 5.4 with the evidence limitations recorded below; this decision does not establish that unperformed checks passed. Real submission/consumer integration remains pending. Requirements: GRADE-02–04, CON-05, IAL-01–11; warm-workbook-v1 UI-01/04/05/06/07/08.
 
 ## 1. Approval, ownership and test design
 
@@ -26,17 +26,19 @@ Implementation approval is confirmed; UI/manual acceptance and real submission/a
 ## 4. Guarded local composition and workbook
 
 - [x] 4.1 Add thin injected guarded HTTP composition and a separate loopback-only synthetic assessment preview; test session/object/course/origin denial, bounded payloads, safe errors and absence from production routing/bundle. Document run/setup instructions and synthetic limitations. [IAL-01/09]
-- [ ] 4.2 Build pinned question/rubric/read-only source and manual score/explanation workbook using warm-workbook-v1 tokens. Test pinned multi-question navigation, incomplete saved forms, reopen and no historical source substitution; document state/navigation controls. [IAL-02/08, UI-01/04/05]
-- [ ] 4.3 Add exact-line markers, equivalent labelled observation controls and concise proportional-text notes; verify keyboard operation, trigger focus, announcements, line identity/wrapping and invalid-evidence state. Record actual accessibility evidence. [IAL-03/08, UI-06/07]
+- [x] 4.2 Close pinned workbook and navigation work on Darryl's acceptance of existing implementation and evidence, subject to the limitations below. [IAL-02/08, UI-01/04/05]
+- [x] 4.3 Close source-observation work on Darryl's acceptance of existing implementation and evidence, subject to the limitations below. [IAL-03/08, UI-06/07]
 - [x] 4.4 Add separate approval/release actions, explicit correction/history and version-specific withdrawal confirmation. Test duplicate prevention, delayed/reordered acknowledgements, stale saves, failure/retry/session-loss and unsaved navigation recovery without falsely reporting success. [IAL-04–08, UI-04/08]
-- [ ] 4.5 Complete workflow/templates/ui-review.md under this change's evidence with actual desktop/narrow light/dark screenshots,320px and200% zoom,44px targets, focus/keyboard/reduced-motion checks and asynchronous/empty/denied states. Leave unavailable/manual checks open. [IAL-08, UI-01/04/06/07/08]
+- [x] 4.5 Close the UI review on Darryl's acceptance of the evidence available, with missing checks explicitly recorded in the review. [IAL-08, UI-01/04/06/07/08]
+
+Acceptance is a project decision, not evidence that all original checks passed. Pinned multi-question interaction, complete keyboard/announcement and invalid-evidence behavior, light/dark, 200% zoom, target size and full state matrix remain unverified. Independent review identified that malformed observation evidence can be highlighted without independently matching its excerpt to pinned source; navigation focus/announcements also need browser verification. The existing requirements remain in force. See workflow/evidence/instructor-assessment-lifecycle/ui-review.md.
 
 ## 5. Independent review and integrated verification
 
 - [x] 5.1 Have one independent read-only quality reviewer inspect exact base/delta, contracts, transaction/privacy/security and UI races; record actual findings, repair confirmed defects and obtain focused re-review from the same reviewer. Distinguish source inspection from executed tests. [IAL-01–09]
 - [x] 5.2 Run npm run check plus targeted local D1/security/controller/contract checks and source secret scan; record exact outcomes and remaining limitations. Verify production routes, Keith services, personal skills and detailed telemetry remain excluded. [GRADE-02–04, CON-05, IAL-01–09]
 - [x] 5.3 Prepare handoff with exact producer source identity, runtime examples, reusable checks, owned files, executed evidence and one concise K1–K6 pending agreement packet; refresh external usage checkpoint and append redacted member-log results. Verify links and honest task states. [CON-05, IAL-07/09]
-- [ ] 5.4 Present the manual assessment/save/reopen/observe/approve/release/correct/withdraw checklist and obtain Darryl's explicit acceptance; retain failures/pending checks rather than claiming completion from screenshots or synthetic fixtures. [IAL-01–09]
+- [x] 5.4 Record Darryl's 2026-11-08 explicit decision to consider these tasks done. A complete manual checklist walkthrough was not reported and is not claimed. [IAL-01–09]
 
 ## 6. External integration gates — not completed by fixtures
 
@@ -46,7 +48,7 @@ Implementation approval is confirmed; UI/manual acceptance and real submission/a
 
 - Commit and rebase were separately authorized. Push/PR publication, merge and deployment require separate instruction.
 - Real feature activation and remote migrations require reviewed integration and the existing release workflow, not fixture success.
-- Do not archive unfinished acceptance or external integration gates.
+- Do not archive while external integration gates remain unfinished.
 
 ## 7. Connected workflow — approved continuation
 
@@ -63,4 +65,4 @@ Implementation approval is confirmed; UI/manual acceptance and real submission/a
 - [x] 8.2 Simplify instructor course/action/version-selection presentation without changing publication/assessment semantics or version boundaries. [UI-04/05/06/08]
 - [x] 8.3 Independent source review, appropriate checks, actual browser evidence where available and honest manual acceptance checklist. [IAL-11, UI-01–08]
 
-IAL-11 manual follow-up: first UX pass rejected by Darryl. Rework navigation and course/grading lists within the approved scope, rerun checks and seek actual visual/workflow acceptance; previous implementation/check completion is not acceptance.
+IAL-11 manual follow-up: Darryl rejected the first UX pass; the navigation and grading-list repair and its limited browser evidence are recorded in the UI review. On 2026-11-08 Darryl accepted closure of the discussed remaining tasks with the above limitations; no additional manual walkthrough is claimed.

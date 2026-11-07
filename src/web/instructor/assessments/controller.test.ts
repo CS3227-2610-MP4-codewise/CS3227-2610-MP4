@@ -65,6 +65,16 @@ function setup() {
   return { api, c: new AssessmentController(api) };
 }
 describe('IAL-08 workbook acknowledgements and version context', () => {
+  it('reports withdrawal failure without treating it as a successful action', async () => {
+    const { api, c } = setup();
+    await c.open('assessment_demo');
+    vi.mocked(api.action).mockRejectedValueOnce(new Error('network'));
+    expect(
+      await c.action('withdraw', { version: 1, reason: 'Correction' }),
+    ).toBe(false);
+    expect(c.state.message).not.toBe('Feedback withdrawn');
+    expect(c.state.busy).toBeNull();
+  });
   it('keeps newer edits dirty after an older save acknowledgement', async () => {
     const { api, c } = setup();
     await c.open('assessment_demo');
