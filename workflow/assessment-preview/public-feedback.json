@@ -1,0 +1,135 @@
+{
+  "first": {
+    "schemaVersion": 1,
+    "id": "assessment_demo",
+    "submissionAttemptId": "attempt_demo",
+    "assessmentRevisionId": "assessment_revision_1",
+    "releaseVersion": 1,
+    "releasedAt": "2026-11-06T07:00:00.000Z",
+    "state": "released",
+    "criteria": [
+      {
+        "questionVersionId": "question_v1",
+        "rubricVersionId": "rubric_v1",
+        "criterionId": "criterion_demo",
+        "comparisonKey": "output.constant-one.v1",
+        "minimumScore": 0,
+        "maximumScore": 5,
+        "score": 5,
+        "explanation": "The source prints one; code was not executed."
+      }
+    ],
+    "annotations": [
+      {
+        "submittedAnswerId": "answer_demo",
+        "questionVersionId": "question_v1",
+        "rubricVersionId": "rubric_v1",
+        "criterionId": "criterion_demo",
+        "startLine": 1,
+        "endLine": 1,
+        "excerpt": "print(1)",
+        "explanation": "Static source evidence."
+      }
+    ]
+  },
+  "correction": {
+    "schemaVersion": 1,
+    "id": "assessment_demo",
+    "submissionAttemptId": "attempt_demo",
+    "assessmentRevisionId": "assessment_revision_2",
+    "releaseVersion": 2,
+    "releasedAt": "2026-11-07T01:00:00.000Z",
+    "state": "released",
+    "criteria": [
+      {
+        "questionVersionId": "question_v1",
+        "rubricVersionId": "rubric_v1",
+        "criterionId": "criterion_demo",
+        "comparisonKey": "output.constant-one.v1",
+        "minimumScore": 0,
+        "maximumScore": 5,
+        "score": 5,
+        "explanation": "The source prints one; code was not executed."
+      }
+    ],
+    "annotations": [
+      {
+        "submittedAnswerId": "answer_demo",
+        "questionVersionId": "question_v1",
+        "rubricVersionId": "rubric_v1",
+        "criterionId": "criterion_demo",
+        "startLine": 1,
+        "endLine": 1,
+        "excerpt": "print(1)",
+        "explanation": "Static source evidence."
+      }
+    ]
+  },
+  "superseded": {
+    "schemaVersion": 1,
+    "id": "assessment_demo",
+    "submissionAttemptId": "attempt_demo",
+    "assessmentRevisionId": "assessment_revision_1",
+    "releaseVersion": 1,
+    "releasedAt": "2026-11-06T07:00:00.000Z",
+    "state": "superseded",
+    "criteria": [
+      {
+        "questionVersionId": "question_v1",
+        "rubricVersionId": "rubric_v1",
+        "criterionId": "criterion_demo",
+        "comparisonKey": "output.constant-one.v1",
+        "minimumScore": 0,
+        "maximumScore": 5,
+        "score": 5,
+        "explanation": "The source prints one; code was not executed."
+      }
+    ],
+    "annotations": [
+      {
+        "submittedAnswerId": "answer_demo",
+        "questionVersionId": "question_v1",
+        "rubricVersionId": "rubric_v1",
+        "criterionId": "criterion_demo",
+        "startLine": 1,
+        "endLine": 1,
+        "excerpt": "print(1)",
+        "explanation": "Static source evidence."
+      }
+    ]
+  },
+  "historicalWithdrawal": {
+    "schemaVersion": 1,
+    "id": "assessment_demo",
+    "submissionAttemptId": "attempt_demo",
+    "releaseVersion": 1,
+    "state": "withdrawn",
+    "withdrawnAt": "2026-11-06T08:00:00.000Z"
+  },
+  "currentAfterHistoricalWithdrawal": {
+    "schemaVersion": 1,
+    "assessmentId": "assessment_demo",
+    "submissionAttemptId": "attempt_demo",
+    "availabilityRevision": 3,
+    "currentReleaseVersion": 2,
+    "withdrawnReleaseVersions": [1],
+    "checkedAt": "2026-11-06T07:01:00.000Z"
+  },
+  "currentWithdrawal": {
+    "schemaVersion": 1,
+    "id": "assessment_demo",
+    "submissionAttemptId": "attempt_demo",
+    "releaseVersion": 2,
+    "state": "withdrawn",
+    "withdrawnAt": "2026-11-06T08:00:00.000Z"
+  },
+  "noCurrent": {
+    "schemaVersion": 1,
+    "assessmentId": "assessment_demo",
+    "submissionAttemptId": "attempt_demo",
+    "availabilityRevision": 4,
+    "currentReleaseVersion": null,
+    "withdrawnReleaseVersions": [1, 2],
+    "checkedAt": "2026-11-06T07:01:00.000Z"
+  }
+}

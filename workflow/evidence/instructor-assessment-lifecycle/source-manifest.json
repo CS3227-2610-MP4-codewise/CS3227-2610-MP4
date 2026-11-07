@@ -1,0 +1,173 @@
+{
+  "status": "Committed producer after rebase; UI/manual and real submission/assessment-authority integration remain pending",
+  "revision": "b7df0b9047d3ad57a4dda95e09bfa1d7258731a3",
+  "baseRevision": "969a062f5bdc8171c5a36a0ba06baedde8d2cb6d",
+  "branch": "codex/instructor-assessment-lifecycle",
+  "files": [
+    {
+      "path": "src/server/db/migrations/0008_instructor_assessments.sql",
+      "gitBlob": "9ece1ba09fa452462c817ff2f5378b5ea1f233aa",
+      "sha256": "cfeaad8d2cfb64097fee014aaeaca9ef00e5f519d380c57d85884dd97e4b8b72"
+    },
+    {
+      "path": "src/server/instructor/assessments/http.ts",
+      "gitBlob": "a2a60212829d2eecb0a6eff4b0374f3a1dad4b5b",
+      "sha256": "161a256a8ec5ae7c27fd761e1a725887034383e26785783850853963c42909df"
+    },
+    {
+      "path": "src/server/instructor/assessments/repository.ts",
+      "gitBlob": "e81bc7348a93570c64b40daf53201ffd242ec408",
+      "sha256": "9d5118cbe16f0a654e6dd90310b5584458aed68aa7e2168d822e7f474b5f8471"
+    },
+    {
+      "path": "src/server/instructor/assessments/service.ts",
+      "gitBlob": "3f82b6c40e6cf84bd2c82160cb6e454a98a82080",
+      "sha256": "fefcac04d5710d41cc412253833df7b5f12b0230db55f2972863cad5afe5ff74"
+    },
+    {
+      "path": "src/shared/instructor-contracts/assessment.ts",
+      "gitBlob": "a3cbe570b5c8ef3063968241c9ea43bb3ba87a36",
+      "sha256": "98a0b97d3c1608a056dc5242eda2d61138189e404367e307a72164289622d9cc"
+    },
+    {
+      "path": "src/web/instructor/assessments/AssessmentWorkspace.tsx",
+      "gitBlob": "697dc7dfa4f22ca701119e644b67ab474298525c",
+      "sha256": "b2beb6b9d6c3ab174d2da73ba2fb3628800934f82864ea0bf07efd2607e06000"
+    },
+    {
+      "path": "src/web/instructor/assessments/client.ts",
+      "gitBlob": "7da3b8420d7dc4078c7777ef179a5da7585355dc",
+      "sha256": "06383335917739c864d9b6e0deea1eba28a27bcfc0af8f46ea055be7438ee80a"
+    },
+    {
+      "path": "src/web/instructor/assessments/controller.test.ts",
+      "gitBlob": "a4934a8da21b28f555aab7f0ad043bfbbb63d6fb",
+      "sha256": "b0efe32c703d187efa95b7a999fdc09fac391f2053b23d28cc52eac1a7fbbea7"
+    },
+    {
+      "path": "src/web/instructor/assessments/controller.ts",
+      "gitBlob": "cd92ae17d85e97f938cc017882dc40397c09ce44",
+      "sha256": "242b18ecece2f2266dc2b4b057f015c870dcac133c14612fdbb7f15aa93022d6"
+    },
+    {
+      "path": "src/web/instructor/assessments/preview.tsx",
+      "gitBlob": "82b9d9f6057a7027106dced3cbb1f4e1e0607142",
+      "sha256": "fe7e458e16b28dcd447b24ef13efdcebc01b824b83632dba31086c884dfadb76"
+    },
+    {
+      "path": "src/web/instructor/assessments/styles.css",
+      "gitBlob": "790226372d88cbc3e6b7fced6bef24be23d772ae",
+      "sha256": "377944a80a8c0d26faa58238b84381943649d111df7612c7a82f15332feed79f"
+    },
+    {
+      "path": "workflow/assessment-preview/README.md",
+      "gitBlob": "c816e5d3fa668bfc191643bb5010815aee623048",
+      "sha256": "cfaeece3e0e085570552e5a054507d7d94485985e7ef07f4463129270370414b"
+    },
+    {
+      "path": "workflow/assessment-preview/assessment.test.ts",
+      "gitBlob": "b9466143d2eb72b1b6c1f288cfc3e75a7eb37586",
+      "sha256": "fb04a8f98d2962931da1f44b9447b39bf12c4ed956e49e52ebcd68c178893db7"
+    },
+    {
+      "path": "workflow/assessment-preview/conformance.test.ts",
+      "gitBlob": "b8723c8895444dbdb583aba64314158022b1ba5d",
+      "sha256": "dbb75dce551851c2996a84f1a371b607d74c0e2ccc845c5d4d97f09134f562ee"
+    },
+    {
+      "path": "workflow/assessment-preview/conformance.ts",
+      "gitBlob": "af9cc5a7ef8b2bb642ee05ac31d3b0a43a6e4399",
+      "sha256": "1ad9211e5a3abbf5715583847cf9985b5e4470c1958d2387d761048d6030d8c7"
+    },
+    {
+      "path": "workflow/assessment-preview/database.ts",
+      "gitBlob": "7dadf52c39be612809f9eea8f4b0fb307ef6cfaa",
+      "sha256": "8e8dc3546922d26b548d1f38a428f0da3474a8e6657a67c1b6d134474223db57"
+    },
+    {
+      "path": "workflow/assessment-preview/fixture.ts",
+      "gitBlob": "5f3721496c7b4d57a2e53e06549f306d2e08b6ef",
+      "sha256": "ea3adf1b4d6046f11bc455dd9a035abdd6cac71b5af2a5dd4c029408cb3e2ad2"
+    },
+    {
+      "path": "workflow/assessment-preview/index.html",
+      "gitBlob": "95cf897641412c3c6989390a7bc2621dbb5f298b",
+      "sha256": "609480b9120e58e64c41de198423e55911874cc65823115384a26fc416620811"
+    },
+    {
+      "path": "workflow/assessment-preview/persistence.test.ts",
+      "gitBlob": "8510377f950f3a7fd6904362d1dc1f74b20a0b90",
+      "sha256": "6c681779286726eb68d0bcbceb8cd21938ebbba9de15e0e9afcb1c41658c32c8"
+    },
+    {
+      "path": "workflow/assessment-preview/public-feedback.json",
+      "gitBlob": "e103d65e19d086889a346df1573a9fb54d04b9c9",
+      "sha256": "af68ea8ee1a25e0fbfc56b9a44c68c1af2ec79d6584e45125550518640ec2c3b"
+    },
+    {
+      "path": "workflow/assessment-preview/public-fixtures.ts",
+      "gitBlob": "90c49b0da3f97c39341f418527bc2a08c4e9563b",
+      "sha256": "9f79c7861a033b61ba216615658525014c993ba041e250d0fc1dcbd211d5d99d"
+    },
+    {
+      "path": "workflow/assessment-preview/transactions.test.ts",
+      "gitBlob": "2769edc88be3e68afddd54bf88a3f2c2e8302077",
+      "sha256": "ec5e8de5b17d5142ef53f40ca98e801369567338d561fd3145d26b090fb65148"
+    },
+    {
+      "path": "workflow/assessment-preview/vite.config.ts",
+      "gitBlob": "7b48bd0a5989502aabcecccda806895fe461c769",
+      "sha256": "8c69db8c58f5c45129e6cd126247028d1e1bf0126b1f2db701e9eb6d7d5ebba2"
+    },
+    {
+      "path": "package.json",
+      "gitBlob": "918f7cf7248bc5e516df2763eb8cca2d51fac238",
+      "sha256": "302b0f2f92e9072f0da5d362a2661c9dbde98d8babcf9913e6201573ff1c919a"
+    },
+    {
+      "path": "src/server/courses/authority.ts",
+      "gitBlob": "e1d633f7856d2c21efe36c1908d2580aa40fc130",
+      "sha256": "d68ea2c16dff5221ab079f552e411d75fcc55b5a78f2388f754b9c02770d4047"
+    },
+    {
+      "path": "src/server/instructor/assignments/service.ts",
+      "gitBlob": "b1341ceb622d2270a6f82131aabfc165e663cdfb",
+      "sha256": "22569179a9e56e36f2daf454975595002f534b9472ab68eb8a4465d7e4e0e8c9"
+    },
+    {
+      "path": "src/server/instructor/assignments/repository.ts",
+      "gitBlob": "78d033860534ba7973ac2978b94a7eaa51e0264b",
+      "sha256": "36ce98256b0a335199afcebf58265f0e242aebce2b523b407c77f857b884bdee"
+    },
+    {
+      "path": "src/server/instructor/assignments/http.ts",
+      "gitBlob": "c094ed7009ac666c891046cd194c0fa68e21c37c",
+      "sha256": "cd4eeadf4430793668a2740ef955a63d8323c2cc455ac22c48768f69daa82318"
+    },
+    {
+      "path": "src/server/instructor/ports/contracts.ts",
+      "gitBlob": "6b8e212e7678f530fbe3b543430235a469d613ef",
+      "sha256": "75f69de0f0acc221862d3b9fb8a2381bf79cc54ec3a6cef619bc60f46e3efe31"
+    },
+    {
+      "path": "src/shared/instructor-contracts/publication.ts",
+      "gitBlob": "7a499508658de840556d78fd417b5c664deb6db2",
+      "sha256": "305d74adc7eac8ed44486681b1f188be0f5e1a54aea16306d984eea1292d4a18"
+    },
+    {
+      "path": "src/shared/instructor-contracts/submission.ts",
+      "gitBlob": "1baad4cbff5c50563d794dc7180f3d0529e4fff2",
+      "sha256": "206991a0432c8912c1ae59b4f6651b9cdb00afec1c2f5ef1df2e822573688bff"
+    },
+    {
+      "path": "src/shared/instructor-contracts/release.ts",
+      "gitBlob": "c7a215d1021a8943286c14dbaf74dfa57258c2be",
+      "sha256": "941e67f700dd3aad4d583225aba09a5d7ae7d78c92791a4379b7bd8d4bff3e36"
+    },
+    {
+      "path": "src/shared/instructor-contracts/schema.ts",
+      "gitBlob": "3f66b9355ddbe4f0accda957c4ae2c280e6fc83d",
+      "sha256": "eff27abd7a8c27c8e183404aa7d01dd8bc58fab5e80886a217aec60f8c64cac8"
+    }
+  ]
+}

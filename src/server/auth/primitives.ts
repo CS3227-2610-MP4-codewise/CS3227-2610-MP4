@@ -133,7 +133,9 @@ export function returnDestination(value: unknown): string {
   );
   assert(
     value === '/workspace' ||
-      /^\/instructor\/assignments\/[A-Za-z0-9_-]{1,128}$/.test(value),
+      /^\/instructor\/(?:assignments|review|assessments)\/[A-Za-z0-9_-]{1,128}$/.test(
+        value,
+      ),
     '$.returnTo',
     'destination',
   );

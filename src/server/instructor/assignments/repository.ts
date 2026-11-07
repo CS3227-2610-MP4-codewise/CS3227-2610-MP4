@@ -78,7 +78,8 @@ export class D1Assignments implements AssignmentRepository {
     readonly db: D1Database,
     readonly options: { enforceAuthority?: boolean } = {},
   ) {}
-  private async guarded(
+  /** Shared same-D1 course/session guard, reused by instructor assessment composition. */
+  async guarded(
     statements: D1PreparedStatement[],
     principal: TrustedPrincipal | undefined,
     course: string,
