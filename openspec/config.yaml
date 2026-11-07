@@ -7,7 +7,8 @@ context: |
   Updated ownership requested by Darryl on 2026-11-06: Darryl owns shared sign-in,
   registration/provisioning, provider accounts, sessions/logout and CSRF (SH-AUTH),
   plus publication, assessment/release, AI gateway and operations. Keith retains
-  courses/memberships/object authorization (SH-ID), submissions and student features.
+  submissions and student features. Darryl also owns courses, memberships, object
+  authorization and workspace contexts (SH-ID), transferred on 2026-11-07.
   Both review the composed C-ID boundary; Keith's revised-boundary review is pending.
   One authoritative identity store; serialize shared schema/API edits. Darryl approved
   Firebase Authentication with Gmail-delivered generated proof links for invitation-only onboarding in shared-authentication on 2026-11-06.
