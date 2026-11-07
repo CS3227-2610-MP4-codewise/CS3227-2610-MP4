@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Brand, Icon } from './ui/brand';
 import './styles.css';
 import { AuthApp } from './auth/App';
+import { ReviewWorkspace } from './instructor/assessments/ReviewWorkspace';
 import { InstructorWorkspace } from './instructor/Workspace';
 
 function App() {
@@ -33,12 +34,16 @@ function App() {
 }
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {['/workspace', '/instructor/assignments'].includes(
-      window.location.pathname,
-    ) ||
-    /^\/instructor\/assignments\/[A-Za-z0-9_-]{1,128}$/.test(
+    {/^\/instructor\/(?:review|assessments)(?:\/[A-Za-z0-9_-]{1,128})?$/.test(
       window.location.pathname,
     ) ? (
+      <ReviewWorkspace />
+    ) : ['/workspace', '/instructor/assignments'].includes(
+        window.location.pathname,
+      ) ||
+      /^\/instructor\/assignments\/[A-Za-z0-9_-]{1,128}$/.test(
+        window.location.pathname,
+      ) ? (
       <InstructorWorkspace />
     ) : [
         '/sign-in',

@@ -29,3 +29,7 @@ Subsequent browser navigation failed with ERR_NETWORK_IO_SUSPENDED, and Browser 
 Independent review identified retained private context, missing consumer evidence checks, silently discarded unfinished observations and generic database failures mislabelled conflicts. Repairs and two remaining observation/context guards were source-reviewed as resolved. No intentional design departure is proposed.
 
 Outcome: pending visual/accessibility verification and Darryl manual acceptance. Do not mark UI matrix tasks complete.
+
+## Connected continuation UI-01/02/04/05/06/07/08
+
+Real sign-in/course/assignment/assessment routes are connected in warm-workbook-v1, with real account/sign-out chrome and explicit sample markers. The public feedback preview has strict schema/identity checks and clears stale content on availability changes. Sign-in recovery preserves assessment destinations, with server-side destination authorization. API workflow verification passed; browser navigation to 127.0.0.1:8787/sign-in timed out and reset the browser connection. No screenshots, native zoom, keyboard, announcements or manual acceptance are claimed. Use the connected README manual checklist; previous synthetic-preview-only sign-in applicability statements are historical.

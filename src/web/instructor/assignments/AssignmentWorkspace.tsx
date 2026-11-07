@@ -252,7 +252,22 @@ export function AssignmentWorkspace({
         <p className="cw-header-context">
           {preview ? 'Instructor · Synthetic preview' : 'Instructor workspace'}
         </p>
-        {!preview && <a href="/workspace">Courses</a>}
+        {!preview && (
+          <>
+            <a href="/workspace">Courses</a>
+            <a
+              href={
+                state.draft
+                  ? '/instructor/review/' +
+                    encodeURIComponent(state.draft.assignmentId)
+                  : '/instructor/review?courseId=' +
+                    encodeURIComponent(courseId ?? '')
+              }
+            >
+              Assessments
+            </a>
+          </>
+        )}
         {preview && (
           <details className="ia-preview-settings">
             <summary>Preview settings</summary>

@@ -1,6 +1,6 @@
 # Tasks
 
-Implementation approval is confirmed; UI/manual acceptance and real submission/assessment-authority composition remain pending. Main969a062 governs existing specs and ownership. Checkboxes below measure work/evidence, not planning file existence. Requirements: GRADE-02–04, CON-05, IAL-01–09; warm-workbook-v1 UI-01/04/06/07/08 and UI-05 for pinned multi-question navigation.
+Implementation approval is confirmed; UI/manual acceptance and real submission/assessment-authority composition remain pending. Main969a062 governs existing specs and ownership. Checkboxes below measure work/evidence, not planning file existence. Requirements: GRADE-02–04, CON-05, IAL-01–10; warm-workbook-v1 UI-01/04/06/07/08 and UI-05 for pinned multi-question navigation.
 
 ## 1. Approval, ownership and test design
 
@@ -47,3 +47,12 @@ Implementation approval is confirmed; UI/manual acceptance and real submission/a
 - Commit and rebase were separately authorized. Push/PR publication, merge and deployment require separate instruction.
 - Real feature activation and remote migrations require reviewed integration and the existing release workflow, not fixture success.
 - Do not archive unfinished acceptance or external integration gates.
+
+## 7. Connected workflow — approved continuation
+
+- [x] 7.1 Record Darryl’s expanded shared write window and DI/native-local test plan; verify inherited main specs remain authoritative. [IAL-10]
+- [x] 7.2 Compose guarded assessment discovery/object authority/HTTP and safe instructor feedback read with existing auth/course/publication services; test missing/forged/revoked/foreign/CSRF denial and disabled real producer states. [IAL-01/07/10]
+- [x] 7.3 Add explicit loopback development Worker composition with deterministic publication-pinned samples, preserving the authoritative local D1 store; test production/staging ignore injection, no sample account/submission storage and restart invariants. [IAL-09/10]
+- [x] 7.4 Connect instructor navigation, safe return destinations, published-work review and assessment client/chrome to the real signed-in application; test route/context/acknowledgement/privacy behavior and build. [UI-01/04/07/08, IAL-10]
+- [x] 7.5 Prepare/start the connected local sign-in workflow, apply local migrations and explicitly provision the existing owner’s local test-course membership; execute actual sign-in/publication/assessment lifecycle and record remaining browser/provider limitations. No remote changes. [IAL-10]
+- [x] 7.6 Obtain focused independent review, repair findings and run full checks/secret scan; update handoff/UI evidence and present manual acceptance without claiming Keith integration. [IAL-01–10]

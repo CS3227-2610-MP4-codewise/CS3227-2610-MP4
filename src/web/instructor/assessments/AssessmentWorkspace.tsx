@@ -1,4 +1,12 @@
 import { useEffect, useState, useSyncExternalStore, useRef } from 'react';
+import {
+  releaseSchema,
+  withdrawnSchema,
+  currentnessSchema,
+  type Release,
+  type Withdrawn,
+} from '../../../shared/instructor-contracts/release';
+import { object, assert } from '../../../shared/instructor-contracts/schema';
 import type { DraftFeedback } from '../../../shared/instructor-contracts/assessment';
 import {
   excerpt,
@@ -10,9 +18,15 @@ import './styles.css';
 export function AssessmentWorkspace({
   controller,
   id,
+  account,
+  preview = true,
+  apiPrefix = '/__assessment-preview/api',
 }: {
   controller: AssessmentController;
   id: string;
+  preview?: boolean;
+  account?: { email: string; logout: () => void };
+  apiPrefix?: string;
 }) {
   const s = useSyncExternalStore(controller.subscribe, controller.snapshot),
     v = s.view,
@@ -27,10 +41,20 @@ export function AssessmentWorkspace({
     [noteDirty, setNoteDirty] = useState(false),
     [withdrawVersion, setWithdrawVersion] = useState<number | null>(null),
     [reason, setReason] = useState(''),
-    [audit, setAudit] = useState('');
+    [audit, setAudit] = useState(''),
+    [publicFeedback, setPublicFeedback] = useState<Release | Withdrawn | null>(
+      null,
+    ),
+    [publicStatus, setPublicStatus] = useState('');
   const heading = useRef<HTMLHeadingElement>(null),
     auditEpoch = useRef(0),
-    reviewHeading = useRef<HTMLHeadingElement>(null);
+    reviewHeading = useRef<HTMLHeadingElement>(null),
+    publicEpoch = useRef(0);
+  useEffect(() => {
+    publicEpoch.current++;
+    setPublicFeedback(null);
+    setPublicStatus('');
+  }, [id, v?.head.availabilityRevision]);
   useEffect(() => {
     setQuestion(0);
     resetNote();
@@ -40,6 +64,7 @@ export function AssessmentWorkspace({
     void controller.open(id);
     return () => {
       auditEpoch.current++;
+      publicEpoch.current++;
       controller.dispose();
     };
   }, [controller, id]);
@@ -64,6 +89,44 @@ export function AssessmentWorkspace({
         .map((n, index) => ({ ...n, index }))
         .filter((n) => n.submittedAnswerId === answer?.submittedAnswerId) ?? [],
     note = selected === null ? undefined : feedback?.annotations[selected];
+  async function loadPublic(version: number) {
+    const epoch = ++publicEpoch.current;
+    setPublicFeedback(null);
+    setPublicStatus('Loading released feedback…');
+    try {
+      const r = await fetch(
+        apiPrefix +
+          '/assessments/' +
+          encodeURIComponent(id) +
+          '/feedback/' +
+          version,
+        { credentials: 'same-origin', cache: 'no-store' },
+      );
+      if (!r.ok) throw Error();
+      const raw = object(await r.json(), ['feedback', 'currentness']),
+        current = currentnessSchema.parse(raw.currentness),
+        value = raw.feedback as { state?: unknown };
+      const feedback =
+        value?.state === 'withdrawn'
+          ? withdrawnSchema.parse(value)
+          : releaseSchema.parse(value);
+      assert(
+        feedback.id === id &&
+          feedback.releaseVersion === version &&
+          feedback.submissionAttemptId === v?.attempt.attemptId &&
+          current.assessmentId === id,
+        '$.feedback',
+      );
+      if (epoch !== publicEpoch.current) return;
+      setPublicFeedback(feedback);
+      setPublicStatus('');
+    } catch {
+      if (epoch === publicEpoch.current)
+        setPublicStatus(
+          'Released feedback unavailable. Reload to check current access.',
+        );
+    }
+  }
   function resetNote() {
     setNoteDirty(false);
     setSelected(null);
@@ -153,7 +216,47 @@ export function AssessmentWorkspace({
     <div className="assessment-app">
       <header className="assessment-top">
         <Brand />
-        <span>Synthetic instructor preview</span>
+        {preview ? (
+          <span>Synthetic instructor preview</span>
+        ) : (
+          <nav aria-label="Instructor navigation">
+            <a href="/workspace">Courses</a>
+            {account && (
+              <>
+                <span> · {account.email}</span>
+                <button
+                  onClick={() => {
+                    if (
+                      (s.dirty || noteDirty) &&
+                      !window.confirm('Sign out and leave unsaved edits?')
+                    )
+                      return;
+                    account.logout();
+                  }}
+                >
+                  Sign out
+                </button>
+              </>
+            )}
+            {v && (
+              <>
+                {' '}
+                ·{' '}
+                <a
+                  href={
+                    '/instructor/review?courseId=' +
+                    encodeURIComponent(v.head.courseId)
+                  }
+                >
+                  Assessments
+                </a>
+              </>
+            )}
+            {v?.attempt.attemptId.startsWith('sample_') && (
+              <span> · Local sample submission</span>
+            )}
+          </nav>
+        )}
       </header>
       <main>
         <div className="assessment-title">
@@ -584,6 +687,70 @@ export function AssessmentWorkspace({
                 )}
               </div>
             </section>
+            {!preview && v.head.maximumReleaseVersion > 0 && (
+              <section
+                className="assessment-review"
+                aria-labelledby="public-feedback-heading"
+              >
+                <div>
+                  <h2 id="public-feedback-heading">
+                    Released feedback preview
+                  </h2>
+                  <button
+                    disabled={!!s.busy}
+                    onClick={() =>
+                      void loadPublic(
+                        v.head.currentReleaseVersion ??
+                          v.head.maximumReleaseVersion,
+                      )
+                    }
+                  >
+                    View released feedback
+                  </button>
+                  {publicStatus && <p role="status">{publicStatus}</p>}
+                  {publicFeedback && (
+                    <div>
+                      <p>
+                        Release {publicFeedback.releaseVersion} ·{' '}
+                        {publicFeedback.state}
+                      </p>
+                      {publicFeedback.state === 'withdrawn' ? (
+                        <p>This feedback was withdrawn.</p>
+                      ) : (
+                        <>
+                          {publicFeedback.criteria.map((c) => (
+                            <article
+                              key={c.questionVersionId + '|' + c.criterionId}
+                            >
+                              <h3>
+                                {v.publication.questions
+                                  .find(
+                                    (q) =>
+                                      q.questionVersionId ===
+                                      c.questionVersionId,
+                                  )
+                                  ?.criteria.find(
+                                    (r) => r.criterionId === c.criterionId,
+                                  )?.descriptor ?? 'Criterion'}
+                              </h3>
+                              <p>
+                                {c.score} / {c.maximumScore}
+                              </p>
+                              <p>{c.explanation}</p>
+                            </article>
+                          ))}
+                          {publicFeedback.annotations.map((n, index) => (
+                            <p key={index}>
+                              Lines {n.startLine}–{n.endLine}: {n.explanation}
+                            </p>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
             <details className="assessment-history">
               <summary>History & corrections</summary>
               <h3>Releases</h3>
@@ -607,6 +774,11 @@ export function AssessmentWorkspace({
                       >
                         View revision
                       </button>
+                      {!preview && (
+                        <button onClick={() => void loadPublic(r.version)}>
+                          Public preview
+                        </button>
+                      )}
                       {!r.withdrawnAt && (
                         <button
                           disabled={!!s.busy || s.dirty}
@@ -694,7 +866,7 @@ export function AssessmentWorkspace({
                   onClick={() => {
                     const epoch = ++auditEpoch.current;
                     void fetch(
-                      `/__assessment-preview/api/assessments/${encodeURIComponent(id)}/audit`,
+                      `${apiPrefix}/assessments/${encodeURIComponent(id)}/audit`,
                       { credentials: 'same-origin' },
                     )
                       .then(async (r) => {

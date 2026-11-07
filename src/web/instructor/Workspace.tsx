@@ -161,6 +161,14 @@ export function InstructorWorkspace() {
                 >
                   Invitations
                 </a>
+                {' · '}
+                <a
+                  href={
+                    '/instructor/review?courseId=' + encodeURIComponent(item.id)
+                  }
+                >
+                  Assessments
+                </a>
               </p>
             </li>
           ))}

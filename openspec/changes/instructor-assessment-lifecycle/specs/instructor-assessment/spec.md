@@ -115,8 +115,23 @@ The instructor workbook SHALL follow warm-workbook-v1 and distinguish partial dr
 - **THEN** task controls remain accessible, states are concise and truthful, and no private content or fake successful save/release is shown.
 
 ### Requirement: IAL-09 Isolated development and honest integration status
-Synthetic submission/authorization adapters SHALL exist only in an explicitly labelled loopback development preview and tests. Application services SHALL fail closed without real injected producers. Joint K decisions, provider integration and deployment tasks SHALL remain pending until actual evidence is supplied. [CON-05, UI-08]
+Synthetic submission adapters SHALL exist only in an explicitly labelled, opt-in loopback development composition and tests; connected local testing SHALL use the real authentication and course services. Application services SHALL fail closed without real injected producers. Joint K decisions, provider integration and deployment tasks SHALL remain pending until actual evidence is supplied. [CON-05, UI-08]
 
 #### Scenario: Production lacks reviewed assessment and submission composition
 - **WHEN** deployed routing has no reviewed submission/authorization composition
-- **THEN** this change exposes no assessment feature route or fixture fallback; local synthetic success is not reported as live integration.
+- **THEN** authenticated instructor navigation reports missing submission integration without protected content or fixture fallback; local synthetic success is not reported as live integration.
+
+### Requirement: IAL-10 Connected authenticated instructor workflow
+The application SHALL connect sign-in, authorized courses, assignment publication and assessment review using existing services. Explicit loopback development composition SHALL permit labelled immutable sample submissions through injected ports. Every request SHALL retain current session, object/course authority and mutation guards; no sample/student identity SHALL grant permissions. [AUTH-02, GRADE-02–04, UI-01/04/07/08]
+
+#### Scenario: Full local instructor path
+- **WHEN** a provisioned instructor signs in, opens a course, publishes an assignment and chooses its local sample attempt
+- **THEN** the same application opens pinned assessment editing, approval/release/history and safe public-feedback preview without a separate fixture login or new membership/submission store.
+
+#### Scenario: Sample adapter outside local development
+- **WHEN** sample injection is supplied for staging/production or a non-loopback origin
+- **THEN** it is ignored and sample discovery/read/mutation cannot expose fixture work.
+
+#### Scenario: Forged or revoked deep link
+- **WHEN** a user follows a review/assessment destination without current instructor authority or sends a mutation without valid origin/CSRF
+- **THEN** no source, feedback or mutation is available and the interface requests authorized sign-in/access.

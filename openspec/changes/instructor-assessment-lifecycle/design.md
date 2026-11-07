@@ -92,3 +92,13 @@ After approval recheck migration numbering/writer window and add one assessment-
 ## Acceptance and pending decisions
 
 Darryl implementation/window approval is confirmed. P2/P3/P4 remain confirmed owner policies; this design records the approved isolated implementation. K1–K6 (especially source/precision/currentness and revised auth boundary) require Keith cross-review before real runtime composition; do not silently treat prior general approval as detailed Keith review. No new consumer-impacting contract policy is proposed. Deployment, real submission/authorization integration, student cache behavior and manual UI acceptance remain independent gates.
+
+## Connected application continuation — approved
+
+One native local Worker starts at /sign-in, uses existing Firebase/session/course authorization, then courses/assignments/published-version review and the existing assessment workbook. Main application routes and a narrow assessment object-scope composition replace hardcoded preview URLs, using request-bound current instructor membership/origin/CSRF checks throughout. Missing real SubmissionReadPort/discovery reports unavailable; no synthetic adapter is imported by the normal production entry.
+
+A workflow/connected-preview/ Worker entry explicitly injects a deterministic sample SubmissionReadPort only for development+loopback origin. It derives immutable sample attempts from exact authorized published starter source and stable IDs/timestamps, creates no student identity/membership/submission table, and labels samples. An instructor-only released-feedback projection checks current instructor authority and returns C-REL allowlists/tombstones without impersonating a student. Production/staging ignore local injection even when misconfigured.
+
+Local startup uses the original worktree common Git directory to locate ignored credentials and the one authoritative local development D1 persistence path; it does not duplicate account/session storage. Optional explicit trusted local operator setup grants the existing completed owner a local test-course membership using existing coursePlan. No default role from account-admin UI and no remote SQL. One-time migrations apply locally, preserving all existing rows. The existing standalone5177 fixture remains available, but the connected test link starts at the normal sign-in page.
+
+Tests cover native Worker authenticated composition, cross-course/forged/revoked/CSRF denial, sample injection ignored outside development/loopback, pinned-publication samples, normal missing-producer states, safe feedback, and complete sign-in/publication/manual lifecycle. Browser/UI evidence is recorded only when observed.

@@ -48,3 +48,17 @@ Keith K1–K6 agreement, real SH-ID/SH-SUB producers, real student feedback/prog
 - Check light/dark,320px,200% zoom, labelled44px controls, keyboard/focus/announcements and conflict/network/session states.
 
 These boxes remain manual acceptance work, not claims of completed tests.
+
+## Connected workflow continuation — IAL-10, 2026-11-07
+
+Current source: uncommitted working tree based on e6dbdb94ec9bf2b7061660e23698b4c1a491d377, with inherited main969a062. See connected-source-manifest.json for hashes; historical committed producer manifests remain historical.
+
+- Full `npm run check` with VITEST_MAX_WORKERS=2: PASS. Seven strict OpenSpec changes, TypeScript, ESLint,233 Vitest tests/21files (188.20s), four Node deployment checks and Vite build (53modules) passed. An initial lint attempt included generated nested Wrangler files; narrowed generated-folder exclusion to **/.wrangler/**, then reran the full check successfully. No source lint rules weakened.
+- Connected local-D1 suite:8/8 passed, including real course-authority composition, missing upstream/CSRF/foreign denial, deterministic sample evidence and production/staging injection denial. Revoke membership immediately before create and session immediately before commit: FORBIDDEN with no unauthorized head/audit mutation.
+- Actual native Worker/Firebase API workflow: bootstrap200, login200, session200, courses200; create201, save200, publish200; review/publication200; sample assessment201; score4.5/exact line1 observation save200, approve200, release200; public feedback200 with private reference sentinel absent; logout200. Existing owner granted explicit local instructor membership via existing operator plan. All persistent writes were local. No invitation mail or remote D1/deployment operation.
+- Normal Worker dry-run passed (162.64KiB, gzip34.98KiB). Bundle search found no localSamples/sample_student/Local sample submission producer literals. No deployment.
+- Repository-source Gitleaks scan: PASS, approximately2.10MB, no leaks. Ignored local credentials/state/dependencies excluded. `git diff --check` passed.
+- Independent assessment_review read-only source review confirmed repairs for same-D1 transaction authority, missing public preview UI and lost deep-assessment return destinations. Reviewer did not execute tests; main executed checks above.
+- Browser navigation to native local sign-in timed out/reset the connection. No rendered screenshots/keyboard/native zoom/announcements or manual acceptance claimed. Existing tasks4.2/4.3/4.5/5.4 and real Keith integration6.1 remain open.
+
+Manual entry: http://127.0.0.1:8787/sign-in; choose Local workflow test. Startup, source boundary and manual checklist are in workflow/connected-preview/README.md. Server remained running and sign-in returned200 at final verification. Keith's immutable submission producer, consumer execution and joint K agreement remain pending. Production missing producer is honestly unavailable; sample-only development is not completed integration.

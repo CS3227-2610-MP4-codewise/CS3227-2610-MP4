@@ -88,3 +88,121 @@ Fetched main again and confirmed969a062. Verified inherited OpenSpec config, MVP
 Initial commits0f21055/6588577/6c64a3e replayed as0665ccd/f9e3d70/acb19b7 on main969a062f5bdc8171c5a36a0ba06baedde8d2cb6d. Ownership/package/contracts conflicts resolved on this branch; main’s updated specs/configuration remain byte-for-byte unchanged. Reconciled assessment-only current ownership/approval statements directly, not by retaining competing obsolete prose. Follow-upb7df0b9047d3ad57a4dda95e09bfa1d7258731a3 preserves pre-rebase synthetic D1 state through the0008 filename, fixes test cleanup lint, and aligns new plans to main. Exact producer identity is committed Git blobs/SHA256 in the refreshed manifest. Final evidence/handoff commit follows.
 
 Full npm run check passed225Vitest/20files+4Node,7strict specs/types/lint/build with two local test workers. Preview build passed; all eight migrations applied in numeric order to isolated empty local D1; redacted source scan passed(~2.02MB). No source/student/course/production entry changes beyond the inherited foundation, no remote SQL, no push/merge/deploy/archive. Separate auth checkout remains untouched. UI/manual and real submission/assessment-authority integration remain pending. Private recorder refreshed; prompt-level shared-turn measurements retained outside Git, without allocating or duplicating totals.
+
+## Prompt IAL-P005 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Asked where the local assessment test is.
+
+### Agents spawned
+
+New agents: none. Reused agents: none. Main /root handled the link/local runtime task; delegation was unnecessary for this bounded action.
+
+### Token count
+
+Detailed measurements remain in the private recorder. No numerical telemetry copied into Git; per-prompt usage is not inferred from shared turn totals.
+
+### Experiment outcome
+
+The next prompt clarified that a link was wanted; no tool work or agent delegation. No controlled efficiency comparison or new manual acceptance claimed.
+
+## Prompt IAL-P006 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Asked for the local test link.
+
+### Agents spawned
+
+New agents: none. Reused agents: none. Main /root handled the link/local runtime task; delegation was unnecessary for this bounded action.
+
+### Token count
+
+Detailed measurements remain in the private recorder. No numerical telemetry copied into Git; per-prompt usage is not inferred from shared turn totals.
+
+### Experiment outcome
+
+Returned the loopback assessment URL; no tool work or agent delegation. No controlled efficiency comparison or new manual acceptance claimed.
+
+## Prompt IAL-P007 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Reported the local preview could not be reached.
+
+### Agents spawned
+
+New agents: none. Reused agents: none. Main /root handled the link/local runtime task; delegation was unnecessary for this bounded action.
+
+### Token count
+
+Detailed measurements remain in the private recorder. No numerical telemetry copied into Git; per-prompt usage is not inferred from shared turn totals.
+
+### Experiment outcome
+
+Initial HTTP check confirmed server stopped. Restarted npm run dev:assessment in the isolated worktree and verified HTML/fixture/workspace responses. No product code, credentials, remote deployment or commit changed. No controlled efficiency comparison or new manual acceptance claimed.
+
+## Prompt IAL-P008 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Asked why the workflow is disconnected and does not start at sign-in.
+
+### Agents spawned
+
+New agents: none. Reused agents: none. Main /root inspected current frontend routes, InstructorWorkspace and Worker composition; a bounded read-only explanation required no delegation.
+
+### Token count
+
+Detailed usage stays in the private recorder; current-turn measurement is provisional. No numeric telemetry copied into Git or allocation inferred.
+
+### Experiment outcome
+
+Confirmed actual app contains sign-in/course/assignment flow, while the assessment component is mounted only by its isolated synthetic preview. Worker registers auth/course/assignment handlers but no assessment handler. This is unfinished end-to-end assessment composition, not a missing user configuration. Real submission producer and assessment object authorization remain dependencies. No feature, route, permission, deployment or commit changed for this explanation.
+
+## Prompt IAL-P009 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Asked whether merged screens should be connected for full workflow testing.
+
+### Agents spawned
+
+Main /root. New agents: none. Reused agents: none; explanatory response needed no delegation.
+
+### Token count
+
+Detailed usage stays in private recorder. Current turn provisional; no numeric telemetry in Git or invented per-prompt allocations.
+
+### Experiment outcome
+
+Confirmed the intended connected instructor path and explicit local sample boundary; no tools or agents for that explanatory response.
+
+## Prompt IAL-P010 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Approved implementing the connected instructor workflow with “do it”.
+
+### Agents spawned
+
+Main /root. New agents: none. Reused agents: /root/assessment_review, read-only design/security and later focused implementation review.
+
+### Token count
+
+Detailed usage stays in private recorder. Current turn provisional; no numeric telemetry in Git or invented per-prompt allocations.
+
+### Experiment outcome
+
+Continuing matching assessment branch on updated main; preserving question-log work. Bounded spec/ownership continuation recorded; one existing independent reviewer reused read-only for design/security and later source review. Main implements; real student producer remains pending.
+
+### Completion checkpoint
+
+Connected real local sign-in/course/assignment/assessment workflow implemented under approved IAL-10. Native Worker uses original ignored local credentials/state; explicitly provisioned only the existing owner's local test-course membership. Real Firebase login, assignment create/save/publish and sample assessment save/approve/release/public preview/logout passed. Source remains synthetic and visibly marked; no submission or duplicate course store.
+
+Independent assessment_review source-reviewed and confirmed repairs to same-D1 revocation-safe writes, public-preview UI and deep return destinations. Main executed233 tests/21files plus four deployment checks, strict specs/type/lint/build: all passed. Added nested generated Wrangler exclusion after initial lint failure. Normal Worker dry-run excludes sample producer literals; source secret scan found no leaks. Browser connection timed out; actual visual/keyboard/manual acceptance remains pending. No commit/push/deploy/remote migration/email. Keith real producer/consumer/joint decisions remain pending. Private recorder report refreshed; current-turn attribution remains provisional and detailed metrics stay outside Git.
+
+## Prompts IAL-P011–P014 — 2026-11-07 Asia/Singapore
+
+**Prompts (redacted):** Diagnosed invitation failure; explained local restart/address; restarted after settings changed; user authorized incremental commits/push, then requested FoC User Service interaction simplification while retaining Codewise visual identity.
+
+### Agents spawned
+
+New agents: none. Reused agents: none for operational diagnosis/commit preparation. Existing independent assessment_review already reviewed connected source. Reference UX planning will reuse one read-only reviewer when implementation is approved.
+
+### Token count
+
+Detailed usage stays in private recorder; current attribution provisional. No numeric telemetry or credentials in Git.
+
+### Experiment outcome
+
+Local invitation requests returned503 because AUTH_MAIL_ENABLED was false. User changed it; old agent-owned background Worker retained prior setting. Stopped that exact session and restarted dev:workflow; local app now reads updated configuration. Delivery not verified and no test email sent by agent. User separately authorized committing/pushing existing connected work; remote main remains969a062 and matching remote feature branch does not exist. Preserve unrelated original-checkout changes. Next UX increment is presentation-only in Darryl/shared-owned controls; inspect local FoC reference before proposing bounded change. No Keith features or permission-policy changes.

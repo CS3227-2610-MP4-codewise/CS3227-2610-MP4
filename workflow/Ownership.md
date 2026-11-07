@@ -95,3 +95,9 @@ Darryl is the sole shared writer for the next additive course/membership migrati
 ## Instructor assessment lifecycle — approved 2026-11-07
 
 Darryl approved the assessment brief and exclusive writer window: new src/server/instructor/assessments/, src/web/instructor/assessments/, src/shared/instructor-contracts/assessment.ts and focused tests; additive0008 assessment-only migration after numbering check; workflow/assessment-preview/ and feature conformance/evidence/handoff; minimal opt-in package script; logs/darryl/09-instructor-assessment-lifecycle.md. Existing auth/production entrypoints/Keith ports and services remain read-only. One independent reviewer is read-only. No real producer composition, commit/push/deploy/archive authorization.
+
+## Connected instructor workflow — approved2026-11-07
+
+Darryl is sole writer for native application/assessment composition in src/server/index.ts/environment.ts, minimal safe-destination changes, request-bound assessment scope/discovery adapters, src/web/main.tsx/instructor navigation and assessment client/chrome, workflow/connected-preview/ and existing assessment specs/log/evidence/handoff. Reuse existing auth/course/publication/lifecycle storage and ports. Explicit local sample submission injection is loopback+development only, with no student account/membership/submission implementation; production missing producer stays unavailable. Local operator setup may grant the existing owner a local test-course membership through existing coursePlan, preserving authoritative local D1. One reused reviewer is read-only. No remote data, commit/push/merge/deploy authorized.
+
+Connected continuation detail: Darryl reuses the existing D1Assignments.guarded batch implementation for assessment writes via a server-only injected callback; its method becomes accessible to composition. No parallel course authorization SQL/store is introduced.

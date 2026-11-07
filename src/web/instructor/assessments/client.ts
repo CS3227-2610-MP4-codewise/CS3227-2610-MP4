@@ -173,9 +173,12 @@ export interface AssessmentClient {
     body: unknown,
   ): Promise<void>;
 }
-export function assessmentClient(csrf: string): AssessmentClient {
+export function assessmentClient(
+  csrf: string,
+  prefix = '/__assessment-preview/api',
+): AssessmentClient {
   const send = async (path: string, method = 'GET', body?: unknown) => {
-    const r = await fetch('/__assessment-preview/api' + path, {
+    const r = await fetch(prefix + path, {
       method,
       credentials: 'same-origin',
       cache: 'no-store',
