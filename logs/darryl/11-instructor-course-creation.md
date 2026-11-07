@@ -186,6 +186,29 @@ Total unavailable. Per-prompt allocation and source record unavailable; reconcil
 - Official Gitleaks8.24.2 checksum verified; source export with repairs passed `--no-git --redact --exit-code 1`. Focused controller test passed7/7. No real credential was identified in those findings.
 - Prior prompt ICC-P006 remains a record of the original environment blocker. No controlled comparison; token measurements remain unavailable.
 
+## Prompt ICC-P008 — 2026-11-07 Asia/Singapore; exact arrival time unavailable
+
+**Prompt (redacted):** Asked what was wrong with the secret scan and what the repair changed.
+
+### Agents spawned
+
+- New agents: None; the preceding scan and repair evidence directly answer the question.
+- Reused agents: None.
+- Main agent: `/root` explains the finding and verified result.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+|---|---|---|---|---|---|---|
+| Main `/root` | unavailable | unavailable | unavailable | unavailable | unavailable | Provisional; source group ID unavailable |
+| Children | 0 | 0 | 0 | 0 | No spawn/reuse observed | Final activity |
+
+Total unavailable; no per-prompt allocation or source record is available. Reconcile when measured usage becomes available.
+
+### Experiment outcome
+
+Explained the generic secret rule, the two appearances of one synthetic request identifier, the replacement with a valid example identifier, and the successful local tests and CI secrets job. No additional scan or source change was needed. No controlled resource comparison.
+
 ## Prompt PR-12-13-comparison — 2026-11-07 (time unavailable)
 
 **Prompt (redacted):** Compare PRs 12 and 13 to explain whether both update planning and OpenSpec.
