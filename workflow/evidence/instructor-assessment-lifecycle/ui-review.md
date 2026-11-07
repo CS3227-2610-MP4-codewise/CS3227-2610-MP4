@@ -1,7 +1,7 @@
 # UI review: instructor-assessment-lifecycle
 
 - Human owner/role: Darryl, instructor assessment only.
-- Source: uncommitted codex/instructor-assessment-lifecycle on reviewed79495387ec766c2d9c41b43ee87e9505e7d8bf85; source manifest in this evidence directory.
+- Source: committed producerb7df0b9047d3ad57a4dda95e09bfa1d7258731a3, codex/instructor-assessment-lifecycle rebased on main969a062f5bdc8171c5a36a0ba06baedde8d2cb6d; source manifest in this evidence directory.
 - Design: docs/ui/design.md, warm-workbook-v1, concise-copy refinement; GRADE-02–04, CON-05; UI-01/04/05/06/07/08.
 - Shared writer: Darryl exclusively owns assessment-only0007 schema/migration and new assessment files; Keith ports, auth storage and production wiring unchanged.
 - Review: main automated checks and source review; independent /root/assessment_review source/type review and focused re-review. No independent browser inspection.
