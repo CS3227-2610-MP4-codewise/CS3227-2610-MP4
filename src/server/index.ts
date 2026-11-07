@@ -6,6 +6,12 @@ import { FirebaseCredentials, firebaseConfig } from './auth/firebase';
 import { AuthEmail } from './auth/mail';
 import { GmailTransport } from './auth/gmail';
 import { OwnerBootstrap, ownerConfig } from './auth/owner';
+import { CourseAuthority } from './courses/authority';
+import { composeIdentityCourse } from './auth/composition';
+import { AssignmentService } from './instructor/assignments/service';
+import { D1Assignments } from './instructor/assignments/repository';
+import { assignmentHandler } from './instructor/assignments/http';
+import { BoundaryError } from '../shared/instructor-contracts/schema';
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -52,12 +58,17 @@ export default {
     context?: ExecutionContext,
   ): Promise<Response> {
     const pathname = new URL(request.url).pathname;
-    if (pathname.startsWith('/api/auth/')) {
+    if (
+      pathname.startsWith('/api/auth/') ||
+      pathname === '/api/courses' ||
+      pathname.startsWith('/api/instructor/')
+    ) {
       const config = firebaseConfig(env);
       const store = new ManagedStore(env.DB),
         credentials = config ? new FirebaseCredentials(config) : undefined,
-        bootstrap = ownerConfig(env);
-      return new ManagedAuthRoutes(
+        bootstrap = ownerConfig(env),
+        courses = new CourseAuthority(env.DB);
+      const auth = new ManagedAuthRoutes(
         store,
         config,
         credentials,
@@ -73,13 +84,71 @@ export default {
               }),
             )
           : undefined,
-        undefined,
-        undefined,
+        courses,
+        {
+          async authorize(principal, destination) {
+            if (destination === '/workspace') return;
+            const match =
+              /^\/instructor\/assignments\/([A-Za-z0-9_-]{1,128})$/.exec(
+                destination,
+              );
+            if (!match) throw new BoundaryError('FORBIDDEN');
+            const draft = await env.DB.prepare(
+              'SELECT id FROM instructor_assignment_drafts WHERE id=?',
+            )
+              .bind(match[1])
+              .first();
+            if (!draft) throw new BoundaryError('FORBIDDEN');
+            const scope = await courses.requireObject(
+              principal,
+              { kind: 'assignment', id: match[1] },
+              'read',
+            );
+            await courses.requireCourse(
+              principal,
+              scope.courseId,
+              'instructor-read',
+            );
+          },
+        },
         context ? (work) => context.waitUntil(work()) : undefined,
         credentials && bootstrap
           ? new OwnerBootstrap(store, credentials, bootstrap)
           : undefined,
-      ).fetch(request);
+      );
+      if (pathname.startsWith('/api/auth/')) return auth.fetch(request);
+      if (pathname === '/api/courses' && request.method === 'GET') {
+        try {
+          const { principal } = await auth.requireSession(request);
+          return json({ courses: await courses.list(principal) });
+        } catch (error) {
+          return json(
+            {
+              error: {
+                code:
+                  error instanceof BoundaryError
+                    ? error.code
+                    : 'UPSTREAM_UNAVAILABLE',
+                message: 'Course access unavailable.',
+                requestId: crypto.randomUUID(),
+              },
+            },
+            error instanceof BoundaryError && error.code === 'UNAUTHENTICATED'
+              ? 401
+              : 503,
+          );
+        }
+      }
+      if (pathname.startsWith('/api/instructor/')) {
+        const identity = composeIdentityCourse(auth, courses);
+        return assignmentHandler(
+          new AssignmentService(
+            new D1Assignments(env.DB, { enforceAuthority: true }),
+            identity,
+          ),
+          '/api/instructor',
+        )(request);
+      }
     }
     if (pathname === '/api/health' && request.method === 'GET') {
       return health(env);

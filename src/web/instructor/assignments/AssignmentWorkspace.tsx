@@ -93,9 +93,21 @@ const dateText = (utc: string) =>
     dateStyle: 'medium',
     timeStyle: 'short',
   }) + ' Singapore';
-export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
-  const [assignmentId] = useState(() =>
-    new URLSearchParams(window.location.search).get('assignment'),
+export function AssignmentWorkspace({
+  client,
+  preview = true,
+  initialAssignmentId,
+  courseId,
+}: {
+  client: AssignmentClient;
+  preview?: boolean;
+  initialAssignmentId?: string;
+  courseId?: string;
+}) {
+  const [assignmentId] = useState(
+    () =>
+      initialAssignmentId ??
+      new URLSearchParams(window.location.search).get('assignment'),
   );
   const editorPage = assignmentId !== null;
   const [controller] = useState(() => new AssignmentController(client));
@@ -163,7 +175,11 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
   }, [state.dirty]);
   const editorUrl = (id: string) => {
     const url = new URL(window.location.href);
-    url.search = '';
+    if (!preview) {
+      url.pathname = '/instructor/assignments';
+      if (courseId) url.searchParams.set('courseId', courseId);
+    }
+    url.searchParams.delete('assignment');
     url.hash = '';
     url.searchParams.set('assignment', id);
     return url.href;
@@ -233,33 +249,46 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
       </a>
       <header className="cw-header">
         <Brand href={window.location.pathname} />
-        <p className="cw-header-context">Instructor · Synthetic preview</p>
-        <details className="ia-preview-settings">
-          <summary>Preview settings</summary>
-          <div>
-            <p>Synthetic course · Sign-in not connected.</p>
-            <Field label="Appearance">
-              <select
-                defaultValue="light dark"
-                onChange={(event) => {
-                  document.documentElement.style.colorScheme =
-                    event.target.value;
-                }}
-              >
-                <option value="light dark">System</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </Field>
-          </div>
-        </details>
+        <p className="cw-header-context">
+          {preview ? 'Instructor · Synthetic preview' : 'Instructor workspace'}
+        </p>
+        {!preview && <a href="/workspace">Courses</a>}
+        {preview && (
+          <details className="ia-preview-settings">
+            <summary>Preview settings</summary>
+            <div>
+              <p>Synthetic course · Sign-in not connected.</p>
+              <Field label="Appearance">
+                <select
+                  defaultValue="light dark"
+                  onChange={(event) => {
+                    document.documentElement.style.colorScheme =
+                      event.target.value;
+                  }}
+                >
+                  <option value="light dark">System</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </Field>
+            </div>
+          </details>
+        )}
       </header>
       <div className="cw-page-title ia-page-title">
         {editorPage && (
           <Action
             variant="secondary"
             disabled={!!state.pending}
-            onClick={() => window.location.assign(window.location.pathname)}
+            onClick={() => {
+              const url = new URL(window.location.href);
+              if (!preview) {
+                url.pathname = '/instructor/assignments';
+                if (courseId) url.searchParams.set('courseId', courseId);
+              }
+              url.searchParams.delete('assignment');
+              window.location.assign(url.href);
+            }}
           >
             <Icon name="arrow-left" /> Assignments
           </Action>
@@ -1008,9 +1037,9 @@ export function AssignmentWorkspace({ client }: { client: AssignmentClient }) {
           <section className="ia-empty">
             <h2>Access is required</h2>
             <p>
-              Your unsaved changes are retained, but hidden. Open this local
-              preview in another tab to renew its fixture session, then retry
-              here.
+              {preview
+                ? 'Your unsaved changes are retained, but hidden. Open this local preview in another tab to renew its fixture session, then retry here.'
+                : 'Your unsaved changes are retained, but hidden. Sign in again in another tab, then retry here.'}
             </p>
             <Action
               pending={!!state.pending}

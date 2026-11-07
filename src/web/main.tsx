@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Brand, Icon } from './ui/brand';
 import './styles.css';
 import { AuthApp } from './auth/App';
+import { InstructorWorkspace } from './instructor/Workspace';
 
 function App() {
   return (
@@ -32,15 +33,21 @@ function App() {
 }
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {[
-      '/sign-in',
-      '/auth/finish',
-      '/workspace',
-      '/auth/invitations',
-      '/auth/reset',
-      '/auth/action',
-      '/auth/forgot',
-    ].includes(window.location.pathname) ? (
+    {['/workspace', '/instructor/assignments'].includes(
+      window.location.pathname,
+    ) ||
+    /^\/instructor\/assignments\/[A-Za-z0-9_-]{1,128}$/.test(
+      window.location.pathname,
+    ) ? (
+      <InstructorWorkspace />
+    ) : [
+        '/sign-in',
+        '/auth/finish',
+        '/auth/invitations',
+        '/auth/reset',
+        '/auth/action',
+        '/auth/forgot',
+      ].includes(window.location.pathname) ? (
       <AuthApp />
     ) : (
       <App />
