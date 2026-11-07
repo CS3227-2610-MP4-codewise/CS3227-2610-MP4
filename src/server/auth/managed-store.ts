@@ -11,6 +11,9 @@ export type ManagedInvite = {
   token_hash: string;
   firebase_uid: string;
   target_role: 'student' | 'instructor' | null;
+  acceptance_group?: string | null;
+  grouped_roles?: string | null;
+  grouped_send_state?: 'queued' | 'failed' | 'unknown';
   created_at: number;
   accepted_at: number | null;
   revoked_at: number | null;
@@ -32,6 +35,11 @@ export function inviteView(i: ManagedInvite) {
     email: i.email,
     courseId: i.course_id,
     targetRole: i.target_role ?? null,
+    targetRoles: i.grouped_roles
+      ? i.grouped_roles.split(',')
+      : i.target_role
+        ? [i.target_role]
+        : [],
     createdAt: new Date(i.created_at).toISOString(),
     status:
       i.accepted_at !== null
@@ -39,7 +47,7 @@ export function inviteView(i: ManagedInvite) {
         : i.revoked_at !== null
           ? 'revoked'
           : 'pending',
-    sendState: i.send_state,
+    sendState: i.grouped_send_state ?? i.send_state,
     sentAt: i.sent_at === null ? null : new Date(i.sent_at).toISOString(),
   };
 }
@@ -96,6 +104,65 @@ export class ManagedStore extends AuthStore {
       .bind(email, issuer)
       .first<{ id: string; subject: string; active: number }>();
   }
+  async recoveryCandidate(email: string) {
+    return this.db
+      .prepare(
+        'SELECT firebase_uid,verified_at FROM auth_invitation_recovery_candidates WHERE email=?',
+      )
+      .bind(email)
+      .first<{ firebase_uid: string; verified_at: number | null }>();
+  }
+  async recordRecoveryCandidate(email: string, uid: string) {
+    const row = await this.db
+      .prepare(
+        `INSERT INTO auth_invitation_recovery_candidates(email,firebase_uid) VALUES(?,?)
+        ON CONFLICT(email) DO UPDATE SET firebase_uid=excluded.firebase_uid WHERE firebase_uid=excluded.firebase_uid RETURNING firebase_uid`,
+      )
+      .bind(email, uid)
+      .first();
+    if (!row) throw new BoundaryError('FORBIDDEN');
+  }
+  async bindRecovery(
+    i: ManagedInvite,
+    proof: ActionProof,
+    claim: string,
+    issuer: string,
+  ) {
+    const now = this.clock(),
+      guard = crypto.randomUUID();
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO course_write_guards(id,allowed) SELECT ?,CASE WHEN EXISTS(
+        SELECT 1 FROM auth_invites i JOIN auth_actions p ON p.id=? AND p.invite_id=i.id AND p.firebase_uid=? AND p.email=i.email AND p.invite_generation=i.token_hash AND p.consumed_at IS NOT NULL AND p.expires_at>?
+        JOIN auth_invitation_recovery_candidates r ON r.email=i.email AND r.firebase_uid=p.firebase_uid
+        JOIN auth_course_setup_locks l ON l.email=i.email AND l.claim_id=?
+        JOIN courses c ON c.id=i.course_id AND c.active=1
+        JOIN course_memberships m ON m.course_id=i.course_id AND m.user_id=i.created_by AND m.role='instructor' AND m.active=1
+        JOIN auth_accounts a ON a.id=m.user_id AND a.active=1
+        WHERE i.id=? AND i.accepted_at IS NULL AND i.revoked_at IS NULL
+        AND NOT EXISTS(SELECT 1 FROM auth_accounts existing WHERE existing.email=i.email OR (existing.subject=p.firebase_uid AND existing.issuer=?))
+      ) THEN 1 ELSE 0 END`,
+        )
+        .bind(guard, proof.id, proof.firebase_uid, now, claim, i.id, issuer),
+      this.db
+        .prepare(
+          'UPDATE auth_invitation_recovery_candidates SET verified_at=? WHERE email=? AND firebase_uid=?',
+        )
+        .bind(now, i.email, proof.firebase_uid),
+      this.db
+        .prepare(
+          'UPDATE auth_invitation_identities SET firebase_uid=? WHERE email=?',
+        )
+        .bind(proof.firebase_uid, i.email),
+      this.db
+        .prepare(
+          'UPDATE auth_invites SET firebase_uid=? WHERE email=? AND target_role IS NOT NULL AND accepted_at IS NULL AND revoked_at IS NULL',
+        )
+        .bind(proof.firebase_uid, i.email),
+      this.db.prepare('DELETE FROM course_write_guards WHERE id=?').bind(guard),
+    ]);
+  }
   async lockSetup(email: string) {
     const claim = randomToken(),
       now = this.clock();
@@ -127,6 +194,21 @@ export class ManagedStore extends AuthStore {
       .bind(email, claim)
       .run();
   }
+  private async duplicateInvite(
+    s: Session,
+    course: string,
+    email: string,
+    role: 'student' | 'instructor',
+  ) {
+    const now = this.clock();
+    return this.db
+      .prepare(
+        `SELECT i.* FROM auth_invites i WHERE i.course_id=? AND i.email=? AND i.target_role=? AND i.accepted_at IS NULL AND i.revoked_at IS NULL
+      AND EXISTS(SELECT 1 FROM auth_sessions s JOIN auth_accounts a ON a.id=s.user_id AND a.active=1 JOIN course_memberships m ON m.user_id=a.id AND m.course_id=i.course_id AND m.role='instructor' AND m.active=1 JOIN courses c ON c.id=m.course_id AND c.active=1 WHERE s.id=? AND s.user_id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?) ORDER BY i.created_at,i.id LIMIT 1`,
+      )
+      .bind(course, email, role, s.id, s.user_id, now, now - IDLE)
+      .first<ManagedInvite>();
+  }
   async createManagedInvite(
     s: Session,
     course: string,
@@ -144,6 +226,8 @@ export class ManagedStore extends AuthStore {
       (existing && !existing.active)
     )
       throw new BoundaryError('INVALID_CONTRACT');
+    const duplicate = await this.duplicateInvite(s, course, email, role);
+    if (duplicate) return { token: null, invitation: duplicate };
     await this.cooldown(
       'invite:' + s.user_id + ':' + course + ':' + email + ':' + role,
     );
@@ -182,9 +266,10 @@ export class ManagedStore extends AuthStore {
       uid = reserved.firebase_uid,
       id = crypto.randomUUID(),
       now = this.clock();
-    await this.db
+    const inserted = await this.db
       .prepare(
-        'INSERT INTO auth_invites(id,token_hash,email,created_by,creator_session,created_at,expires_at,course_id,firebase_uid,target_role) VALUES(?,?,?,?,?,?,?,?,?,?)',
+        `INSERT INTO auth_invites(id,token_hash,email,created_by,creator_session,created_at,expires_at,course_id,firebase_uid,target_role)
+        SELECT ?,?,?,?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM auth_invites WHERE course_id=? AND email=? AND target_role=? AND accepted_at IS NULL AND revoked_at IS NULL) RETURNING id`,
       )
       .bind(
         id,
@@ -197,8 +282,16 @@ export class ManagedStore extends AuthStore {
         course,
         uid,
         role,
+        course,
+        email,
+        role,
       )
-      .run();
+      .first();
+    if (!inserted) {
+      const raced = await this.duplicateInvite(s, course, email, role);
+      if (!raced) throw new BoundaryError('UPSTREAM_UNAVAILABLE');
+      return { token: null, invitation: raced };
+    }
     return { token, invitation: await this.owned(s.user_id, course, id) };
   }
   async owned(userId: string, course: string, id: string) {
@@ -236,6 +329,30 @@ export class ManagedStore extends AuthStore {
       >();
     if (!i) throw new BoundaryError('UNAUTHENTICATED');
     return i;
+  }
+  async pendingRoles(i: ManagedInvite) {
+    const rows = await this.db
+      .prepare(
+        `SELECT DISTINCT target_role FROM auth_invites WHERE course_id=? AND email=? AND target_role IS NOT NULL AND accepted_at IS NULL AND revoked_at IS NULL ORDER BY target_role`,
+      )
+      .bind(i.course_id, i.email)
+      .all<{ target_role: 'student' | 'instructor' }>();
+    return rows.results.map((r) => r.target_role);
+  }
+  async acceptedRoles(i: ManagedInvite) {
+    if (!i.acceptance_group) return [i.target_role!];
+    const rows = await this.db
+      .prepare(
+        'SELECT DISTINCT target_role FROM auth_invites WHERE course_id=? AND email=? AND acceptance_group=? AND accepted_by=? AND target_role IS NOT NULL ORDER BY target_role',
+      )
+      .bind(
+        i.course_id,
+        i.email,
+        i.acceptance_group,
+        (i as ManagedInvite & { accepted_by: string }).accepted_by,
+      )
+      .all<{ target_role: 'student' | 'instructor' }>();
+    return rows.results.map((r) => r.target_role);
   }
   async admitCourseUser(
     browser: string,
@@ -292,7 +409,11 @@ export class ManagedStore extends AuthStore {
     ]);
     return token;
   }
-  async acceptCourse(token: string, session: Session) {
+  async acceptCourse(
+    token: string,
+    session: Session,
+    expectedRoles: ('student' | 'instructor')[],
+  ) {
     const now = this.clock(),
       invitation = await this.courseInvitation(token);
     if (invitation.email !== session.email)
@@ -300,15 +421,18 @@ export class ManagedStore extends AuthStore {
     if (invitation.accepted_at !== null) {
       const current = await this.db
         .prepare(
-          `SELECT 1 FROM course_memberships m JOIN auth_sessions s ON s.user_id=m.user_id AND s.id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>? JOIN auth_accounts a ON a.id=s.user_id AND a.active=1 WHERE m.course_id=? AND m.user_id=? AND m.role=? AND m.active=1`,
+          `SELECT 1 FROM auth_sessions s JOIN auth_accounts a ON a.id=s.user_id AND a.active=1 WHERE s.id=? AND s.user_id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?
+          AND (SELECT COUNT(DISTINCT m.role) FROM course_memberships m WHERE m.course_id=? AND m.user_id=s.user_id AND m.active=1 AND m.role IN (?,?))=?`,
         )
         .bind(
           session.id,
+          session.user_id,
           now,
           now - IDLE,
           invitation.course_id,
-          session.user_id,
-          invitation.target_role,
+          expectedRoles[0],
+          expectedRoles[1] ?? expectedRoles[0],
+          expectedRoles.length,
         )
         .first();
       if (invitation.accepted_by !== session.user_id || !current)
@@ -328,6 +452,8 @@ export class ManagedStore extends AuthStore {
         JOIN auth_sessions s ON s.id=? AND s.user_id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?
         JOIN auth_accounts a ON a.id=s.user_id AND a.active=1 AND a.email=i.email AND a.subject=i.firebase_uid
         WHERE i.id=? AND i.token_hash=? AND i.target_role IN ('student','instructor') AND i.accepted_at IS NULL AND i.revoked_at IS NULL
+        AND (SELECT COUNT(DISTINCT p.target_role) FROM auth_invites p WHERE p.course_id=i.course_id AND p.email=i.email AND p.target_role IS NOT NULL AND p.accepted_at IS NULL AND p.revoked_at IS NULL)=?
+        AND NOT EXISTS(SELECT 1 FROM auth_invites p WHERE p.course_id=i.course_id AND p.email=i.email AND p.target_role IS NOT NULL AND p.accepted_at IS NULL AND p.revoked_at IS NULL AND (p.target_role NOT IN (?,?) OR p.firebase_uid<>i.firebase_uid OR NOT EXISTS(SELECT 1 FROM course_memberships tm JOIN auth_accounts ta ON ta.id=tm.user_id AND ta.active=1 WHERE tm.course_id=p.course_id AND tm.user_id=p.created_by AND tm.role='instructor' AND tm.active=1)))
       ) THEN 1 ELSE 0 END`,
           )
           .bind(
@@ -338,18 +464,27 @@ export class ManagedStore extends AuthStore {
             now - IDLE,
             invitation.id,
             tokenHash,
+            expectedRoles.length,
+            expectedRoles[0],
+            expectedRoles[1] ?? expectedRoles[0],
           ),
         this.db
           .prepare(
-            `INSERT INTO course_memberships(course_id,user_id,role,active) VALUES(?,?,?,1)
+            `INSERT INTO course_memberships(course_id,user_id,role,active) SELECT DISTINCT course_id,?,target_role,1 FROM auth_invites WHERE course_id=? AND email=? AND target_role IS NOT NULL AND accepted_at IS NULL AND revoked_at IS NULL
         ON CONFLICT(course_id,user_id,role) DO UPDATE SET active=1`,
           )
-          .bind(invitation.course_id, session.user_id, invitation.target_role),
+          .bind(session.user_id, invitation.course_id, invitation.email),
         this.db
           .prepare(
-            'UPDATE auth_invites SET accepted_by=?,accepted_at=? WHERE id=? AND token_hash=? AND accepted_at IS NULL AND revoked_at IS NULL',
+            'UPDATE auth_invites SET accepted_by=?,accepted_at=?,acceptance_group=? WHERE course_id=? AND email=? AND target_role IS NOT NULL AND accepted_at IS NULL AND revoked_at IS NULL',
           )
-          .bind(session.user_id, now, invitation.id, tokenHash),
+          .bind(
+            session.user_id,
+            now,
+            guard,
+            invitation.course_id,
+            invitation.email,
+          ),
         this.db
           .prepare('DELETE FROM course_write_guards WHERE id=?')
           .bind(guard),
@@ -364,7 +499,8 @@ export class ManagedStore extends AuthStore {
         JOIN course_memberships m ON m.course_id=i.course_id AND m.user_id=i.accepted_by AND m.role=i.target_role AND m.active=1
         JOIN auth_sessions s ON s.id=? AND s.user_id=m.user_id AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?
         JOIN auth_accounts a ON a.id=s.user_id AND a.active=1
-        WHERE i.id=? AND i.token_hash=? AND i.accepted_by=? AND i.accepted_at IS NOT NULL AND i.revoked_at IS NULL`,
+        WHERE i.id=? AND i.token_hash=? AND i.accepted_by=? AND i.accepted_at IS NOT NULL AND i.revoked_at IS NULL
+        AND (SELECT COUNT(DISTINCT mm.role) FROM course_memberships mm WHERE mm.course_id=i.course_id AND mm.user_id=i.accepted_by AND mm.active=1 AND mm.role IN (?,?))=?`,
         )
         .bind(
           session.id,
@@ -373,6 +509,9 @@ export class ManagedStore extends AuthStore {
           invitation.id,
           tokenHash,
           session.user_id,
+          expectedRoles[0],
+          expectedRoles[1] ?? expectedRoles[0],
+          expectedRoles.length,
         )
         .first();
       if (!receipt) throw error;
@@ -416,7 +555,10 @@ export class ManagedStore extends AuthStore {
     const now = this.clock();
     const rows = await this.db
       .prepare(
-        `SELECT i.* FROM auth_invites i WHERE i.course_id=? AND i.id>? AND EXISTS (
+        `SELECT i.*, (SELECT GROUP_CONCAT(role, ',') FROM (SELECT DISTINCT p.target_role AS role FROM auth_invites p WHERE p.course_id=i.course_id AND p.email=i.email AND p.target_role IS NOT NULL AND (p.accepted_at IS NULL AND p.revoked_at IS NULL OR (i.accepted_at IS NOT NULL AND p.accepted_at IS NOT NULL)) ORDER BY p.target_role)) AS grouped_roles,
+        CASE WHEN EXISTS(SELECT 1 FROM auth_invites p WHERE p.course_id=i.course_id AND p.email=i.email AND p.target_role IS NOT NULL AND p.accepted_at IS NULL AND p.revoked_at IS NULL AND p.send_state='failed') THEN 'failed'
+        WHEN EXISTS(SELECT 1 FROM auth_invites p WHERE p.course_id=i.course_id AND p.email=i.email AND p.target_role IS NOT NULL AND p.accepted_at IS NULL AND p.revoked_at IS NULL AND p.send_state='unknown') THEN 'unknown' ELSE i.send_state END AS grouped_send_state
+        FROM auth_invites i WHERE i.course_id=? AND i.id>? AND i.id=(SELECT p.id FROM auth_invites p WHERE p.course_id=i.course_id AND p.email=i.email ORDER BY CASE WHEN p.accepted_at IS NULL AND p.revoked_at IS NULL AND p.target_role IS NOT NULL THEN 0 WHEN p.accepted_at IS NULL AND p.revoked_at IS NULL THEN 1 WHEN p.accepted_at IS NOT NULL THEN 2 ELSE 3 END,CASE p.send_state WHEN 'failed' THEN 0 WHEN 'unknown' THEN 1 ELSE 2 END,p.created_at DESC,p.id DESC LIMIT 1) AND EXISTS (
          SELECT 1 FROM auth_sessions s JOIN auth_accounts a ON a.id=s.user_id AND a.active=1
          JOIN course_memberships m ON m.user_id=a.id AND m.course_id=i.course_id AND m.role='instructor' AND m.active=1
          JOIN courses c ON c.id=m.course_id AND c.active=1
@@ -436,9 +578,9 @@ export class ManagedStore extends AuthStore {
       this.actorGuard(s, i.course_id, now, guard),
       this.db
         .prepare(
-          'UPDATE auth_invites SET revoked_at=? WHERE id=? AND accepted_at IS NULL AND revoked_at IS NULL',
+          'UPDATE auth_invites SET revoked_at=? WHERE course_id=? AND email=? AND accepted_at IS NULL AND revoked_at IS NULL',
         )
-        .bind(now, i.id),
+        .bind(now, i.course_id, i.email),
       this.db.prepare('DELETE FROM course_write_guards WHERE id=?').bind(guard),
     ]);
   }
@@ -517,10 +659,15 @@ export class ManagedStore extends AuthStore {
     if (!row) throw new BoundaryError('UNAUTHENTICATED');
     if (purpose === 'setup') {
       const invite = token ? await this.pending(token) : null;
+      const candidate =
+        invite && invite.firebase_uid !== row.firebase_uid
+          ? await this.recoveryCandidate(invite.email)
+          : null;
       if (
         !invite ||
         invite.id !== row.invite_id ||
-        invite.firebase_uid !== row.firebase_uid ||
+        (invite.firebase_uid !== row.firebase_uid &&
+          candidate?.firebase_uid !== row.firebase_uid) ||
         invite.token_hash !== row.invite_generation ||
         invite.email !== row.email
       )

@@ -170,6 +170,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
     for (const name of [
       '0007_courses.sql',
       '0010_invitation_target_role.sql',
+      '0011_invitation_identity_recovery.sql',
     ]) {
       const sql = await readFile('src/server/db/migrations/' + name, 'utf8');
       await database.db.batch(
@@ -822,7 +823,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
     );
     expect((await store.session(fresh)).user_id).toBe(legacy.user_id);
   });
-  it('competing confirmation succeeds once and pre-staged credential collision never auto-links', async () => {
+  it('competing confirmation succeeds once and provider collision requires proof before linking', async () => {
     const admin = await seed(),
       i = await invite(admin),
       browser = randomToken();
@@ -851,7 +852,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
     expect(
       ((await r.json()) as { invitation: { sendState: string } }).invitation
         .sendState,
-    ).toBe('failed');
+    ).toBe('queued');
     expect(await store.account(email, provider.issuer)).toBeNull();
   });
 });

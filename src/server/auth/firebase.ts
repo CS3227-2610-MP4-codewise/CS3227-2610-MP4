@@ -15,6 +15,7 @@ export interface CredentialProvider {
   provisionOwner(uid: string, email: string, password: string): Promise<void>;
   login(email: string, password: string): Promise<FirebaseUser>;
   current(uid: string): Promise<FirebaseUser>;
+  lookupEmail(email: string): Promise<FirebaseUser | null>;
   action(email: string): Promise<string>;
   inspect(code: string): Promise<string>;
   reset(code: string, password: string): Promise<string>;
@@ -301,6 +302,20 @@ export class FirebaseCredentials implements CredentialProvider {
       passwordAt: Number(u.passwordUpdatedAt),
       validSince: Number(u.validSince),
     };
+  }
+  async lookupEmail(email: string): Promise<FirebaseUser | null> {
+    const data = await this.admin(':lookup', { email: [email] });
+    if (!data.users) return null;
+    if (
+      !Array.isArray(data.users) ||
+      data.users.length !== 1 ||
+      typeof data.users[0]?.localId !== 'string'
+    )
+      throw new BoundaryError('UNAUTHENTICATED');
+    const user = await this.current(data.users[0].localId);
+    if (user.email !== email || user.disabled)
+      throw new BoundaryError('UNAUTHENTICATED');
+    return user;
   }
   async provision(uid: string, email: string) {
     return this.provisionOwner(uid, email, randomToken());
