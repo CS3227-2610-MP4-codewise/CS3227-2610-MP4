@@ -187,3 +187,7 @@ Current follow-up2026-11-07:8–64 validation is now implemented in app/server a
 ## SH-ID ownership update — 2026-11-07
 
 Darryl owns SH-ID: courses, memberships, object authorization and allowed workspace contexts. This supersedes earlier Keith SH-ID ownership statements. Keith retains student and submission work and cross-reviews the composed C-ID boundary; his acceptance is pending. Use one authoritative identity/course store, serialize shared schema and API edits, and consume trusted SH-AUTH sessions. Account administration grants no course membership or instructor role. Implementation and integration remain pending.
+
+## Instructor assessment producer — 2026-11-07, isolated implementation
+
+Darryl's approved instructor-assessment-lifecycle implements manual revision/approval/release/correction/P4 withdrawal in assessment-only D1 tables, consuming existing C-SUB/C-REL and injected identity/submission/publication ports. No shared DTO policy is changed and no production assessment route is composed. [Exact local producer, payloads and reusable checks](assessment-preview/README.md); [handoff](handoffs/instructor-assessment-lifecycle.md). Existing K1–K6 remain Keith-pending; synthetic producer tests do not establish his acceptance or real integration. Darryl supplies the reviewed assessment/object-authority composition; Keith supplies SH-SUB and consumer evidence before activation. Main969a062 adds Darryl-owned course/assignment authority, which does not yet authorize assessment/submission objects. No parallel course implementation is added here.

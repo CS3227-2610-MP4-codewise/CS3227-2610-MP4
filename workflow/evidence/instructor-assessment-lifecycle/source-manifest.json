@@ -1,0 +1,103 @@
+{
+  "status": "Uncommitted working-tree producer; not deployed or jointly accepted",
+  "baseRevision": "79495387ec766c2d9c41b43ee87e9505e7d8bf85",
+  "branch": "codex/instructor-assessment-lifecycle",
+  "files": [
+    {
+      "path": "src/server/db/migrations/0007_instructor_assessments.sql",
+      "sha256": "cfeaad8d2cfb64097fee014aaeaca9ef00e5f519d380c57d85884dd97e4b8b72"
+    },
+    {
+      "path": "src/server/instructor/assessments/http.ts",
+      "sha256": "161a256a8ec5ae7c27fd761e1a725887034383e26785783850853963c42909df"
+    },
+    {
+      "path": "src/server/instructor/assessments/repository.ts",
+      "sha256": "9d5118cbe16f0a654e6dd90310b5584458aed68aa7e2168d822e7f474b5f8471"
+    },
+    {
+      "path": "src/server/instructor/assessments/service.ts",
+      "sha256": "fefcac04d5710d41cc412253833df7b5f12b0230db55f2972863cad5afe5ff74"
+    },
+    {
+      "path": "src/shared/instructor-contracts/assessment.ts",
+      "sha256": "98a0b97d3c1608a056dc5242eda2d61138189e404367e307a72164289622d9cc"
+    },
+    {
+      "path": "src/web/instructor/assessments/AssessmentWorkspace.tsx",
+      "sha256": "b2beb6b9d6c3ab174d2da73ba2fb3628800934f82864ea0bf07efd2607e06000"
+    },
+    {
+      "path": "src/web/instructor/assessments/client.ts",
+      "sha256": "06383335917739c864d9b6e0deea1eba28a27bcfc0af8f46ea055be7438ee80a"
+    },
+    {
+      "path": "src/web/instructor/assessments/controller.test.ts",
+      "sha256": "b0efe32c703d187efa95b7a999fdc09fac391f2053b23d28cc52eac1a7fbbea7"
+    },
+    {
+      "path": "src/web/instructor/assessments/controller.ts",
+      "sha256": "242b18ecece2f2266dc2b4b057f015c870dcac133c14612fdbb7f15aa93022d6"
+    },
+    {
+      "path": "src/web/instructor/assessments/preview.tsx",
+      "sha256": "fe7e458e16b28dcd447b24ef13efdcebc01b824b83632dba31086c884dfadb76"
+    },
+    {
+      "path": "src/web/instructor/assessments/styles.css",
+      "sha256": "377944a80a8c0d26faa58238b84381943649d111df7612c7a82f15332feed79f"
+    },
+    {
+      "path": "workflow/assessment-preview/README.md",
+      "sha256": "479d4c00b1e256c4de7164facdc6aadd75f76058aa581705f7fce29d2d0f4b51"
+    },
+    {
+      "path": "workflow/assessment-preview/assessment.test.ts",
+      "sha256": "fb04a8f98d2962931da1f44b9447b39bf12c4ed956e49e52ebcd68c178893db7"
+    },
+    {
+      "path": "workflow/assessment-preview/conformance.test.ts",
+      "sha256": "dbb75dce551851c2996a84f1a371b607d74c0e2ccc845c5d4d97f09134f562ee"
+    },
+    {
+      "path": "workflow/assessment-preview/conformance.ts",
+      "sha256": "1ad9211e5a3abbf5715583847cf9985b5e4470c1958d2387d761048d6030d8c7"
+    },
+    {
+      "path": "workflow/assessment-preview/database.ts",
+      "sha256": "64d1c9d16d055eebbcb814c42891a94d62fcbd2fd6d18e8e0dcdddc92a0b3cc9"
+    },
+    {
+      "path": "workflow/assessment-preview/fixture.ts",
+      "sha256": "ea3adf1b4d6046f11bc455dd9a035abdd6cac71b5af2a5dd4c029408cb3e2ad2"
+    },
+    {
+      "path": "workflow/assessment-preview/index.html",
+      "sha256": "609480b9120e58e64c41de198423e55911874cc65823115384a26fc416620811"
+    },
+    {
+      "path": "workflow/assessment-preview/persistence.test.ts",
+      "sha256": "376ddc1cf227680b34a6ceb7c23c6897a5b15d63b33f065fe8dad75eae2db08c"
+    },
+    {
+      "path": "workflow/assessment-preview/public-feedback.json",
+      "sha256": "af68ea8ee1a25e0fbfc56b9a44c68c1af2ec79d6584e45125550518640ec2c3b"
+    },
+    {
+      "path": "workflow/assessment-preview/public-fixtures.ts",
+      "sha256": "9f79c7861a033b61ba216615658525014c993ba041e250d0fc1dcbd211d5d99d"
+    },
+    {
+      "path": "workflow/assessment-preview/transactions.test.ts",
+      "sha256": "ec5e8de5b17d5142ef53f40ca98e801369567338d561fd3145d26b090fb65148"
+    },
+    {
+      "path": "workflow/assessment-preview/vite.config.ts",
+      "sha256": "8c69db8c58f5c45129e6cd126247028d1e1bf0126b1f2db701e9eb6d7d5ebba2"
+    },
+    {
+      "path": "package.json",
+      "sha256": "5c6d4a525d0e3a9251538e281b11a214602060df64646cfc308a7ae896ffc5a9"
+    }
+  ]
+}
