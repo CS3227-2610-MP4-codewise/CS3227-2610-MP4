@@ -584,3 +584,39 @@ Local-only skill handling; no independent review claimed.
 ## Historical coverage
 
 Earlier workflow/setup questions are redacted summaries, not copies of private skill implementation.
+
+## Prompt SEQ-20261107-01 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Regenerate Darryl's remaining implementation prompts from the latest OpenSpec plans and implemented work.
+
+### Agents spawned
+
+- **New agents:** None. This is a bounded repository-reading and sequencing task; a separate agent would repeat the same context without independent implementation or review benefit.
+- **Reused agents:** None.
+- **Main agent:** `/root`, `gpt-6.1-sol` as reported by the local session metadata.
+- **Assignment / outcome:** Inspect current ownership, course-onboarding and existing auth/publication/assessment tasks/handoffs; produce only remaining Darryl prompts with real dependency gates. No application, schema, skill, Git publication or deployment changes.
+
+### Token count
+
+**Usage report for SEQ-20261107-01:**
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main `/root` | 891,641 | 667,648 | 910 | 892,551 | `turn-370ebf554ad2a1737e7742a8` | Provisional; later calls/final excluded |
+| Child agents | 0 | 0 | 0 | 0 | None | No child agents spawned or reused |
+
+- Source/checkpoint: private Codewise recorder, `per_response_usage`, `2026-11-07T12:59:39.091Z`; configured project scope verified. Detailed records remain outside Git.
+- Usage group: `01a18601-a793-7f90-8bfe-c3677cb20fb4/01a1b616-cb23-7222-85ec-b7e292cea2d0`. Turn attribution only; per-message allocation is unavailable if steering messages share this group. Count once, not once per snapshot. Cached/reasoning values are subsets, not additions.
+- Coverage: current turn incomplete; final response and subsequent calls are not measured in this snapshot. Unlinked approval-review records excluded from prompt totals.
+- Reconciliation: finalize this group at the next checkpoint, retaining this history without adding snapshots together.
+- Preceding prompt reconciliation: the prior request in this chat to regenerate the sequence from updated plans has completed source `turn-59392da312648216584de6f8` (`01a1af6c-4261-7f81-8040-2f392c89cabf`): main input 784,490; cached input 582,016; output 3,090; total 787,580. Same checkpoint, no turn warnings. This supersedes any earlier snapshot for that source group; count once. This is a source reconciliation, not an invented historical agent rationale.
+
+### Experiment outcome
+
+- Expected benefit: one main agent maps remaining work to existing requirements without rebuilding completed authentication, authority, publication or assessment services.
+- Observed findings: main includes merged course-onboarding planning; COU tasks are unimplemented and deliberately split into course creation, invitations/atomic joining and dashboard contexts/switch. Existing assessment UI/manual acceptance, real mail/provider checks and Keith consumer/submission integration remain incomplete. Shared ownership now records Darryl SH-ID per the separately confirmed course-onboarding decision, superseding historical Keith ownership in those records; no runtime ownership change made here.
+- Worktree: main with pre-existing auth/audit log changes and untracked worktrees/remote evidence preserved. Only this required prompt-log entry is appended by this request.
+- Checks: read-only Git status/history, OpenSpec tasks/config/proposal/design, ownership/contracts/handoffs and design reference inspection; refreshed local usage report. No runtime verification is claimed for the generated sequence.
+- Comparison basis: no controlled comparison; token totals do not establish efficiency.
+- Next owner: Darryl runs bounded remaining prompts; Keith supplies actual contract review, student dashboard and immutable submission consumers/producers before joint acceptance.
+- Verification follow-up: `git diff --check -- logs/darryl/08-workflow-setup-and-planning.md` passed. Required `npm run check` passed all eight strict OpenSpec changes and typecheck, then failed lint with 1,030 errors while ESLint traversed pre-existing untracked `.worktrees/shared-foundation/dist/client/assets/` generated JavaScript. Tests/build were not reached by this run; no passing full-check claim. No lint configuration, generated files or other worktrees were changed. Use a clean isolated checkout for the next feature and address the workspace/tooling issue in its own agreed scope.

@@ -1,5 +1,5 @@
 import { BoundaryError } from '../../shared/instructor-contracts/schema';
-import { LOGIN_TTL, hash, randomToken } from './primitives';
+import { ABSOLUTE, IDLE, LOGIN_TTL, hash, randomToken } from './primitives';
 import { AuthStore, type Session } from './store';
 import type { FirebaseUser } from './firebase';
 
@@ -10,6 +10,7 @@ export type ManagedInvite = {
   course_id: string;
   token_hash: string;
   firebase_uid: string;
+  target_role: 'student' | 'instructor' | null;
   created_at: number;
   accepted_at: number | null;
   revoked_at: number | null;
@@ -30,6 +31,7 @@ export function inviteView(i: ManagedInvite) {
     id: i.id,
     email: i.email,
     courseId: i.course_id,
+    targetRole: i.target_role ?? null,
     createdAt: new Date(i.created_at).toISOString(),
     status:
       i.accepted_at !== null
@@ -94,42 +96,95 @@ export class ManagedStore extends AuthStore {
       .bind(email, issuer)
       .first<{ id: string; subject: string; active: number }>();
   }
+  async lockSetup(email: string) {
+    const claim = randomToken(),
+      now = this.clock();
+    const row = await this.db
+      .prepare(
+        `INSERT INTO auth_course_setup_locks(email,claim_id,expires_at) VALUES(?,?,?)
+      ON CONFLICT(email) DO UPDATE SET claim_id=excluded.claim_id,expires_at=excluded.expires_at
+      WHERE phase='preparing' AND expires_at<=? RETURNING claim_id`,
+      )
+      .bind(email, claim, now + 120000, now)
+      .first();
+    if (!row) throw new BoundaryError('RATE_LIMITED');
+    return claim;
+  }
+  async beginSetupReset(email: string, claim: string) {
+    const row = await this.db
+      .prepare(
+        "UPDATE auth_course_setup_locks SET phase='resetting' WHERE email=? AND claim_id=? AND phase='preparing' RETURNING claim_id",
+      )
+      .bind(email, claim)
+      .first();
+    if (!row) throw new BoundaryError('RATE_LIMITED');
+  }
+  async unlockSetup(email: string, claim: string) {
+    await this.db
+      .prepare(
+        'DELETE FROM auth_course_setup_locks WHERE email=? AND claim_id=?',
+      )
+      .bind(email, claim)
+      .run();
+  }
   async createManagedInvite(
     s: Session,
     course: string,
     email: string,
     issuer: string,
+    role: 'student' | 'instructor',
   ) {
     const existing = await this.account(email, issuer);
     if (
-      existing ||
-      (await this.db
-        .prepare('SELECT id FROM auth_accounts WHERE email=?')
-        .bind(email)
-        .first())
+      (!existing &&
+        (await this.db
+          .prepare('SELECT id FROM auth_accounts WHERE email=?')
+          .bind(email)
+          .first())) ||
+      (existing && !existing.active)
     )
       throw new BoundaryError('INVALID_CONTRACT');
-    await this.cooldown('invite:' + s.user_id + ':' + email);
-    const pending = await this.db
-      .prepare(
-        'SELECT id FROM auth_invites WHERE email=? AND accepted_at IS NULL AND revoked_at IS NULL AND course_id IS NOT NULL',
-      )
-      .bind(email)
-      .first();
-    if (pending) throw new BoundaryError('INVALID_CONTRACT');
+    await this.cooldown(
+      'invite:' + s.user_id + ':' + course + ':' + email + ':' + role,
+    );
     const prior = await this.db
       .prepare(
         'SELECT firebase_uid FROM auth_invites WHERE email=? AND firebase_uid IS NOT NULL ORDER BY created_at DESC LIMIT 1',
       )
       .bind(email)
       .first<{ firebase_uid: string }>();
+    await this.db
+      .prepare(
+        'INSERT OR IGNORE INTO auth_invitation_identities(email,firebase_uid) VALUES(?,?)',
+      )
+      .bind(
+        email,
+        existing?.subject ?? prior?.firebase_uid ?? crypto.randomUUID(),
+      )
+      .run();
+    if (existing)
+      await this.db
+        .prepare(
+          `UPDATE auth_invitation_identities SET firebase_uid=? WHERE email=? AND firebase_uid<>?
+      AND NOT EXISTS(SELECT 1 FROM auth_invites WHERE email=? AND target_role IS NOT NULL AND accepted_at IS NULL AND revoked_at IS NULL)`,
+        )
+        .bind(existing.subject, email, existing.subject, email)
+        .run();
+    const reserved = await this.db
+      .prepare(
+        'SELECT firebase_uid FROM auth_invitation_identities WHERE email=?',
+      )
+      .bind(email)
+      .first<{ firebase_uid: string }>();
+    if (!reserved || (existing && existing.subject !== reserved.firebase_uid))
+      throw new BoundaryError('INVALID_CONTRACT');
     const token = randomToken(),
-      uid = prior?.firebase_uid ?? crypto.randomUUID(),
+      uid = reserved.firebase_uid,
       id = crypto.randomUUID(),
       now = this.clock();
     await this.db
       .prepare(
-        'INSERT INTO auth_invites(id,token_hash,email,created_by,creator_session,created_at,expires_at,course_id,firebase_uid) VALUES(?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO auth_invites(id,token_hash,email,created_by,creator_session,created_at,expires_at,course_id,firebase_uid,target_role) VALUES(?,?,?,?,?,?,?,?,?,?)',
       )
       .bind(
         id,
@@ -141,6 +196,7 @@ export class ManagedStore extends AuthStore {
         8640000000000000,
         course,
         uid,
+        role,
       )
       .run();
     return { token, invitation: await this.owned(s.user_id, course, id) };
@@ -148,9 +204,9 @@ export class ManagedStore extends AuthStore {
   async owned(userId: string, course: string, id: string) {
     const i = await this.db
       .prepare(
-        'SELECT * FROM auth_invites WHERE id=? AND created_by=? AND course_id=?',
+        'SELECT * FROM auth_invites WHERE id=? AND course_id=? AND ? IS NOT NULL',
       )
-      .bind(id, userId, course)
+      .bind(id, course, userId)
       .first<ManagedInvite>();
     if (!i) throw new BoundaryError('FORBIDDEN');
     return i;
@@ -165,43 +221,226 @@ export class ManagedStore extends AuthStore {
     if (!i) throw new BoundaryError('UNAUTHENTICATED');
     return i;
   }
-  async rotate(i: ManagedInvite) {
-    await this.cooldown('resend:' + i.id);
-    const token = randomToken();
-    const row = await this.db
+  async courseInvitation(token: string) {
+    const i = await this.db
       .prepare(
-        "UPDATE auth_invites SET token_hash=?,send_state='unknown' WHERE id=? AND accepted_at IS NULL AND revoked_at IS NULL AND NOT EXISTS(SELECT 1 FROM auth_mail_locks l WHERE l.invite_id=auth_invites.id AND l.expires_at>?) RETURNING id",
+        `SELECT i.*,c.name AS course_name FROM auth_invites i
+      JOIN courses c ON c.id=i.course_id AND c.active=1
+      JOIN course_memberships m ON m.course_id=i.course_id AND m.user_id=i.created_by AND m.role='instructor' AND m.active=1
+      JOIN auth_accounts a ON a.id=i.created_by AND a.active=1
+      WHERE i.token_hash=? AND i.target_role IS NOT NULL AND i.revoked_at IS NULL`,
       )
-      .bind(await hash(token), i.id, this.clock())
-      .first();
-    if (!row) throw new BoundaryError('RATE_LIMITED');
-    await this.db
-      .prepare(
-        'UPDATE auth_actions SET consumed_at=? WHERE invite_id=? AND consumed_at IS NULL',
-      )
-      .bind(this.clock(), i.id)
-      .run();
+      .bind(await hash(token))
+      .first<
+        ManagedInvite & { course_name: string; accepted_by: string | null }
+      >();
+    if (!i) throw new BoundaryError('UNAUTHENTICATED');
+    return i;
+  }
+  async admitCourseUser(
+    browser: string,
+    user: FirebaseUser,
+    issuer: string,
+    invite: string,
+  ) {
+    const start = await this.begin(browser, invite, '/workspace');
+    const tx = await this.claim(start.state, browser);
+    const now = this.clock(),
+      token = randomToken(),
+      sessionId = crypto.randomUUID();
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO auth_accounts(id,issuer,subject,email,created_at,signup_tx)
+        SELECT ?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM auth_accounts WHERE issuer=? AND subject=?)`,
+        )
+        .bind(
+          crypto.randomUUID(),
+          issuer,
+          user.uid,
+          user.email,
+          now,
+          tx.id,
+          issuer,
+          user.uid,
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO auth_sessions(id,token_hash,user_id,login_tx,callback_claim,created_at,last_seen,expires_at,return_path,provider_password_at,provider_valid_since)
+        VALUES(?,?,(SELECT id FROM auth_accounts WHERE issuer=? AND subject=? AND email=? AND active=1),?,?,?,?,?,?,?,?)`,
+        )
+        .bind(
+          sessionId,
+          await hash(token),
+          issuer,
+          user.uid,
+          user.email,
+          tx.id,
+          tx.claim_id,
+          now,
+          now,
+          now + ABSOLUTE,
+          '/workspace',
+          user.passwordAt,
+          user.validSince,
+        ),
+      this.db
+        .prepare(
+          'UPDATE auth_transactions SET completed_at=? WHERE id=? AND claim_id=?',
+        )
+        .bind(now, tx.id, tx.claim_id),
+    ]);
     return token;
   }
-  async list(userId: string, course: string, cursor: string) {
+  async acceptCourse(token: string, session: Session) {
+    const now = this.clock(),
+      invitation = await this.courseInvitation(token);
+    if (invitation.email !== session.email)
+      throw new BoundaryError('FORBIDDEN');
+    if (invitation.accepted_at !== null) {
+      const current = await this.db
+        .prepare(
+          `SELECT 1 FROM course_memberships m JOIN auth_sessions s ON s.user_id=m.user_id AND s.id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>? JOIN auth_accounts a ON a.id=s.user_id AND a.active=1 WHERE m.course_id=? AND m.user_id=? AND m.role=? AND m.active=1`,
+        )
+        .bind(
+          session.id,
+          now,
+          now - IDLE,
+          invitation.course_id,
+          session.user_id,
+          invitation.target_role,
+        )
+        .first();
+      if (invitation.accepted_by !== session.user_id || !current)
+        throw new BoundaryError('FORBIDDEN');
+      return;
+    }
+    const guard = crypto.randomUUID(),
+      tokenHash = await hash(token);
+    try {
+      await this.db.batch([
+        this.db
+          .prepare(
+            `INSERT INTO course_write_guards(id,allowed) SELECT ?,CASE WHEN EXISTS(
+        SELECT 1 FROM auth_invites i JOIN courses c ON c.id=i.course_id AND c.active=1
+        JOIN course_memberships m ON m.course_id=c.id AND m.user_id=i.created_by AND m.role='instructor' AND m.active=1
+        JOIN auth_accounts ia ON ia.id=i.created_by AND ia.active=1
+        JOIN auth_sessions s ON s.id=? AND s.user_id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?
+        JOIN auth_accounts a ON a.id=s.user_id AND a.active=1 AND a.email=i.email AND a.subject=i.firebase_uid
+        WHERE i.id=? AND i.token_hash=? AND i.target_role IN ('student','instructor') AND i.accepted_at IS NULL AND i.revoked_at IS NULL
+      ) THEN 1 ELSE 0 END`,
+          )
+          .bind(
+            guard,
+            session.id,
+            session.user_id,
+            now,
+            now - IDLE,
+            invitation.id,
+            tokenHash,
+          ),
+        this.db
+          .prepare(
+            `INSERT INTO course_memberships(course_id,user_id,role,active) VALUES(?,?,?,1)
+        ON CONFLICT(course_id,user_id,role) DO UPDATE SET active=1`,
+          )
+          .bind(invitation.course_id, session.user_id, invitation.target_role),
+        this.db
+          .prepare(
+            'UPDATE auth_invites SET accepted_by=?,accepted_at=? WHERE id=? AND token_hash=? AND accepted_at IS NULL AND revoked_at IS NULL',
+          )
+          .bind(session.user_id, now, invitation.id, tokenHash),
+        this.db
+          .prepare('DELETE FROM course_write_guards WHERE id=?')
+          .bind(guard),
+      ]);
+    } catch (error) {
+      const receipt = await this.db
+        .prepare(
+          `SELECT 1 FROM auth_invites i
+        JOIN courses c ON c.id=i.course_id AND c.active=1
+        JOIN course_memberships teacher ON teacher.course_id=i.course_id AND teacher.user_id=i.created_by AND teacher.role='instructor' AND teacher.active=1
+        JOIN auth_accounts ia ON ia.id=teacher.user_id AND ia.active=1
+        JOIN course_memberships m ON m.course_id=i.course_id AND m.user_id=i.accepted_by AND m.role=i.target_role AND m.active=1
+        JOIN auth_sessions s ON s.id=? AND s.user_id=m.user_id AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?
+        JOIN auth_accounts a ON a.id=s.user_id AND a.active=1
+        WHERE i.id=? AND i.token_hash=? AND i.accepted_by=? AND i.accepted_at IS NOT NULL AND i.revoked_at IS NULL`,
+        )
+        .bind(
+          session.id,
+          now,
+          now - IDLE,
+          invitation.id,
+          tokenHash,
+          session.user_id,
+        )
+        .first();
+      if (!receipt) throw error;
+    }
+  }
+  private actorGuard(s: Session, course: string, now: number, guard: string) {
+    return this.db
+      .prepare(
+        `INSERT INTO course_write_guards(id,allowed) SELECT ?,CASE WHEN EXISTS(
+      SELECT 1 FROM auth_sessions s JOIN auth_accounts a ON a.id=s.user_id AND a.active=1
+      JOIN course_memberships m ON m.user_id=a.id AND m.course_id=? AND m.role='instructor' AND m.active=1
+      JOIN courses c ON c.id=m.course_id AND c.active=1
+      WHERE s.id=? AND s.user_id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?) THEN 1 ELSE 0 END`,
+      )
+      .bind(guard, course, s.id, s.user_id, now, now - IDLE);
+  }
+  async rotate(i: ManagedInvite, s: Session) {
+    await this.cooldown('resend:' + i.id);
+    const token = randomToken(),
+      now = this.clock(),
+      guard = crypto.randomUUID(),
+      nextHash = await hash(token);
+    const results = await this.db.batch([
+      this.actorGuard(s, i.course_id, now, guard),
+      this.db
+        .prepare(
+          "UPDATE auth_invites SET token_hash=?,send_state='unknown' WHERE id=? AND token_hash=? AND accepted_at IS NULL AND revoked_at IS NULL AND NOT EXISTS(SELECT 1 FROM auth_mail_locks l WHERE l.invite_id=auth_invites.id AND l.expires_at>?) RETURNING id",
+        )
+        .bind(nextHash, i.id, i.token_hash, now),
+      this.db
+        .prepare(
+          'UPDATE auth_actions SET consumed_at=? WHERE invite_id=? AND consumed_at IS NULL AND EXISTS(SELECT 1 FROM auth_invites WHERE id=? AND token_hash=?)',
+        )
+        .bind(now, i.id, i.id, nextHash),
+      this.db.prepare('DELETE FROM course_write_guards WHERE id=?').bind(guard),
+    ]);
+    if (!results[1].results.length) throw new BoundaryError('RATE_LIMITED');
+    return token;
+  }
+  async list(s: Session, course: string, cursor: string) {
+    const now = this.clock();
     const rows = await this.db
       .prepare(
-        'SELECT * FROM auth_invites WHERE created_by=? AND course_id=? AND id>? ORDER BY id LIMIT 51',
+        `SELECT i.* FROM auth_invites i WHERE i.course_id=? AND i.id>? AND EXISTS (
+         SELECT 1 FROM auth_sessions s JOIN auth_accounts a ON a.id=s.user_id AND a.active=1
+         JOIN course_memberships m ON m.user_id=a.id AND m.course_id=i.course_id AND m.role='instructor' AND m.active=1
+         JOIN courses c ON c.id=m.course_id AND c.active=1
+         WHERE s.id=? AND s.user_id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?) ORDER BY i.id LIMIT 51`,
       )
-      .bind(userId, course, cursor)
+      .bind(course, cursor, s.id, s.user_id, now, now - IDLE)
       .all<ManagedInvite>();
     return {
       items: rows.results.slice(0, 50).map(inviteView),
       nextCursor: rows.results.length > 50 ? rows.results[49].id : null,
     };
   }
-  async revoke(i: ManagedInvite) {
-    await this.db
-      .prepare(
-        'UPDATE auth_invites SET revoked_at=? WHERE id=? AND accepted_at IS NULL',
-      )
-      .bind(this.clock(), i.id)
-      .run();
+  async revoke(i: ManagedInvite, s: Session) {
+    const now = this.clock(),
+      guard = crypto.randomUUID();
+    await this.db.batch([
+      this.actorGuard(s, i.course_id, now, guard),
+      this.db
+        .prepare(
+          'UPDATE auth_invites SET revoked_at=? WHERE id=? AND accepted_at IS NULL AND revoked_at IS NULL',
+        )
+        .bind(now, i.id),
+      this.db.prepare('DELETE FROM course_write_guards WHERE id=?').bind(guard),
+    ]);
   }
   async receipt(id: string, state: string, messageId?: string, token?: string) {
     await this.db
@@ -246,9 +485,9 @@ export class ManagedStore extends AuthStore {
     await this.db.batch([
       this.db
         .prepare(
-          'UPDATE auth_actions SET consumed_at=? WHERE firebase_uid=? AND consumed_at IS NULL',
+          "UPDATE auth_actions SET consumed_at=? WHERE firebase_uid=? AND consumed_at IS NULL AND ((? IS NULL AND purpose='reset') OR invite_id=?)",
         )
-        .bind(now, user.uid),
+        .bind(now, user.uid, inviteId, inviteId),
       this.db
         .prepare(
           'INSERT INTO auth_actions(id,code_hash,email,firebase_uid,invite_id,user_id,purpose,created_at,expires_at,invite_generation) VALUES(?,?,?,?,?,?,?,?,?,?)',

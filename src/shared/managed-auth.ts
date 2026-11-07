@@ -13,6 +13,14 @@ function invitation(v: unknown, p: string) {
     v,
     ['id', 'email', 'courseId', 'createdAt', 'status', 'sendState', 'sentAt'],
     p,
+    ['targetRole'],
+  );
+  assert(
+    o.targetRole === undefined ||
+      o.targetRole === null ||
+      o.targetRole === 'student' ||
+      o.targetRole === 'instructor',
+    p + '.targetRole',
   );
   assert(
     ['pending', 'accepted', 'revoked'].includes(o.status as string),
@@ -26,6 +34,7 @@ function invitation(v: unknown, p: string) {
     id: id(o.id, p + '.id'),
     email: text(o.email, p + '.email', 254),
     courseId: id(o.courseId, p + '.courseId'),
+    targetRole: (o.targetRole ?? null) as 'student' | 'instructor' | null,
     createdAt: timestamp(o.createdAt, p + '.createdAt'),
     status: o.status as 'pending' | 'accepted' | 'revoked',
     sendState: o.sendState as 'queued' | 'failed' | 'unknown',

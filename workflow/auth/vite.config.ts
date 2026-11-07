@@ -1,11 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { Readable } from 'node:stream';
+import { readFile } from 'node:fs/promises';
 import { authDatabase } from './database';
 import { ManagedStore } from '../../src/server/auth/managed-store';
 import { ManagedAuthRoutes } from '../../src/server/auth/managed-routes';
 import { SyntheticFirebase } from './synthetic-firebase';
-import { BoundaryError } from '../../src/shared/instructor-contracts/schema';
+import { CourseAuthority } from '../../src/server/courses/authority';
 import { hash, randomToken, setCookie } from '../../src/server/auth/primitives';
 const origin = 'http://127.0.0.1:5176',
   config = { origin, clientId: '', clientSecret: '', secure: false };
@@ -35,11 +36,31 @@ export default defineConfig({
         ];
       },
       async configureServer(server) {
-        const database = await authDatabase(),
-          store = new ManagedStore(database.db),
+        const database = await authDatabase();
+        for (const name of [
+          '0007_courses.sql',
+          '0009_course_creation.sql',
+          '0010_invitation_target_role.sql',
+        ]) {
+          const sql = await readFile(
+            'src/server/db/migrations/' + name,
+            'utf8',
+          );
+          await database.db.batch(
+            sql
+              .split(/^-- statement\s*$/m)
+              .map((s) => s.trim())
+              .filter((s) => s.replace(/^--.*$/gm, '').trim())
+              .map((s) => database.db.prepare(s)),
+          );
+        }
+        await database.db
+          .prepare('INSERT INTO courses(id,name) VALUES(?,?)')
+          .bind('synthetic-course', 'Synthetic course')
+          .run();
+        const store = new ManagedStore(database.db),
           provider = new SyntheticFirebase();
         const mails: { email: string; subject: string; text: string }[] = [];
-        let adminId = '';
         const mailer = {
           async send(email: string, continuation: string) {
             const subject = 'Codewise password setup or recovery';
@@ -48,12 +69,7 @@ export default defineConfig({
             return { state: 'queued' as const, messageId: 'synthetic-preview' };
           },
         };
-        const courses = {
-          async requireCourse(principal: { userId: string }, courseId: string) {
-            if (principal.userId !== adminId || courseId !== 'synthetic-course')
-              throw new BoundaryError('FORBIDDEN');
-          },
-        };
+        const courses = new CourseAuthority(database.db);
         const routes = new ManagedAuthRoutes(
           store,
           config,
@@ -110,7 +126,13 @@ export default defineConfig({
               '/workspace',
               token,
             );
-            adminId = (await store.session(cookie)).user_id;
+            const instructorId = (await store.session(cookie)).user_id;
+            await database.db
+              .prepare(
+                "INSERT OR IGNORE INTO course_memberships(course_id,user_id,role) VALUES(?,?,'instructor')",
+              )
+              .bind('synthetic-course', instructorId)
+              .run();
             res.writeHead(303, {
               'Set-Cookie': setCookie(config, 'session', cookie, 28800),
               Location: '/auth/invitations?courseId=synthetic-course',

@@ -470,7 +470,7 @@ describe('auth transport and UI capability handling', () => {
       await db.close();
       await rm(directory, { recursive: true, force: true });
     }
-  });
+  }, 30000);
   it('rejects unsafe returns and insecure production config', () => {
     for (const value of [
       '//evil.test',

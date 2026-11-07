@@ -209,7 +209,11 @@ describe('one-time operator owner bootstrap in actual isolated D1', () => {
       (
         await request(
           'invitations',
-          { email: 'student@u.nus.edu', courseId: 'invented' },
+          {
+            email: 'student@u.nus.edu',
+            courseId: 'invented',
+            targetRole: 'student',
+          },
           { session: true, token },
         )
       ).status,

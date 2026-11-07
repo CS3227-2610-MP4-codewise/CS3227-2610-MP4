@@ -15,7 +15,12 @@ import {
   type DestinationAuthorization,
 } from './routes';
 import { ManagedStore, inviteView, type ManagedInvite } from './managed-store';
-import { nusEmail, passwordValue, type CredentialProvider } from './firebase';
+import {
+  nusEmail,
+  passwordValue,
+  ProofRejected,
+  type CredentialProvider,
+} from './firebase';
 import { requireMailer, type AuthMailer } from './mail';
 import {
   ABSOLUTE,
@@ -48,6 +53,11 @@ function codeValue(v: unknown) {
     '$.code',
   );
   return v;
+}
+class InvitationDispatchFailure extends Error {
+  constructor(readonly state: 'failed' | 'unknown') {
+    super('Invitation dispatch did not complete.');
+  }
 }
 export class ManagedAuthRoutes extends AuthRoutes {
   constructor(
@@ -107,35 +117,45 @@ export class ManagedAuthRoutes extends AuthRoutes {
     authorize?: () => Promise<void>,
   ) {
     const claim = await this.managed.lockDispatch(i, token);
+    let dispatchStarted = false;
+    let failed = false;
     try {
       const mailer = requireMailer(this.mailer),
         provider = this.credentials!;
-      await provider.provision(i.firebase_uid, i.email);
-      const code = await provider.action(i.email);
-      const ticket = randomToken();
-      await this.managed.action(
-        ticket,
-        { uid: i.firebase_uid, email: i.email },
-        i.id,
-        null,
-        token,
-      );
-      const url =
-        this.config!.origin +
-        '/sign-in#invite=' +
-        token +
-        '&ticket=' +
-        ticket +
-        '&code=' +
-        encodeURIComponent(code);
+      const registered = await this.managed.account(i.email, provider.issuer);
+      if (registered && !i.target_role) throw new BoundaryError('FORBIDDEN');
+      let proof = '';
+      if (!registered) {
+        await provider.provision(i.firebase_uid, i.email);
+        const code = await provider.action(i.email);
+        const ticket = randomToken();
+        await this.managed.action(
+          ticket,
+          { uid: i.firebase_uid, email: i.email },
+          i.id,
+          null,
+          token,
+        );
+        proof = '&ticket=' + ticket + '&code=' + encodeURIComponent(code);
+      }
+      const url = this.config!.origin + '/sign-in#invite=' + token + proof;
       if (authorize) await authorize();
       await this.managed.pending(token);
+      dispatchStarted = true;
       const receipt = await mailer.send(i.email, url);
       await this.managed.receipt(i.id, receipt.state, receipt.messageId, token);
-      return receipt;
-    } finally {
-      await this.managed.unlockDispatch(i.id, claim);
+    } catch {
+      failed = true;
     }
+    try {
+      await this.managed.unlockDispatch(i.id, claim);
+    } catch {
+      failed = true;
+    }
+    if (failed)
+      throw new InvitationDispatchFailure(
+        dispatchStarted ? 'unknown' : 'failed',
+      );
   }
   override async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url),
@@ -173,6 +193,8 @@ export class ManagedAuthRoutes extends AuthRoutes {
         'setup/confirm',
         'reset/request',
         'reset/confirm',
+        'invitation/preview',
+        'invitation/join',
       ];
       if (request.method === 'POST' && publicPaths.includes(path)) {
         const browser = readCookie(request, cookieName(config, 'preauth'));
@@ -183,6 +205,160 @@ export class ManagedAuthRoutes extends AuthRoutes {
           30,
         );
         const raw = await readAuthBody(request);
+        if (path === 'invitation/preview' || path === 'invitation/join') {
+          const input =
+            path === 'invitation/preview'
+              ? object(raw, ['invite'])
+              : object(raw, ['invite', 'password'], '$', ['ticket', 'code']);
+          const invite = bearer(input.invite);
+          let i;
+          try {
+            i = await store.courseInvitation(invite);
+          } catch (error) {
+            if (path !== 'invitation/preview') throw error;
+            const legacy = await store.pending(invite);
+            if (
+              legacy.target_role !== null ||
+              (await store.account(legacy.email, this.credentials.issuer))
+            )
+              throw error;
+            let other = false;
+            if (readCookie(request, cookieName(config, 'session'))) {
+              try {
+                await this.requireSession(request);
+                other = true;
+              } catch {
+                /* expired session */
+              }
+            }
+            return json({ legacy: true, session: other ? 'other' : 'none' });
+          }
+          let account = await store.account(i.email, this.credentials.issuer);
+          let signed:
+            | Awaited<ReturnType<ManagedAuthRoutes['requireSession']>>
+            | undefined;
+          if (readCookie(request, cookieName(config, 'session'))) {
+            try {
+              signed = await this.requireSession(request);
+            } catch {
+              /* expired session */
+            }
+          }
+          const sessionState = !signed
+            ? 'none'
+            : signed.session.email === i.email &&
+                account?.id === signed.session.user_id
+              ? 'matching'
+              : 'other';
+          if (path === 'invitation/preview')
+            return json({
+              courseName: i.course_name,
+              role: i.target_role,
+              registered: !!account?.active,
+              session: sessionState,
+            });
+          if (sessionState === 'other') throw new BoundaryError('FORBIDDEN');
+          const password = passwordValue(input.password);
+          await store.rate('password:' + i.email, 5);
+          const setupClaim = account ? null : await store.lockSetup(i.email);
+          let uncertainReset = false;
+          try {
+            if (setupClaim)
+              account = await store.account(i.email, this.credentials.issuer);
+            let user;
+            if (account) {
+              if (!account.active || account.subject !== i.firebase_uid)
+                throw new BoundaryError('UNAUTHENTICATED');
+              const before = await this.credentials.current(account.subject);
+              user = await this.credentials.login(i.email, password);
+              const ownerStatus = await store.ownerStatus(
+                user,
+                this.credentials.issuer,
+              );
+              if (
+                user.uid !== account.subject ||
+                user.disabled ||
+                (!user.verified && ownerStatus !== 'valid') ||
+                ownerStatus === 'invalid' ||
+                before.passwordAt !== user.passwordAt ||
+                before.validSince !== user.validSince
+              )
+                throw new BoundaryError('UNAUTHENTICATED');
+            } else {
+              const proof = await store.proof(
+                bearer(input.ticket),
+                'setup',
+                invite,
+              );
+              if (
+                (await this.credentials.inspect(codeValue(input.code))) !==
+                i.email
+              )
+                throw new BoundaryError('UNAUTHENTICATED');
+              const before = await this.credentials.current(i.firebase_uid);
+              if (
+                before.disabled ||
+                before.email !== i.email ||
+                (await store.account(i.email, this.credentials.issuer))
+              )
+                throw new BoundaryError('UNAUTHENTICATED');
+              await store.consume(proof);
+              await store.beginSetupReset(i.email, setupClaim!);
+              uncertainReset = true;
+              let resetEmail;
+              try {
+                resetEmail = await this.credentials.reset(
+                  codeValue(input.code),
+                  password,
+                );
+              } catch (error) {
+                if (error instanceof ProofRejected) uncertainReset = false;
+                throw error;
+              }
+              uncertainReset = false;
+              if (resetEmail !== i.email)
+                throw new BoundaryError('UNAUTHENTICATED');
+              await this.credentials.verifyEmail(i.firebase_uid);
+              user = await this.credentials.current(i.firebase_uid);
+              if (!user.verified || user.disabled || user.email !== i.email)
+                throw new BoundaryError('UNAUTHENTICATED');
+            }
+            const sessionToken =
+              signed?.token ??
+              (account
+                ? await store.loginManaged(
+                    browser,
+                    user,
+                    this.credentials.issuer,
+                    '/workspace',
+                    null,
+                  )
+                : await store.admitCourseUser(
+                    browser,
+                    user,
+                    this.credentials.issuer,
+                    invite,
+                  ));
+            const verifiedRequest = new Request(request.url, {
+              headers: {
+                cookie: cookieName(config, 'session') + '=' + sessionToken,
+              },
+            });
+            const current = await this.requireSession(verifiedRequest);
+            await store.acceptCourse(invite, current.session);
+            return json({ ok: true }, 200, {
+              'Set-Cookie': setCookie(
+                config,
+                'session',
+                sessionToken,
+                ABSOLUTE / 1000,
+              ),
+            });
+          } finally {
+            if (setupClaim && !uncertainReset)
+              await store.unlockSetup(i.email, setupClaim);
+          }
+        }
         if (path === 'login') {
           const input = object(raw, ['email', 'password'], '$', ['returnTo']);
           const email = nusEmail(input.email),
@@ -288,32 +464,56 @@ export class ManagedAuthRoutes extends AuthRoutes {
           setup ? 'setup' : 'reset',
           token,
         );
-        if ((await this.credentials.inspect(code)) !== proof.email)
-          throw new BoundaryError('UNAUTHENTICATED');
-        const before = await this.credentials.current(proof.firebase_uid);
-        if (before.disabled || before.email !== proof.email)
-          throw new BoundaryError('UNAUTHENTICATED');
-        await store.consume(proof);
-        if ((await this.credentials.reset(code, password)) !== proof.email)
-          throw new BoundaryError('UNAUTHENTICATED');
-        if (setup) {
-          await this.credentials.verifyEmail(proof.firebase_uid);
-          // Rechecks pending/revoked admission immediately before the D1 acceptance transaction.
-          await store.pending(token!);
-          const user = await this.credentials.current(proof.firebase_uid);
-          if (!user.verified || user.disabled || user.email !== proof.email)
+        if (setup && (await store.pending(token!)).target_role !== null)
+          throw new BoundaryError('FORBIDDEN');
+        const setupClaim = setup ? await store.lockSetup(proof.email) : null;
+        let uncertainReset = false;
+        try {
+          if (
+            setup &&
+            (await store.account(proof.email, this.credentials.issuer))
+          )
+            throw new BoundaryError('FORBIDDEN');
+          if ((await this.credentials.inspect(code)) !== proof.email)
             throw new BoundaryError('UNAUTHENTICATED');
-          const cookie = await store.loginManaged(
-            browser,
-            user,
-            this.credentials.issuer,
-            '/workspace',
-            token!,
-            readCookie(request, cookieName(config, 'session')),
-          );
-          await store.logout(cookie); // Setup completes admission; sign in explicitly with the new password.
+          const before = await this.credentials.current(proof.firebase_uid);
+          if (before.disabled || before.email !== proof.email)
+            throw new BoundaryError('UNAUTHENTICATED');
+          await store.consume(proof);
+          if (setupClaim) await store.beginSetupReset(proof.email, setupClaim);
+          uncertainReset = setup;
+          let resetEmail;
+          try {
+            resetEmail = await this.credentials.reset(code, password);
+          } catch (error) {
+            if (error instanceof ProofRejected) uncertainReset = false;
+            throw error;
+          }
+          uncertainReset = false;
+          if (resetEmail !== proof.email)
+            throw new BoundaryError('UNAUTHENTICATED');
+          if (setup) {
+            await this.credentials.verifyEmail(proof.firebase_uid);
+            // Rechecks pending/revoked admission immediately before the D1 acceptance transaction.
+            await store.pending(token!);
+            const user = await this.credentials.current(proof.firebase_uid);
+            if (!user.verified || user.disabled || user.email !== proof.email)
+              throw new BoundaryError('UNAUTHENTICATED');
+            const cookie = await store.loginManaged(
+              browser,
+              user,
+              this.credentials.issuer,
+              '/workspace',
+              token!,
+              readCookie(request, cookieName(config, 'session')),
+            );
+            await store.logout(cookie); // Setup completes admission; sign in explicitly with the new password.
+          }
+          return json({ ok: true });
+        } finally {
+          if (setupClaim && !uncertainReset)
+            await store.unlockSetup(proof.email, setupClaim);
         }
-        return json({ ok: true });
       }
       const { token, session, principal } = await this.requireSession(request);
       if (path === 'session' && request.method === 'GET')
@@ -343,15 +543,20 @@ export class ManagedAuthRoutes extends AuthRoutes {
           cursor = url.searchParams.get('after') ?? '';
         assert(cursor.length <= 128, '$.after');
         await this.authorize(principal, course, false);
-        return json(await store.list(session.user_id, course, cursor));
+        return json(await store.list(session, course, cursor));
       }
       if (path === 'invitations' && request.method === 'POST') {
         const input = object(await readAuthBody(request), [
             'courseId',
             'email',
+            'targetRole',
           ]),
           course = id(input.courseId, '$.courseId'),
           email = nusEmail(input.email);
+        assert(
+          input.targetRole === 'student' || input.targetRole === 'instructor',
+          '$.targetRole',
+        );
         await this.authorize(principal, course, true);
         requireMailer(this.mailer);
         await store.rate('instructor:' + session.user_id, 10);
@@ -360,6 +565,7 @@ export class ManagedAuthRoutes extends AuthRoutes {
           course,
           email,
           this.credentials.issuer,
+          input.targetRole,
         );
         await this.authorize(principal, course, true);
         try {
@@ -367,10 +573,12 @@ export class ManagedAuthRoutes extends AuthRoutes {
             await this.requireSession(request);
             await this.authorize(principal, course, true);
           });
-        } catch {
+        } catch (error) {
           await store.receipt(
             result.invitation.id,
-            'failed',
+            error instanceof InvitationDispatchFailure
+              ? error.state
+              : 'unknown',
             undefined,
             result.token,
           );
@@ -392,18 +600,25 @@ export class ManagedAuthRoutes extends AuthRoutes {
           course = id(input.courseId, '$.courseId');
         await this.authorize(principal, course, true);
         const i = await store.owned(session.user_id, course, action[1]);
-        if (action[2] === 'revoke') await store.revoke(i);
+        if (action[2] === 'revoke') await store.revoke(i, session);
         else {
           requireMailer(this.mailer);
-          const next = await store.rotate(i);
+          const next = await store.rotate(i, session);
           await this.authorize(principal, course, true);
           try {
             await this.setupMail(i, next, async () => {
               await this.requireSession(request);
               await this.authorize(principal, course, true);
             });
-          } catch {
-            await store.receipt(i.id, 'failed', undefined, next);
+          } catch (error) {
+            await store.receipt(
+              i.id,
+              error instanceof InvitationDispatchFailure
+                ? error.state
+                : 'unknown',
+              undefined,
+              next,
+            );
           }
         }
         return json({ ok: true });

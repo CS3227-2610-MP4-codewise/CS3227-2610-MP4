@@ -1,4 +1,42 @@
 import { BoundaryError } from '../../shared/instructor-contracts/schema';
+export type InvitationPreview =
+  | {
+      courseName: string;
+      role: 'student' | 'instructor';
+      registered: boolean;
+      session: 'none' | 'matching' | 'other';
+    }
+  | { legacy: true; session: 'none' | 'other' };
+export function joinedWorkspaceMessage(role: 'student' | 'instructor') {
+  return role === 'student'
+    ? 'The Student workspace is not yet available.'
+    : 'You can now open your Instructor workspace.';
+}
+export function parseInvitationPreview(value: unknown): InvitationPreview {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new BoundaryError('INVALID_CONTRACT');
+  const v = value as Record<string, unknown>;
+  if (v.legacy === true) {
+    if (v.session !== 'none' && v.session !== 'other')
+      throw new BoundaryError('INVALID_CONTRACT');
+    return { legacy: true, session: v.session };
+  }
+  if (
+    typeof v.courseName !== 'string' ||
+    v.courseName.length < 1 ||
+    v.courseName.length > 120 ||
+    (v.role !== 'student' && v.role !== 'instructor') ||
+    typeof v.registered !== 'boolean' ||
+    !['none', 'matching', 'other'].includes(v.session as string)
+  )
+    throw new BoundaryError('INVALID_CONTRACT');
+  return {
+    courseName: v.courseName,
+    role: v.role,
+    registered: v.registered,
+    session: v.session as 'none' | 'matching' | 'other',
+  };
+}
 export async function authRequest(
   path: string,
   csrf?: string,

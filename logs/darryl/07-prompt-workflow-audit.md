@@ -419,3 +419,66 @@ Source `turn-ce1875f8d375d0f1e173fa19`, completed: input 556,253, cached input 5
 - Publication outcomes recorded after actual pushes; no merge or deployment authorized.
 
 - P026 verification/publication: all ten authentication prompts passed individual sub-list/table/source/total checks; formatting and whitespace passed. Authentication log alone committed as `e3a49bf` and pushed to `origin/codex/shared-authentication`. Authentication spec/ownership edits and newly appearing hash-spike helpers were excluded. Audit/template validation initially expected unpadded Markdown header spacing; corrected the check to allow formatter padding and all four recent prompt entries passed. Audit/template publication follows on their dedicated logging branch.
+
+### Prior prompt checkpoint reconciliation — 2026-11-07T10:34:06.483Z
+
+Source `turn-0b3be818265a6fc4732cf3b3`, completed: input 1,138,254, cached input 1,135,616, output 4,438, total 1,142,692. Supersedes any provisional snapshot for this source; count once.
+
+## Prompt P027 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Does local main contain the updated base foundation changes?
+
+### Agents spawned
+
+- **New agents:**
+  - None — read-only Git ref comparison needs no delegation.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`.
+
+### Token count
+
+**Usage report for P027:**
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/root` | 362,536 | 187,648 | 371 | 362,907 | `turn-9effde2fa11331042640d07d` | Provisional; later calls/final excluded |
+| Child agents | 0 | 0 | 0 | 0 | None | No children used |
+
+- Source/checkpoint: `per_response_usage`, `2026-11-07T10:34:06.483Z`; verified project scope. Cached/reasoning subsets not added; current turn finalized at next checkpoint.
+
+### Experiment outcome
+
+- Fetched origin/main, then compared refs. Local main is `2d8a861` (PR7); fetched origin/main is `969a062` (PR10 shared-foundation ownership), with 0 local-only and 24 remote-only commits. Remote main includes PR8 authentication, PR9 logging, PR10 course foundation. Current checkout is `codex/shared-authentication` at `1c8bee2`, not main.
+- Preserved dirty authentication log, untracked worktrees and remote-verification evidence. Did not switch branches, fast-forward local main, merge, commit, push, deploy or run runtime tests for this read-only question. Only required prompt-log append.
+
+### P027 reconciliation — 2026-11-07T10:35:25.848Z
+
+Source `turn-9effde2fa11331042640d07d`, completed: input 732,374, cached input 554,880, output 1,234, total 733,608. Supersedes its earlier snapshot; count once.
+
+## Prompt P028 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** How to get latest main while preserving existing branch edits.
+
+### Agents spawned
+
+- **New agents:**
+  - None — Git workflow explanation requires no delegated work.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`.
+
+### Token count
+
+**Usage report for P028:**
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/root` | 371,561 | 370,816 | 259 | 371,820 | `turn-1e35c64515fe6470dc123fc1` | Provisional; later work/final excluded |
+| Child agents | 0 | 0 | 0 | 0 | None | No children used |
+
+- Source/checkpoint `per_response_usage`, `2026-11-07T10:35:25.848Z`; cached/reasoning subsets not added. Finalize next checkpoint.
+
+### Experiment outcome
+
+Checked worktree inventory: main is not checked out in any listed worktree. Explain fetch into local main without switching or affecting current edits; distinguish that from merging main into current branch, which can require conflict resolution. No fetch/ref mutation/stash/merge/reset performed for this question; only required log append. Current changes preserved.

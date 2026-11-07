@@ -1,0 +1,26 @@
+
+> codewise@0.1.0 check
+> npm run specs:validate && npm run typecheck && npm run lint && npm run test && npm run build
+
+
+> codewise@0.1.0 specs:validate
+> openspec validate --all --strict
+
+Γ£ô change/codewise-mvp
+Γ£ô change/course-onboarding
+Γ£ô change/instructor-assessment-lifecycle
+Γ£ô change/instructor-assignment-publication
+Γ£ô change/instructor-development-contracts
+Γ£ô change/project-readiness
+  Γä╣ [INFO] file: skip_specs is set in .openspec.yaml: change declares no spec-level behavior changes, zero deltas accepted
+Γ£ô change/shared-authentication
+Γ£ô change/warm-workbook-ui
+Totals: 8 passed, 0 failed (8 items)
+
+> codewise@0.1.0 typecheck
+> tsc --noEmit
+
+
+> codewise@0.1.0 lint
+> eslint .
+

@@ -93,6 +93,12 @@ export class ProviderFailure extends Error {
     super('Identity service could not complete the request.');
   }
 }
+/** Firebase definitively rejected a proof without changing credentials. */
+export class ProofRejected extends BoundaryError {
+  constructor() {
+    super('UNAUTHENTICATED');
+  }
+}
 export async function boundedProviderJson(
   response: Response,
 ): Promise<Record<string, unknown>> {
@@ -268,7 +274,7 @@ export class FirebaseCredentials implements CredentialProvider {
           'EMAIL_NOT_FOUND',
         ].includes(error.code)
       )
-        throw new BoundaryError('UNAUTHENTICATED');
+        throw new ProofRejected();
       throw error;
     }
   }
