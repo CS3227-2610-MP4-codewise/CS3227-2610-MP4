@@ -48,7 +48,9 @@ describe('invitation entry', () => {
     ).toEqual({
       courseName: 'Software',
       role: 'instructor',
+      roles: ['instructor'],
       registered: true,
+      recovery: false,
       session: 'other',
     });
     for (const value of [

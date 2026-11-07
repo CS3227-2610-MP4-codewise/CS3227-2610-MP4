@@ -3,7 +3,9 @@ export type InvitationPreview =
   | {
       courseName: string;
       role: 'student' | 'instructor';
+      roles: ('student' | 'instructor')[];
       registered: boolean;
+      recovery: boolean;
       session: 'none' | 'matching' | 'other';
     }
   | { legacy: true; session: 'none' | 'other' };
@@ -27,13 +29,21 @@ export function parseInvitationPreview(value: unknown): InvitationPreview {
     v.courseName.length > 120 ||
     (v.role !== 'student' && v.role !== 'instructor') ||
     typeof v.registered !== 'boolean' ||
+    (v.recovery !== undefined && typeof v.recovery !== 'boolean') ||
+    (v.roles !== undefined &&
+      (!Array.isArray(v.roles) ||
+        v.roles.length < 1 ||
+        v.roles.length > 2 ||
+        v.roles.some((r: unknown) => r !== 'student' && r !== 'instructor'))) ||
     !['none', 'matching', 'other'].includes(v.session as string)
   )
     throw new BoundaryError('INVALID_CONTRACT');
   return {
     courseName: v.courseName,
     role: v.role,
+    roles: (v.roles ?? [v.role]) as ('student' | 'instructor')[],
     registered: v.registered,
+    recovery: v.recovery === true,
     session: v.session as 'none' | 'matching' | 'other',
   };
 }

@@ -50,10 +50,13 @@ export function AuthApp() {
     [confirmation, setConfirmation] = useState(''),
     [showPassword, setShowPassword] = useState(false),
     [targetRole, setTargetRole] = useState<'student' | 'instructor'>('student'),
+    [recoveryMode, setRecoveryMode] = useState<'existing' | 'reset'>(
+      'existing',
+    ),
     [preview, setPreview] = useState<InvitationPreview | null>(null),
     [joined, setJoined] = useState<{
       courseName: string;
-      role: 'student' | 'instructor';
+      roles: ('student' | 'instructor')[];
     } | null>(null);
   const [course] = useState(
       new URLSearchParams(window.location.search).get('courseId') ?? '',
@@ -379,10 +382,17 @@ export function AuthApp() {
                 <>
                   <p>
                     Joined <strong>{joined.courseName}</strong> as{' '}
-                    {joined.role === 'student' ? 'a Student' : 'an Instructor'}.
+                    {joined.roles
+                      .map((role) =>
+                        role === 'student' ? 'Student' : 'Instructor',
+                      )
+                      .join(' and ')}
+                    .
                   </p>
-                  <p>{joinedWorkspaceMessage(joined.role)}</p>
-                  {joined.role === 'instructor' && (
+                  {joined.roles.map((role) => (
+                    <p key={role}>{joinedWorkspaceMessage(role)}</p>
+                  ))}
+                  {joined.roles.includes('instructor') && (
                     <a className="cw-action" href="/workspace">
                       Open Instructor workspace <Icon name="arrow-right" />
                     </a>
@@ -409,9 +419,11 @@ export function AuthApp() {
                       <p>
                         You are invited to join{' '}
                         <strong>{preview.courseName}</strong> as{' '}
-                        {preview.role === 'student'
-                          ? 'a Student'
-                          : 'an Instructor'}
+                        {preview.roles
+                          .map((role) =>
+                            role === 'student' ? 'Student' : 'Instructor',
+                          )
+                          .join(' and ')}
                         .
                       </p>
                     )}
@@ -623,23 +635,50 @@ export function AuthApp() {
                               }
                               if (
                                 !preview.registered &&
+                                (!preview.recovery ||
+                                  recoveryMode === 'reset') &&
                                 password !== confirmation
                               ) {
                                 setMessage('The passwords do not match.');
                                 return;
                               }
-                              okSchema.parse(
-                                await authRequest('invitation/join', csrf, {
-                                  invite,
-                                  password,
-                                  ...(!preview.registered
-                                    ? { ticket, code: proofCode }
-                                    : {}),
-                                }),
-                              );
+                              try {
+                                okSchema.parse(
+                                  await authRequest('invitation/join', csrf, {
+                                    invite,
+                                    password,
+                                    roles: preview.roles,
+                                    ...(preview.recovery
+                                      ? { mode: recoveryMode }
+                                      : {}),
+                                    ...(!preview.registered
+                                      ? { ticket, code: proofCode }
+                                      : {}),
+                                  }),
+                                );
+                              } catch (error) {
+                                if (
+                                  error instanceof BoundaryError &&
+                                  error.code === 'INVALID_CONTRACT'
+                                ) {
+                                  const updated = parseInvitationPreview(
+                                    await authRequest(
+                                      'invitation/preview',
+                                      csrf,
+                                      { invite },
+                                    ),
+                                  );
+                                  setPreview(updated);
+                                  setMessage(
+                                    'The invitation may have changed. Review the current roles and details before trying again.',
+                                  );
+                                  return;
+                                }
+                                throw error;
+                              }
                               setJoined({
                                 courseName: preview.courseName,
-                                role: preview.role,
+                                roles: preview.roles,
                               });
                               try {
                                 setView(
@@ -653,9 +692,37 @@ export function AuthApp() {
                             });
                           }}
                         >
+                          {preview.recovery && (
+                            <div className="auth-field">
+                              <label htmlFor="recovery-mode">
+                                Choose how to sign in
+                              </label>
+                              <select
+                                id="recovery-mode"
+                                value={recoveryMode}
+                                onChange={(e) =>
+                                  setRecoveryMode(
+                                    e.target.value as 'existing' | 'reset',
+                                  )
+                                }
+                              >
+                                <option value="existing">
+                                  Use my existing password
+                                </option>
+                                <option value="reset">
+                                  Create or reset my password
+                                </option>
+                              </select>
+                              <p className="auth-hint">
+                                Resetting changes this account's password
+                                everywhere it is used.
+                              </p>
+                            </div>
+                          )}
                           <div className="auth-field">
                             <label htmlFor="join-password">
-                              {preview.registered
+                              {preview.registered ||
+                              (preview.recovery && recoveryMode === 'existing')
                                 ? 'Existing Codewise password'
                                 : 'New Codewise password'}
                             </label>
@@ -663,7 +730,9 @@ export function AuthApp() {
                               id="join-password"
                               type={showPassword ? 'text' : 'password'}
                               autoComplete={
-                                preview.registered
+                                preview.registered ||
+                                (preview.recovery &&
+                                  recoveryMode === 'existing')
                                   ? 'current-password'
                                   : 'new-password'
                               }
@@ -674,24 +743,25 @@ export function AuthApp() {
                               onChange={(e) => setPassword(e.target.value)}
                             />
                           </div>
-                          {!preview.registered && (
-                            <div className="auth-field">
-                              <label htmlFor="join-confirmation">
-                                Confirm password
-                              </label>
-                              <input
-                                id="join-confirmation"
-                                type={showPassword ? 'text' : 'password'}
-                                autoComplete="new-password"
-                                required
-                                value={confirmation}
-                                onChange={(e) =>
-                                  setConfirmation(e.target.value)
-                                }
-                              />
-                              <p className="auth-hint">8–64 characters.</p>
-                            </div>
-                          )}
+                          {!preview.registered &&
+                            (!preview.recovery || recoveryMode === 'reset') && (
+                              <div className="auth-field">
+                                <label htmlFor="join-confirmation">
+                                  Confirm password
+                                </label>
+                                <input
+                                  id="join-confirmation"
+                                  type={showPassword ? 'text' : 'password'}
+                                  autoComplete="new-password"
+                                  required
+                                  value={confirmation}
+                                  onChange={(e) =>
+                                    setConfirmation(e.target.value)
+                                  }
+                                />
+                                <p className="auth-hint">8–64 characters.</p>
+                              </div>
+                            )}
                           <button
                             type="button"
                             className="cw-text-action"
@@ -705,7 +775,8 @@ export function AuthApp() {
                             type="submit"
                             pending={pending}
                           >
-                            {preview.registered
+                            {preview.registered ||
+                            (preview.recovery && recoveryMode === 'existing')
                               ? 'Sign in and join course'
                               : 'Create password and join course'}{' '}
                             <Icon name="arrow-right" />
@@ -900,9 +971,11 @@ export function AuthApp() {
                             setEmail('');
                             await refresh();
                             setMessage(
-                              result.invitation.sendState === 'queued'
-                                ? 'Invitation email queued.'
-                                : 'Sending was not confirmed. Check the status below.',
+                              result.reused
+                                ? 'This invitation already exists. No new email was sent.'
+                                : result.invitation.sendState === 'queued'
+                                  ? 'Invitation email queued.'
+                                  : 'Sending was not confirmed. Check the status below.',
                             );
                           });
                         }}
@@ -966,13 +1039,15 @@ export function AuthApp() {
                               <div>
                                 <strong>{i.email}</strong>
                                 <p>
-                                  {'targetRole' in i &&
-                                  i.targetRole === 'instructor'
-                                    ? 'Instructor'
-                                    : 'targetRole' in i &&
-                                        i.targetRole === 'student'
-                                      ? 'Student'
-                                      : 'Legacy invitation'}{' '}
+                                  {i.targetRoles.length
+                                    ? i.targetRoles
+                                        .map((role) =>
+                                          role === 'student'
+                                            ? 'Student'
+                                            : 'Instructor',
+                                        )
+                                        .join(' and ')
+                                    : 'Legacy invitation'}{' '}
                                   ·{' '}
                                   <span
                                     className={
