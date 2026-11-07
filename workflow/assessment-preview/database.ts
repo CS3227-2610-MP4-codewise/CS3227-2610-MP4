@@ -8,6 +8,14 @@ export async function assessmentDatabase(persist?: string) {
     )
     .run();
   const name = '0008_instructor_assessments.sql';
+  // Local preview only: the pre-rebase 0007 assessment migration has identical SQL.
+  // Preserve fixture grading across the filename renumber; this never touches remote migration metadata.
+  await database.db
+    .prepare(
+      "INSERT OR IGNORE INTO _assessment_migrations(name) SELECT ? WHERE EXISTS(SELECT 1 FROM _assessment_migrations WHERE name='0007_instructor_assessments.sql')",
+    )
+    .bind(name)
+    .run();
   if (
     !(await database.db
       .prepare('SELECT name FROM _assessment_migrations WHERE name=?')

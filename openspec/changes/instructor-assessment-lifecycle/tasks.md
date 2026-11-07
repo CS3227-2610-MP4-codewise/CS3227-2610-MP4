@@ -1,6 +1,6 @@
 # Tasks
 
-Implementation approval is pending. Checkboxes below measure work/evidence, not planning file existence. Requirements: GRADE-02–04, CON-05, IAL-01–09; warm-workbook-v1 UI-01/04/06/07/08 and UI-05 for pinned multi-question navigation.
+Implementation approval is confirmed; UI/manual acceptance and real submission/assessment-authority composition remain pending. Main969a062 governs existing specs and ownership. Checkboxes below measure work/evidence, not planning file existence. Requirements: GRADE-02–04, CON-05, IAL-01–09; warm-workbook-v1 UI-01/04/06/07/08 and UI-05 for pinned multi-question navigation.
 
 ## 1. Approval, ownership and test design
 
@@ -40,10 +40,10 @@ Implementation approval is pending. Checkboxes below measure work/evidence, not 
 
 ## 6. External integration gates — not completed by fixtures
 
-- [ ] 6.1 Obtain actual Keith agreement on applicable K decisions/revised auth boundary and exact reviewed SH-ID/SH-SUB producer revisions, then run producer/consumer checks with real authorization and immutable submissions in a separately approved composition increment. [CON-05, IAL-01/07/09]
+- [ ] 6.1 Obtain actual Keith agreement on applicable K decisions/revised auth boundary and exact reviewed Darryl-owned SH-ID composition and Keith-owned SH-SUB producer revision, then run producer/consumer checks with real authorization and immutable submissions in a separately approved composition increment. [CON-05, IAL-01/07/09]
 
 ## Workflow follow-up
 
-- Commit/push/PR publication requires separate instruction. Do not merge or deploy this iteration automatically.
+- Commit and rebase were separately authorized. Push/PR publication, merge and deployment require separate instruction.
 - Real feature activation and remote migrations require reviewed integration and the existing release workflow, not fixture success.
 - Do not archive unfinished acceptance or external integration gates.

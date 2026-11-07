@@ -117,6 +117,6 @@ The instructor workbook SHALL follow warm-workbook-v1 and distinguish partial dr
 ### Requirement: IAL-09 Isolated development and honest integration status
 Synthetic submission/authorization adapters SHALL exist only in an explicitly labelled loopback development preview and tests. Application services SHALL fail closed without real injected producers. Joint K decisions, provider integration and deployment tasks SHALL remain pending until actual evidence is supplied. [CON-05, UI-08]
 
-#### Scenario: Production lacks Keith producer
+#### Scenario: Production lacks reviewed assessment and submission composition
 - **WHEN** deployed routing has no reviewed submission/authorization composition
 - **THEN** this change exposes no assessment feature route or fixture fallback; local synthetic success is not reported as live integration.

@@ -2,9 +2,11 @@
 
 ## Context
 
-See proposal.md for outcome and exclusions. Baseline reviewed main79495387ec766c2d9c41b43ee87e9505e7d8bf85 includes AssignmentService/D1Assignments, C-SUB validateAttempt, C-REL validateFeedbackElements/validateRelease/projectRelease/assertApproval/currentnessToken and injected identity/submission/publication/release ports. Only a synthetic release protocol model exists: no assessment repository or workspace. There are no canonical openspec/specs; the MVP and instructor-development-contracts change drafts supply the baseline. P1–P4 are Darryl-approved; K1–K6 are explicitly Keith-pending.
+See proposal.md for outcome and exclusions. The authoritative base is reviewed main969a062, including its updated MVP/OpenSpec context, Ownership and IntegrationContracts. Darryl owns SH-AUTH and SH-ID (courses, memberships, object authorization and workspace contexts); Keith owns immutable submissions and student features and cross-reviews C-ID. Main's existing specs/configuration are unchanged by this assessment delta.
 
-Separate codex/instructor-assessment-lifecycle worktree preserves the original checkout's uncommitted authentication deployment notes. Remote owner login is separately verified; an account admin still has no course authority. Existing planning's older auth status is historical, not a reason to invent a role.
+Consume the existing AssignmentService/D1Assignments, CourseAuthority and C-SUB/C-REL contracts rather than replacing them. CourseAuthority currently resolves assignment objects; assessment/submission object composition and Keith's immutable submission producer are still pending. This change supplies an isolated assessment service/workbook using injected ports and a local synthetic preview; no production activation is inferred. P1–P4 are confirmed owner policies and K1–K6 cross-review remains pending.
+
+The assessment migration is0008 after main0007_courses. The local preview loader accepts the identical pre-rebase0007 assessment marker solely to preserve synthetic grading data; production/course migration history is unchanged. The separate authentication checkout remains untouched.
 
 ## Goals / Non-Goals
 
@@ -14,11 +16,11 @@ Separate codex/instructor-assessment-lifecycle worktree preserves the original c
 
 ## Decisions
 
-### 1. Proposed single-writer window; approval pending
+### 1. Approved single-writer window
 
-Darryl is the named assessment/release producer owner. Approval of this brief confirms exclusive writes for new src/server/instructor/assessments/, src/web/instructor/assessments/, new src/shared/instructor-contracts/assessment.ts and focused assessment tests, and the next additive assessment-only migration (currently0008; recheck actual main/migration directory immediately before creation). Reuse src/server/instructor/ports/contracts.ts and C-SUB/C-REL unchanged unless a separately agreed compatible addition is necessary. No Keith-owned writes.
+Darryl is the named assessment/release producer owner. The approved brief grants exclusive writes for new src/server/instructor/assessments/, src/web/instructor/assessments/, new src/shared/instructor-contracts/assessment.ts and focused assessment tests, and the next additive assessment-only migration (currently0008; recheck actual main/migration directory immediately before creation). Reuse src/server/instructor/ports/contracts.ts and C-SUB/C-REL unchanged unless a separately agreed compatible addition is necessary. No Keith-owned writes.
 
-Minimal opt-in package script/local preview support, workflow/assessment-preview/, new assessment conformance helpers/fixtures, this change's evidence/handoff and one logs/darryl/09-instructor-assessment-lifecycle.md are in scope. Before implementation append the approved exact migration/contract writer window to existing Ownership.md; append a narrow implementation status to IntegrationContracts.md without rewriting historical K decisions. Existing publication services, shared UI primitives and production server/frontend entries remain read-only. Reviewer is read-only; no parallel edits. Any required shared interface or production wiring change outside this window returns for scope agreement.
+Minimal opt-in package script/local preview support, workflow/assessment-preview/, new assessment conformance helpers/fixtures, this change's evidence/handoff and one logs/darryl/09-instructor-assessment-lifecycle.md are in scope. The approved migration/contract writer window is recorded in Ownership.md, and assessment status is recorded in IntegrationContracts.md. Main’s ownership updates govern; pending cross-review is not converted into acceptance. Existing publication services, shared UI primitives and production server/frontend entries remain read-only. Reviewer is read-only; no parallel edits. Any required shared interface or production wiring change outside this window returns for scope agreement.
 
 Alternative: edit the current authentication checkout or implement Keith's missing producers. Rejected: preserves unrelated work and the agreed domain ownership.
 
@@ -26,7 +28,7 @@ Alternative: edit the current authentication checkout or implement Keith's missi
 
 Inject IdentityCoursePort, SubmissionReadPort and PublicationReadPort plus assessment repository, clock and ID source. Every list/load/create/save/approve/release/withdraw/history/consumer read requires a trusted current session and the applicable object/course action. Writes additionally require mutation origin/session CSRF from the identity adapter. Actor/course ownership is server-derived; browser role/admin flags never authorize. Idempotency lookup/replay occurs after fresh authorization.
 
-Assessment scope resolver reads only local aggregate identifiers/course/attempt metadata for Keith's object port; it does not load private draft/source before authorization. Creation starts from an explicitly authorized immutable attempt ID, not a substitute submissions list. Future assignment/attempt discovery belongs to Keith's producer; the local fixture picker is visibly synthetic only.
+Assessment scope resolver reads only local aggregate identifiers/course/attempt metadata for the Darryl-owned object-authorization port; it does not load private draft/source before authorization. Creation starts from an explicitly authorized immutable attempt ID, not a substitute submissions list. Assignment discovery uses the inherited course/publication foundation; immutable-attempt discovery belongs to Keith’s submission producer; the local fixture picker is visibly synthetic only.
 
 Use the existing publication service through an adapter calling its instructor-authorized immutable privateVersion operation and returning only its publication projection. This avoids erroneously requiring the existing student-only publicVersion authorization path for instructor grading and avoids another publication store. References never enter C-REL. SubmissionReadPort supplies the authoritative attempt; validateAttempt joins exact assignment/question/rubric IDs, LF source and SHA-256.
 
@@ -76,7 +78,7 @@ Tests must use real local D1 for aggregate atomicity/persistence and synthetic e
 
 ## Risks / Trade-offs
 
-- Keith producers/K1–K6 absent → injected contracts and clearly synthetic preview only; real composition stays blocked/pending.
+- Submission producer/assessment-aware authorization composition and joint cross-review pending → injected contracts and clearly synthetic preview only; real composition stays blocked/pending.
 - Large manual feedback and history → shared bounded payloads, compact revision persistence and paginated history; no copied submissions.
 - Authorization/provider changes during async work → reauthorize/revalidate before writes/replay/reads; real producer guarantees must be independently reviewed.
 - Release/withdrawal races → D1 CAS plus atomic receipts/audit/currentness, concurrency and injected failure tests.
@@ -89,4 +91,4 @@ After approval recheck migration numbering/writer window and add one assessment-
 
 ## Acceptance and pending decisions
 
-Darryl implementation/window approval is pending. P2/P3/P4 remain confirmed owner policies; exact local service/authoring/UI protocol choices above are proposed in this brief. K1–K6 (especially source/precision/currentness and revised auth boundary) require Keith agreement before real runtime composition; do not silently treat prior general approval as detailed Keith review. No new consumer-impacting contract policy is proposed. Deployment, real submission/authorization integration, student cache behavior and manual UI acceptance remain independent gates.
+Darryl implementation/window approval is confirmed. P2/P3/P4 remain confirmed owner policies; this design records the approved isolated implementation. K1–K6 (especially source/precision/currentness and revised auth boundary) require Keith cross-review before real runtime composition; do not silently treat prior general approval as detailed Keith review. No new consumer-impacting contract policy is proposed. Deployment, real submission/authorization integration, student cache behavior and manual UI acceptance remain independent gates.

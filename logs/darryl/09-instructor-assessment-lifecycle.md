@@ -66,3 +66,19 @@ Detailed usage remains in the private local recorder; current-turn checkpoint is
 ### Experiment outcome
 
 Inspected dirty state first and retained the matching isolated assessment branch. Separate authentication checkout remains untouched. Fetched main969a062, which contains Darryl's course-authority foundation and0007_courses migration. Created initial assessment lifecycle batch0f21055 and UI/preview batch6588577; documentation/evidence batch follows. Rebase must preserve main's course ownership/implementation and both preview/provisioning scripts, move the assessment migration to the next free number and reconcile producer evidence after replay. UI/manual and real submission integration gates stay pending. Final rebase/check outcomes will be appended below.
+
+## Prompt IAL-P004 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Resolve conflicts by following the updated version on main, especially specifications.
+
+### Agents spawned
+
+New agents: none. Reused agents: none. Main /root reconciles the new assessment delta against authoritative main; no new product policy or independent-review claim.
+
+### Token count
+
+Detailed usage stays in the private recorder. This steering prompt shares the current active turn; per-prompt allocation is unavailable and the private usage group is counted once. Current snapshot excludes later calls/final response.
+
+### Experiment outcome
+
+Fetched main again and confirmed969a062. Verified inherited OpenSpec config, MVP, auth, publication, contracts, readiness and warm-workbook artifacts are byte-for-byte main. Rewrote stale wording in the new assessment proposal/design/tasks to follow main’s Darryl-owned SH-ID and existing course/assignment producer rather than keeping competing old ownership/approval statements. Kept only assessment-specific additions and pending SH-SUB/assessment composition/manual acceptance. No application scope expansion or change to Keith’s student/submission services. Final validation/commit outcomes follow.

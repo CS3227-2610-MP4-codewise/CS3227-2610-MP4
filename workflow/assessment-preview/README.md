@@ -1,6 +1,10 @@
 # Instructor assessment producer and isolated workbook
 
-Darryl owns this assessment/release implementation. Keith owns submissions, course/object authorization and all student UI/progress/cache behavior. Requirements: GRADE-02–04, CON-05, IAL-01–09; warm-workbook-v1 UI-01/04/05/06/07/08. K1–K6 consumer agreement and real producer integration remain pending.
+Darryl owns this assessment/release implementation. Darryl owns course/object authorization under the new-main SH-ID agreement. Keith owns submissions and all student UI/progress/cache behavior. Requirements: GRADE-02–04, CON-05, IAL-01–09; warm-workbook-v1 UI-01/04/05/06/07/08. K1–K6 consumer agreement and real producer integration remain pending.
+
+## Rebased foundation
+
+Rebased on main969a062. Main already implements Darryl-owned course/assignment authority and0007_courses. This assessment migration is0008; its local-only preview loader recognizes the identical pre-rebase0007 assessment marker so existing synthetic grading is retained. No production or course migration is renamed. Existing CourseAuthority supports assignment objects; assessment/submission object composition remains unimplemented here, rather than adding a parallel authority.
 
 ## Run locally
 
@@ -61,7 +65,7 @@ AssessmentService.consumer(trustedRequest) returns the existing ReleaseReadPort.
 - conformance.ts exports verifyAssessmentProducer(driver). Supply producer prepareReviewed/correctReviewed/release/withdraw/read/currentness operations; the reusable checks verify idempotent replay, monotonic corrections, supersession, P4 tombstones and no revival. Local tests exercise the real D1 lifecycle with synthetic external producers, not the earlier in-memory protocol model.
 - assessment.test.ts, conformance.test.ts, transactions.test.ts and controller.test.ts cover private edits, precision/evidence/auth, concurrency/rollback, public safety and asynchronous revision guards. Their local success is not Keith's consumer execution.
 
-Combined review packet: existing K1 request-derived auth/object ports, K2 immutable publication identities, K3 precision/comparison keys, K4 canonical immutable source and K5 release/currentness/withdrawals remain Keith-pending. K6 AI is unchanged and excluded here. See workflow/IntegrationContracts.md for the authoritative packet; do not duplicate or mark it jointly accepted. Keith supplies exact reviewed SH-ID/SH-SUB revisions and records execution against this producer before real composition.
+Combined review packet: existing K1 request-derived auth/object ports, K2 immutable publication identities, K3 precision/comparison keys, K4 canonical immutable source and K5 release/currentness/withdrawals remain Keith-pending. K6 AI is unchanged and excluded here. See workflow/IntegrationContracts.md for the authoritative packet; do not duplicate or mark it jointly accepted. Darryl supplies assessment-aware SH-ID composition using the existing course foundation; Keith supplies the exact reviewed SH-SUB revision and records consumer execution before real composition.
 
 ## Manual acceptance still required
 
