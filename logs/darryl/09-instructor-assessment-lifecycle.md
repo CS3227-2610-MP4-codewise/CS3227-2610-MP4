@@ -278,3 +278,141 @@ Committed verified frontend as b9f3f6de496db9581cd44bb9abaa50219698d604. Current
 ### Publication result
 
 Normal (non-draft) PR created: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/11, targeting main969a062 from codex/instructor-assessment-lifecycle. UX application commit b9f3f6d and planning/evidence commit715d96c pushed. PR includes full assessment/publication composition, shared course navigation, migration recovery notes, requirement IDs, real executed verification and pending manual/Keith integration boundaries. No merge/deployment or new source/test change. Final publication checkpoint is documentation only.
+
+## Prompt IAL-P018 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Continue instructor assessment completion, inspect existing implementation and evidence, verify workbook/navigation/accessibility and lifecycle, and reconcile only with evidence and explicit manual acceptance. [IAL-01–11, GRADE-02–04, UI-01/04–08]
+
+### Agents spawned
+
+- New agents: none. The required analysis and brief are being handled by the main agent before implementation; independent review is planned for substantive changes.
+- Reused agents: none; prior session agents are not available in this session.
+- Main agent: /root. Historical activity outside the recorded evidence is unavailable.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | recorder unavailable | provisional; current turn incomplete |
+| Children | none | none | none | none | actual activity | no children spawned |
+
+- Total: unavailable. Recorder configuration identifies this project, but report failed with EPERM writing its outside-workspace temporary records file. No source group ID was available; reconcile this and the preceding prompt at a later accessible checkpoint. No shared-turn allocation is claimed.
+
+### Experiment outcome
+
+- Inspected current checkout, OpenSpec artifacts, source and recorded UI/verification evidence. Workbook observations and question controls exist; prior browser evidence and first-pass rejection do not establish acceptance. OpenSpec local status reports planning complete. No product files changed and no new product tests run.
+- Prior assessment worktree has an unrelated modified log and is outside writable roots; current checkout is on codex/authorized-dashboard-contexts at f9cc6aa. Preserve both states.
+- The invoked feature workflow requires an approved brief before product changes. Manual acceptance, accessibility matrix, and Keith's real producer/consumer integration remain pending. No controlled resource comparison.
+
+## Prompt IAL-P019 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Approved the assessment completion brief. [IAL-01–11, GRADE-02–04, UI-01/04/05/06/07/08]
+
+### Agents spawned
+
+- New: /root/assessment_review, read-only independent source reviewer, chosen to identify defects and review focused repairs without editing shared files. Found failed withdrawal retry, overlapping marker state, malformed evidence and unverified navigation announcements; re-reviewed first two repairs with no concrete regression.
+- Reused: /root/assessment_review for focused re-review. Main agent: /root. No other child agents.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | recorder inaccessible | provisional |
+| /root/assessment_review | unavailable | unavailable | unavailable | unavailable | recorder inaccessible | provisional |
+
+- Total unavailable. Previous recorder checkpoint failed EPERM outside workspace; source group IDs and per-agent usage unavailable. Reconcile both prompts at next accessible checkpoint; no shared-turn total invented.
+
+### Experiment outcome
+
+- OpenSpec apply reports 26/31 tasks complete. Independent review identified four issues. Repaired withdrawal form closing on failed action and marker pressed state for overlapping observations; added controller regression. Focused reviewer found repairs sound by source inspection, without executing tests.
+- Focused controller suite passed 8/8 outside sandbox. Sandbox Vite/Vitest startup failed because parent directory access was denied. Typecheck failed because concurrent, independently introduced workspace changes removed workspace-switch.tsx and verifiedCoursesSchema while current consumers still import them. No changes to those shared files were made by this agent. Preview browser connection refused after sandbox startup failed; no visual or manual acceptance claimed.
+- Malformed-evidence state and actual navigation/accessibility verification remain unresolved. All existing pending tasks remain open, as does Keith's integration. No controlled comparison; next owner Darryl must resolve the concurrent workspace state before full verification.
+
+## Prompt IAL-P020 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Asked what open tasks 4.2, 4.3, 4.5 and 5.4 mean.
+
+### Agents spawned
+
+- New: none; this is a direct question answerable from the task file. Reused: none. Main: /root.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | recorder unavailable | provisional |
+| Children | none | none | none | none | observed activity | no children |
+
+- Total unavailable; source group ID unavailable. The prior recorder checkpoint failed with EPERM; reconciliation of prior prompts remains pending an accessible checkpoint. No usage allocation invented.
+
+### Experiment outcome
+
+- Read the four task descriptions and explained the remaining work. No product changes or tests. No controlled comparison. Existing implementation, accessibility evidence, manual acceptance and concurrent workspace-state blockers remain as recorded above.
+
+## Prompt IAL-P021 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Asked to consider the four discussed tasks done and ensure specs and OpenSpec records reflect the real project plan; uncertain about concurrent shared-file changes.
+
+### Agents spawned
+
+- New: none; main agent handles the bounded planning reconciliation. Reused: none. Main: /root.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | recorder inaccessible | provisional |
+| Children | none | none | none | none | observed activity | no children |
+
+- Total and source group ID unavailable. Prior recorder checkpoint failed EPERM; prior prompt usage reconciliation remains pending. No inferred measurements.
+
+### Experiment outcome
+
+- Inspected task and UI evidence and the current concurrent shared-file diff. Proposed recording Darryl's decision separately from unexecuted tests and preserving the Keith integration gate. OpenSpec update workflow requires showing and confirming concrete artifact revisions before writing them. No product or OpenSpec artifact edits in this prompt; no tests run. Concurrent shared changes remain untouched and their intent is unknown.
+
+## Prompt IAL-P022 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Confirmed proposed OpenSpec and evidence reconciliation.
+
+### Agents spawned
+
+- New: none; main agent applied the confirmed documentation update. Reused: none. Main: /root.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | recorder inaccessible | provisional |
+| Children | none | none | none | none | observed activity | no children |
+
+- Total and source group ID unavailable; previous recorder checkpoint failed EPERM and prior usage reconciliation remains pending. No inferred usage.
+
+### Experiment outcome
+
+- Updated the four task entries to record Darryl's explicit closure decision, without claiming unexecuted tests or a manual walkthrough. Recorded malformed-evidence finding, outstanding browser evidence and concurrent checkout issue; unchanged Keith integration task 6.1 remains open. IAL-11 acceptance follow-up reflects the decision; no spec requirements were weakened.
+- OpenSpec strict validation passed for instructor-assessment-lifecycle; apply status reports 30/31 tasks complete, with 6.1 remaining. Scoped git diff --check passed before this log entry. No product tests rerun; no controlled comparison. No deployment or archive.
+
+## Prompt IAL-P023 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Commit, push and create a pull request for the assessment continuation.
+
+### Agents spawned
+
+- New: none; main agent handles publication of the already reviewed changes. Reused: none. Main: /root.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | recorder inaccessible | provisional |
+| Children | none | none | none | none | observed activity | no children |
+
+- Total and source group ID unavailable; previous recorder checkpoint failed EPERM. Reconcile this and preceding prompts when the recorder is accessible; no inferred usage.
+
+### Experiment outcome
+
+- Publishing the two focused UI repairs, controller regression, and accepted task/evidence reconciliation. Prior focused controller tests passed 8/8, strict OpenSpec validation passed, and independent source re-review found no concrete regression. Full checks remain limited by unrelated concurrent checkout changes; malformed-evidence handling and Keith integration remain pending. Preserve unrelated files. No controlled comparison; no merge or deployment requested.
+
+### Publication verification
+
+Isolated branch based on origin/main c14d640: strict OpenSpec validation, TypeScript and lint passed. Full npm run check stopped at Vitest: 310 passed, one unrelated course-invitation test timed out at 5 seconds; focused rerun also timed out at 5 seconds, then passed with a 30-second timeout. Separately, all four deployment checks and production build passed. The original checkout's concurrent changes were not copied. No deployment or merge.

@@ -121,7 +121,7 @@ export class AssessmentController {
         action !== 'correct' &&
         action !== 'withdraw')
     )
-      return;
+      return false;
     const epoch = this.epoch,
       edits = this.edits,
       head = view.head;
@@ -178,7 +178,7 @@ export class AssessmentController {
     try {
       await this.api.action(head.id, action, body);
       const v = await this.api.load(head.id);
-      if (epoch !== this.epoch) return;
+      if (epoch !== this.epoch) return false;
       this.update({
         view: v,
         selectedRevision: null,
@@ -194,8 +194,10 @@ export class AssessmentController {
                 ? 'Revision approved'
                 : 'Correction draft created',
       });
+      return true;
     } catch (e) {
       if (epoch === this.epoch) this.update({ message: this.error(e) });
+      return false;
     } finally {
       if (epoch === this.epoch) this.update({ busy: null });
     }
