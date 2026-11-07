@@ -1,5 +1,11 @@
 # Design
 
+## Course People follow-up — 2026-11-08
+
+The instructor course People page projects active memberships and pending invitations from the same D1 store, grouped by course/email. Show active and awaiting-acceptance roles separately; show email dispatch state only for a pending invite. Revoked invitations and inactive memberships remain in audit storage but leave the current roster. An instructor may revoke a pending invitation or explicitly remove a person, which atomically deactivates that person's memberships and revokes pending invitations for that course. Reads and removal require current same-course instructor authority, with a same-D1 guard against mid-request revocation. No student workspace or cross-course access is added. Follow warm-workbook-v1 and UI-01/07/08. [COU-03/07]
+
+The user designates the course creator as Course coordinator. Derive the label and self-removal restriction from the exact course_creation_receipts creator user ID, never from email or browser input. Block the creator's own removal inside the guarded D1 transaction before revoking any pending invitations. This decision does not specify coordinator transfer or restrict removal by another current instructor. Existing courses without a creation receipt remain unlabelled rather than inventing a creator. [COU-02/07, UI-01/07/08]
+
 ## 2026-11-07 recipient grouping and identity recovery adjustment
 
 Darryl requested one displayed entry per course/email; a pending Student and Instructor invitation to that recipient are shown together and either valid link may explicitly accept both current, authorized roles. Existing links and audit rows remain. The acceptance preview must show the full role set and the final D1 guard must reject changed role sets, revoked invitations or lost inviter authority rather than silently granting undisclosed roles. A later invitation after an earlier acceptance needs fresh consent; accepted receipts do not reactivate revoked membership. [COU-03/05/07, UI-01/02/07/08, warm-workbook-v1]

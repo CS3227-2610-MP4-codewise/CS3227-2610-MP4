@@ -24,6 +24,10 @@ The system SHALL allow the first admin and current trusted instructors to create
 - **WHEN** an authorized creator confirms a valid course name, including retry after an uncertain response
 - **THEN** exactly one course and its creator instructor membership persist together and the acknowledged course can be opened without a deployment or operator action.
 
+#### Scenario: Course coordinator self-removal
+- **WHEN** the creator views the People page or attempts to remove their own membership from that course
+- **THEN** the creator is labelled Course coordinator from the trusted course-creation receipt and the self-removal request is denied without changing membership or pending invitations. Courses without a creation receipt do not infer a coordinator from email or role. [COU-02/07, UI-01/07/08]
+
 #### Scenario: Partial or unauthorized creation
 - **WHEN** a student-only/expired/revoked identity requests creation, CSRF is invalid, or either atomic write fails
 - **THEN** no orphan course, partial privilege or false success appears.
@@ -42,6 +46,10 @@ Every current course instructor SHALL be able to send/track Student or Instructo
 #### Scenario: Same recipient receives both roles
 - **WHEN** current course instructors invite the same email to Student and Instructor roles for the same course
 - **THEN** the list shows one recipient entry with both roles; accepting either current link explicitly displays and atomically grants the currently invited roles. Re-entering the same role SHALL NOT produce another list entry. A revoked invitation or an inviter without current authority SHALL NOT grant a role. [COU-03/05/07]
+
+#### Scenario: Course people and removal
+- **WHEN** a current instructor opens People, revokes a pending invitation, or removes a course member
+- **THEN** People shows active course memberships and pending invitations with separate role and delivery states; revoked invitations and inactive members disappear from the current list. Removing a person deactivates their course roles and revokes their pending course invitations without altering their account or other courses. Server authorization SHALL be rechecked for each read and removal. [COU-03/07, UI-01/07/08]
 
 ### Requirement: COU-04 Account-aware invitation entry
 For either invited role, the system SHALL require mailbox-bound password setup for unregistered recipients and existing-password sign-in for registered recipients. Prior invitation alone SHALL NOT count as registration. It SHALL preserve one authoritative identity/password and renew expired proofs without expiring the pending invitation. (AUTH-01/03, SHA-01/02/05/08/09/11, UI-02/08)

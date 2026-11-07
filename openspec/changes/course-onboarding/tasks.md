@@ -16,6 +16,9 @@ Planning only: Darryl confirmed the product target on2026-11-07. All implementat
 
 ## 3. Role-targeted invitations and course acceptance — second implementation increment
 
+- [ ] 3.0c Show a current instructor-only People roster using active course memberships and pending invitations; separate active/pending roles and delivery states, hide revoked/removed entries, and authorize guarded removal. Verify cross-course/student/revoked denial, currentness, pagination, UI states and accessibility. [COU-03/07, UI-01/07/08, warm-workbook-v1]
+- [ ] 3.0d Label the trusted course creator as Course coordinator and deny that creator's self-removal in the guarded D1 transaction; cover other instructors, courses without receipts, pending invitations, UI accessibility and local preview recovery. [COU-02/07, UI-01/07/08, warm-workbook-v1]
+
 - [x] 3.0a Group the same course/email in invitation tracking and show all current roles; either current link SHALL accept the same explicitly displayed current role set atomically, without changing old token/audit history or reviving revoked access. Test duplicate role entry, both link orders, role changes between preview and submit, current inviter authority, concurrent acceptance and revoke. [COU-03/05/07, UI-01/02/07/08, warm-workbook-v1]
 - [x] 3.0b Recover an existing provider identity lacking a local account by requiring mailbox proof and an explicit existing-password or reset-password choice. Verify same-account binding, no implicit password changes, expired proof, collisions, wrong account, provider interruption and retries. [COU-04/05, SHA-05/08/11]
 

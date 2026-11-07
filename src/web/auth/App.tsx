@@ -7,9 +7,9 @@ import {
 } from '../../shared/auth';
 import {
   managedCreatedSchema,
-  managedInvitationListSchema,
+  coursePeopleSchema,
   okSchema,
-  type ManagedInvitation,
+  type CoursePerson,
 } from '../../shared/managed-auth';
 import { Action, StatusMessage } from '../ui/primitives';
 import { Brand, Icon } from '../ui/brand';
@@ -61,7 +61,7 @@ export function AuthApp() {
   const [course] = useState(
       new URLSearchParams(window.location.search).get('courseId') ?? '',
     ),
-    [items, setItems] = useState<ManagedInvitation[]>([]),
+    [items, setItems] = useState<CoursePerson[]>([]),
     [cursor, setCursor] = useState<string | null>(null),
     [workspace, setWorkspace] = useState(false);
   const lock = useRef(false);
@@ -81,9 +81,9 @@ export function AuthApp() {
     setListBusy(false);
     if (invitations && course && userId) {
       setListBusy(true);
-      void authRequest('invitations?courseId=' + encodeURIComponent(course))
+      void authRequest('people?courseId=' + encodeURIComponent(course))
         .then((result) => {
-          const list = managedInvitationListSchema.parse(result);
+          const list = coursePeopleSchema.parse(result);
           if (live && requestId === listRequest.current) {
             setItems(list.items);
             setCursor(list.nextCursor);
@@ -141,7 +141,7 @@ export function AuthApp() {
               if (!live) return;
               if (
                 result.state === 'authorized' &&
-                result.destination !== '/workspace'
+                (result.destination !== '/workspace' || path === '/sign-in')
               )
                 window.location.assign(result.destination);
               setWorkspace(result.state === 'authorized');
@@ -229,9 +229,9 @@ export function AuthApp() {
     const requestId = ++listRequest.current;
     setListBusy(true);
     try {
-      const list = managedInvitationListSchema.parse(
+      const list = coursePeopleSchema.parse(
         await authRequest(
-          'invitations?courseId=' +
+          'people?courseId=' +
             encodeURIComponent(course) +
             (after ? '&after=' + encodeURIComponent(after) : ''),
         ),
@@ -299,7 +299,7 @@ export function AuthApp() {
     });
   }
   const heading = invitations
-    ? 'Course invitations'
+    ? 'People'
     : joined
       ? 'Course joined'
       : done
@@ -1012,68 +1012,74 @@ export function AuthApp() {
                         </Action>
                       </form>
                       <div className="auth-list-heading">
-                        <h2>Course invitations</h2>
+                        <h2>People in this course</h2>
                         <button
                           className="cw-icon-button"
                           type="button"
                           disabled={pending || listBusy}
-                          aria-label="Refresh invitations"
-                          title="Refresh invitations"
+                          aria-label="Refresh people"
+                          title="Refresh people"
                           onClick={() => void act(() => refresh())}
                         >
                           <Icon name="refresh" />
                         </button>
                       </div>
                       {listBusy ? (
-                        <StatusMessage>Loading invitations…</StatusMessage>
+                        <StatusMessage>Loading people…</StatusMessage>
                       ) : !listReady ? (
                         <p className="auth-hint">
-                          Invitations could not be loaded. Try refreshing.
+                          People could not be loaded. Try refreshing.
                         </p>
                       ) : items.length === 0 ? (
-                        <p className="auth-empty">No invitations yet.</p>
+                        <p className="auth-empty">No people yet.</p>
                       ) : (
                         <ul className="auth-invites">
                           {items.map((i) => (
-                            <li key={i.id}>
+                            <li key={i.email}>
                               <div>
                                 <strong>{i.email}</strong>
-                                <p>
-                                  {i.targetRoles.length
-                                    ? i.targetRoles
+                                <div className="auth-person-status">
+                                  {i.activeRoles.length > 0 && (
+                                    <p>
+                                      {i.isCoordinator && (
+                                        <span>Course coordinator · </span>
+                                      )}
+                                      {i.activeRoles
                                         .map((role) =>
                                           role === 'student'
                                             ? 'Student'
                                             : 'Instructor',
                                         )
-                                        .join(' and ')
-                                    : 'Legacy invitation'}{' '}
-                                  ·{' '}
-                                  <span
-                                    className={
-                                      'auth-state auth-state--' + i.status
-                                    }
-                                  >
-                                    {i.status === 'pending'
-                                      ? 'Awaiting acceptance'
-                                      : i.status === 'accepted'
-                                        ? 'Accepted'
-                                        : 'Revoked'}
-                                  </span>
-                                  {i.status === 'pending' && (
-                                    <span>
-                                      {' '}
-                                      ·{' '}
+                                        .join(' and ')}{' '}
+                                      <span className="auth-person-active">
+                                        · Active
+                                      </span>
+                                    </p>
+                                  )}
+                                  {i.pendingRoles.length > 0 && (
+                                    <p>
+                                      {i.pendingRoles
+                                        .map((role) =>
+                                          role === 'student'
+                                            ? 'Student'
+                                            : 'Instructor',
+                                        )
+                                        .join(' and ')}{' '}
+                                      · Awaiting acceptance
+                                    </p>
+                                  )}
+                                  {i.pendingRoles.length > 0 && (
+                                    <p>
                                       {i.sendState === 'queued'
                                         ? 'Email queued'
                                         : i.sendState === 'failed'
                                           ? 'Email failed'
                                           : 'Send unconfirmed'}
-                                    </span>
+                                    </p>
                                   )}
-                                </p>
+                                </div>
                               </div>
-                              {i.status === 'pending' && (
+                              {i.invitationId && (
                                 <div className="auth-actions">
                                   <Action
                                     variant="secondary"
@@ -1085,7 +1091,9 @@ export function AuthApp() {
                                       void act(async () => {
                                         okSchema.parse(
                                           await authRequest(
-                                            'invitations/' + i.id + '/resend',
+                                            'invitations/' +
+                                              i.invitationId +
+                                              '/resend',
                                             view.csrfToken,
                                             { courseId: course },
                                           ),
@@ -1120,7 +1128,9 @@ export function AuthApp() {
                                       void act(async () => {
                                         okSchema.parse(
                                           await authRequest(
-                                            'invitations/' + i.id + '/revoke',
+                                            'invitations/' +
+                                              i.invitationId +
+                                              '/revoke',
                                             view.csrfToken,
                                             { courseId: course },
                                           ),
@@ -1135,6 +1145,46 @@ export function AuthApp() {
                                   </button>
                                 </div>
                               )}
+                              {i.userId &&
+                                !(i.isCoordinator && i.userId === userId) && (
+                                  <button
+                                    className="cw-text-action cw-danger-action"
+                                    type="button"
+                                    disabled={pending}
+                                    onClick={() => {
+                                      if (
+                                        !window.confirm(
+                                          'Remove ' +
+                                            i.email +
+                                            ' from this course? Their active roles and pending invitations for this course will be removed.',
+                                        )
+                                      )
+                                        return;
+                                      void act(async () => {
+                                        okSchema.parse(
+                                          await authRequest(
+                                            'people/remove',
+                                            view.csrfToken,
+                                            {
+                                              courseId: course,
+                                              userId: i.userId,
+                                            },
+                                          ),
+                                        );
+                                        if (i.userId === userId) {
+                                          window.location.assign('/workspace');
+                                          return;
+                                        }
+                                        await refresh();
+                                        setMessage(
+                                          'Person removed from this course.',
+                                        );
+                                      });
+                                    }}
+                                  >
+                                    Remove from course
+                                  </button>
+                                )}
                             </li>
                           ))}
                         </ul>

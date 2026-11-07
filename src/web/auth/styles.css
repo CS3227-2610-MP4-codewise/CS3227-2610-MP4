@@ -178,6 +178,13 @@
 .auth-invites strong {
   font-size: 0.875rem;
   font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.auth-person-active {
+  color: var(--cw-success);
+}
+.auth-person-status p {
+  margin: 4px 0 0;
 }
 .auth-invites p {
   margin-top: 4px;

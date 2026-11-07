@@ -50,7 +50,12 @@ function makeClient(
         : {},
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
-    const value: unknown = await response.json();
+    let value: unknown;
+    try {
+      value = await response.json();
+    } catch {
+      throw new Error('Assignments are unavailable. Try again later.');
+    }
     if (!response.ok) {
       const { error } = safeErrorSchema.parse(value);
       const text: Record<string, string> = {

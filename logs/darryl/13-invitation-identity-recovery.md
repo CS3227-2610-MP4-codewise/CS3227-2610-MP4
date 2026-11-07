@@ -112,3 +112,33 @@ Owner: Darryl. Requirements: course-onboarding COU-03–05/07, applicable SHA-01
 - No controlled comparison; token counts are not cost or quality evidence. Next owner Darryl and PR reviewers.
 
 **IIR-03/04 publication outcome, 2026-11-08:** Pushed `codex/invitation-identity-recovery` with commits c60ca27, e13066c and b5b9e68; opened draft [PR #15](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/15) against main. The PR records the previous passing full checks and pending recovery, UI acceptance, live delivery and CI. No merge, deployment or external message was performed.
+
+**IIR-04 reconciliation, 2026-11-08:** Completed turn-540d16e37153bb50ae50b80b: input 3483707, cached 3134208, output 3539, total 3487246. This replaces the provisional snapshot.
+
+## Prompt IIR-05 — 2026-11-08, Asia/Singapore
+
+**Prompt (redacted):** Ask why clicking sign in immediately shows a workbook/course-access message without entering credentials.
+
+### Agents spawned
+
+- **New agents:** None; local read-only tracing of the sign-in and session paths was sufficient.
+- **Reused agents:** None.
+- **Main agent:** /root; model unavailable. Historical unknowns unavailable.
+
+### Token count
+
+**Usage report for IIR-05:**
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| Main | 353610 | 351872 | 348 | 353958 | turn-0a1503d1ff67d47e94ff5f16 | provisional; incomplete |
+| Children | 0 | 0 | 0 | 0 | observed no agents | final activity |
+
+- Project-scoped private recorder; one-prompt turn. Later calls/final excluded; cached/reasoning are subsets. Reconcile next checkpoint. No controlled comparison.
+
+### Experiment outcome
+
+- Read-only code tracing: /sign-in calls session and workspace on load; an existing valid session suppresses credentials, and authorized workspace state displays the observed message. /workspace destination authorization alone does not establish course membership; wording can mislead. Session policy idle 30 minutes and absolute 8 hours, subject to server/provider checks. Exact browser session was not inspected; no account, session, deployment or product files changed. The user can use Account > Sign out or a private window to test a fresh login.
+- No controlled comparison; no new tests run. Next owner: Darryl if wording/flow correction is desired.
+
+**IIR-05 reconciliation, 2026-11-08:** Completed turn-0a1503d1ff67d47e94ff5f16: input 1781377, cached 1776256, output 1352, total 1782729. This replaces the provisional snapshot.

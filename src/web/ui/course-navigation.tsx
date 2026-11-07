@@ -3,7 +3,7 @@ export type CourseSection = 'assignments' | 'grading' | 'students';
 const sections = [
   { key: 'assignments', label: 'Assignments', path: '/instructor/assignments' },
   { key: 'grading', label: 'Grading', path: '/instructor/review' },
-  { key: 'students', label: 'Students', path: '/auth/invitations' },
+  { key: 'students', label: 'People', path: '/auth/invitations' },
 ] as const;
 /** One course navigation hierarchy for authoring, grading and invitations. */
 export function CourseNavigation({

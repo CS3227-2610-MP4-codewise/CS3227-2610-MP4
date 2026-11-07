@@ -22,7 +22,7 @@ describe('IAL-11/UI-04 consistent course context', () => {
         expect(html).toContain(path + '?courseId=course_1');
       expect(html).toContain('Assignments</a>');
       expect(html).toContain('Grading</a>');
-      expect(html).toContain('Students</a>');
+      expect(html).toContain('People</a>');
       expect(html).not.toContain('Assessments</a>');
     });
   }
