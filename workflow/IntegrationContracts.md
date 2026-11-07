@@ -204,9 +204,9 @@ First-increment implementation and exact compatibility packet: [C-ID/SHA packet]
 
 **Named writers/consumers:** Darryl produces SH-AUTH/SH-ID/course creation/role invitations/acceptance/allowed context/shared switch and instructor consumer; Keith reviews C-ID and supplies the student dashboard/submission consumers. Reuse C-ID, SessionView, IdentityCoursePort and the one authoritative store; do not duplicate those drafts or expand the browser's authority.
 
-### Dashboard contexts producer — local work in progress
+### Dashboard contexts producer — review pending
 
-The producer is an **uncommitted working tree** based on `1200323e925ec40f23ca5447ba888f9e941fda77`; this base is not a producer revision. Assign an exact producer commit after review and acceptance; Keith's consumer revision and agreement remain unavailable. The existing closed SessionView is unchanged. No deployment or student dashboard is implied.
+The local producer revision is `8f93f51c1f6a36dd64908bd550e90b68e9957af1`, based on `1200323e925ec40f23ca5447ba888f9e941fda77`. Review and acceptance are pending; Keith's consumer revision and agreement remain unavailable. The existing closed SessionView is unchanged. No deployment or student dashboard is implied.
 
 `GET /api/courses/contexts` requires the current authenticated session and returns no-store JSON. Its closed schema is `{ "workspaces": [{ "role": "student" | "instructor", "courses": [{ "id": string, "name": string }], "nextCursor": string | null }] }`. Roles are unique and omitted when not allowed; each page contains at most 100 courses, ordered by ID. Use `studentAfter` and/or `instructorAfter` to request the next role-specific page with its returned cursor. The cursor is an opaque course ID and never grants authority. Only active same-role memberships appear. First-admin creator eligibility allows an Instructor entry with no courses. Example: `{ "workspaces": [{ "role": "student", "courses": [{ "id": "course-a", "name": "Studio" }], "nextCursor": null }, { "role": "instructor", "courses": [{ "id": "course-b", "name": "Seminar" }], "nextCursor": null }] }`.
 
