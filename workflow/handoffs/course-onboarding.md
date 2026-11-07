@@ -1,5 +1,11 @@
 # Handoff: course-onboarding planning
 
+## Authorized dashboard contexts checkpoint — 2026-11-08
+
+Review: [draft PR #17](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/17), branch `codex/authorized-dashboard-contexts`. Draft status records pending manual UI acceptance and Keith consumer review.
+
+Darryl owns the 4.1–4.2 producer/switch work at `8f93f51c1f6a36dd64908bd550e90b68e9957af1`, based on `1200323e925ec40f23ca5447ba888f9e941fda77`. [C-ID packet](../IntegrationContracts.md#dashboard-contexts-producer--review-pending) contains current schemas, examples and Keith's reusable checks. [Verification checkpoint](../evidence/course-onboarding/authorized-dashboard-contexts.md) records actual review and outstanding UI checks. Keith owns task 4.3; no student consumer or agreement is claimed. The feature is not accepted or deployed. Next: finish UI evidence, obtain Darryl's manual acceptance, and integrate Keith's consumer.
+
 Publication: [normal PR12](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/12), planning commit df0f3ed3558eafb603b5a2583ab5ec49791ad617 pushed on codex/course-onboarding-plan. This supersedes earlier uncommitted/publication-pending checkpoints below. No application implementation, merge or deployment.
 
 - Human owner: Darryl; Keith owns student/submission consumers and cross-reviews the shared boundary.

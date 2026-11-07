@@ -77,6 +77,33 @@ pre {
   border-bottom: 1px solid var(--cw-rule);
   padding-bottom: 20px;
 }
+.cw-role-context {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+body[data-workspace-revoked] .cw-shell > :not(.cw-header),
+body[data-workspace-revoked] .assessment-app > :not(.assessment-top) {
+  display: none;
+}
+.cw-role-switch {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.cw-role-switch legend {
+  font-size: 0.75rem;
+}
+.cw-role-switch label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  cursor: pointer;
+}
 .cw-wordmark {
   font-family: var(--cw-font-editorial);
   font-size: 1.875rem;

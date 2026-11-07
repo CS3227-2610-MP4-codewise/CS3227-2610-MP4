@@ -18,7 +18,9 @@ const instructor = `EXISTS(SELECT 1 FROM course_memberships m
  WHERE m.user_id=a.id AND m.role='instructor' AND m.active=1)`;
 const current = `a.id=? AND a.active=1 AND s.id=? AND s.revoked_at IS NULL
  AND s.expires_at>? AND s.last_seen>?`;
-const eligible = (reconcile: boolean) => `(${instructor} OR (${owner} AND (
+export const creatorEligibilitySql = (
+  reconcile: boolean,
+) => `(${instructor} OR (${owner} AND (
  EXISTS(SELECT 1 FROM course_creator_capabilities p WHERE p.user_id=a.id AND p.active=1)
  ${reconcile ? 'OR NOT EXISTS(SELECT 1 FROM course_creator_capabilities p WHERE p.user_id=a.id)' : ''})))`;
 
@@ -35,7 +37,7 @@ export class CourseCreation {
     return !!(await this.db
       .prepare(
         `SELECT 1 FROM auth_accounts a JOIN auth_sessions s ON s.user_id=a.id
-      WHERE ${current} AND ${eligible(true)}`,
+      WHERE ${current} AND ${creatorEligibilitySql(true)}`,
       )
       .bind(...this.bindings(p, this.clock()))
       .first());
@@ -68,7 +70,7 @@ export class CourseCreation {
           .prepare(
             `INSERT INTO course_write_guards(id,allowed) SELECT ?,CASE WHEN EXISTS(
           SELECT 1 FROM auth_accounts a JOIN auth_sessions s ON s.user_id=a.id
-          WHERE ${current} AND ${eligible(false)}) THEN 1 ELSE 0 END`,
+          WHERE ${current} AND ${creatorEligibilitySql(false)}) THEN 1 ELSE 0 END`,
           )
           .bind(guard, ...args),
         this.db
@@ -112,7 +114,7 @@ export class CourseCreation {
         JOIN courses c ON c.id=r.course_id AND c.active=1
         JOIN course_memberships m ON m.course_id=c.id AND m.user_id=r.user_id AND m.role='instructor' AND m.active=1
         JOIN auth_accounts a ON a.id=r.user_id JOIN auth_sessions s ON s.user_id=a.id
-        WHERE r.user_id=? AND r.request_key=? AND ${current} AND ${eligible(false)}`,
+        WHERE r.user_id=? AND r.request_key=? AND ${current} AND ${creatorEligibilitySql(false)}`,
         )
         .bind(...scope, ...this.bindings(p, this.clock()))
         .first<Course>();

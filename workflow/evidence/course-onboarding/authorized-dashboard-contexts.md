@@ -1,0 +1,8 @@
+# Authorized dashboard contexts — verification checkpoint
+
+- Owner: Darryl. Requirements: COU-06/07, AUTH-02, UI-01/03/04/07/08; design `warm-workbook-v1`.
+- Base: `1200323e925ec40f23ca5447ba888f9e941fda77`; producer commit: `8f93f51c1f6a36dd64908bd550e90b68e9957af1`; Keith consumer revision is not yet available. Contract and examples: [C-ID packet](../../IntegrationContracts.md#dashboard-contexts-producer--review-pending).
+- Independent read-only reviewer `/root/review` inspected the working tree. Findings concerned creation retry state, revocation, pagination consistency, current-course/session protection and overlapping refresh/selection. The owner repaired these; the final focused re-review found no further counterexample for the last selection/refresh race. This is not a full final-tree approval or evidence of human UI acceptance.
+- Automated checks: focused `workflow/course/creation.test.ts` passed 17 tests on an earlier revision. Final product-code `npm run check` passed 8 strict OpenSpec validations, typecheck, lint, 310 Vitest tests, four deployment tests and build. Subsequent changes are documentation/log only. These checks do not establish browser interaction or live deployment.
+- UI review: warm tokens and shared controls are used; actual desktop/narrow/200% zoom, light/dark screenshots, pointer/Space, screen-reader announcement, focus, pending/racing requests and dirty-work cancellation remain **unverified**. No intentional design departure is approved.
+- Local/synthetic data is not hosted verification. Student consumer, opposite-role invitation journeys, Keith review and manual acceptance remain pending. Do not mark tasks 4.1–4.3 complete based on this checkpoint.

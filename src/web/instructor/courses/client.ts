@@ -2,6 +2,7 @@ import {
   courseCreationSchema,
   courseListSchema,
   courseResultSchema,
+  verifiedCoursesSchema,
   type CreateCourse,
 } from '../../../shared/courses';
 import { BoundaryError } from '../../../shared/instructor-contracts/schema';
@@ -45,4 +46,15 @@ export const courseClient = {
     courseCreationSchema.parse(await courseRequest('/creation')).canCreate,
   create: async (input: CreateCourse, csrf: string) =>
     courseResultSchema.parse(await courseRequest('', csrf, input)).course,
+  verify: async (ids: string[], csrf: string) => {
+    const response = await fetch('/api/courses/contexts/verify', {
+      method: 'POST',
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      body: JSON.stringify({ ids }),
+    });
+    if (!response.ok) throw new BoundaryError('FORBIDDEN');
+    return verifiedCoursesSchema.parse(await response.json()).courses;
+  },
 };

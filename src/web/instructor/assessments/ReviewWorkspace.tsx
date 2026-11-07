@@ -23,6 +23,7 @@ import { authRequest } from '../../auth/client';
 import { Brand, Icon } from '../../ui/brand';
 import { AccountMenu } from '../../ui/account-menu';
 import { CourseNavigation } from '../../ui/course-navigation';
+import { WorkspaceSwitch } from '../../ui/workspace-switch';
 import { AssessmentWorkspace } from './AssessmentWorkspace';
 import { AssessmentController } from './controller';
 import { assessmentClient, workspace } from './client';
@@ -252,6 +253,13 @@ export function ReviewWorkspace() {
       <header className="assessment-top">
         <Brand href="/workspace" />
         <nav className="cw-app-nav" aria-label="Main navigation">
+          {view && (
+            <WorkspaceSwitch
+              role="instructor"
+              courseId={course || undefined}
+              beforeLeave={() => !busy}
+            />
+          )}
           <a href="/workspace">Courses</a>
           {view && (
             <AccountMenu email={view.email} busy={busy} onSignOut={logout} />

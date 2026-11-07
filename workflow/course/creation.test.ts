@@ -214,6 +214,9 @@ it('additively reconciles the exact completed owner without changing existing ac
   expect(await snapshot()).toEqual(before);
   expect(await creation.canCreate(owner.p)).toBe(true);
   expect(await authority.list(owner.p)).toEqual([]);
+  expect(await (await call(owner, undefined, '/contexts')).json()).toEqual({
+    workspaces: [{ role: 'instructor', courses: [], nextCursor: null }],
+  });
   expect(
     await db
       .prepare('SELECT COUNT(*) AS n FROM course_creator_capabilities')
@@ -224,6 +227,106 @@ it('additively reconciles the exact completed owner without changing existing ac
   expect(response.headers.get('cache-control')).toBe('no-store');
   const body = (await response.json()) as { course: { id: string } };
   expect((await call(owner, undefined, '/' + body.course.id)).status).toBe(200);
+});
+
+it('projects each active role separately and drops revoked memberships without granting a forged role', async () => {
+  const person = await actor('student');
+  const studentCourse = (await authority.list(person.p, 'student'))[0];
+  const teacherCourse = crypto.randomUUID();
+  await db.batch([
+    db
+      .prepare('INSERT INTO courses(id,name) VALUES(?,?)')
+      .bind(teacherCourse, 'Teaching'),
+    db
+      .prepare(
+        'INSERT INTO course_memberships(course_id,user_id,role) VALUES(?,?,?)',
+      )
+      .bind(teacherCourse, person.p.userId, 'instructor'),
+  ]);
+  const response = await call(person, undefined, '/contexts');
+  expect(response.headers.get('cache-control')).toBe('no-store');
+  expect(await response.json()).toEqual({
+    workspaces: [
+      { role: 'student', courses: [studentCourse], nextCursor: null },
+      {
+        role: 'instructor',
+        courses: [{ id: teacherCourse, name: 'Teaching' }],
+        nextCursor: null,
+      },
+    ],
+  });
+  await db
+    .prepare(
+      'INSERT INTO course_memberships(course_id,user_id,role) VALUES(?,?,?)',
+    )
+    .bind(studentCourse.id, person.p.userId, 'instructor')
+    .run();
+  const sameCourse = (await (
+    await call(person, undefined, '/contexts')
+  ).json()) as {
+    workspaces: { role: string; courses: { id: string }[] }[];
+  };
+  expect(
+    sameCourse.workspaces.every((workspace) =>
+      workspace.courses.some((course) => course.id === studentCourse.id),
+    ),
+  ).toBe(true);
+  expect(
+    (
+      await call(
+        person,
+        { ids: [studentCourse.id, teacherCourse] },
+        '/contexts/verify',
+      )
+    ).status,
+  ).toBe(200);
+  expect(
+    (await call(person, undefined, '/contexts?role=instructor')).status,
+  ).toBe(400);
+  await db
+    .prepare(
+      "UPDATE course_memberships SET active=0 WHERE user_id=? AND role='instructor'",
+    )
+    .bind(person.p.userId)
+    .run();
+  expect(await (await call(person, undefined, '/contexts')).json()).toEqual({
+    workspaces: [
+      { role: 'student', courses: [studentCourse], nextCursor: null },
+    ],
+  });
+  expect((await call(person, undefined, '/' + teacherCourse)).status).toBe(403);
+  expect(
+    (
+      await call(
+        person,
+        { ids: [studentCourse.id, teacherCourse] },
+        '/contexts/verify',
+      )
+    ).status,
+  ).toBe(403);
+});
+
+it('paginates role courses without losing memberships', async () => {
+  const person = await actor();
+  const ids = Array.from({ length: 101 }, () => crypto.randomUUID()).sort();
+  await db.batch(
+    ids.flatMap((courseId) => [
+      db
+        .prepare('INSERT INTO courses(id,name) VALUES(?,?)')
+        .bind(courseId, 'Paged course'),
+      db
+        .prepare(
+          'INSERT INTO course_memberships(course_id,user_id,role) VALUES(?,?,?)',
+        )
+        .bind(courseId, person.p.userId, 'student'),
+    ]),
+  );
+  const first = await authority.contexts(person.p);
+  expect(first[0].courses).toHaveLength(100);
+  expect(first[0].nextCursor).toBe(ids[99]);
+  const second = await authority.contexts(person.p, first[0].nextCursor!);
+  expect(second[0].courses.map((course) => course.id)).toEqual([ids[100]]);
+  expect(second[0].nextCursor).toBeNull();
 });
 
 it('discovers/reconciles a missing late-bootstrap capability but never reactivates an inactive tombstone', async () => {
@@ -371,8 +474,9 @@ it.each(['session', 'account', 'membership', 'course'])(
           .bind(teacher.p.userId)
           .run();
     });
-    await expect(new CourseCreation(barrier.db).create(teacher.p, input))
-      .rejects.toMatchObject({ code: 'FORBIDDEN' });
+    await expect(
+      new CourseCreation(barrier.db).create(teacher.p, input),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
     expect(barrier.reached()).toBe(true);
     expect(await counts()).toEqual(start);
   },
@@ -403,8 +507,9 @@ it.each(['capability', 'admin'])(
           .bind(owner.p.userId)
           .run();
     });
-    await expect(new CourseCreation(barrier.db).create(owner.p, command()))
-      .rejects.toMatchObject({ code: 'FORBIDDEN' });
+    await expect(
+      new CourseCreation(barrier.db).create(owner.p, command()),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
     expect(barrier.reached()).toBe(true);
     expect(await counts()).toEqual(start);
   },

@@ -50,6 +50,46 @@ export const courseListSchema = schema((value) => {
   const o = object(value, ['courses']);
   return { courses: array(o.courses, course, '$.courses', 0, 100) };
 });
+export const verifiedCoursesSchema = schema((value) => {
+  const o = object(value, ['courses']);
+  return { courses: array(o.courses, course, '$.courses', 0, 5000) };
+});
+export const workspaceContextsSchema = schema((value) => {
+  const o = object(value, ['workspaces']);
+  const workspaces = array(
+    o.workspaces,
+    (value, path) => {
+      const item = object(value, ['role', 'courses', 'nextCursor'], path);
+      assert(
+        item.role === 'student' || item.role === 'instructor',
+        path + '.role',
+      );
+      return {
+        role: item.role as 'student' | 'instructor',
+        courses: array(item.courses, course, path + '.courses', 0, 100),
+        nextCursor:
+          item.nextCursor === null
+            ? null
+            : (() => {
+                const cursor = text(item.nextCursor, path + '.nextCursor', 128);
+                assert(
+                  /^[A-Za-z0-9_-]{1,128}$/.test(cursor),
+                  path + '.nextCursor',
+                );
+                return cursor;
+              })(),
+      };
+    },
+    '$.workspaces',
+    0,
+    2,
+  );
+  assert(
+    new Set(workspaces.map((item) => item.role)).size === workspaces.length,
+    '$.workspaces',
+  );
+  return { workspaces };
+});
 export const courseCreationSchema = schema((value) => {
   const o = object(value, ['canCreate']);
   assert(typeof o.canCreate === 'boolean', '$.canCreate');

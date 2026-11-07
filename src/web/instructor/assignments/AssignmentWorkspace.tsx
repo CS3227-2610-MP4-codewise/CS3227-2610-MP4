@@ -21,6 +21,7 @@ import {
 import { Brand, Icon } from '../../ui/brand';
 import { AccountMenu } from '../../ui/account-menu';
 import { CourseNavigation } from '../../ui/course-navigation';
+import { WorkspaceSwitch } from '../../ui/workspace-switch';
 import { authRequest } from '../../auth/client';
 import type { AuthView } from '../../../shared/auth';
 import './styles.css';
@@ -260,6 +261,11 @@ export function AssignmentWorkspace({
         )}
         {!preview && (
           <nav className="cw-app-nav" aria-label="Main navigation">
+            <WorkspaceSwitch
+              role="instructor"
+              courseId={courseId}
+              beforeLeave={() => !state.pending}
+            />
             <a href="/workspace">Courses</a>
             {account && (
               <AccountMenu
