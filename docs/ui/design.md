@@ -2,6 +2,8 @@
 
 Revision: `warm-workbook-v1`, 2026-11-05. Owner: Darryl for this design/documentation increment; Keith reviews student and shared identity consumers before dependent implementation. The user selected Workbook's layout and Margin's palette, then requested a role switch, sign-in and Next navigation. This document defines the intended design; none of these role features is claimed implemented.
 
+2026-11-08 user-directed navigation clarification: rename the instructor course **Students** tab to **People** because it includes current instructors as well as students and pending invitations. Keep the same workbook visual system and authorized course scope; this label supersedes earlier Students-tab wording below.
+
 ## Authority and scope
 
 Read this document before planning, implementing or reviewing application UI. Apply its visual and interaction rules across sign-in, student and instructor screens. The accompanying [OpenSpec change](../../openspec/changes/warm-workbook-ui/proposal.md) supplies UI-01–UI-08 acceptance requirements; the [review checklist](../../workflow/templates/ui-review.md) turns them into review evidence.
