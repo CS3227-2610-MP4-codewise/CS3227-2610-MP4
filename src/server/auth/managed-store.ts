@@ -571,6 +571,98 @@ export class ManagedStore extends AuthStore {
       nextCursor: rows.results.length > 50 ? rows.results[49].id : null,
     };
   }
+  async people(s: Session, course: string, cursor: string) {
+    const now = this.clock();
+    const rows = await this.db
+      .prepare(
+        `WITH people(email) AS (
+      SELECT a.email FROM course_memberships m JOIN auth_accounts a ON a.id=m.user_id AND a.active=1 WHERE m.course_id=? AND m.active=1
+      UNION SELECT i.email FROM auth_invites i WHERE i.course_id=? AND i.target_role IS NOT NULL AND i.accepted_at IS NULL AND i.revoked_at IS NULL
+    ) SELECT p.email,
+      EXISTS(SELECT 1 FROM course_creation_receipts r JOIN auth_accounts a ON a.id=r.user_id AND a.active=1 JOIN course_memberships m ON m.course_id=r.course_id AND m.user_id=a.id AND m.role='instructor' AND m.active=1 WHERE r.course_id=? AND a.email=p.email) AS is_coordinator,
+      (SELECT a.id FROM auth_accounts a JOIN course_memberships m ON m.user_id=a.id AND m.course_id=? AND m.active=1 WHERE a.email=p.email AND a.active=1 LIMIT 1) AS user_id,
+      (SELECT GROUP_CONCAT(role, ',') FROM (SELECT DISTINCT m.role AS role FROM course_memberships m JOIN auth_accounts a ON a.id=m.user_id AND a.active=1 WHERE m.course_id=? AND a.email=p.email AND m.active=1 ORDER BY m.role)) AS active_roles,
+      (SELECT GROUP_CONCAT(role, ',') FROM (SELECT DISTINCT i.target_role AS role FROM auth_invites i WHERE i.course_id=? AND i.email=p.email AND i.target_role IS NOT NULL AND i.accepted_at IS NULL AND i.revoked_at IS NULL ORDER BY i.target_role)) AS pending_roles,
+      (SELECT i.id FROM auth_invites i WHERE i.course_id=? AND i.email=p.email AND i.target_role IS NOT NULL AND i.accepted_at IS NULL AND i.revoked_at IS NULL ORDER BY CASE i.send_state WHEN 'failed' THEN 0 WHEN 'unknown' THEN 1 ELSE 2 END,i.created_at DESC,i.id DESC LIMIT 1) AS invitation_id,
+      (SELECT i.send_state FROM auth_invites i WHERE i.course_id=? AND i.email=p.email AND i.target_role IS NOT NULL AND i.accepted_at IS NULL AND i.revoked_at IS NULL ORDER BY CASE i.send_state WHEN 'failed' THEN 0 WHEN 'unknown' THEN 1 ELSE 2 END,i.created_at DESC,i.id DESC LIMIT 1) AS send_state
+      FROM people p WHERE p.email>? AND EXISTS(SELECT 1 FROM auth_sessions s JOIN auth_accounts a ON a.id=s.user_id AND a.active=1 JOIN course_memberships m ON m.user_id=a.id AND m.course_id=? AND m.role='instructor' AND m.active=1 JOIN courses c ON c.id=m.course_id AND c.active=1 WHERE s.id=? AND s.user_id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?) ORDER BY p.email LIMIT 51`,
+      )
+      .bind(
+        course,
+        course,
+        course,
+        course,
+        course,
+        course,
+        course,
+        course,
+        cursor,
+        course,
+        s.id,
+        s.user_id,
+        now,
+        now - IDLE,
+      )
+      .all<{
+        email: string;
+        is_coordinator: number;
+        user_id: string | null;
+        active_roles: string | null;
+        pending_roles: string | null;
+        invitation_id: string | null;
+        send_state: 'queued' | 'failed' | 'unknown' | null;
+      }>();
+    const items = rows.results.slice(0, 50).map((row) => ({
+      email: row.email,
+      isCoordinator: row.is_coordinator === 1,
+      userId: row.user_id,
+      activeRoles: row.active_roles?.split(',') ?? [],
+      pendingRoles: row.pending_roles?.split(',') ?? [],
+      invitationId: row.invitation_id,
+      sendState: row.send_state,
+    }));
+    return {
+      items,
+      nextCursor: rows.results.length > 50 ? rows.results[49].email : null,
+    };
+  }
+  async removePerson(s: Session, course: string, userId: string) {
+    const now = this.clock(),
+      guard = crypto.randomUUID();
+    try {
+      await this.db.batch([
+        this.actorGuard(s, course, now, guard),
+        this.db
+          .prepare(
+            `INSERT INTO course_write_guards(id,allowed) SELECT ?,CASE WHEN ?=? AND EXISTS(SELECT 1 FROM course_creation_receipts WHERE course_id=? AND user_id=?) THEN 0 ELSE 1 END`,
+          )
+          .bind(guard + '-coordinator', s.user_id, userId, course, userId),
+        this.db
+          .prepare(
+            'UPDATE auth_invites SET revoked_at=? WHERE course_id=? AND email=(SELECT email FROM auth_accounts WHERE id=?) AND accepted_at IS NULL AND revoked_at IS NULL',
+          )
+          .bind(now, course, userId),
+        this.db
+          .prepare(
+            'UPDATE course_memberships SET active=0 WHERE course_id=? AND user_id=? AND active=1',
+          )
+          .bind(course, userId),
+        this.db
+          .prepare('DELETE FROM course_write_guards WHERE id=?')
+          .bind(guard),
+        this.db
+          .prepare('DELETE FROM course_write_guards WHERE id=?')
+          .bind(guard + '-coordinator'),
+      ]);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes('course_authorization_guard')
+      )
+        throw new BoundaryError('FORBIDDEN');
+      throw error;
+    }
+  }
   async revoke(i: ManagedInvite, s: Session) {
     const now = this.clock(),
       guard = crypto.randomUUID();

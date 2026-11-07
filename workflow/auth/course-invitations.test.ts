@@ -171,6 +171,181 @@ describe('course-role invitations against isolated D1 and synthetic mail/provide
     await database?.close();
   });
 
+  it('lists active members and pending invites, then hides revoked and removed people', async () => {
+    const owner = await actor(),
+      member = await actor(),
+      courseId = await course(owner),
+      email = crypto.randomUUID() + '@u.nus.edu';
+    await database.db
+      .prepare(
+        "INSERT INTO course_memberships(course_id,user_id,role) VALUES(?,?,'student')",
+      )
+      .bind(courseId, member.session.user_id)
+      .run();
+    const i = await invite(owner, courseId, email, 'instructor');
+    const read = async () =>
+      (await (
+        await call(
+          'people?courseId=' + courseId,
+          undefined,
+          randomToken(),
+          owner.token,
+        )
+      ).json()) as {
+        items: {
+          email: string;
+          activeRoles: string[];
+          pendingRoles: string[];
+        }[];
+      };
+    let rows = (await read()).items;
+    expect(rows.find((r) => r.email === owner.email)?.activeRoles).toEqual([
+      'instructor',
+    ]);
+    expect(rows.find((r) => r.email === member.email)?.activeRoles).toEqual([
+      'student',
+    ]);
+    expect(rows.find((r) => r.email === email)?.pendingRoles).toEqual([
+      'instructor',
+    ]);
+    expect(
+      (
+        await call(
+          'invitations/' + i.id + '/revoke',
+          { courseId },
+          randomToken(),
+          owner.token,
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await call(
+          'people/remove',
+          { courseId, userId: member.session.user_id },
+          randomToken(),
+          owner.token,
+        )
+      ).status,
+    ).toBe(200);
+    rows = (await read()).items;
+    expect(
+      rows.some((r) => r.email === email || r.email === member.email),
+    ).toBe(false);
+    expect(await membership(courseId, member.email, 'student')).toEqual({
+      active: 0,
+    });
+    const foreign = await actor();
+    expect(
+      (
+        await call(
+          'people?courseId=' + courseId,
+          undefined,
+          randomToken(),
+          foreign.token,
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await call(
+          'people/remove',
+          { courseId, userId: owner.session.user_id },
+          randomToken(),
+          foreign.token,
+        )
+      ).status,
+    ).toBe(403);
+  }, 30000);
+
+  it('rechecks current instructor authority inside person removal', async () => {
+    const owner = await actor(),
+      member = await actor(),
+      courseId = await course(owner);
+    await database.db
+      .prepare(
+        "INSERT INTO course_memberships(course_id,user_id,role) VALUES(?,?,'student')",
+      )
+      .bind(courseId, member.session.user_id)
+      .run();
+    await database.db
+      .prepare(
+        "UPDATE course_memberships SET active=0 WHERE course_id=? AND user_id=? AND role='instructor'",
+      )
+      .bind(courseId, owner.session.user_id)
+      .run();
+    await expect(
+      store.removePerson(owner.session, courseId, member.session.user_id),
+    ).rejects.toThrow();
+    expect(await membership(courseId, member.email, 'student')).toEqual({
+      active: 1,
+    });
+  }, 30000);
+
+  it('labels the creator as course coordinator and prevents coordinator self-removal', async () => {
+    const owner = await actor(),
+      colleague = await actor(),
+      courseId = await course(owner);
+    await database.db
+      .prepare(
+        'INSERT INTO course_creation_receipts(user_id,request_key,name,course_id,created_at) VALUES(?,?,?,?,?)',
+      )
+      .bind(
+        owner.session.user_id,
+        crypto.randomUUID(),
+        'Synthetic course',
+        courseId,
+        Date.now(),
+      )
+      .run();
+    await database.db
+      .prepare(
+        "INSERT INTO course_memberships(course_id,user_id,role) VALUES(?,?,'instructor')",
+      )
+      .bind(courseId, colleague.session.user_id)
+      .run();
+    const listed = (await (
+      await call(
+        'people?courseId=' + courseId,
+        undefined,
+        randomToken(),
+        owner.token,
+      )
+    ).json()) as { items: { email: string; isCoordinator: boolean }[] };
+    expect(
+      listed.items.find((i) => i.email === owner.email)?.isCoordinator,
+    ).toBe(true);
+    expect(
+      listed.items.find((i) => i.email === colleague.email)?.isCoordinator,
+    ).toBe(false);
+    expect(
+      (
+        await call(
+          'people/remove',
+          { courseId, userId: owner.session.user_id },
+          randomToken(),
+          owner.token,
+        )
+      ).status,
+    ).toBe(403);
+    expect(await membership(courseId, owner.email, 'instructor')).toEqual({
+      active: 1,
+    });
+    expect(
+      (
+        await call(
+          'people/remove',
+          { courseId, userId: colleague.session.user_id },
+          randomToken(),
+          colleague.token,
+        )
+      ).status,
+    ).toBe(200);
+    expect(await membership(courseId, colleague.email, 'instructor')).toEqual({
+      active: 0,
+    });
+  }, 30000);
+
   it('joins a new recipient only on explicit POST and creates the exact invited role', async () => {
     const owner = await actor(),
       courseId = await course(owner),

@@ -647,6 +647,24 @@ export class ManagedAuthRoutes extends AuthRoutes {
         await this.destinations.authorize(principal, destination);
         return json({ state: 'authorized', destination });
       }
+      if (path === 'people' && request.method === 'GET') {
+        const course = id(url.searchParams.get('courseId'), '$.courseId'),
+          cursor = url.searchParams.get('after') ?? '';
+        assert(cursor.length <= 254, '$.after');
+        await this.authorize(principal, course, false);
+        return json(await store.people(session, course, cursor));
+      }
+      if (path === 'people/remove' && request.method === 'POST') {
+        const input = object(await readAuthBody(request), [
+          'courseId',
+          'userId',
+        ]);
+        const course = id(input.courseId, '$.courseId'),
+          userId = id(input.userId, '$.userId');
+        await this.authorize(principal, course, true);
+        await store.removePerson(session, course, userId);
+        return json({ ok: true });
+      }
       if (path === 'invitations' && request.method === 'GET') {
         const course = id(url.searchParams.get('courseId'), '$.courseId'),
           cursor = url.searchParams.get('after') ?? '';
