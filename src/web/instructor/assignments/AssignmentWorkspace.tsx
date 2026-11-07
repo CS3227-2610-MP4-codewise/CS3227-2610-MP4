@@ -19,6 +19,10 @@ import {
   type WorkspaceState,
 } from './controller';
 import { Brand, Icon } from '../../ui/brand';
+import { AccountMenu } from '../../ui/account-menu';
+import { CourseNavigation } from '../../ui/course-navigation';
+import { authRequest } from '../../auth/client';
+import type { AuthView } from '../../../shared/auth';
 import './styles.css';
 type Question = Authoring['questions'][number];
 const key = () => crypto.randomUUID();
@@ -98,11 +102,13 @@ export function AssignmentWorkspace({
   preview = true,
   initialAssignmentId,
   courseId,
+  account,
 }: {
   client: AssignmentClient;
   preview?: boolean;
   initialAssignmentId?: string;
   courseId?: string;
+  account?: AuthView;
 }) {
   const [assignmentId] = useState(
     () =>
@@ -248,25 +254,30 @@ export function AssignmentWorkspace({
         Skip to assignment
       </a>
       <header className="cw-header">
-        <Brand href={window.location.pathname} />
-        <p className="cw-header-context">
-          {preview ? 'Instructor · Synthetic preview' : 'Instructor workspace'}
-        </p>
+        <Brand href={preview ? window.location.pathname : '/workspace'} />
+        {preview && (
+          <p className="cw-header-context">Instructor · Synthetic preview</p>
+        )}
         {!preview && (
-          <>
+          <nav className="cw-app-nav" aria-label="Main navigation">
             <a href="/workspace">Courses</a>
-            <a
-              href={
-                state.draft
-                  ? '/instructor/review/' +
-                    encodeURIComponent(state.draft.assignmentId)
-                  : '/instructor/review?courseId=' +
-                    encodeURIComponent(courseId ?? '')
-              }
-            >
-              Assessments
-            </a>
-          </>
+            {account && (
+              <AccountMenu
+                email={account.email}
+                busy={!!state.pending}
+                onSignOut={() => {
+                  if (
+                    state.dirty &&
+                    !window.confirm('Sign out and leave unsaved edits?')
+                  )
+                    return;
+                  return authRequest('logout', account.csrfToken, {}).then(() =>
+                    window.location.assign('/sign-in'),
+                  );
+                }}
+              />
+            )}
+          </nav>
         )}
         {preview && (
           <details className="ia-preview-settings">
@@ -290,6 +301,9 @@ export function AssignmentWorkspace({
           </details>
         )}
       </header>
+      {!preview && courseId && (
+        <CourseNavigation courseId={courseId} active="assignments" />
+      )}
       <div className="cw-page-title ia-page-title">
         {editorPage && (
           <Action
@@ -402,7 +416,7 @@ export function AssignmentWorkspace({
                     pending={listing}
                     onClick={() => void list(cursor)}
                   >
-                    Load more assignments
+                    Show more
                   </Action>
                 )}
               </>
@@ -435,6 +449,7 @@ export function AssignmentWorkspace({
                 ) : (
                   <>
                     <Action
+                      variant={state.dirty ? 'primary' : 'secondary'}
                       pending={state.pending === 'Saving'}
                       disabled={!!state.pending || !state.dirty}
                       onClick={() => void controller.save()}
@@ -449,7 +464,7 @@ export function AssignmentWorkspace({
                       )}
                     </Action>
                     <Action
-                      variant="secondary"
+                      variant={state.dirty ? 'secondary' : 'primary'}
                       disabled={!!state.pending || state.dirty}
                       onClick={() => controller.review()}
                     >
@@ -482,8 +497,8 @@ export function AssignmentWorkspace({
                   Ready to publish?
                 </h2>
                 <p>
-                  Publishing creates a fixed version for students. Later edits
-                  stay in your draft.
+                  Students receive this fixed version. Later edits stay in your
+                  draft.
                 </p>
                 <dl className="ia-review-details">
                   <div>

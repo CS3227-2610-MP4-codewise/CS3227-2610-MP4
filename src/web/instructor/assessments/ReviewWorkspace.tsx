@@ -20,7 +20,9 @@ import {
   assert,
 } from '../../../shared/instructor-contracts/schema';
 import { authRequest } from '../../auth/client';
-import { Brand } from '../../ui/brand';
+import { Brand, Icon } from '../../ui/brand';
+import { AccountMenu } from '../../ui/account-menu';
+import { CourseNavigation } from '../../ui/course-navigation';
 import { AssessmentWorkspace } from './AssessmentWorkspace';
 import { AssessmentController } from './controller';
 import { assessmentClient, workspace } from './client';
@@ -61,7 +63,7 @@ export function ReviewWorkspace() {
       new URLSearchParams(window.location.search).get('courseId') ?? '';
   const [view, setView] = useState<AuthView | null>(null),
     [course, setCourse] = useState(requestedCourse),
-    [title, setTitle] = useState('Assessments'),
+    [title, setTitle] = useState('Grading'),
     [items, setItems] = useState<DraftSummary[]>([]),
     [versions, setVersions] = useState<PublicationSummary[]>([]),
     [publication, setPublication] = useState<Publication | null>(null),
@@ -159,7 +161,7 @@ export function ReviewWorkspace() {
   async function select(versionId: string) {
     const current = ++epoch.current;
     setBusy(true);
-    setMessage('');
+    setMessage('Loading version…');
     setPublication(null);
     setAttempts([]);
     try {
@@ -191,6 +193,7 @@ export function ReviewWorkspace() {
       if (current !== epoch.current) return;
       setPublication(pub);
       setAttempts(attempts);
+      setMessage('');
       setAvailable(raw.available === true);
       setSample(raw.sampleMode === true);
     } catch (e) {
@@ -230,9 +233,9 @@ export function ReviewWorkspace() {
   }
   const logout = () => {
     if (!view) return;
-    void authRequest('logout', view.csrfToken, {})
-      .then(() => window.location.assign('/sign-in'))
-      .catch(() => setMessage('Could not sign out. Try again.'));
+    return authRequest('logout', view.csrfToken, {}).then(() =>
+      window.location.assign('/sign-in'),
+    );
   };
   if (view && assessmentId && controller)
     return (
@@ -247,51 +250,26 @@ export function ReviewWorkspace() {
   return (
     <div className="assessment-app">
       <header className="assessment-top">
-        <Brand />
-        <nav aria-label="Instructor navigation">
+        <Brand href="/workspace" />
+        <nav className="cw-app-nav" aria-label="Main navigation">
           <a href="/workspace">Courses</a>
-          {course && (
-            <>
-              {' '}
-              ·{' '}
-              <a
-                href={
-                  '/instructor/assignments?courseId=' +
-                  encodeURIComponent(course)
-                }
-              >
-                Assignments
-              </a>{' '}
-              ·{' '}
-              <a
-                href={
-                  '/auth/invitations?courseId=' + encodeURIComponent(course)
-                }
-              >
-                Invitations
-              </a>
-            </>
-          )}
           {view && (
-            <>
-              {' '}
-              · <button onClick={logout}>Sign out</button>
-            </>
+            <AccountMenu email={view.email} busy={busy} onSignOut={logout} />
           )}
         </nav>
       </header>
-      <main>
+      {view && course && (
+        <CourseNavigation courseId={course} active="grading" />
+      )}
+      <main className="cw-grading-page">
         <div className="assessment-title">
           <div>
-            <p className="assessment-eyebrow">Instructor · Assessment review</p>
-            <h1>{title || 'Assessments'}</h1>
+            <p className="assessment-eyebrow">Instructor</p>
+            <h1>{assignmentId ? title : 'Grading'}</h1>
           </div>
         </div>
-        {view && (
-          <p className="assessment-secondary">
-            {view.email}
-            {sample ? ' · Local test mode' : ''}
-          </p>
+        {sample && (
+          <p className="assessment-secondary">Local sample submissions</p>
         )}
         {message && <p role="status">{message}</p>}
         {!busy && !view && (
@@ -307,14 +285,16 @@ export function ReviewWorkspace() {
             Sign in
           </a>
         )}
-        {view && !busy && (
+        {view && (!busy || versions.length > 0 || items.length > 0) && (
           <>
             {!available && (
               <p role="status">Submission integration is not available yet.</p>
             )}
             {!assignmentId ? (
               <section>
-                <h2>Choose an assignment</h2>
+                <p className="assessment-secondary">
+                  Choose an assignment to review submitted work.
+                </p>
                 {items.length === 0 ? (
                   <p>
                     No assignments yet.{' '}
@@ -328,16 +308,30 @@ export function ReviewWorkspace() {
                     </a>
                   </p>
                 ) : (
-                  <ul>
+                  <ul className="cw-work-list">
                     {items.map((item) => (
                       <li key={item.assignmentId}>
+                        <div>
+                          <h2>{item.title || 'Untitled assignment'}</h2>
+                          <p>
+                            Updated{' '}
+                            {new Date(item.updatedAt).toLocaleDateString(
+                              'en-SG',
+                            )}
+                          </p>
+                        </div>
                         <a
+                          className="cw-row-action"
+                          aria-label={
+                            'View submissions for ' +
+                            (item.title || 'untitled assignment')
+                          }
                           href={
                             '/instructor/review/' +
                             encodeURIComponent(item.assignmentId)
                           }
                         >
-                          {item.title || 'Untitled assignment'}
+                          View submissions <Icon name="arrow-right" />
                         </a>
                       </li>
                     ))}
@@ -372,7 +366,7 @@ export function ReviewWorkspace() {
                         .finally(() => setBusy(false));
                     }}
                   >
-                    More assignments
+                    Show more
                   </button>
                 )}
               </section>
@@ -384,39 +378,49 @@ export function ReviewWorkspace() {
                     encodeURIComponent(assignmentId)
                   }
                 >
-                  Open assignment
+                  Edit assignment
                 </a>
-                <h2>Published versions</h2>
                 {versions.length === 0 ? (
                   <p>Publish the assignment before reviewing submitted work.</p>
                 ) : (
-                  <ul>
-                    {versions.map((version) => (
-                      <li key={version.assignmentVersionId}>
-                        <button
-                          onClick={() =>
-                            void select(version.assignmentVersionId)
-                          }
-                          disabled={busy}
+                  <label className="cw-version-picker">
+                    Published version
+                    <select
+                      value={publication?.assignmentVersionId ?? ''}
+                      disabled={busy}
+                      onChange={(event) => {
+                        if (event.target.value) void select(event.target.value);
+                      }}
+                    >
+                      <option value="" disabled>
+                        Choose a version
+                      </option>
+                      {versions.map((version) => (
+                        <option
+                          key={version.assignmentVersionId}
+                          value={version.assignmentVersionId}
                         >
                           Version {version.publicationNumber} ·{' '}
-                          {new Date(version.publishedAt).toLocaleDateString()}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                          {new Date(version.publishedAt).toLocaleDateString(
+                            'en-SG',
+                            { dateStyle: 'medium' },
+                          )}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 )}
               </section>
             )}
             {publication && (
               <section className="assessment-review">
                 <div>
-                  <h2>Submitted work</h2>
+                  <h2>Submissions</h2>
                   <p>{publication.title}</p>
                   {sample && (
                     <p className="assessment-secondary">
-                      Local sample generated from this published version. No
-                      student account or submission was created.
+                      Sample source from this published version. No real student
+                      submission.
                     </p>
                   )}
                   {attempts.length === 0 && (
@@ -430,12 +434,12 @@ export function ReviewWorkspace() {
                     <div key={attempt.attemptId}>
                       <p>{attempt.label}</p>
                       <button
+                        className="cw-action"
                         disabled={busy}
                         onClick={() => void open(attempt)}
                       >
-                        {attempt.sample
-                          ? 'Open sample assessment'
-                          : 'Assess submitted attempt'}
+                        <Icon name="arrow-right" />
+                        {attempt.sample ? 'Assess sample' : 'Assess submission'}
                       </button>
                     </div>
                   ))}

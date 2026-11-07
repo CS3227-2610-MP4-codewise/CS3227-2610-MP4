@@ -13,6 +13,9 @@ import {
   hundredths,
 } from '../../../shared/instructor-contracts/schema';
 import { Brand, Icon } from '../../ui/brand';
+import { AccountMenu } from '../../ui/account-menu';
+import { CourseNavigation } from '../../ui/course-navigation';
+import { feedbackVisibility } from './presentation';
 import { AssessmentController } from './controller';
 import './styles.css';
 export function AssessmentWorkspace({
@@ -25,7 +28,7 @@ export function AssessmentWorkspace({
   controller: AssessmentController;
   id: string;
   preview?: boolean;
-  account?: { email: string; logout: () => void };
+  account?: { email: string; logout: () => void | Promise<void> };
   apiPrefix?: string;
 }) {
   const s = useSyncExternalStore(controller.subscribe, controller.snapshot),
@@ -215,57 +218,49 @@ export function AssessmentWorkspace({
   return (
     <div className="assessment-app">
       <header className="assessment-top">
-        <Brand />
+        <Brand href={preview ? '/' : '/workspace'} />
         {preview ? (
           <span>Synthetic instructor preview</span>
         ) : (
-          <nav aria-label="Instructor navigation">
+          <nav className="cw-app-nav" aria-label="Main navigation">
             <a href="/workspace">Courses</a>
             {account && (
-              <>
-                <span> · {account.email}</span>
-                <button
-                  onClick={() => {
-                    if (
-                      (s.dirty || noteDirty) &&
-                      !window.confirm('Sign out and leave unsaved edits?')
-                    )
-                      return;
-                    account.logout();
-                  }}
-                >
-                  Sign out
-                </button>
-              </>
-            )}
-            {v && (
-              <>
-                {' '}
-                ·{' '}
-                <a
-                  href={
-                    '/instructor/review?courseId=' +
-                    encodeURIComponent(v.head.courseId)
-                  }
-                >
-                  Assessments
-                </a>
-              </>
-            )}
-            {v?.attempt.attemptId.startsWith('sample_') && (
-              <span> · Local sample submission</span>
+              <AccountMenu
+                email={account.email}
+                busy={!!s.busy}
+                onSignOut={() => {
+                  if (
+                    (s.dirty || noteDirty) &&
+                    !window.confirm('Sign out and leave unsaved edits?')
+                  )
+                    return;
+                  return account.logout();
+                }}
+              />
             )}
           </nav>
         )}
       </header>
+      {!preview && v && (
+        <CourseNavigation courseId={v.head.courseId} active="grading" />
+      )}
       <main>
         <div className="assessment-title">
           <div>
-            <p className="assessment-eyebrow">Assessment · {state}</p>
+            <p className="assessment-eyebrow">
+              Grading · {state}
+              {v?.attempt.attemptId.startsWith('sample_')
+                ? ' · Local sample'
+                : ''}
+            </p>
             <h1>{v?.publication.title ?? 'Review submitted work'}</h1>
           </div>
           <div className="assessment-actions">
-            <button onClick={() => void open()} disabled={!!s.busy}>
+            <button
+              className="cw-text-action"
+              onClick={() => void open()}
+              disabled={!!s.busy}
+            >
               <Icon name="refresh" />
               Reload
             </button>
@@ -282,19 +277,22 @@ export function AssessmentWorkspace({
         <p className="assessment-status" role="status" aria-live="polite">
           {s.message ||
             s.busy ||
-            (noteDirty ? 'Add or update the observation before saving.' : '') ||
+            (noteDirty ? 'Finish the observation before saving.' : '') ||
             (v
-              ? 'Saved work stays private until release.'
+              ? s.dirty
+                ? 'Unsaved changes'
+                : feedbackVisibility(
+                    v.revision.id,
+                    v.head.currentReleaseVersion,
+                    v.releases,
+                    historical,
+                  )
               : 'Loading assessment…')}
         </p>
         {!v || !feedback || !q || !answer ? (
           <section className="assessment-empty">
             <h2>Assessment unavailable</h2>
-            <p>
-              {s.busy
-                ? 'Loading submitted work…'
-                : 'Reload to try again. No source has been substituted.'}
-            </p>
+            <p>{s.busy ? 'Loading submitted work…' : 'Reload to try again.'}</p>
           </section>
         ) : (
           <>
@@ -624,7 +622,7 @@ export function AssessmentWorkspace({
             >
               <div>
                 <h2 id="review-heading" ref={reviewHeading} tabIndex={-1}>
-                  Review & release
+                  Review feedback
                 </h2>
                 <p>
                   {total === null
@@ -656,6 +654,11 @@ export function AssessmentWorkspace({
                 ) : (
                   <>
                     <button
+                      className={
+                        v.head.approvedRevisionId === v.head.headRevisionId
+                          ? undefined
+                          : 'cw-action'
+                      }
                       disabled={
                         !!s.busy ||
                         s.dirty ||
@@ -665,10 +668,14 @@ export function AssessmentWorkspace({
                       onClick={() => void controller.action('approve')}
                     >
                       <Icon name="check" />
-                      Approve revision
+                      Approve feedback
                     </button>
                     <button
-                      className="cw-action"
+                      className={
+                        v.head.approvedRevisionId === v.head.headRevisionId
+                          ? 'cw-action'
+                          : undefined
+                      }
                       disabled={
                         !!s.busy ||
                         s.dirty ||

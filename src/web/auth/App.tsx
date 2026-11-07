@@ -13,6 +13,8 @@ import {
 } from '../../shared/managed-auth';
 import { Action, StatusMessage } from '../ui/primitives';
 import { Brand, Icon } from '../ui/brand';
+import { AccountMenu } from '../ui/account-menu';
+import { CourseNavigation } from '../ui/course-navigation';
 import { authMessage, authRequest, takeAuthProof } from './client';
 import { BoundaryError } from '../../shared/instructor-contracts/schema';
 import './styles.css';
@@ -267,7 +269,7 @@ export function AuthApp() {
     });
   }
   const heading = invitations
-    ? 'Invite your students'
+    ? 'Students'
     : done
       ? 'Password ready'
       : setup
@@ -285,37 +287,15 @@ export function AuthApp() {
         Skip to content
       </a>
       <header className="cw-header">
-        <Brand />
+        <Brand href={view ? '/workspace' : '/'} />
         {view && (
-          <nav aria-label="Account">
-            <span className="auth-account-email">
-              {view.administrator ? 'Account admin · ' : ''}
-              {view.email}
-            </span>
-            <a
-              href="/workspace"
-              aria-current={!invitations ? 'page' : undefined}
-            >
-              Workspace
-            </a>
-            <a
-              href={
-                course
-                  ? '/auth/invitations?courseId=' + encodeURIComponent(course)
-                  : '/auth/invitations'
-              }
-              aria-current={invitations ? 'page' : undefined}
-            >
-              Invitations
-            </a>
-            <button
-              className="cw-icon-button"
-              type="button"
-              disabled={pending}
-              aria-label="Sign out"
-              title="Sign out"
-              onClick={() =>
-                void act(async () => {
+          <nav className="cw-app-nav" aria-label="Main navigation">
+            <a href="/workspace">Courses</a>
+            <AccountMenu
+              email={view.email}
+              busy={pending}
+              onSignOut={() =>
+                act(async () => {
                   okSchema.parse(
                     await authRequest('logout', view.csrfToken, {}),
                   );
@@ -324,12 +304,13 @@ export function AuthApp() {
                   window.location.assign('/sign-in');
                 })
               }
-            >
-              <Icon name="logout" />
-            </button>
+            />
           </nav>
         )}
       </header>
+      {view && invitations && course && (
+        <CourseNavigation courseId={course} active="students" />
+      )}
       <main
         id="main-content"
         className={
@@ -550,16 +531,14 @@ export function AuthApp() {
                             await refresh();
                             setMessage(
                               result.invitation.sendState === 'queued'
-                                ? 'Invitation queued.'
+                                ? 'Invitation email queued.'
                                 : 'Sending was not confirmed. Check the status below.',
                             );
                           });
                         }}
                       >
                         <div className="auth-field">
-                          <label htmlFor="invite-email">
-                            Student NUS email
-                          </label>
+                          <label htmlFor="invite-email">NUS email</label>
                           <input
                             id="invite-email"
                             type="email"
@@ -644,7 +623,9 @@ export function AuthApp() {
                                           ),
                                         );
                                         await refresh();
-                                        setMessage('Send attempt recorded.');
+                                        setMessage(
+                                          'Invitation status updated.',
+                                        );
                                       })
                                     }
                                   >
@@ -652,14 +633,22 @@ export function AuthApp() {
                                     Resend
                                   </Action>
                                   <button
-                                    className="cw-icon-button"
+                                    className="cw-text-action cw-danger-action"
                                     type="button"
                                     disabled={pending}
                                     aria-label={
                                       'Revoke invitation for ' + i.email
                                     }
                                     title="Revoke invitation"
-                                    onClick={() =>
+                                    onClick={() => {
+                                      if (
+                                        !window.confirm(
+                                          'Revoke the invitation for ' +
+                                            i.email +
+                                            '? They will no longer be able to use it.',
+                                        )
+                                      )
+                                        return;
                                       void act(async () => {
                                         okSchema.parse(
                                           await authRequest(
@@ -670,10 +659,11 @@ export function AuthApp() {
                                         );
                                         await refresh();
                                         setMessage('Invitation revoked.');
-                                      })
-                                    }
+                                      });
+                                    }}
                                   >
                                     <Icon name="trash" />
+                                    Revoke
                                   </button>
                                 </div>
                               )}
@@ -694,8 +684,8 @@ export function AuthApp() {
                         <summary>About invitation status</summary>
                         <p>
                           Invitations stay open until used or revoked. Queued
-                          emails are awaiting delivery. Course membership is
-                          managed separately.
+                          means accepted by the mail server, not delivered.
+                          Course access is managed separately.
                         </p>
                       </details>
                     </>

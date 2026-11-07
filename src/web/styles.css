@@ -438,3 +438,301 @@ pre {
 .cw-brand {
   min-height: 44px;
 }
+
+/* Shared interaction hierarchy; the workbook palette and surfaces stay unchanged. */
+.cw-app-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font: 0.875rem/1.4 var(--cw-font-ui);
+}
+.cw-app-nav > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--cw-secondary);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.cw-app-nav > a:hover,
+.cw-app-nav > a[aria-current='page'] {
+  color: var(--cw-ink);
+  border-bottom-color: var(--cw-accent);
+}
+.cw-account-menu {
+  position: relative;
+  margin: 0;
+  font: 0.875rem/1.4 var(--cw-font-ui);
+  color: var(--cw-ink);
+}
+.cw-app-nav .cw-account-menu > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 8px;
+  cursor: pointer;
+  list-style: none;
+}
+.cw-app-nav .cw-account-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.cw-account-initial {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--cw-rule);
+  color: var(--cw-accent);
+  border-radius: 50%;
+}
+.cw-account-chevron {
+  width: 7px;
+  height: 7px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+.cw-account-menu[open] .cw-account-chevron {
+  transform: translateY(2px) rotate(225deg);
+}
+.cw-account-panel {
+  position: absolute;
+  z-index: 20;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(270px, calc(100vw - 48px));
+  padding: 8px;
+  background: var(--cw-page);
+  border: 1px solid var(--cw-secondary);
+  box-shadow: 0 8px 24px #0002;
+}
+.cw-account-panel > p {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-wrap: anywhere;
+  color: var(--cw-secondary);
+  border-bottom: 1px solid var(--cw-rule);
+}
+.cw-account-menu .cw-account-panel > button {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--cw-ink);
+  padding: 10px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+.cw-account-menu .cw-account-panel > button:hover {
+  background: var(--cw-canvas);
+}
+.cw-text-action,
+.assessment-app button.cw-text-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--cw-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+.cw-text-action:hover {
+  text-decoration: underline;
+}
+.cw-danger-action {
+  color: var(--cw-accent);
+}
+.cw-course-list {
+  list-style: none;
+  margin: 28px 0;
+  padding: 0;
+  border-top: 1px solid var(--cw-rule);
+}
+.cw-course-list > li {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--cw-rule);
+}
+.cw-course-list h2 {
+  font: 1.4rem/1.4 var(--cw-font-editorial);
+  margin: 0 0 16px;
+}
+.cw-course-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px 20px;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+}
+.cw-course-actions a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.cw-home .cw-course-actions .cw-action {
+  margin: 0;
+}
+.cw-version-picker {
+  display: grid;
+  gap: 8px;
+  max-width: 28rem;
+  margin: 16px 0 24px;
+  font-size: 0.875rem;
+}
+.cw-version-picker select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  background: var(--cw-page);
+  color: var(--cw-ink);
+  border: 1px solid var(--cw-secondary);
+  font: inherit;
+}
+@media (max-width: 600px) {
+  .cw-header:has(.cw-app-nav),
+  .assessment-top {
+    flex-wrap: wrap;
+  }
+  .cw-app-nav {
+    gap: 4px 12px;
+  }
+  .cw-app-nav .cw-account-menu {
+    margin-left: auto;
+  }
+  .cw-header > .cw-app-nav,
+  .assessment-top > .cw-app-nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Course context is stable on every instructor screen; global navigation stays global. */
+.cw-course-context {
+  padding-top: 24px;
+  border-bottom: 1px solid var(--cw-rule);
+}
+.cw-course-name {
+  margin: 0 0 12px;
+  font: 1.15rem/1.4 var(--cw-font-editorial);
+  overflow-wrap: anywhere;
+}
+.cw-course-tabs {
+  display: flex;
+  gap: 8px 28px;
+  flex-wrap: wrap;
+}
+.cw-course-tabs > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 0 12px;
+  border-bottom: 2px solid transparent;
+  color: var(--cw-secondary);
+  text-decoration: none;
+  font: 0.9rem/1.4 var(--cw-font-ui);
+}
+.cw-course-tabs > a:hover {
+  color: var(--cw-ink);
+}
+.cw-course-tabs > a[aria-current='page'] {
+  color: var(--cw-ink);
+  border-bottom-color: var(--cw-accent);
+}
+.cw-home:has(.cw-course-list) {
+  max-width: 48rem;
+  margin-top: clamp(36px, 7vh, 72px);
+}
+.cw-course-list > li {
+  padding: 0;
+}
+.cw-course-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 96px;
+  padding: 24px 0;
+  color: var(--cw-ink);
+  text-decoration: none;
+}
+.cw-course-entry h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.cw-course-entry > span,
+.cw-row-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--cw-accent);
+  font: 0.875rem/1.4 var(--cw-font-ui);
+  flex-shrink: 0;
+}
+.cw-course-entry:hover h2,
+.cw-course-entry:hover > span {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.cw-work-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  border-top: 1px solid var(--cw-rule);
+}
+.cw-work-list > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--cw-rule);
+}
+.cw-work-list > li > div {
+  min-width: 0;
+}
+.assessment-app .cw-work-list h2 {
+  font: 1.35rem/1.4 var(--cw-font-editorial);
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+.cw-work-list p {
+  margin: 0;
+  color: var(--cw-secondary);
+  font-size: 0.8125rem;
+}
+.cw-row-action {
+  text-decoration: none;
+}
+.cw-row-action:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.assessment-app h1,
+.assessment-app h2,
+.assessment-app h3 {
+  font-family: var(--cw-font-editorial);
+}
+@media (max-width: 600px) {
+  .cw-course-tabs {
+    gap: 8px 24px;
+  }
+  .cw-course-entry,
+  .cw-work-list > li {
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+  .cw-course-entry {
+    padding: 18px 0;
+  }
+}

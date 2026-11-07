@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { authViewSchema, type AuthView } from '../../shared/auth';
 import { draftSchema } from '../../shared/instructor-contracts/authoring';
 import { authRequest } from '../auth/client';
-import { Brand } from '../ui/brand';
+import { Brand, Icon } from '../ui/brand';
+import { AccountMenu } from '../ui/account-menu';
 import { AssignmentWorkspace } from './assignments/AssignmentWorkspace';
 import { instructorClient } from './assignments/client';
 
@@ -100,6 +101,7 @@ export function InstructorWorkspace() {
         preview={false}
         initialAssignmentId={deepId}
         courseId={course}
+        account={view}
       />
     );
   }
@@ -110,26 +112,24 @@ export function InstructorWorkspace() {
       </a>
       <header className="cw-header">
         <Brand />
-        <nav aria-label="Account navigation">
-          <a href="/workspace">Workspace</a>
+        <nav className="cw-app-nav" aria-label="Main navigation">
+          <a href="/workspace" aria-current="page">
+            Courses
+          </a>
           {view && (
-            <button
-              className="cw-icon-button"
-              type="button"
-              onClick={() =>
-                void authRequest('logout', view.csrfToken, {})
+            <AccountMenu
+              email={view.email}
+              onSignOut={() =>
+                authRequest('logout', view.csrfToken, {})
                   .then(() => window.location.assign('/sign-in'))
                   .catch(() => setStatus('Could not sign out. Try again.'))
               }
-            >
-              Sign out
-            </button>
+            />
           )}
         </nav>
       </header>
       <main id="main-content" className="cw-home">
         <h1>Your courses</h1>
-        {view && <p>Signed in as {view.email}</p>}
         {status && <p role="status">{status}</p>}
         {ready && view && !courses.length && (
           <p>You do not have a course workspace yet.</p>
@@ -140,36 +140,21 @@ export function InstructorWorkspace() {
           !courses.some((item) => item.id === course) && (
             <p>This course is unavailable to you.</p>
           )}
-        <ul>
+        <ul className="cw-course-list">
           {courses.map((item) => (
             <li key={item.id}>
-              <h2>{item.name}</h2>
-              <p>
-                <a
-                  href={
-                    '/instructor/assignments?courseId=' +
-                    encodeURIComponent(item.id)
-                  }
-                >
-                  Assignments
-                </a>
-                {' · '}
-                <a
-                  href={
-                    '/auth/invitations?courseId=' + encodeURIComponent(item.id)
-                  }
-                >
-                  Invitations
-                </a>
-                {' · '}
-                <a
-                  href={
-                    '/instructor/review?courseId=' + encodeURIComponent(item.id)
-                  }
-                >
-                  Assessments
-                </a>
-              </p>
+              <a
+                className="cw-course-entry"
+                href={
+                  '/instructor/assignments?courseId=' +
+                  encodeURIComponent(item.id)
+                }
+              >
+                <h2>{item.name}</h2>
+                <span>
+                  Open course <Icon name="arrow-right" />
+                </span>
+              </a>
             </li>
           ))}
         </ul>
