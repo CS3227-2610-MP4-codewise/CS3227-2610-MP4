@@ -278,8 +278,15 @@ export class AssessmentService {
           version: null,
           revision_id: revisionId,
         },
+        principal,
       );
     } catch (error) {
+      await this.session(request);
+      await this.identity!.requireCourse(
+        principal,
+        scope.courseId,
+        'instructor-write',
+      );
       const winner = await this.receipt(key, cmd);
       if (!winner.r) throw error;
     }
@@ -329,6 +336,7 @@ export class AssessmentService {
       'save',
       now,
       {
+        principal: c.principal,
         revision: {
           id: revisionId,
           assessmentId: value,
@@ -369,6 +377,7 @@ export class AssessmentService {
       'correction',
       now,
       {
+        principal: c.principal,
         revision: {
           id: revisionId,
           assessmentId: value,
@@ -398,6 +407,7 @@ export class AssessmentService {
       c.principal.userId,
       'approve',
       this.clock().toISOString(),
+      { principal: c.principal },
     );
     return this.load(request, value);
   }
@@ -467,6 +477,7 @@ export class AssessmentService {
         release.releasedAt,
         {
           release,
+          principal: c.principal,
           receipt: {
             scope: key,
             fingerprint: receipt.fingerprint,
@@ -533,6 +544,7 @@ export class AssessmentService {
         'withdraw',
         now,
         {
+          principal: c.principal,
           withdraw: { version: cmd.releaseVersion, reason: cmd.reason },
           receipt: {
             scope: key,
@@ -559,6 +571,22 @@ export class AssessmentService {
     }
     return (await this.repository.publicState(value, cmd.releaseVersion, now))
       .feedback;
+  }
+  async feedbackPreview(request: Request, value: string, version: number) {
+    await this.context(request, value);
+    const state = await this.repository.publicState(
+      value,
+      integer(version, '$.releaseVersion'),
+      this.clock().toISOString(),
+    );
+    await this.context(request, value);
+    const current = await this.repository.currentness(
+      value,
+      this.clock().toISOString(),
+    );
+    if (currentnessToken(current) !== currentnessToken(state.currentness))
+      throw new BoundaryError('STALE_EVIDENCE');
+    return state;
   }
   async audit(request: Request, value: string, cursor?: string) {
     await this.context(request, value);

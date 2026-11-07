@@ -5,7 +5,10 @@ import {
 import { readJson } from '../assignments/http';
 import type { AssessmentService } from './service';
 export const ASSESSMENT_API = '/__assessment-preview/api';
-export function assessmentHandler(service: AssessmentService) {
+export function assessmentHandler(
+  service: AssessmentService,
+  prefix = ASSESSMENT_API,
+) {
   return async (request: Request) => {
     const headers = {
       'Cache-Control': 'no-store',
@@ -16,8 +19,8 @@ export function assessmentHandler(service: AssessmentService) {
     try {
       await service.session(request);
       const url = new URL(request.url),
-        path = url.pathname.startsWith(ASSESSMENT_API + '/')
-          ? url.pathname.slice(ASSESSMENT_API.length)
+        path = url.pathname.startsWith(prefix + '/')
+          ? url.pathname.slice(prefix.length)
           : '';
       if (path === '/assessments' && request.method === 'POST')
         return json(

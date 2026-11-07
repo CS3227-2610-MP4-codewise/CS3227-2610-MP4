@@ -1,3 +1,4 @@
+import type { TrustedPrincipal } from '../ports/contracts';
 import { BoundaryError } from '../../../shared/instructor-contracts/schema';
 import {
   draftFeedbackSchema,
@@ -64,7 +65,25 @@ const revision = (r: RevisionRow): AssessmentRevision => ({
   feedback: draftFeedbackSchema.parse(JSON.parse(r.feedback)),
 });
 export class AssessmentRepository {
-  constructor(readonly db: D1Database) {}
+  constructor(
+    readonly db: D1Database,
+    readonly options: {
+      guardedBatch?: (
+        statements: D1PreparedStatement[],
+        principal: TrustedPrincipal | undefined,
+        course: string,
+      ) => Promise<D1Result[]>;
+    } = {},
+  ) {}
+  private batch(
+    statements: D1PreparedStatement[],
+    course: string,
+    principal?: TrustedPrincipal,
+  ) {
+    return this.options.guardedBatch
+      ? this.options.guardedBatch(statements, principal, course)
+      : this.db.batch(statements);
+  }
   async scope(id: string) {
     const r = await this.db
       .prepare(
@@ -114,48 +133,66 @@ export class AssessmentRepository {
         r.provenance,
       );
   }
-  async create(h: AssessmentHead, r: AssessmentRevision, receipt: Receipt) {
+  async create(
+    h: AssessmentHead,
+    r: AssessmentRevision,
+    receipt: Receipt,
+    principal?: TrustedPrincipal,
+  ) {
     const nonce = crypto.randomUUID();
-    await this.db.batch([
-      this.db
-        .prepare(
-          'INSERT OR IGNORE INTO instructor_assessments VALUES(?,?,?,?,?,?,?,?,?,?,?)',
-        )
-        .bind(
-          h.id,
-          h.courseId,
-          h.attemptId,
-          h.publicationId,
-          h.evidence,
-          h.headRevisionId,
-          null,
-          1,
-          null,
-          0,
-          nonce,
-        ),
-      this.db
-        .prepare(
-          'INSERT INTO instructor_assessment_revisions SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM instructor_assessments WHERE id=? AND transition_id=?)',
-        )
-        .bind(
-          r.id,
-          r.assessmentId,
-          null,
-          r.actorId,
-          r.createdAt,
-          JSON.stringify(r.feedback),
-          'manual',
-          h.id,
-          nonce,
-        ),
-      this.db
-        .prepare(
-          'INSERT INTO instructor_assessment_audit SELECT ?,?,?,?,?,?,NULL WHERE EXISTS(SELECT 1 FROM instructor_assessments WHERE id=? AND transition_id=?)',
-        )
-        .bind(nonce, h.id, r.actorId, 'create', r.createdAt, r.id, h.id, nonce),
-      this.receiptStatement(receipt),
-    ]);
+    await this.batch(
+      [
+        this.db
+          .prepare(
+            'INSERT OR IGNORE INTO instructor_assessments VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+          )
+          .bind(
+            h.id,
+            h.courseId,
+            h.attemptId,
+            h.publicationId,
+            h.evidence,
+            h.headRevisionId,
+            null,
+            1,
+            null,
+            0,
+            nonce,
+          ),
+        this.db
+          .prepare(
+            'INSERT INTO instructor_assessment_revisions SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM instructor_assessments WHERE id=? AND transition_id=?)',
+          )
+          .bind(
+            r.id,
+            r.assessmentId,
+            null,
+            r.actorId,
+            r.createdAt,
+            JSON.stringify(r.feedback),
+            'manual',
+            h.id,
+            nonce,
+          ),
+        this.db
+          .prepare(
+            'INSERT INTO instructor_assessment_audit SELECT ?,?,?,?,?,?,NULL WHERE EXISTS(SELECT 1 FROM instructor_assessments WHERE id=? AND transition_id=?)',
+          )
+          .bind(
+            nonce,
+            h.id,
+            r.actorId,
+            'create',
+            r.createdAt,
+            r.id,
+            h.id,
+            nonce,
+          ),
+        this.receiptStatement(receipt),
+      ],
+      h.courseId,
+      principal,
+    );
   }
   async read(
     id: string,
@@ -220,6 +257,7 @@ export class AssessmentRepository {
     action: string,
     at: string,
     options: {
+      principal?: TrustedPrincipal;
       revision?: AssessmentRevision;
       release?: Release;
       withdraw?: { version: number; reason: string };
@@ -297,8 +335,9 @@ export class AssessmentRepository {
     if (options.receipt)
       statements.push(this.receiptStatement(options.receipt));
     try {
-      await this.db.batch(statements);
+      await this.batch(statements, before.courseId, options.principal);
     } catch (error) {
+      if (error instanceof BoundaryError) throw error;
       const message = error instanceof Error ? error.message : '';
       if (
         message.includes(
