@@ -26,6 +26,14 @@ type OwnerRecord = {
   account_id: string | null;
   completed_at: number | null;
 };
+/** Reserved bootstrap subject stays protected across environments sharing the provider. */
+export async function ownerSubject(issuer: string, email: string) {
+  return 'cw-owner-' + (await hash(issuer + '|' + email)).slice(0, 56);
+}
+/** Reserved bootstrap subjects are never recovered through mailbox proof. */
+export function isReservedOwnerSubject(uid: string) {
+  return /^cw-owner-[a-f0-9]{56}$/.test(uid);
+}
 /** Explicit operator secrets authorize a single persistent identity; no defaults, routes or course grants. */
 export class OwnerBootstrap {
   constructor(
@@ -50,9 +58,7 @@ export class OwnerBootstrap {
     for (let n = 0; n < expected.length; n++)
       different |= expected.charCodeAt(n) ^ actual.charCodeAt(n);
     if (different) return; // No bootstrap writes/provider provisioning before operator proof.
-    const uid =
-      'cw-owner-' +
-      (await hash(this.provider.issuer + '|' + email)).slice(0, 56);
+    const uid = await ownerSubject(this.provider.issuer, email);
     await db
       .prepare(
         'INSERT INTO auth_owner_bootstrap(singleton,issuer,subject,email,created_at) VALUES(1,?,?,?,?) ON CONFLICT(singleton) DO NOTHING',

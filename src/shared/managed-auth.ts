@@ -13,7 +13,7 @@ function invitation(v: unknown, p: string) {
     v,
     ['id', 'email', 'courseId', 'createdAt', 'status', 'sendState', 'sentAt'],
     p,
-    ['targetRole'],
+    ['targetRole', 'targetRoles'],
   );
   assert(
     o.targetRole === undefined ||
@@ -35,6 +35,21 @@ function invitation(v: unknown, p: string) {
     email: text(o.email, p + '.email', 254),
     courseId: id(o.courseId, p + '.courseId'),
     targetRole: (o.targetRole ?? null) as 'student' | 'instructor' | null,
+    targetRoles:
+      o.targetRoles === undefined
+        ? o.targetRole
+          ? [o.targetRole as 'student' | 'instructor']
+          : []
+        : array(
+            o.targetRoles,
+            (value, path) => {
+              assert(value === 'student' || value === 'instructor', path);
+              return value;
+            },
+            p + '.targetRoles',
+            0,
+            2,
+          ),
     createdAt: timestamp(o.createdAt, p + '.createdAt'),
     status: o.status as 'pending' | 'accepted' | 'revoked',
     sendState: o.sendState as 'queued' | 'failed' | 'unknown',
@@ -49,8 +64,12 @@ export const managedInvitationListSchema = schema((v) => {
   };
 });
 export const managedCreatedSchema = schema((v) => {
-  const o = object(v, ['invitation']);
-  return { invitation: invitation(o.invitation, '$.invitation') };
+  const o = object(v, ['invitation'], '$', ['reused']);
+  assert(o.reused === undefined || typeof o.reused === 'boolean', '$.reused');
+  return {
+    invitation: invitation(o.invitation, '$.invitation'),
+    reused: o.reused === true,
+  };
 });
 export const okSchema = schema((v) => {
   const o = object(v, ['ok']);

@@ -32,6 +32,10 @@ export class SyntheticFirebase implements CredentialProvider {
     if (!u) throw new BoundaryError('UNAUTHENTICATED');
     return { ...u };
   }
+  async lookupEmail(email: string) {
+    const user = [...this.users.values()].find((u) => u.email === email);
+    return user ? this.current(user.uid) : null;
+  }
   async provisionOwner(uid: string, email: string, password: string) {
     const exists = this.users.has(uid);
     await this.provision(uid, email);

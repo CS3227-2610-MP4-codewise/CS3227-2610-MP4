@@ -37,7 +37,7 @@ import {
   type AuthConfig,
 } from './primitives';
 import { readAuthBody } from './routes';
-import type { OwnerBootstrap } from './owner';
+import { isReservedOwnerSubject, type OwnerBootstrap } from './owner';
 const json = (v: unknown, status = 200, headers: Record<string, string> = {}) =>
   Response.json(v, { status, headers: { ...authHeaders, ...headers } });
 function bearer(v: unknown) {
@@ -126,12 +126,31 @@ export class ManagedAuthRoutes extends AuthRoutes {
       if (registered && !i.target_role) throw new BoundaryError('FORBIDDEN');
       let proof = '';
       if (!registered) {
-        await provider.provision(i.firebase_uid, i.email);
+        let proofUid = i.firebase_uid;
+        try {
+          await provider.provision(i.firebase_uid, i.email);
+          if (i.target_role)
+            await this.managed.recordRecoveryCandidate(i.email, i.firebase_uid);
+        } catch (error) {
+          if (!i.target_role) throw error;
+          const candidate = await provider.lookupEmail(i.email);
+          if (
+            !candidate ||
+            candidate.disabled ||
+            candidate.email !== i.email ||
+            candidate.uid === i.firebase_uid
+          )
+            throw error;
+          await this.managed.recordRecoveryCandidate(i.email, candidate.uid);
+          proofUid = candidate.uid;
+        }
+        if (isReservedOwnerSubject(proofUid))
+          throw new BoundaryError('FORBIDDEN');
         const code = await provider.action(i.email);
         const ticket = randomToken();
         await this.managed.action(
           ticket,
-          { uid: i.firebase_uid, email: i.email },
+          { uid: proofUid, email: i.email },
           i.id,
           null,
           token,
@@ -209,7 +228,12 @@ export class ManagedAuthRoutes extends AuthRoutes {
           const input =
             path === 'invitation/preview'
               ? object(raw, ['invite'])
-              : object(raw, ['invite', 'password'], '$', ['ticket', 'code']);
+              : object(raw, ['invite', 'password'], '$', [
+                  'ticket',
+                  'code',
+                  'roles',
+                  'mode',
+                ]);
           const invite = bearer(input.invite);
           let i;
           try {
@@ -234,6 +258,17 @@ export class ManagedAuthRoutes extends AuthRoutes {
             return json({ legacy: true, session: other ? 'other' : 'none' });
           }
           let account = await store.account(i.email, this.credentials.issuer);
+          if (!account && !(await store.recoveryCandidate(i.email))) {
+            const existing = await this.credentials.current(i.firebase_uid);
+            if (existing.email !== i.email || existing.disabled)
+              throw new BoundaryError('UNAUTHENTICATED');
+            await store.recordRecoveryCandidate(i.email, existing.uid);
+          }
+          const recovery = !account;
+          const roles =
+            i.accepted_at === null
+              ? await store.pendingRoles(i)
+              : await store.acceptedRoles(i);
           let signed:
             | Awaited<ReturnType<ManagedAuthRoutes['requireSession']>>
             | undefined;
@@ -254,10 +289,31 @@ export class ManagedAuthRoutes extends AuthRoutes {
             return json({
               courseName: i.course_name,
               role: i.target_role,
+              roles,
+              recovery,
               registered: !!account?.active,
               session: sessionState,
             });
           if (sessionState === 'other') throw new BoundaryError('FORBIDDEN');
+          const requested =
+            input.roles === undefined
+              ? i.accepted_at === null
+                ? [i.target_role!]
+                : roles
+              : input.roles;
+          assert(
+            Array.isArray(requested) &&
+              requested.length >= 1 &&
+              requested.length <= 2 &&
+              requested.every((r) => r === 'student' || r === 'instructor') &&
+              new Set(requested).size === requested.length,
+            '$.roles',
+          );
+          if (
+            roles.length !== requested.length ||
+            roles.some((r) => !requested.includes(r))
+          )
+            throw new BoundaryError('INVALID_CONTRACT');
           const password = passwordValue(input.password);
           await store.rate('password:' + i.email, 5);
           const setupClaim = account ? null : await store.lockSetup(i.email);
@@ -295,33 +351,67 @@ export class ManagedAuthRoutes extends AuthRoutes {
                 i.email
               )
                 throw new BoundaryError('UNAUTHENTICATED');
-              const before = await this.credentials.current(i.firebase_uid);
+              const recovering =
+                recovery &&
+                (await store.recoveryCandidate(i.email))?.firebase_uid ===
+                  proof.firebase_uid;
+              if (
+                recovering &&
+                input.mode !== 'existing' &&
+                input.mode !== 'reset'
+              )
+                throw new BoundaryError('INVALID_CONTRACT');
+              if (!recovering && input.mode !== undefined)
+                throw new BoundaryError('INVALID_CONTRACT');
+              const before = await this.credentials.current(proof.firebase_uid);
+              if (isReservedOwnerSubject(proof.firebase_uid))
+                throw new BoundaryError('FORBIDDEN');
               if (
                 before.disabled ||
                 before.email !== i.email ||
                 (await store.account(i.email, this.credentials.issuer))
               )
                 throw new BoundaryError('UNAUTHENTICATED');
-              await store.consume(proof);
-              await store.beginSetupReset(i.email, setupClaim!);
-              uncertainReset = true;
-              let resetEmail;
-              try {
-                resetEmail = await this.credentials.reset(
-                  codeValue(input.code),
-                  password,
-                );
-              } catch (error) {
-                if (error instanceof ProofRejected) uncertainReset = false;
-                throw error;
+              if (!recovering) throw new BoundaryError('UNAUTHENTICATED');
+              if (recovering && input.mode === 'existing') {
+                const login = await this.credentials.login(i.email, password);
+                if (
+                  login.uid !== proof.firebase_uid ||
+                  login.disabled ||
+                  login.passwordAt !== before.passwordAt ||
+                  login.validSince !== before.validSince
+                )
+                  throw new BoundaryError('UNAUTHENTICATED');
               }
-              uncertainReset = false;
-              if (resetEmail !== i.email)
-                throw new BoundaryError('UNAUTHENTICATED');
-              await this.credentials.verifyEmail(i.firebase_uid);
-              user = await this.credentials.current(i.firebase_uid);
+              await store.consume(proof);
+              if (!recovering || input.mode === 'reset') {
+                await store.beginSetupReset(i.email, setupClaim!);
+                uncertainReset = true;
+                let resetEmail;
+                try {
+                  resetEmail = await this.credentials.reset(
+                    codeValue(input.code),
+                    password,
+                  );
+                } catch (error) {
+                  if (error instanceof ProofRejected) uncertainReset = false;
+                  throw error;
+                }
+                uncertainReset = false;
+                if (resetEmail !== i.email)
+                  throw new BoundaryError('UNAUTHENTICATED');
+              }
+              await this.credentials.verifyEmail(proof.firebase_uid);
+              user = await this.credentials.current(proof.firebase_uid);
               if (!user.verified || user.disabled || user.email !== i.email)
                 throw new BoundaryError('UNAUTHENTICATED');
+              if (recovering)
+                await store.bindRecovery(
+                  i,
+                  proof,
+                  setupClaim!,
+                  this.credentials.issuer,
+                );
             }
             const sessionToken =
               signed?.token ??
@@ -345,7 +435,24 @@ export class ManagedAuthRoutes extends AuthRoutes {
               },
             });
             const current = await this.requireSession(verifiedRequest);
-            await store.acceptCourse(invite, current.session);
+            try {
+              await store.acceptCourse(
+                invite,
+                current.session,
+                requested as ('student' | 'instructor')[],
+              );
+            } catch (error) {
+              const fresh = await store.pendingRoles(
+                await store.courseInvitation(invite),
+              );
+              if (
+                fresh.length &&
+                (fresh.length !== requested.length ||
+                  fresh.some((role) => !requested.includes(role)))
+              )
+                throw new BoundaryError('INVALID_CONTRACT');
+              throw error;
+            }
             return json({ ok: true }, 200, {
               'Set-Cookie': setCookie(
                 config,
@@ -464,6 +571,8 @@ export class ManagedAuthRoutes extends AuthRoutes {
           setup ? 'setup' : 'reset',
           token,
         );
+        if (isReservedOwnerSubject(proof.firebase_uid))
+          throw new BoundaryError('FORBIDDEN');
         if (setup && (await store.pending(token!)).target_role !== null)
           throw new BoundaryError('FORBIDDEN');
         const setupClaim = setup ? await store.lockSetup(proof.email) : null;
@@ -567,6 +676,11 @@ export class ManagedAuthRoutes extends AuthRoutes {
           this.credentials.issuer,
           input.targetRole,
         );
+        if (!result.token)
+          return json(
+            { invitation: inviteView(result.invitation), reused: true },
+            200,
+          );
         await this.authorize(principal, course, true);
         try {
           await this.setupMail(result.invitation, result.token, async () => {
