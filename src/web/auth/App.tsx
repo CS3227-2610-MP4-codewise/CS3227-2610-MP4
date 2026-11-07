@@ -243,8 +243,26 @@ export function AuthApp() {
           'If your account is eligible, check your inbox for a reset link.',
         );
       } else {
-        okSchema.parse(await authRequest('login', csrf, { email, password }));
-        window.location.assign('/workspace');
+        const requested = new URLSearchParams(window.location.search).get(
+          'returnTo',
+        );
+        const returnTo =
+          requested &&
+          /^\/instructor\/assignments\/[A-Za-z0-9_-]{1,128}$/.test(requested)
+            ? requested
+            : '/workspace';
+        okSchema.parse(
+          await authRequest('login', csrf, { email, password, returnTo }),
+        );
+        let destination = '/workspace';
+        try {
+          const result = workspaceSchema.parse(await authRequest('workspace'));
+          if (result.state === 'authorized' && result.destination)
+            destination = result.destination;
+        } catch {
+          // Revoked or unavailable saved destinations fall back to the course list.
+        }
+        window.location.assign(destination);
       }
     });
   }

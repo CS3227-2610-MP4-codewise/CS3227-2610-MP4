@@ -78,6 +78,7 @@ export class AssignmentService {
       cmd.requestKey,
       this.nextId(),
       this.clock().toISOString(),
+      principal,
     );
   }
   async list(request: Request, course: string, cursor = '') {
@@ -105,6 +106,7 @@ export class AssignmentService {
       cmd.expectedRevision,
       cmd.payload,
       this.clock().toISOString(),
+      scope.principal,
     );
   }
   private async result(
@@ -181,6 +183,7 @@ export class AssignmentService {
         publication,
         questions: snapshots,
         actorId: scope.principal.userId,
+        principal: scope.principal,
         sourceRevision: cmd.expectedRevision,
         key: cmd.idempotencyKey,
         fingerprint,

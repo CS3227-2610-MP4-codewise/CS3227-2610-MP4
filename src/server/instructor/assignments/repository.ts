@@ -1,3 +1,4 @@
+import type { TrustedPrincipal } from '../ports/contracts';
 import {
   draftSchema,
   type AssignmentDraft,
@@ -24,6 +25,7 @@ export type PublicationWrite = {
   sourceRevision: number;
   key: string;
   fingerprint: string;
+  principal?: TrustedPrincipal;
 };
 type Root = {
   id: string;
@@ -44,6 +46,7 @@ export interface AssignmentRepository {
     key: string,
     id: string,
     now: string,
+    principal?: TrustedPrincipal,
   ): Promise<AssignmentDraft>;
   list(
     courseId: string,
@@ -56,6 +59,7 @@ export interface AssignmentRepository {
     revision: number,
     payload: Authoring,
     now: string,
+    principal?: TrustedPrincipal,
   ): Promise<AssignmentDraft>;
   receipt(
     id: string,
@@ -70,7 +74,52 @@ export interface AssignmentRepository {
   summary(id: string, courseId: string): Promise<PublicationSummary>;
 }
 export class D1Assignments implements AssignmentRepository {
-  constructor(readonly db: D1Database) {}
+  constructor(
+    readonly db: D1Database,
+    readonly options: { enforceAuthority?: boolean } = {},
+  ) {}
+  private async guarded(
+    statements: D1PreparedStatement[],
+    principal: TrustedPrincipal | undefined,
+    course: string,
+  ) {
+    if (!this.options.enforceAuthority) return this.db.batch(statements);
+    if (!principal) throw new BoundaryError('FORBIDDEN');
+    const now = Date.now(),
+      key = crypto.randomUUID();
+    const guard = this.db
+      .prepare(
+        `INSERT INTO course_write_guards(id,allowed) SELECT ?,CASE WHEN EXISTS(
+      SELECT 1 FROM course_memberships m JOIN courses c ON c.id=m.course_id AND c.active=1
+      JOIN auth_accounts a ON a.id=m.user_id AND a.active=1
+      JOIN auth_sessions s ON s.user_id=a.id AND s.id=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.last_seen>?
+      WHERE m.course_id=? AND m.user_id=? AND m.role='instructor' AND m.active=1
+    ) THEN 1 ELSE 0 END`,
+      )
+      .bind(
+        key,
+        principal.sessionHandle,
+        now,
+        now - 30 * 60_000,
+        course,
+        principal.userId,
+      );
+    try {
+      const results = await this.db.batch([
+        guard,
+        ...statements,
+        this.db.prepare('DELETE FROM course_write_guards WHERE id=?').bind(key),
+      ]);
+      return results.slice(1, -1);
+    } catch (e) {
+      if (
+        e instanceof Error &&
+        e.message.includes('course_authorization_guard')
+      )
+        throw new BoundaryError('FORBIDDEN');
+      throw e;
+    }
+  }
   async scope(value: string) {
     const row = await this.db
       .prepare(
@@ -107,8 +156,9 @@ export class D1Assignments implements AssignmentRepository {
     key: string,
     assignmentId: string,
     now: string,
+    principal?: TrustedPrincipal,
   ) {
-    await this.db
+    const statement = this.db
       .prepare(
         'INSERT INTO instructor_assignment_drafts(id,course_id,revision,payload,created_by,create_key,created_at,updated_at) VALUES(?,?,1,?,?,?,?,?) ON CONFLICT(course_id,created_by,create_key) DO NOTHING',
       )
@@ -120,8 +170,8 @@ export class D1Assignments implements AssignmentRepository {
         key,
         now,
         now,
-      )
-      .run();
+      );
+    await this.guarded([statement], principal, course);
     const row = await this.db
       .prepare(
         'SELECT id,course_id,revision,payload,created_at,updated_at FROM instructor_assignment_drafts WHERE course_id=? AND created_by=? AND create_key=?',
@@ -178,13 +228,14 @@ export class D1Assignments implements AssignmentRepository {
     revision: number,
     payload: Authoring,
     now: string,
+    principal?: TrustedPrincipal,
   ) {
-    const result = await this.db
+    const statement = this.db
       .prepare(
         'UPDATE instructor_assignment_drafts SET payload=?,revision=revision+1,updated_at=? WHERE id=? AND course_id=? AND revision=?',
       )
-      .bind(JSON.stringify(payload), now, assignmentId, course, revision)
-      .run();
+      .bind(JSON.stringify(payload), now, assignmentId, course, revision);
+    const [result] = await this.guarded([statement], principal, course);
     if (result.meta.changes !== 1) throw new BoundaryError('REVISION_CONFLICT');
     // Return the acknowledged payload/revision, not a racing later read.
     const row = await this.db
@@ -256,7 +307,7 @@ export class D1Assignments implements AssignmentRepository {
         .bind(json),
     ];
     try {
-      const results = await this.db.batch(statements);
+      const results = await this.guarded(statements, v.principal, p.courseId);
       assert(results[0].meta.changes === 1, '$', 'missing_receipt');
     } catch (e) {
       // Database guard errors have a fixed local marker, never returned verbatim.

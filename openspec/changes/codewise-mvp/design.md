@@ -8,7 +8,7 @@ Readiness update 2026-11-05: the Cloudflare foundation is deployed to staging an
 
 ## Goals / Non-Goals
 
-Current ownership revision (2026-11-06): Darryl produces shared account authentication, sign-in/registration/provisioning, provider mapping, sessions/logout and CSRF (SH-AUTH). Keith produces courses/memberships/object authorization (SH-ID), consuming that authenticated subject, and retains submissions/student features. Both review the composed C-ID handoff; one authoritative identity/course store and serialized migration/API write windows remain required. This supersedes only the prior combined identity ownership, not security requirements or provider/registration policy decisions.
+Current ownership revision (2026-11-06): Darryl produces shared account authentication, sign-in/registration/provisioning, provider mapping, sessions/logout and CSRF (SH-AUTH). Darryl produces courses/memberships/object authorization (SH-ID), consuming that authenticated subject, and retains submissions/student features. Both review the composed C-ID handoff; one authoritative identity/course store and serialized migration/API write windows remain required. This supersedes only the prior combined identity ownership, not security requirements or provider/registration policy decisions.
 
 Goals: durable submissions, rubric-driven assistance, private evidence-based learning feedback, testable security, and auditable development/deployment.
 
@@ -128,3 +128,11 @@ Scope: repository conventions, app shell, safe API/health boundary, metadata mig
 CI runs without cloud/provider credentials. Pushes to main run checks before staging deploy. The same release run queues production only after staging smoke checks and artifact upload succeed. The production environment's required reviewer creates the Review deployments approval gate. After approval, the job checks out the same commit, downloads this run's tested frontend artifact, validates its commit/run provenance and current main head, then migrates/deploys. No separate run-ID dispatch is used. Staging and production retain separate D1 IDs checked by the configuration generator. Full API/data schema and identity decisions remain future shared work.
 
 The complete release workflow is serialized with cancellation disabled. A waiting production review holds the release slot. Approve, reject or cancel it before the next release proceeds. If another commit reaches main during the wait, the superseded release is rejected before production migration; cancel it and test the newer run. Branch/PR pushes still run CI only. Application rollback remains separate from schema recovery.
+
+
+## SH-ID ownership update — 2026-11-07
+Darryl owns SH-ID: courses, memberships, object authorization and allowed workspace contexts. This supersedes earlier Keith SH-ID ownership statements. Keith retains student and submission work and cross-reviews the composed C-ID boundary; his acceptance is pending. Use one authoritative identity/course store, serialize shared schema and API edits, and consume trusted SH-AUTH sessions. Account administration grants no course membership or instructor role. Implementation and integration remain pending.
+
+## Shared foundation implementation — authorized 2026-11-07
+
+Darryl writes SH-ID and the serialized shared integration; Keith reviews C-ID and retains student/submission ownership. The server derives course membership from one D1 database, checks current membership for each course/object request, and composes existing Firebase-backed SH-AUTH with course authority and instructor assignment routes. Trusted operator provisioning explicitly assigns an existing account to a course; account administration and invitation acceptance do not imply membership. Local setup uses synthetic course data. Deployment follows reviewed staging and production workflows only. Instructor workspace follows warm-workbook-v1, UI-01–04 and UI-07–08; UI review remains pending actual evidence. Requirements AUTH-01–03, DEV-02, SUB-01.

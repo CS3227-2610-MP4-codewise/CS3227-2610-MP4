@@ -34,11 +34,14 @@ export async function readJson(request: Request) {
     throw new ContractError('$', 'json');
   }
 }
-export function assignmentHandler(service: AssignmentService) {
+export function assignmentHandler(
+  service: AssignmentService,
+  base = PREVIEW_API,
+) {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url),
-      path = url.pathname.startsWith(PREVIEW_API + '/')
-        ? url.pathname.slice(PREVIEW_API.length)
+      path = url.pathname.startsWith(base + '/')
+        ? url.pathname.slice(base.length)
         : '';
     const json = (body: unknown, status = 200) =>
       Response.json(body, {

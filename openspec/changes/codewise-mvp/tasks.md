@@ -24,7 +24,7 @@ Readiness reconciliation: `project-readiness` records actual independent plannin
 
 ## 3. Implement identity and persistence
 - [ ] 3.1 Darryl owns SH-AUTH: choose the maintained identity/provider and registration/provisioning policy for joint review, implement sign-in/account mapping, secure sessions/logout and CSRF; verify expiry/cancellation/logout, safe return and no self-promotion before handing the trusted subject to Keith (AUTH-01, AUTH-03).
-- [ ] 3.2 Keith owns SH-ID course/membership/object permissions and membership revocation, consuming Darryl's SH-AUTH session/CSRF guards; jointly verify exact C-ID producer revisions, cross-user/course access, session and membership revocation, and CSRF before protected feature integration (AUTH-01, AUTH-02, AUTH-03).
+- [ ] 3.2 Darryl owns SH-ID course/membership/object permissions and membership revocation, consuming Darryl's SH-AUTH session/CSRF guards; jointly verify exact C-ID producer revisions, cross-user/course access, session and membership revocation, and CSRF before protected feature integration (AUTH-01, AUTH-02, AUTH-03).
 - [ ] 3.3 Implement versioned schema, constraints, migrations and repositories (SUB-01, SUB-03, GRADE-04).
 
 ## 4. Implement writing and submission workflow
@@ -57,3 +57,12 @@ Readiness reconciliation: `project-readiness` records actual independent plannin
 - [ ] 8.4 Run non-AI load checks and backup/restore rehearsal; document recovery and migration limits (OPS-03).
 - [ ] 8.5 Complete accurate UserGuide, DeveloperGuide, acknowledgements, Reflections, verified summary logs and GitHub Pages product website (DEV-04).
 - [ ] 8.6 Pass release gates, deploy via team CI, and smoke-test both roles against isolated production configuration (OPS-01, OPS-02, AI-01).
+
+
+## 9. Shared foundation for independent role development
+- [x] 9.1 Reconcile current SH-AUTH revision, shared write window, migration sequence and C-ID contract; record pending Keith review (AUTH-01–03, DEV-02).
+- [ ] 9.2 Implement authoritative courses, memberships, revocation and server-side course/object authorization, with trusted instructor provisioning and no self-promotion (AUTH-02, AUTH-03).
+- [ ] 9.3 Compose sessions, authorization, workspace destinations and instructor invitation gates using real authority; fail closed (AUTH-01–03).
+- [ ] 9.4 Provide isolated local setup and synthetic course/instructor data for instructor feature development (AUTH-01–03, DEV-03).
+- [ ] 9.5 Verify allowed, unauthenticated, cross-course, revoked and CSRF cases, migration and restart persistence; record checks and handoff (AUTH-01–03, DEV-02).
+- [ ] 9.6 Complete applicable warm-workbook-v1 UI-01–08 review and manual acceptance for changed UI; record deployment only when performed (OPS-01–02).
