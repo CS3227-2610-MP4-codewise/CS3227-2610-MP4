@@ -247,3 +247,32 @@ Owner: Darryl. Change: course-onboarding, COU-03–05/07, applicable SHA and UI-
 
 - Started `npm run dev:auth` for the isolated loopback-only synthetic preview at http://127.0.0.1:5176/workflow/auth/preview.html. The process reported Vite ready on port 5176. Invented accounts and captured mail only; no live Firebase or Gmail delivery is established.
 - No new comparison or product test; next owner Darryl for manual acceptance and the remaining recovery work.
+
+**CRI-07/08 shared-turn reconciliation, 2026-11-07:** Completed turn-ba3895e8bbeafb31f4438c6d: input 2954702, cached 2946304, output 4543, total 2959245. This is one shared group for both prompts, counted once; individual allocation unavailable. Replaces both provisional references.
+
+## Prompt CRI-09 — 2026-11-07, Asia/Singapore
+
+**Prompt (redacted):** Push the branch and create the PR.
+
+### Agents spawned
+
+- **New agents:** None; publishing the existing branch needs no delegation.
+- **Reused agents:** None.
+- **Main agent:** /root; precise model unavailable from the recorder snapshot. Unknown activity/rationale is unavailable.
+
+### Token count
+
+**Usage report for CRI-09:**
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| Main | 619030 | 605952 | 666 | 619696 | turn-e4813ff9fe92dd7e4c939856 | provisional, incomplete |
+| Children | 0 | 0 | 0 | 0 | observed no agents | provisional |
+
+- Project-scoped private recorder, 2026-11-07. Shared-turn group turn-e4813ff9fe92dd7e4c939856 has one prompt. Later calls and final response excluded; cached/reasoning values are subsets. Reconcile next checkpoint, replacing the snapshot.
+
+### Experiment outcome
+
+- Preparing a draft PR for the explicitly requested push and review. A draft reflects pending operational recovery, manual acceptance, controlled delivery and student integration; it does not imply deployment or completed tasks 3.3/3.5.
+- Prior local verification: npm run check passed 290 Vitest tests, four deployment tests, OpenSpec validation, typecheck, lint and build. CI/local secret scan remains pending. No additional product tests run for publishing.
+- No controlled comparison; token totals do not prove efficiency. Next owner: Darryl and reviewers. Publication result will be recorded at the next checkpoint.
