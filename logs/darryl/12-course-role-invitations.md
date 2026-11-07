@@ -276,3 +276,5 @@ Owner: Darryl. Change: course-onboarding, COU-03–05/07, applicable SHA and UI-
 - Preparing a draft PR for the explicitly requested push and review. A draft reflects pending operational recovery, manual acceptance, controlled delivery and student integration; it does not imply deployment or completed tasks 3.3/3.5.
 - Prior local verification: npm run check passed 290 Vitest tests, four deployment tests, OpenSpec validation, typecheck, lint and build. CI/local secret scan remains pending. No additional product tests run for publishing.
 - No controlled comparison; token totals do not prove efficiency. Next owner: Darryl and reviewers. Publication result will be recorded at the next checkpoint.
+
+**CRI-09 publication outcome, 2026-11-07:** Pushed `codex/course-role-invitations` and opened draft [PR #14](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/14) against `main`. Its description records the passing local checks, open recovery/manual acceptance and separate live-delivery authorization. No merge, deployment or message to Keith was performed. CI results were not yet verified at publication.
