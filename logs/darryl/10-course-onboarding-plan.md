@@ -55,3 +55,7 @@ Private usage checkpoint refreshed at publication; current turn provisional. Det
 ### Experiment outcome
 
 Verified isolated branch codex/course-onboarding-plan from main a05d5ba, no existing remote feature branch, unchanged remote main and documentation-only pending delta. Earlier241tests/4deployment checks,8strict spec validations, type/lint/build, secret/link audits remain valid; no application/test source changed since checks. User now separately authorizes commit/push/PR, superseding the earlier planning-only publication restriction for this follow-up only. No merge, implementation or deployment authorized.
+
+### Publication result — 2026-11-07
+
+Committed the complete documentation plan as df0f3ed3558eafb603b5a2583ab5ec49791ad617 and pushed origin/codex/course-onboarding-plan. Created normal non-draft PR12: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/12, targeting unchanged main a05d5ba. PR links are pinned to the reviewed planning commit and distinguish confirmed Darryl policy from proposed technical details/pending Keith review. All17 detailed implementation tasks remain unchecked. This follow-up authorizes publication only; no feature/migration/data/merge/deployment action. Final publication-note commit is documentation only; earlier test/spec/secret/link results remain applicable. Private usage checkpoint refreshed outside Git, current turn provisional.

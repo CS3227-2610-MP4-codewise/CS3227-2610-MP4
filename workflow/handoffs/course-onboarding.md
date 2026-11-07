@@ -1,9 +1,11 @@
 # Handoff: course-onboarding planning
 
+Publication: [normal PR12](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/12), planning commit df0f3ed3558eafb603b5a2583ab5ec49791ad617 pushed on codex/course-onboarding-plan. This supersedes earlier uncommitted/publication-pending checkpoints below. No application implementation, merge or deployment.
+
 - Human owner: Darryl; Keith owns student/submission consumers and cross-reviews the shared boundary.
 - Agent role/configuration: main /root plans/writes/verifies; reused /root/contracts_review independently inspects documents read-only; no recursive delegation.
 - Requirement IDs/change: COU-01–07, AUTH-01–03, SHA-01–12, UI-01/02/03/04/07/08; openspec/changes/course-onboarding/.
-- Input revision: merged reviewed main a05d5ba95034dcb87c967690dc9a185cf05ba526; isolated codex/course-onboarding-plan. Uncommitted planning, not a producer implementation revision.
+- Input revision: merged reviewed main a05d5ba95034dcb87c967690dc9a185cf05ba526; isolated codex/course-onboarding-plan. Planning commit df0f3ed3558eafb603b5a2583ab5ec49791ad617; not a producer implementation revision.
 - Owned files: new course-onboarding artifacts, targeted existing MVP/auth/UI/config plans, project AGENTS/DeveloperGuide/PlanningDecisions/UI design, current Ownership/IntegrationContracts notes and this log/evidence/handoff. One named writer Darryl; no application/DTO/schema/migration or personal skill edits.
 - Context: explicit user policy request and explicit Darryl SH-ID ownership reconfirmation; actual existing role-capable membership schema and current local-only course setup inspected.
 - Decisions: first admin is pinned starting identity, not magic email; first admin/current instructors create courses; current instructors invite both roles within taught courses; new accounts choose passwords, registered accounts confirm existing passwords; validated combined join adds exact role to same account; preserve both roles and expose trusted role-filtered dashboard switch. Product target confirmed by Darryl; technical packet/Keith acceptance pending.
