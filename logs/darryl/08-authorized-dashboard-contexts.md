@@ -170,7 +170,7 @@ Owner: Darryl. Change/requirements: course-onboarding 4.1–4.2, COU-06/07, AUTH
 ### Experiment outcome
 
 - Expected benefit: publish a reviewable branch and PR without claiming manual acceptance.
-- Observed result: publication requested; final branch, commit, PR and verification outcomes are recorded in the PR and handoff when available.
+- Observed result: committed producer `8f93f51c1f6a36dd64908bd550e90b68e9957af1` and revision handoff `44c6e1e2613c4e5c6e7b277c2b344d25b514dbce`, pushed `codex/authorized-dashboard-contexts`, and opened [draft PR #17](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/17). Prior `npm run check` passed; UI/manual acceptance and Keith integration remain pending.
 - Evidence: dashboard context verification checkpoint and C-ID packet.
 - Comparison basis: no controlled comparison.
 - Reflection: PR publication is distinct from manual acceptance and deployment.
