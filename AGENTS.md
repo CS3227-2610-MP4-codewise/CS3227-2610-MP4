@@ -4,7 +4,7 @@
 
 Two team members: Darryl owns instructor features; Keith owns student features. Both contribute to shared infrastructure and review shared contracts. See workflow/Ownership.md before changing shared files. Do not implement the full MVP when asked only for foundation or a single feature.
 
-Darryl owns the shared sign-in and registration/provisioning slice (SH-AUTH), including provider integration, account identity, sessions and logout. Keith retains course/membership/object authorization (SH-ID), submissions and student features. Both review the composed C-ID boundary; keep one authoritative identity store and serialize shared schema/API edits. This allocation does not decide public registration or permit instructor self-promotion.
+Darryl owns the shared sign-in and registration/provisioning slice (SH-AUTH), including provider integration, account identity, sessions and logout. Darryl also owns course/membership/object authorization (SH-ID), as reconfirmed by Darryl on 2026-11-07. Keith retains submissions and student features and cross-reviews/consumes the composed identity/course boundary. Both review the composed C-ID boundary; keep one authoritative identity store and serialize shared schema/API edits. This allocation does not decide public registration or permit instructor self-promotion.
 
 ## Spec-driven work
 

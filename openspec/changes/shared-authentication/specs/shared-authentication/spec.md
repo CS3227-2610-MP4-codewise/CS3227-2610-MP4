@@ -18,14 +18,14 @@ The system SHALL enforce password lengths of8–64 Unicode characters without tr
 - **THEN** length validation rejects7/65 and permits8/64 to proceed to the normal identity/proof checks; valid length alone never grants admission.
 
 ### Requirement: SHA-02 Non-expiring invitation admission
-The system SHALL require an instructor-issued email-bound, single-use, revocable pending invitation for new admission. Pending invitations SHALL remain valid until accepted/revoked; separate provider proofs may expire (AUTH-03).
+The system SHALL require an instructor-issued invitation bound to recipient email, course and target role for new admission/course enrollment, except operator first-admin admission (SHA-12). Pending invitations SHALL remain valid until accepted/revoked; provider proofs may expire. COU-03–05 SHALL govern new/existing-account entry and authenticated membership acceptance. (AUTH-03)
 
 #### Scenario: Delayed invitation and racing acceptance
 - **WHEN** a pending invitation is opened weeks later, a scanner performs GET, or confirmations race
-- **THEN** GET consumes nothing, admission remains eligible, expired proof can be renewed and at most one account acceptance commits; no membership is created.
+- **THEN** GET consumes nothing, admission remains eligible, expired proof can be renewed and at most one account acceptance commits; authenticated course-role acceptance SHALL atomically create the invited membership under COU-05, while identity admission alone grants no course access.
 
 ### Requirement: SHA-03 Current instructor authority
-The system SHALL authorize send/list/resend/revoke through Keith's current C-ID instructor/course producer and scope records to trusted inviter/course. Missing authority SHALL fail before recipient records or mail (AUTH-02/03, CON-03/07).
+The system SHALL authorize send/list/resend/revoke through Darryl's current C-ID instructor/course producer and scope records to trusted inviter/course. Missing authority SHALL fail before recipient records or mail (AUTH-02/03, CON-03/07).
 
 #### Scenario: Missing or forged instructor
 - **WHEN** the producer is absent, a browser forges roles or another instructor requests records
@@ -88,11 +88,11 @@ The system SHALL bind direct emailed password actions to a hashed, one-use, ten-
 - **THEN** no admission/password change/session is granted, no arbitrary redirect occurs and recovery remains available through a fresh valid email.
 
 ### Requirement: SHA-12 One-time operator owner
-The system SHALL support explicit operator-configured one-time persistent owner admission without shipped credentials or public role selection. Completion SHALL grant authentication administration only and SHALL never bypass course/object authorization. An operator alias SHALL NOT be marked as a verified mailbox. Owner login/session SHALL match immutable provider credential metadata even when provider email verification changes (AUTH-01–03, CON-03/07).
+The system SHALL support one-time operator-pinned first-admin admission with authentication administration and creator eligibility (COU-01), without existing-course membership or authorization bypass. It SHALL ship no credentials or public role selection, never mark an alias verified, and require immutable provider credential metadata for owner login/session despite email-verification changes. (AUTH-01–03, CON-03/07)
 
 #### Scenario: First sign-in, restart or attempted takeover
 - **WHEN** correct configured operator credentials bootstrap the owner, application instances restart, bootstrap secrets change/disappear, or an external mailbox controller changes provider credentials
-- **THEN** at most one owner is admitted, completed state persists, bootstrap cannot reopen/reset/reactivate it, unknown credential changes deny owner authority, and missing course authorization remains unavailable.
+- **THEN** at most one owner is admitted, completed state persists, bootstrap cannot reopen/reset/reactivate it, unknown credential changes deny owner authority, unassigned existing courses remain denied and COU-01 first-admin course creation remains available.
 
 #### Scenario: Forged bootstrap, collision or interruption
 - **WHEN** a wrong password/browser-admin flag/cross-site request, existing foreign UID/email, concurrent attempt or interrupted provisioning is encountered

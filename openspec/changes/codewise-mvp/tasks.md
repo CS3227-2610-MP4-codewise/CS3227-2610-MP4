@@ -66,3 +66,12 @@ Readiness reconciliation: `project-readiness` records actual independent plannin
 - [ ] 9.4 Provide isolated local setup and synthetic course/instructor data for instructor feature development (AUTH-01–03, DEV-03).
 - [ ] 9.5 Verify allowed, unauthenticated, cross-course, revoked and CSRF cases, migration and restart persistence; record checks and handoff (AUTH-01–03, DEV-02).
 - [ ] 9.6 Complete applicable warm-workbook-v1 UI-01–08 review and manual acceptance for changed UI; record deployment only when performed (OPS-01–02).
+
+## 10. Course creation and invitation onboarding — confirmed product target, pending implementation
+
+Detailed tasks/acceptance live in [course-onboarding](../course-onboarding/tasks.md); these roadmap gates are not implementation evidence.
+
+- [ ] 10.1 Deliver first-admin/current-instructor guarded Create course plus atomic creator instructor membership, instructor empty/list UX and reviewed hosted owner continuity; verify COU-01/02 and the first increment's tests/manual evidence.
+- [ ] 10.2 Deliver Student/Instructor invitation send/track and new-account password setup versus existing-account password sign-in, with idempotent authenticated course-role acceptance; verify COU-03–05/07, mailbox/revocation/CSRF/race cases and no duplicate account/password/membership store.
+- [ ] 10.3 Deliver Darryl's trusted allowed-context/shared top switch/instructor consumer and Keith's actual student dashboard consumer; verify COU-06/07 and UI-03 with both opposite-role first invitations and per-role courses. Keep Keith integration pending until supplied.
+- [ ] 10.4 Complete joint contract review, exact producer/consumer handoffs, required checks, UI/manual acceptance and reviewed staging/production verification per course-onboarding tasks; configuration/fixtures/local data do not complete hosted readiness.

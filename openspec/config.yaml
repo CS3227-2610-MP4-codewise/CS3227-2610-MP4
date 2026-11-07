@@ -10,6 +10,14 @@ context: |
   submissions and student features. Darryl also owns courses, memberships, object
   authorization and workspace contexts (SH-ID), transferred on 2026-11-07.
   Both review the composed C-ID boundary; Keith's revised-boundary review is pending.
+  Course-onboarding product target confirmed by Darryl on 2026-11-07: the pinned
+  starting owner instructor@u.nus.edu is the first admin; first admin/current instructors
+  can create courses, and current course instructors can invite Students or Instructors.
+  New recipients choose a password; registered recipients sign in with their existing
+  password and validated acceptance adds the exact course role to the same account.
+  Preserve both roles and expose the UI-03 dashboard switch only from trusted contexts.
+  See course-onboarding COU-01–07: planning only; implementation/Keith agreement pending.
+  This supersedes operator-only/no-enrollment invitation planning, not runtime evidence.
   One authoritative identity store; serialize shared schema/API edits. Darryl approved
   Firebase Authentication with Gmail-delivered generated proof links for invitation-only onboarding in shared-authentication on 2026-11-06.
   This supersedes earlier Google/SendGrid/Brevo targets; Native-mail template edits were rejected; Darryl selected an alternate sender and retained in-app password forms on2026-11-07. User reports credentials entered; live verification is pending. Public registration and instructor self-promotion are not approved. Live Firebase credentials/Gmail delivery,

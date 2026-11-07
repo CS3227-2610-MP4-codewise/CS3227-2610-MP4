@@ -73,3 +73,11 @@ Section6 native custom-handler candidate is superseded by7; earlier source verif
 - [x] 9.4 Prepare redacted setup/handoff/manual checklist/log/usage and perform only authorized local provisioning if actual Firebase configuration permits; production deployment/creation and Keith integration remain pending.
 
 - [ ] 9.5 Obtain Darryl manual acceptance and separatelyreviewedremote bootstrap/release plusKeith courseauthority; no localtest/screenshot countsasproductioncompletion.
+
+## 10. Planned course-aware invitations — COU target
+
+Detailed implementation/verification tasks live in [course-onboarding](../course-onboarding/tasks.md). All remain pending; completed historical SHA tasks do not prove the new target.
+
+- [ ] 10.1 Extend first-admin creator eligibility and invitation Student/Instructor target/authority while preserving exact account/session/provider identity and mail audit; verify COU-01/03/07 with shared C-ID review.
+- [ ] 10.2 Implement new-versus-registered recipient password branch and atomic authenticated course-role acceptance with replay/revocation/partial-failure recovery; verify COU-04/05, existing password preservation and one stable account.
+- [ ] 10.3 Verify composed allowed-context role discovery and both opposite-role dashboard journeys with the actual Keith consumer, plus authorized controlled mail/hosted evidence and manual acceptance. Keep unexecuted integration pending.

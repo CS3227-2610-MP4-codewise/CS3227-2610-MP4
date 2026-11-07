@@ -23,7 +23,7 @@ The server SHALL derive roles and memberships from trusted records and authorize
 - **THEN** the request is denied, even if they know a valid object identifier.
 
 ### Requirement: AUTH-03 Trusted role provisioning
-The system SHALL restrict instructor and membership provisioning to a documented trusted setup process. Client-provided roles SHALL never grant privileges, and membership revocation SHALL take effect on subsequent protected operations.
+The system SHALL restrict instructor/membership provisioning to trusted first-admin setup or current-course-instructor invitations with authenticated acceptance. It SHALL permit first-admin/current-instructor course creation under COU-01–07. Client roles SHALL grant no authority; membership revocation SHALL apply on subsequent protected operations.
 
 #### Scenario: Self-promotion
 - **WHEN** a student changes a request field or client state to instructor

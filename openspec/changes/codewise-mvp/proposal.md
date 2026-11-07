@@ -51,3 +51,7 @@ New application, data schema, API, development records, and deployment pipeline.
 
 ## SH-ID ownership update — 2026-11-07
 Darryl owns SH-ID: courses, memberships, object authorization and allowed workspace contexts. This supersedes earlier Keith SH-ID ownership statements. Keith retains student and submission work and cross-reviews the composed C-ID boundary; his acceptance is pending. Use one authoritative identity/course store, serialize shared schema and API edits, and consume trusted SH-AUTH sessions. Account administration grants no course membership or instructor role. Implementation and integration remain pending.
+
+## Confirmed course-onboarding target — 2026-11-07, planning only
+
+Darryl requested [course-onboarding](../course-onboarding/proposal.md), COU-01–07: operator-pinned starting account instructor@u.nus.edu is the first admin with explicit creator eligibility; first admin/current instructors create their own course and become its instructor; course instructors invite Students or Instructors. New recipients choose a password, registered recipients use their existing password, and authenticated acceptance adds the exact course-role membership to the same account. Preserve opposite roles and expose a trusted top Student/Instructor switch. This future target supersedes operator-only/no-membership-on-acceptance assumptions; it is not current implementation or Keith acceptance. Account administration still grants no existing-course membership. Shared/student consumer work remains separately owned.

@@ -37,7 +37,7 @@ The interface SHALL provide a sign-in page using the approved maintained identit
 - **THEN** the interface requests sign-in, does not label those edits saved and offers recovery according to the approved identity/storage contract without exposing another user's source.
 
 ### Requirement: UI-03 Authorized role workspace switch
-Where trusted context permits both workspaces, the interface SHALL use a keyboard-operable Student/Instructor switch with visible labels and synchronized accessible state. A single-role context SHALL display its role without an enabling switch. Switching SHALL preserve unsaved-work recovery and SHALL NOT change server membership or expose inaccessible data.
+Where trusted account context permits both workspaces, including Student and Instructor memberships in different courses or first-admin creator eligibility under COU-01, the interface SHALL use a top-level keyboard-operable Student/Instructor switch with visible labels and synchronized accessible state. A single-role context SHALL display its role without an enabling switch. Switching SHALL preserve unsaved-work recovery and SHALL NOT change server membership or expose inaccessible data.
 
 #### Scenario: Dual-role workspace selection
 - **WHEN** an authorized dual-role user toggles the switch by pointer or Space
