@@ -1,7 +1,7 @@
 import { it, expect, vi } from 'vitest';
 import { CreationController } from './controller';
 import { BoundaryError } from '../../../shared/instructor-contracts/schema';
-const key = 'a368170d-b3aa-4af4-83f5-8cd624037a3a';
+const key = '00000000-0000-4000-8000-000000000001';
 it('validates before sending and permits cancellation before submit', async () => {
   const send = vi.fn(),
     c = new CreationController(

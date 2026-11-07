@@ -41,7 +41,7 @@ Name: valid Unicode, trim outer whitespace once;1–120 Unicode code points, at 
 
 Use current same-origin cookie/session and X-CSRF-Token; do not accept identity in the body. Responses and failures use no-store and existing security headers. Safe errors:400 INVALID_CONTRACT;401 UNAUTHENTICATED;403 FORBIDDEN;409 IDEMPOTENCY_CONFLICT for changed payload or revoked/inactive prior result;429 RATE_LIMITED with bounded Retry-After;503 UPSTREAM_UNAVAILABLE for uncertain storage/provider availability. No SQL/provider error, credential, capability secret or foreign-course detail in a response. Proposed new-create rate limit:10 attempts/minute per admitted account using existing shared D1 rate limiter; replay remains guarded and may be rate limited. Limits do not replace idempotency.
 
-Synthetic success request: `{"name":"Programming studio","requestKey":"a368170d-b3aa-4af4-83f5-8cd624037a3a"}`. Response: `{"course":{"id":"course_synthetic_1","name":"Programming studio"}}`. A student-only discovery returns `{"canCreate":false}` and POST403; an authenticated empty pinned owner returns true with the same empty GET `/api/courses` list as before creating.
+Synthetic success request: `{"name":"Programming studio","requestKey":"00000000-0000-4000-8000-000000000001"}`. Response: `{"course":{"id":"course_synthetic_1","name":"Programming studio"}}`. A student-only discovery returns `{"canCreate":false}` and POST403; an authenticated empty pinned owner returns true with the same empty GET `/api/courses` list as before creating.
 
 ## KCOU3 — atomic writes and retry/currentness
 

@@ -98,8 +98,109 @@ New implementation/review activity attributable to this feature prompt: main `/r
 ### Experiment outcome
 
 - Expected benefit: deliver the explicitly requested reviewable remote PR while isolating the feature's files from unrelated user changes.
-- Observed result/checks/repairs: pending branch, scoped staging, commit, push and PR creation.
+- Observed result/checks/repairs: created `codex/instructor-course-creation`, committed scoped files as `dbeb2cf6c78a65e1a771a97ac99c585461b992dc`, and pushed successfully to origin. GitHub compare page showed the branch can merge and one commit/21 changed files. PR form was not submitted because the browser required GitHub sign-in; user then redirected to provide the description only.
 - Evidence / handoff / requirement references: course-onboarding COU-01/02/07, AUTH-01–03, UI-01/04/07/08; see workflow evidence and handoff.
 - Comparison basis: no controlled comparison.
 - Reflection takeaway: pending actual result; token totals alone do not establish efficiency.
-- Blockers / next owner: pending remote PR creation outcome.
+- Blockers / next owner: user requested PR description only; PR remains uncreated. Branch is pushed and ready for the user to open a PR.
+
+## Prompt ICC-P005 — 2026-11-07 Asia/Singapore; exact arrival time unavailable
+
+**Prompt (redacted):** Asked for the PR description only after GitHub sign-in blocked PR submission.
+
+### Agents spawned
+
+- **New agents:** None; writing the description did not benefit from delegation.
+- **Reused agents:** None.
+- **Main agent:** `/root`; provide copy-ready PR text and preserve the user's direction not to continue browser submission.
+- Unknown historical activity/rationale: none observed for this prompt.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source record | Status |
+|---|---|---|---|---|---|---|
+| Main `/root` | unavailable | unavailable | unavailable | unavailable | unavailable | Provisional; shared active turn |
+| Children for this prompt | 0 | 0 | 0 | 0 | No spawn/reuse observed for ICC-P005 | Final activity |
+
+- **Total for ICC-P005:** unavailable.
+- Source/checkpoint: no configured in-scope token report is available; detailed recorder writes outside workspace writable roots.
+- Shared-turn group: group ID unavailable. P005 continues the implementation/PR turn; per-prompt allocation unavailable. Count measured group usage once if later recovered.
+- Coverage: later calls/final are outside this checkpoint; no token measurement inferred from model/account limits.
+- Reconciliation: retain unavailable measurement; no estimate.
+
+### Experiment outcome
+
+- Expected benefit: give the user concise, evidence-backed PR copy without continuing the sign-in flow.
+- Observed result/checks/repairs: PR description prepared; no website submission performed.
+- Evidence / handoff / requirement references: course-onboarding COU-01/02/07, AUTH-01–03, UI-01/04/07/08; pushed commit `dbeb2cf6c78a65e1a771a97ac99c585461b992dc`.
+- Comparison basis: no controlled comparison.
+- Reflection takeaway: pending; token totals alone do not establish efficiency.
+- Blockers / next owner: PR creation is left to the user.
+
+## Prompt ICC-P006 — 2026-11-07 Asia/Singapore; exact arrival time unavailable
+
+**Prompt (redacted):** Reported a CI Gitleaks scan finding two leaks and exiting with code 1; requested the Docker scan.
+
+### Agents spawned
+
+- New agents: None; a local tool and CI-output inspection was sufficient to identify the immediate blocker.
+- Reused agents: None.
+- Main agent: `/root`; inspect the scan configuration and local availability without exposing secret values.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+|---|---|---|---|---|---|---|
+| Main `/root` | unavailable | unavailable | unavailable | unavailable | unavailable | Provisional; source group ID and coverage unavailable |
+| Children | 0 | 0 | 0 | 0 | No spawn/reuse observed | Final activity |
+
+Total unavailable. Per-prompt allocation and source record are unavailable; do not invent or duplicate usage. Reconcile at the next checkpoint if a measured report becomes available.
+
+### Experiment outcome
+
+- CI configuration runs Gitleaks 8.24.2 with `--no-git --redact --exit-code=1` on the checkout. The provided output contains a count but no rule, file, or line details.
+- Local `docker --version` failed because Docker is unavailable; no local Gitleaks executable was found. No findings were inspected, no source was changed, and no secret-scan pass is claimed.
+- Next owner: provide the redacted finding rule IDs, file paths and line numbers, or a working Docker/Gitleaks installation; then identify and repair the findings. No controlled resource comparison.
+
+## Prompt ICC-P007 — 2026-11-07 Asia/Singapore; exact arrival time unavailable
+
+**Prompt (redacted):** Confirmed the CI log contains only the two-finding summary.
+
+### Agents spawned
+
+- New agents: None; main `/root` reproduced the scan with the official checksum-verified Gitleaks release and inspected only redacted finding locations.
+- Reused agents: None.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+|---|---|---|---|---|---|---|
+| Main `/root` | unavailable | unavailable | unavailable | unavailable | unavailable | Provisional; source group ID and coverage unavailable |
+| Children | 0 | 0 | 0 | 0 | No spawn/reuse observed | Final activity |
+
+Total unavailable. Per-prompt allocation and source record unavailable; reconcile if measured usage becomes available.
+
+### Experiment outcome
+
+- Reproduced the two `generic-api-key` findings in an isolated committed-source export. Both were the same synthetic UUID in a test and contract example; replaced it with a clearly synthetic UUID.
+- Official Gitleaks8.24.2 checksum verified; source export with repairs passed `--no-git --redact --exit-code 1`. Focused controller test passed7/7. No real credential was identified in those findings.
+- Prior prompt ICC-P006 remains a record of the original environment blocker. No controlled comparison; token measurements remain unavailable.
+
+## Prompt PR-12-13-comparison — 2026-11-07 (time unavailable)
+
+**Prompt (redacted):** Compare PRs 12 and 13 to explain whether both update planning and OpenSpec.
+
+### Agents spawned
+
+- New agents: None; Git reference inspection and comparison were sufficient.
+- Reused agents: None. Main agent: /root.
+
+### Token count
+
+| Agent | Input | Cached input | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| /root | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; attribution unavailable |
+
+### Experiment outcome
+
+- Fetched PR refs; PR 12 is merged planning and PR 13 contains the first course creation implementation, including task updates. User supplied PR descriptions. No controlled comparison. Existing unrelated changes preserved.
