@@ -206,3 +206,9 @@ Detailed usage stays in private recorder; current attribution provisional. No nu
 ### Experiment outcome
 
 Local invitation requests returned503 because AUTH_MAIL_ENABLED was false. User changed it; old agent-owned background Worker retained prior setting. Stopped that exact session and restarted dev:workflow; local app now reads updated configuration. Delivery not verified and no test email sent by agent. User separately authorized committing/pushing existing connected work; remote main remains969a062 and matching remote feature branch does not exist. Preserve unrelated original-checkout changes. Next UX increment is presentation-only in Darryl/shared-owned controls; inspect local FoC reference before proposing bounded change. No Keith features or permission-policy changes.
+
+### Commit/push result and proposed UX continuation
+
+Existing approved connected work committed as d1c9120 (native guarded composition/local checks) and94be478 (connected instructor UI/spec/evidence). Both pushed to origin/codex/instructor-assessment-lifecycle. No merge/deploy or PR creation in this request.
+
+Read-only reference: local FoC-team-12 User Service App.tsx/AdminUserManagement.tsx/AccountIcon.tsx at d6fdc85ad982ffd2dbfa65e9928aa449f1b4e5dc. Relevant patterns: compact details-based account dropdown, explicit primary/secondary/cancel hierarchy, nearby field-specific controls, short acknowledged pending/error states. Do not copy FoC roles/password/OTP/domain policy or its visual system. Proposed Codewise pass covers shared/auth/course/instructor assignment and assessment presentation only, preserving warm-workbook-v1 palette/type/layout/brand, exact version boundaries and approval/release separation. All source changes await explicit brief approval required by feature-analysis. No new agents or UX implementation yet. Original checkout remains untouched.
