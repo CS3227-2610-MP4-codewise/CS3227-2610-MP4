@@ -91,3 +91,7 @@ Darryl owns SH-ID: courses, memberships, object authorization and allowed worksp
 ## SH-ID implementation window — approved 2026-11-07
 
 Darryl is the sole shared writer for the next additive course/membership migration (recheck numbering), server course authority and trusted local provisioning, authentication/assignment API composition, instructor workspace and necessary shared DTOs, and this change's specs, evidence, handoff and Darryl log. UI and authority work are delegated into non-overlapping files. Keith reviews C-ID; no review is claimed. Do not deploy production outside the reviewed release workflow.
+
+## Instructor assessment lifecycle — approved 2026-11-07
+
+Darryl approved the assessment brief and exclusive writer window: new src/server/instructor/assessments/, src/web/instructor/assessments/, src/shared/instructor-contracts/assessment.ts and focused tests; additive0008 assessment-only migration after numbering check; workflow/assessment-preview/ and feature conformance/evidence/handoff; minimal opt-in package script; logs/darryl/09-instructor-assessment-lifecycle.md. Existing auth/production entrypoints/Keith ports and services remain read-only. One independent reviewer is read-only. No real producer composition, commit/push/deploy/archive authorization.
