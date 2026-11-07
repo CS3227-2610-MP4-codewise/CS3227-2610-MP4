@@ -1,9 +1,11 @@
 import { beforeAll, afterAll, describe, it, expect, vi } from 'vitest';
+import { readFile } from 'node:fs/promises';
 import { authDatabase } from './database';
 import { ManagedStore } from '../../src/server/auth/managed-store';
 import { ManagedAuthRoutes } from '../../src/server/auth/managed-routes';
 import {
   FirebaseCredentials,
+  ProofRejected,
   firebaseConfig,
   nusEmail,
   passwordValue,
@@ -107,7 +109,14 @@ async function seed() {
     '/workspace',
     invite,
   );
-  return { uid, email, token, browser, session: await store.session(token) };
+  const session = await store.session(token);
+  await database.db
+    .prepare(
+      "INSERT INTO course_memberships(course_id,user_id,role) VALUES('course-one',?,'instructor')",
+    )
+    .bind(session.user_id)
+    .run();
+  return { uid, email, token, browser, session };
 }
 function readMail(text: string) {
   const link = new URL(text);
@@ -117,18 +126,38 @@ async function invite(
   admin: Awaited<ReturnType<typeof seed>>,
   email = crypto.randomUUID() + '@u.nus.edu',
 ) {
-  const response = await call(
-    'invitations',
-    { courseId: 'course-one', email },
-    admin.token,
-    'session',
-  );
-  expect(response.status).toBe(201);
-  const data = (await response.json()) as { invitation: { id: string } };
+  // Explicit legacy null-role fixture tests retained admission-only compatibility.
+  const token = randomToken(),
+    inviteId = crypto.randomUUID();
+  const prior = await database.db
+    .prepare(
+      'SELECT firebase_uid FROM auth_invites WHERE email=? AND firebase_uid IS NOT NULL ORDER BY created_at DESC LIMIT 1',
+    )
+    .bind(email)
+    .first<{ firebase_uid: string }>();
+  await database.db
+    .prepare(
+      'INSERT INTO auth_invites(id,token_hash,email,created_by,creator_session,created_at,expires_at,course_id,firebase_uid) VALUES(?,?,?,?,?,?,?,?,?)',
+    )
+    .bind(
+      inviteId,
+      await hash(token),
+      email,
+      admin.session.user_id,
+      admin.session.id,
+      now,
+      8640000000000000,
+      'course-one',
+      prior?.firebase_uid ?? crypto.randomUUID(),
+    )
+    .run();
+  expect(
+    (await call('setup/request', { invite: token }, randomToken())).status,
+  ).toBe(202);
   const mail = sent.filter((s) => s.email === email).at(-1)!;
   const proof = readMail(mail.text);
   return {
-    id: data.invitation.id,
+    id: inviteId,
     email,
     invite: proof.invite!,
     code: proof.code!,
@@ -138,6 +167,24 @@ async function invite(
 describe('Firebase native mail real isolated D1, synthetic provider boundaries', () => {
   beforeAll(async () => {
     database = await authDatabase();
+    for (const name of [
+      '0007_courses.sql',
+      '0010_invitation_target_role.sql',
+    ]) {
+      const sql = await readFile('src/server/db/migrations/' + name, 'utf8');
+      await database.db.batch(
+        sql
+          .split(/^-- statement\s*$/m)
+          .map((s) => s.trim())
+          .filter((s) => s.replace(/^--.*$/gm, '').trim())
+          .map((s) => database.db.prepare(s)),
+      );
+    }
+    await database.db
+      .prepare(
+        "INSERT INTO courses(id,name) VALUES('course-one','Synthetic course')",
+      )
+      .run();
     store = new ManagedStore(database.db, () => now);
   });
   afterAll(async () => {
@@ -271,7 +318,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
       (
         await call(
           'invitations',
-          { courseId: 'course-one', email },
+          { courseId: 'course-one', email, targetRole: 'student' },
           admin.token,
           'session',
           absent,
@@ -283,7 +330,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
       (
         await call(
           'invitations',
-          { courseId: 'course-one', email },
+          { courseId: 'course-one', email, targetRole: 'student' },
           admin.token,
           'session',
         )
@@ -292,6 +339,13 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
     expect(sent.length).toBe(before);
     const i = await invite(admin),
       other = await seed();
+    await database.db
+      .prepare(
+        "UPDATE course_memberships SET active=0 WHERE course_id='course-one' AND user_id=?",
+      )
+      .bind(other.session.user_id)
+      .run();
+    courses.requireCourse.mockRejectedValueOnce(new BoundaryError('FORBIDDEN'));
     expect(
       (
         await call(
@@ -342,7 +396,11 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
       (
         await call(
           'invitations',
-          { courseId: 'course-one', email: 'x@u.nus.edu' },
+          {
+            courseId: 'course-one',
+            email: 'x@u.nus.edu',
+            targetRole: 'student',
+          },
           admin.token,
           'session',
           routes(),
@@ -603,7 +661,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
         });
       const sending = call(
         'invitations',
-        { courseId: 'course-one', email },
+        { courseId: 'course-one', email, targetRole: 'student' },
         admin.token,
         'session',
       );
@@ -612,8 +670,8 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
         .prepare('SELECT * FROM auth_invites WHERE email=?')
         .bind(email)
         .first<import('../../src/server/auth/managed-store').ManagedInvite>();
-      await expect(store.rotate(i!)).rejects.toThrow(); // In-flight provider generation is serialized.
-      if (revoke === 'invitation') await store.revoke(i!);
+      await expect(store.rotate(i!, admin.session)).rejects.toThrow(); // In-flight provider generation is serialized.
+      if (revoke === 'invitation') await store.revoke(i!, admin.session);
       else
         courses.requireCourse.mockRejectedValue(new BoundaryError('FORBIDDEN'));
       release();
@@ -627,7 +685,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
     const admin = await seed(),
       i = await invite(admin),
       row = await store.pending(i.invite);
-    const next = await store.rotate(row),
+    const next = await store.rotate(row, admin.session),
       fresh = await provider.action(i.email);
     await store.action(
       fresh,
@@ -785,7 +843,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
     await provider.provision(crypto.randomUUID(), email);
     const r = await call(
       'invitations',
-      { email, courseId: 'course-one' },
+      { email, courseId: 'course-one', targetRole: 'student' },
       admin.token,
       'session',
     );
@@ -798,6 +856,31 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
   });
 });
 describe('provider request contracts', () => {
+  it('maps a definitively invalid Firebase reset proof to ProofRejected', async () => {
+    const transport = vi.fn(async () =>
+      Response.json(
+        { error: { message: 'INVALID_OOB_CODE' } },
+        { status: 400 },
+      ),
+    );
+    const firebase = new FirebaseCredentials(
+      {
+        ...config,
+        project: 'synthetic-project',
+        apiKey: 'synthetic',
+        serviceEmail: 'server@example.test',
+        privateKey: '',
+      },
+      transport as typeof fetch,
+    );
+    const error = await firebase
+      .reset('synthetic-proof', password)
+      .catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ProofRejected);
+    expect(error).toBeInstanceOf(BoundaryError);
+    expect(error).toMatchObject({ code: 'UNAUTHENTICATED' });
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
   it('uses Worker-compatible manual redirects and rejects redirects without forwarding any request', async () => {
     const transport = vi.fn(
       async (_url: RequestInfo | URL, init?: RequestInit) => {

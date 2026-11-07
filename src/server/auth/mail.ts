@@ -36,10 +36,13 @@ export class AuthEmail implements AuthMailer {
       url.password ||
       url.search ||
       !['/sign-in', '/auth/reset'].includes(url.pathname) ||
-      fragment.getAll('code').length !== 1 ||
-      !/^[A-Za-z0-9_-]{1,2048}$/.test(fragment.get('code') ?? '') ||
-      fragment.getAll('ticket').length !== 1 ||
-      !/^[a-f0-9]{64}$/.test(fragment.get('ticket') ?? '') ||
+      ((url.pathname === '/auth/reset' ||
+        fragment.has('code') ||
+        fragment.has('ticket')) &&
+        (fragment.getAll('code').length !== 1 ||
+          !/^[A-Za-z0-9_-]{1,2048}$/.test(fragment.get('code') ?? '') ||
+          fragment.getAll('ticket').length !== 1 ||
+          !/^[a-f0-9]{64}$/.test(fragment.get('ticket') ?? ''))) ||
       (url.pathname === '/sign-in' &&
         (fragment.getAll('invite').length !== 1 ||
           !/^[a-f0-9]{64}$/.test(fragment.get('invite') ?? '')))
@@ -56,12 +59,14 @@ export class AuthEmail implements AuthMailer {
         : 'Reset your Codewise password',
       text:
         (setup
-          ? 'Your instructor invited you to Codewise. Choose your password:\n'
+          ? 'Your instructor sent you a Codewise invitation. Open the link to continue:\n'
           : 'Choose a new Codewise password:\n') +
         link +
-        '\nThis password link is single-use and valid for 10 minutes.' +
+        (fragment.has('code')
+          ? '\nThe password proof is single-use and valid for 10 minutes.'
+          : '') +
         (setup
-          ? ' Your invitation remains valid until accepted or revoked; reopen its link to request a new password email. Course access is assigned separately.'
+          ? ' Your invitation remains valid until accepted or revoked; reopen its link to request a new proof if needed.'
           : ' If you did not request this, ignore this email.'),
     });
   }
