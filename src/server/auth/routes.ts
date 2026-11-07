@@ -47,7 +47,7 @@ const redirect = (destination: string, cookie?: string) =>
       ...(cookie ? { 'Set-Cookie': cookie } : {}),
     },
   });
-export async function readAuthBody(request: Request) {
+export async function readAuthBody(request: Request, maxBytes = 8192) {
   assert(
     request.headers.get('content-type')?.split(';')[0] === 'application/json',
     '$',
@@ -62,7 +62,7 @@ export async function readAuthBody(request: Request) {
       const part = await reader.read();
       if (part.done) break;
       size += part.value.length;
-      assert(size <= 8192, '$', 'size');
+      assert(size <= maxBytes, '$', 'size');
       chunks.push(part.value);
     }
   } finally {

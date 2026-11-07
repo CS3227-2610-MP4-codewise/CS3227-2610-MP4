@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { authViewSchema, type AuthView } from '../../shared/auth';
 import { draftSchema } from '../../shared/instructor-contracts/authoring';
 import { authRequest } from '../auth/client';
@@ -6,6 +6,8 @@ import { Brand, Icon } from '../ui/brand';
 import { AccountMenu } from '../ui/account-menu';
 import { AssignmentWorkspace } from './assignments/AssignmentWorkspace';
 import { instructorClient } from './assignments/client';
+import { courseClient } from './courses/client';
+import { CreateCourseForm } from './courses/CreateCourseForm';
 
 type Course = { id: string; name: string };
 
@@ -15,6 +17,15 @@ export function InstructorWorkspace() {
   const [status, setStatus] = useState('Loading your courses…');
   const [ready, setReady] = useState(false);
   const [deepCourse, setDeepCourse] = useState('');
+  const [canCreate, setCanCreate] = useState(false);
+  const [creationStatus, setCreationStatus] = useState('');
+  const [creating, setCreating] = useState(false);
+  const createButton = useRef<HTMLButtonElement>(null);
+  const openCreated = useCallback((item: Course) => {
+    window.location.assign(
+      '/instructor/assignments?courseId=' + encodeURIComponent(item.id),
+    );
+  }, []);
   const deepId = window.location.pathname.match(
     /^\/instructor\/assignments\/([A-Za-z0-9_-]{1,128})$/,
   )?.[1];
@@ -28,31 +39,7 @@ export function InstructorWorkspace() {
     void (async () => {
       try {
         const user = authViewSchema.parse(await authRequest('session'));
-        const response = await fetch('/api/courses', {
-          credentials: 'same-origin',
-          cache: 'no-store',
-        });
-        if (!response.ok) throw new Error('Could not load your courses.');
-        const body: unknown = await response.json();
-        if (
-          !body ||
-          typeof body !== 'object' ||
-          !('courses' in body) ||
-          !Array.isArray(body.courses)
-        )
-          throw new Error('Could not load your courses.');
-        const items: Course[] = body.courses.map((item: unknown) => {
-          if (
-            !item ||
-            typeof item !== 'object' ||
-            !('id' in item) ||
-            !('name' in item) ||
-            typeof item.id !== 'string' ||
-            typeof item.name !== 'string'
-          )
-            throw new Error('Could not load your courses.');
-          return { id: item.id, name: item.name };
-        });
+        const items: Course[] = await courseClient.list();
         let assignedCourse = '';
         if (deepId) {
           const draftResponse = await fetch(
@@ -63,18 +50,37 @@ export function InstructorWorkspace() {
           );
           if (!draftResponse.ok) throw new Error('Assignment unavailable.');
           const draft = draftSchema.parse(await draftResponse.json());
-          if (
-            draft.assignmentId !== deepId ||
-            !items.some((item) => item.id === draft.courseId)
-          )
+          if (draft.assignmentId !== deepId)
             throw new Error('Assignment unavailable.');
           assignedCourse = draft.courseId;
+        }
+        const selected = assignedCourse || requestedCourse;
+        if (
+          assignment &&
+          selected &&
+          !items.some((item) => item.id === selected)
+        ) {
+          const item = await courseClient.selected(selected);
+          if (item.id !== selected) throw new Error('Course unavailable.');
+          items.push(item);
         }
         if (active) {
           setDeepCourse(assignedCourse);
           setView(user);
           setCourses(items);
           setStatus('');
+        }
+        try {
+          const eligible = await courseClient.eligibility();
+          if (active) {
+            setCanCreate(eligible);
+            setCreationStatus('');
+          }
+        } catch {
+          if (active)
+            setCreationStatus(
+              'Course creation availability could not be checked. Reload to try again.',
+            );
         }
       } catch {
         if (active)
@@ -131,6 +137,29 @@ export function InstructorWorkspace() {
       <main id="main-content" className="cw-home">
         <h1>Your courses</h1>
         {status && <p role="status">{status}</p>}
+        {creationStatus && <p role="status">{creationStatus}</p>}
+        {ready &&
+          view &&
+          canCreate &&
+          !assignment &&
+          (creating ? (
+            <CreateCourseForm
+              csrf={view.csrfToken}
+              onCreated={openCreated}
+              onCancel={() => {
+                setCreating(false);
+                requestAnimationFrame(() => createButton.current?.focus());
+              }}
+            />
+          ) : (
+            <button
+              ref={createButton}
+              className="cw-action cw-action--primary"
+              onClick={() => setCreating(true)}
+            >
+              Create course
+            </button>
+          ))}
         {ready && view && !courses.length && (
           <p>You do not have a course workspace yet.</p>
         )}

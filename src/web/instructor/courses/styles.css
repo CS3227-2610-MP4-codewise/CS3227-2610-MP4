@@ -1,0 +1,31 @@
+.cw-create-course {
+  display: grid;
+  gap: 12px;
+  padding: 24px 0;
+  border-block: 1px solid var(--cw-rule);
+  margin: 24px 0;
+}
+.cw-create-course input {
+  width: 100%;
+  min-height: 44px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--cw-secondary);
+  background: var(--cw-page);
+  color: var(--cw-ink);
+  border-radius: 4px;
+}
+.cw-create-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.cw-home .cw-create-actions .cw-action {
+  margin: 0;
+}
+.cw-create-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
