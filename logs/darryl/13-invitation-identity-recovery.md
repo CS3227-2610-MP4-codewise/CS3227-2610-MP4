@@ -110,3 +110,5 @@ Owner: Darryl. Requirements: course-onboarding COU-03–05/07, applicable SHA-01
 
 - Continued the requested split, push and PR creation. Server/test and UI batches committed; specification, handoff and prompt records are the next batch. No new product test run. No merge or deployment requested.
 - No controlled comparison; token counts are not cost or quality evidence. Next owner Darryl and PR reviewers.
+
+**IIR-03/04 publication outcome, 2026-11-08:** Pushed `codex/invitation-identity-recovery` with commits c60ca27, e13066c and b5b9e68; opened draft [PR #15](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/15) against main. The PR records the previous passing full checks and pending recovery, UI acceptance, live delivery and CI. No merge, deployment or external message was performed.
