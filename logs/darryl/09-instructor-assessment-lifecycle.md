@@ -212,3 +212,65 @@ Local invitation requests returned503 because AUTH_MAIL_ENABLED was false. User 
 Existing approved connected work committed as d1c9120 (native guarded composition/local checks) and94be478 (connected instructor UI/spec/evidence). Both pushed to origin/codex/instructor-assessment-lifecycle. No merge/deploy or PR creation in this request.
 
 Read-only reference: local FoC-team-12 User Service App.tsx/AdminUserManagement.tsx/AccountIcon.tsx at d6fdc85ad982ffd2dbfa65e9928aa449f1b4e5dc. Relevant patterns: compact details-based account dropdown, explicit primary/secondary/cancel hierarchy, nearby field-specific controls, short acknowledged pending/error states. Do not copy FoC roles/password/OTP/domain policy or its visual system. Proposed Codewise pass covers shared/auth/course/instructor assignment and assessment presentation only, preserving warm-workbook-v1 palette/type/layout/brand, exact version boundaries and approval/release separation. All source changes await explicit brief approval required by feature-analysis. No new agents or UX implementation yet. Original checkout remains untouched.
+
+## Prompt IAL-P015 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Approved the proposed cross-screen UX scope after the requested connected-workflow commits/push.
+
+### Agents spawned
+
+New agents: none. Reused /root/assessment_review read-only for IAL-11 source review and focused repairs; main /root implemented. No recursive delegation or parallel editing.
+
+### Token count
+
+Detailed usage remains in private recorder; current turn provisional. No numeric telemetry copied into Git.
+
+### Experiment outcome
+
+Read-only FoC User Service reference at d6fdc85: details-based account dropdown, primary/secondary hierarchy, nearby controls and concise pending feedback. Implemented compatible Codewise controls across shared auth/invitations/courses and instructor authoring/assessment, preserving warm-workbook-v1 and existing server/controller semantics. Scope and ownership approved; existing bounded assessment artifacts extended with IAL-11 rather than competing domain specifications. Keith source untouched.
+
+Reviewer identified released revisions falsely labelled private and missing sign-out pending protection. Added exact displayed-release labels with focused current/superseded/withdrawn/private-correction regression cases; shared account control awaits actual caller promises and prevents duplicate clicks. Reviewer then found the review-parent logout catch hid errors in assessment view; rejection now reaches visible account retry feedback. Focused reviewer confirmed resolved, source inspection only.
+
+Actual browser sign-in succeeded, courses and invitations rendered in dark warm-workbook theme; account opening and Escape/focus recovery verified. Required320px invitation form/account popup fit the viewport. No invitation/revoke or credential-change request was sent by agent. Later desktop navigation/browser reset timed out; no desktop/zoom/full-keyboard acceptance or archived real-email screenshots. Remaining manual checks retained explicitly. UX work is uncommitted, separate from already pushed connected producer; no deployment or student implementation.
+
+Final checks:237 tests/22files and4 deployment checks, strict specs/type/lint/build all passed; final focused logout repair type/lint passed. Source Gitleaks scan approximately2.14MB: no leaks. Private usage checkpoint refreshed outside Git. Local built assets updated; user must reload. Earlier workflow commits pushed; current UX uncommitted. User visual/manual acceptance remains pending and tasks4.2/4.3/4.5/5.4/6.1 remain open.
+
+## Prompt IAL-P016 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Rejected first UX pass with screenshots of raw grading bullet and awkward course action; asked for coherent navigation and clearer assignment/grading distinction.
+
+### Agents spawned
+
+New agents: none. Reused /root/assessment_review read-only for the repaired cross-screen navigation and user-reported workflow problems. Main /root implements on the matching branch. Existing work preserved; failure returns to approved implementation stage without redundant approval.
+
+### Token count
+
+Private recorder checkpoint pending; current-turn/per-prompt allocation provisional. Detailed telemetry stays outside Git.
+
+### Experiment outcome
+
+Acknowledged structural defects left by prior pass. Implemented one course navigation component, stable global Courses/Account and secondary Assignments/Grading/Students on all instructor/auth course screens, one Open course row and ruled grading rows. Uses existing course read API solely for display name; no new domain services/storage/roles or Keith feature. Preserve existing dirty/pending/history boundaries. Existing main remains authoritative. Actual source/browser/check results follow; no acceptance/commit/push/deploy inferred.
+
+### Verification checkpoint
+
+Reviewer returned no concrete source blocker; all5 course surfaces consume the shared navigation and retain existing authority/dirty/pending/version boundaries. Main actually walked native browser courses→assignments→Grading→published version→sample grading workbook→Students, with320/1280px inspection and successful viewport reset. Fixed browser-discovered stale Loading version acknowledgement. Full checks passed241 tests/23files,4 deployment checks,7strict spec validations, type/lint/build; final focused repair type/lint passed. Source secret scan approximately2.15MB: no leaks; diff whitespace check passed. Private usage report refreshed, current turn provisional. No real email operation, remote migration, deployment, new commit or push. First pass remains rejected; repaired presentation awaits Darryl acceptance.
+
+## Prompt IAL-P017 — 2026-11-07 Asia/Singapore
+
+**Prompt (redacted):** Authorized reasonable incremental commits, push and pull-request creation for the completed UX repairs and assessment branch.
+
+### Agents spawned
+
+New agents: none. Reused agents: none for Git publication; previously reused assessment_review source inspection and actual main-browser/test evidence remain linked. Main /root handles exact staging, commits, push and PR. No additional reviewer needed for unchanged verified source.
+
+### Token count
+
+Private usage recorder refreshed at publication checkpoint; current-turn/per-prompt attribution provisional. Detailed telemetry remains outside Git.
+
+### Experiment outcome
+
+Inspected matching codex/instructor-assessment-lifecycle dirty delta, current remote branch dbd5555 and unchanged main969a062. User authorizes publication, not merge/deployment or inferred manual acceptance. Preserve unrelated original-checkout work. Plan coherent UI commit followed by specs/log/evidence/handoff commit. Existing241tests/4deployment checks plus full type/lint/spec/build/browser-route/secret evidence remains applicable: no application source change since verification. Use connected GitHub tool for normal non-draft PR; local gh command is unavailable.
+
+### Publication staging checkpoint
+
+Committed verified frontend as b9f3f6de496db9581cd44bb9abaa50219698d604. Current source-hash manifest and handoff pin that producer; historical uncommitted references are superseded, not deleted. Documentation commit carries approved IAL-11 planning, source/browser/reviewer evidence and pending acceptance. No source behavior changed after241-test verification. Remote main remains969a062; no unrelated original-checkout files included.

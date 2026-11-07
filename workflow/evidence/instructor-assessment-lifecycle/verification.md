@@ -62,3 +62,15 @@ Current source: uncommitted working tree based on e6dbdb94ec9bf2b7061660e23698b4
 - Browser navigation to native local sign-in timed out/reset the connection. No rendered screenshots/keyboard/native zoom/announcements or manual acceptance claimed. Existing tasks4.2/4.3/4.5/5.4 and real Keith integration6.1 remain open.
 
 Manual entry: http://127.0.0.1:8787/sign-in; choose Local workflow test. Startup, source boundary and manual checklist are in workflow/connected-preview/README.md. Server remained running and sign-in returned200 at final verification. Keith's immutable submission producer, consumer execution and joint K agreement remain pending. Production missing producer is honestly unavailable; sample-only development is not completed integration.
+
+## IAL-11 final verification checkpoint
+
+`npm run check` with VITEST_MAX_WORKERS=2 passed:7 strict OpenSpec changes, TypeScript, ESLint,237 Vitest tests/22files (191.69s),4 Node deployment checks and production browser build (55modules). The final logout rejection repair also passed a separate TypeScript/affected-source ESLint check. Build consumed the final source/CSS. Gitleaks repository-source scan passed approximately2.14MB with no leaks. `git diff --check` passed. Independent assessment_review confirmed focused repairs by source inspection; main executed tests/browser checks. Private usage checkpoint refreshed outside Git.
+
+Browser actual checks: real local sign-in, course screen, account disclosure/Escape/focus recovery, invitation form and320px disclosure fit. Desktop/navigation/reset later timed out; viewport reset completion was not verified. No full visual/accessibility acceptance, no new email send/revoke and no deployment. Earlier connected producer d1c9120/94be478 and documentation dbd5555 pushed; subsequent IAL-11 UX source remains uncommitted pending Darryl review.
+
+## IAL-11 structural repair verification — 2026-11-07
+
+Main `npm run check` with VITEST_MAX_WORKERS=2 passed7 strict spec changes, TypeScript, lint,241 Vitest tests/23files (180.88s),4 Node deployment checks and browser production build (56modules). Four navigation regression cases cover consistent destinations/active-section and missing course. The final browser-discovered version-loading message repair additionally passed TypeScript and affected-source ESLint. Build consumed the final source. Source Gitleaks scan approximately2.15MB found no leaks; git diff --check passed. Private usage checkpoint refreshed outside Git; current-turn attribution provisional.
+
+Actual native browser: courses Open course row → assignment list with3 course tabs → Grading ruled rows/View submissions → exact publication selector → existing sample grading workbook → Students. Global Courses/Account and course name/tab order persisted. Narrow320 and desktop1280 were visually inspected; viewport restored. No mail, student-code or remote data operation. Reviewer source inspection found no remaining concrete navigation blocker. Uncommitted UX repair is not pushed/deployed; manual user acceptance and full accessibility matrix remain pending.

@@ -135,3 +135,27 @@ The application SHALL connect sign-in, authorized courses, assignment publicatio
 #### Scenario: Forged or revoked deep link
 - **WHEN** a user follows a review/assessment destination without current instructor authority or sends a mutation without valid origin/CSRF
 - **THEN** no source, feedback or mutation is available and the interface requests authorized sign-in/access.
+
+### Requirement: IAL-11 Consistent concise instructor interactions
+
+The application SHALL preserve warm-workbook-v1 while presenting consistent labelled primary/secondary/contextual actions across sign-in, invitations, courses, authoring and assessment. It SHALL keep version/sample/privacy boundaries and approval/release distinct. Account disclosure SHALL support keyboard use and dismissal without changing authority.
+
+#### Scenario: Account actions stay compact and accessible
+- **WHEN** a signed-in instructor opens the account disclosure
+- **THEN** identity and sign-out are available with visible labels; Escape closes it and returns focus; outside activation closes it.
+
+#### Scenario: Version selection and mutation remain explicit
+- **WHEN** an instructor selects a published version or uses a draft action
+- **THEN** the exact version remains visible and pinned; pending/dirty guards and distinct save, approve and release transitions remain enforced with concise truthful feedback.
+
+#### Scenario: Destructive invitation action
+- **WHEN** an instructor chooses to revoke an invitation
+- **THEN** the target email and effect are confirmed before mutation; cancel performs no request.
+
+#### Scenario: Consistent course hierarchy after manual review
+- **WHEN** an instructor opens a course and moves between authoring, grading and invitations
+- **THEN** global Courses/Account navigation stays fixed and the same Assignments, Grading and Students course tabs remain in the same order with the current section identified.
+
+#### Scenario: Understandable course and grading entry points
+- **WHEN** courses or assignments available for grading are listed
+- **THEN** course rows offer Open course and grading rows show the title, update date and labelled View submissions action, with no default bullet-only links or unexplained Assignments/Assessments distinction.

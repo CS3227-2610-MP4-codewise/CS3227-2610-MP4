@@ -56,3 +56,11 @@ Implementation approval is confirmed; UI/manual acceptance and real submission/a
 - [x] 7.4 Connect instructor navigation, safe return destinations, published-work review and assessment client/chrome to the real signed-in application; test route/context/acknowledgement/privacy behavior and build. [UI-01/04/07/08, IAL-10]
 - [x] 7.5 Prepare/start the connected local sign-in workflow, apply local migrations and explicitly provision the existing owner’s local test-course membership; execute actual sign-in/publication/assessment lifecycle and record remaining browser/provider limitations. No remote changes. [IAL-10]
 - [x] 7.6 Obtain focused independent review, repair findings and run full checks/secret scan; update handoff/UI evidence and present manual acceptance without claiming Keith integration. [IAL-01–10]
+
+## 8. Approved interaction clarity — IAL-11
+
+- [x] 8.1 Simplify shared account/navigation controls and auth/invitation wording; retain warm-workbook-v1, labels, pending locks and explicit revoke confirmation. [UI-01/02/07/08]
+- [x] 8.2 Simplify instructor course/action/version-selection presentation without changing publication/assessment semantics or version boundaries. [UI-04/05/06/08]
+- [x] 8.3 Independent source review, appropriate checks, actual browser evidence where available and honest manual acceptance checklist. [IAL-11, UI-01–08]
+
+IAL-11 manual follow-up: first UX pass rejected by Darryl. Rework navigation and course/grading lists within the approved scope, rerun checks and seek actual visual/workflow acceptance; previous implementation/check completion is not acceptance.

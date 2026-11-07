@@ -1,5 +1,9 @@
 # Handoff: instructor-assessment-lifecycle
 
+## Current producer status — 2026-11-07
+
+Application source revision: b9f3f6de496db9581cd44bb9abaa50219698d604, following connected producer94be478. [Current source hashes](../evidence/instructor-assessment-lifecycle/ux-source-manifest.json). User authorized commits, push and a normal PR; no merge/deploy/manual acceptance inferred. Earlier uncommitted/pending-publication sections below are historical checkpoints, superseded by this source identity and the final publication log. Real SH-AUTH/SH-ID/publication compose locally; only submissions are synthetic. Keith SH-SUB/consumer/K agreement and complete manual accessibility acceptance remain pending. Latest checks:241 tests/23files,4deployment checks and full specs/type/lint/build; actual course→assignment→grading→version→sample workbook→Students browser walk and320/1280 inspection.
+
 - Human owner: Darryl. Darryl owns course/object authorization under the updated SH-ID agreement. Keith owns immutable submissions, student feedback/progress and cache invalidation.
 - Agent: main /root implementation/actual checks; independent /root/assessment_review read-only quality inspection/focused re-review. No parallel editing or recursive delegation.
 - Requirements: GRADE-02–04, CON-05, IAL-01–09; warm-workbook-v1 UI-01/04/05/06/07/08.
@@ -38,3 +42,9 @@ Independent assessment_review inspected the connected changes and confirmed repa
 ## Pushed connected producer identity
 
 Connected continuation producer:94be478, after backend increment d1c9120; both pushed to origin/codex/instructor-assessment-lifecycle. The connected-source-manifest hashes describe those source files; its earlier uncommitted status records the verification-time snapshot. No merge, deployment or manual UI acceptance is inferred. Read-only FoC interaction analysis is a proposed subsequent UX pass, awaiting the required brief approval.
+
+## IAL-11 UX refinement — uncommitted follow-up
+
+Darryl approved presentation-only simplification using FoC User Service interactions while preserving Codewise warm-workbook-v1. Shared account disclosure/sign-out, grouped course navigation, concise invitation text and labelled revoke confirmation, assignment action hierarchy, published-version dropdown and assessment released/private labels implemented. Existing controllers, authorization, immutable source/version and approval/release semantics retained; no Keith or backend changes. Independent reviewer confirmed focused repairs; actual browser sign-in/course/invitations/320px account/Escape checks executed, broader visual/manual acceptance still pending. See UI review and member log. This follow-up is not part of the pushed94be478 producer.
+
+IAL-11 manual rejection repaired: central course navigation and labelled rows supersede prior scattered tabs/assignment button/default grading bullets. Actual main-browser route walk and320/1280 inspection passed;241 automated tests plus4deployment checks and full source/build checks passed. See latest UI/verification evidence. No changes to producer contracts, storage, permissions or Keith source. Current UX remains uncommitted and user acceptance pending.
