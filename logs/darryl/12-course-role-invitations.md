@@ -278,3 +278,85 @@ Owner: Darryl. Change: course-onboarding, COU-03–05/07, applicable SHA and UI-
 - No controlled comparison; token totals do not prove efficiency. Next owner: Darryl and reviewers. Publication result will be recorded at the next checkpoint.
 
 **CRI-09 publication outcome, 2026-11-07:** Pushed `codex/course-role-invitations` and opened draft [PR #14](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/14) against `main`. Its description records the passing local checks, open recovery/manual acceptance and separate live-delivery authorization. No merge, deployment or message to Keith was performed. CI results were not yet verified at publication.
+
+**CRI-09 reconciliation, 2026-11-07:** Completed turn-e4813ff9fe92dd7e4c939856: input 2574081, cached 2557952, output 3173, total 2577254. Replaces the provisional snapshot.
+
+## Prompt CRI-10 — 2026-11-07, Asia/Singapore
+
+**Prompt (redacted):** Ask why invitation mail shows failed in a preview, with a screenshot. No recipient address is retained here.
+
+### Agents spawned
+
+- **New agents:** None; one agent could inspect the existing code and read-only environment evidence without duplicating private context.
+- **Reused agents:** None.
+- **Main agent:** /root; precise model unavailable from this checkpoint. Historical unknowns unavailable.
+
+### Token count
+
+**Usage report for CRI-10:**
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| Main, shared turn | 6804637 | 6767104 | 9773 | 6814410 | turn-76695d37e5767f616e54740e | provisional, shared with CRI-11/12 |
+| Children | 0 | 0 | 0 | 0 | observed no agents | provisional |
+
+- Project-scoped private recorder. Per-prompt allocation unavailable; count shared group turn-76695d37e5767f616e54740e once across CRI-10/11/12. Later calls and final response excluded; cached and reasoning tokens are subsets. Reconcile next checkpoint.
+
+### Experiment outcome
+
+- Read-only investigation: synthetic port 5176 captures mail and had no messages; user clarified the actual site was staging. Staging health reported merged PR14 revision 408edc12 and healthy database; mail-related secret names exist, values not inspected. The code records a generic failure from both pre-dispatch and explicit mail rejection paths.
+- Follow-up source evidence and diagnosis are in CRI-11/12. No mail sent, identities changed, secrets printed or deployment performed. No controlled resource comparison.
+
+## Prompt CRI-11 — 2026-11-07, Asia/Singapore
+
+**Prompt (redacted):** Identify the preview as the hosted staging invitation page.
+
+### Agents spawned
+
+- **New agents:** None; URL clarification was handled in the same read-only investigation.
+- **Reused agents:** None.
+- **Main agent:** /root; precise model unavailable from this checkpoint.
+
+### Token count
+
+**Usage report for CRI-11:**
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| Main, shared turn | 6804637 | 6767104 | 9773 | 6814410 | turn-76695d37e5767f616e54740e | provisional, shared with CRI-10/12 |
+| Children | 0 | 0 | 0 | 0 | observed no agents | provisional |
+
+- Per-prompt allocation unavailable; count turn-76695d37e5767f616e54740e once across all three prompts. Project-scoped private recorder; later activity excluded. Reconcile next checkpoint.
+
+### Experiment outcome
+
+- Staging rather than synthetic local preview was identified. Read-only staging health and secret-name inspection performed. An initial D1 query using the checked-in placeholder ID returned database-not-found; resolved the actual staging database by listing names, then ran read-only aggregate queries. No data mutation or mail dispatch.
+
+## Prompt CRI-12 — 2026-11-07, Asia/Singapore
+
+**Prompt (redacted):** Another invented address succeeded; the failed address had received an earlier link but never completed registration.
+
+### Agents spawned
+
+- **New agents:** None; the existing investigation and trusted read-only provider lookup directly tested the hypothesis.
+- **Reused agents:** None.
+- **Main agent:** /root; precise model unavailable from this checkpoint.
+
+### Token count
+
+**Usage report for CRI-12:**
+
+| Agent | Input | Cached input (subset) | Output | Total | Source | Status |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| Main, shared turn | 6804637 | 6767104 | 9773 | 6814410 | turn-76695d37e5767f616e54740e | provisional, shared with CRI-10/11 |
+| Children | 0 | 0 | 0 | 0 | observed no agents | provisional |
+
+- Per-prompt allocation unavailable; count turn-76695d37e5767f616e54740e once across all three prompts. Project-scoped private recorder; later activity excluded. Reconcile next checkpoint.
+
+### Experiment outcome
+
+- Anonymized staging D1 query found two failed pending invitations for the target course/address, one shared reserved provider UID, no accepted invitation, no active app account and no stored setup proof. A local-project-to-staging issuer comparison matched. A read-only Firebase lookup using the existing local service account confirmed an enabled provider account exists with a different UID from the staging reservation. No recipient address, UID, proof or credential is retained in this log.
+- `provisionOwner` treats email collision as retryable only for its reserved UID and then checks that UID; the mismatch fails before proof dispatch. This avoids silently merging identities by email, but leaves earlier unregistered provider users without a supported recovery path. Prior invitation state in another environment is not inferred. No real email, password/account update, database write, or deployment performed.
+- Next owner: Darryl to design and verify mailbox-proven recovery against the single identity store; do not reset or bind another account by email alone. No controlled comparison; usage is not evidence of efficiency.
+
+**CRI-10/11/12 shared-turn reconciliation, 2026-11-08:** Completed turn-76695d37e5767f616e54740e: input 7861101, cached input 7822592, output 12098, total 7873199. This replaces the three provisional references; it is one shared group counted once and cannot be allocated to individual prompts.

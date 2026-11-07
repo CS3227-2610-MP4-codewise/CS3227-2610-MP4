@@ -4,6 +4,8 @@ A merged deployment can authenticate the first owner yet leave it with no course
 
 ## What Changes
 
+- Follow-up requested by Darryl: show one entry per course and recipient; pending Student and Instructor invitations are accepted together by either current link after the full role set is shown. A previously invited Firebase account without a local account uses mailbox proof and an explicit existing-password or create/reset-password choice; never silently merge or reset it. [COU-03–05/07, SHA-05/08/11, UI-01/02/07/08, warm-workbook-v1]
+
 - Treat the existing operator-pinned `instructor@u.nus.edu` starting account as the **first admin**, with an explicit trusted course-creation capability. Email text, passwords or browser role flags never confer admin authority.
 - Allow the first admin and currently authorized instructors to create a course; atomically make the creator an instructor of that new course. No automatic access to other courses.
 - Allow every current course instructor to invite **students or instructors** to that course and track invitation/send/acceptance status. Instructor invitation never grants account administration.

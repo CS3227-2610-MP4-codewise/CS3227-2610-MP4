@@ -1,5 +1,11 @@
 # Design
 
+## 2026-11-07 recipient grouping and identity recovery adjustment
+
+Darryl requested one displayed entry per course/email; a pending Student and Instructor invitation to that recipient are shown together and either valid link may explicitly accept both current, authorized roles. Existing links and audit rows remain. The acceptance preview must show the full role set and the final D1 guard must reject changed role sets, revoked invitations or lost inviter authority rather than silently granting undisclosed roles. A later invitation after an earlier acceptance needs fresh consent; accepted receipts do not reactivate revoked membership. [COU-03/05/07, UI-01/02/07/08, warm-workbook-v1]
+
+If a provider account already exists without an admitted local account, do not bind by email alone. Issue a mailbox-bound proof and explicitly offer existing-password authentication or create/reset password; the latter is a deliberate choice. Because a freshly provisioned identity and one registered elsewhere cannot be distinguished reliably across environments, all recipients without a local account make this choice, including genuinely new recipients. Bind the verified provider UID to the existing invitation/account boundary only after proof and credential validation, with same-D1 guards and no effect on unrelated roles or accounts. Wrong account, expired proof, provider interruption and partial failures fail closed. This supersedes the prior assumption that a previously invited provider identity can always be rediscovered from local invitation rows. [COU-04/05, SHA-05/08/11]
+
 ## Context
 
 Baseline: merged main a05d5ba95034dcb87c967690dc9a185cf05ba526 (PR11). Existing Firebase credential authority and D1 account/session/owner mapping are authoritative. `course_memberships` in migration0007 already keys `(course_id,user_id,role)` and can hold both roles; do not rebuild it or create per-dashboard membership storage. Current course listing is instructor-only, invitation records/acceptance target account admission, course setup is a local operator helper and no real role switch/student dashboard is implemented. This plan does not change those runtime facts.

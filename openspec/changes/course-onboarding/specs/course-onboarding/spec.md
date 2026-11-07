@@ -39,6 +39,10 @@ Every current course instructor SHALL be able to send/track Student or Instructo
 - **WHEN** a student, former instructor or unrelated-course user changes the requested course/role
 - **THEN** no unauthorized invitation or mail is issued and no recipient data is disclosed.
 
+#### Scenario: Same recipient receives both roles
+- **WHEN** current course instructors invite the same email to Student and Instructor roles for the same course
+- **THEN** the list shows one recipient entry with both roles; accepting either current link explicitly displays and atomically grants the currently invited roles. Re-entering the same role SHALL NOT produce another list entry. A revoked invitation or an inviter without current authority SHALL NOT grant a role. [COU-03/05/07]
+
 ### Requirement: COU-04 Account-aware invitation entry
 For either invited role, the system SHALL require mailbox-bound password setup for unregistered recipients and existing-password sign-in for registered recipients. Prior invitation alone SHALL NOT count as registration. It SHALL preserve one authoritative identity/password and renew expired proofs without expiring the pending invitation. (AUTH-01/03, SHA-01/02/05/08/09/11, UI-02/08)
 
@@ -58,12 +62,16 @@ For either invited role, the system SHALL require mailbox-bound password setup f
 - **WHEN** a different account is signed in or the short-lived setup proof has expired
 - **THEN** the invite is not consumed and no membership is granted; the UI offers correct-account sign-in or safe proof renewal without treating the invitation itself as expired.
 
+#### Scenario: Existing provider identity without a local account
+- **WHEN** an invited mailbox already has a Firebase identity but no admitted Codewise account in this environment
+- **THEN** the recipient SHALL prove mailbox control and explicitly choose to authenticate with the existing password or reset it; the system SHALL NOT reset an existing password without that choice or bind an identity based on email alone. [COU-04/05, SHA-05/08/11]
+
 ### Requirement: COU-05 Atomic authenticated course acceptance
-The system SHALL atomically/idempotently accept a current invitation and add its exact course-role membership after intended-recipient authentication and current inviter authorization. It SHALL preserve existing roles and show the course after acknowledgement. Invitation-aware setup/sign-in submission SHALL serve as explicit acceptance; ordinary sign-in or GET alone SHALL grant nothing. (AUTH-02/03, SHA-02/03, UI-04/08)
+The system SHALL atomically/idempotently accept a current invitation and add the exact displayed set of currently invited course-role memberships after intended-recipient authentication and current inviter authorization. It SHALL preserve existing roles and show the course after acknowledgement. Invitation-aware setup/sign-in submission SHALL serve as explicit acceptance; ordinary sign-in or GET alone SHALL grant nothing. (AUTH-02/03, SHA-02/03, UI-04/08)
 
 #### Scenario: Recipient accepts or retries
 - **WHEN** the intended new or existing account authenticates and confirms a current invitation, including a retry after an interrupted response
-- **THEN** one accepted receipt and exact course-role membership result, other memberships remain and the course becomes available without another invite or deployment.
+- **THEN** the current invitations are acknowledged and the exact displayed course-role memberships result, other memberships remain and the course becomes available without another invite or deployment.
 
 #### Scenario: Scanner, revocation or changed inviter
 - **WHEN** a scanner opens GET, the invitation is revoked/replayed by another account, or the inviter loses instructor authority before acceptance commits
