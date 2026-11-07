@@ -15,6 +15,7 @@ import { Action, StatusMessage } from '../ui/primitives';
 import { Brand, Icon } from '../ui/brand';
 import { AccountMenu } from '../ui/account-menu';
 import { CourseNavigation } from '../ui/course-navigation';
+import { WorkspaceSwitch } from '../ui/workspace-switch';
 import {
   authMessage,
   authRequest,
@@ -322,6 +323,13 @@ export function AuthApp() {
         <Brand href={view ? '/workspace' : '/'} />
         {view && (
           <nav className="cw-app-nav" aria-label="Main navigation">
+            {invitations && (
+              <WorkspaceSwitch
+                role="instructor"
+                courseId={course || undefined}
+                beforeLeave={() => !pending}
+              />
+            )}
             <a href="/workspace">Courses</a>
             <AccountMenu
               email={view.email}

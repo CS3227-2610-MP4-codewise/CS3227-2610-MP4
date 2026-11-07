@@ -1,5 +1,9 @@
 # Handoff: course-onboarding planning
 
+## Authorized dashboard contexts checkpoint — 2026-11-08
+
+Darryl owns the uncommitted 4.1–4.2 producer/switch work based on `1200323e925ec40f23ca5447ba888f9e941fda77`; exact producer commit is not yet available. [C-ID packet](../IntegrationContracts.md#dashboard-contexts-producer--local-work-in-progress) contains current schemas, examples and Keith's reusable checks. [Verification checkpoint](../evidence/course-onboarding/authorized-dashboard-contexts.md) records actual review and outstanding UI checks. Keith owns task 4.3; no student consumer or agreement is claimed. The working tree is not accepted or deployed. Next: finish final checks and UI evidence, obtain Darryl's manual acceptance, then publish an exact producer revision for Keith's integration.
+
 Publication: [normal PR12](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/12), planning commit df0f3ed3558eafb603b5a2583ab5ec49791ad617 pushed on codex/course-onboarding-plan. This supersedes earlier uncommitted/publication-pending checkpoints below. No application implementation, merge or deployment.
 
 - Human owner: Darryl; Keith owns student/submission consumers and cross-reviews the shared boundary.

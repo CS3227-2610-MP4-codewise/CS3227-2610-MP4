@@ -1,6 +1,9 @@
 import { createCourseSchema } from '../../shared/courses';
 import {
   BoundaryError,
+  object,
+  array,
+  id,
   assert,
   toSafeError,
 } from '../../shared/instructor-contracts/schema';
@@ -22,8 +25,46 @@ export async function courseHandler(
   try {
     const { principal } = await auth.requireSession(request);
     const url = new URL(request.url);
+    if (request.method === 'GET' && url.pathname === '/api/courses/contexts') {
+      const keys = [...url.searchParams.keys()];
+      assert(
+        keys.every(
+          (key) => key === 'studentAfter' || key === 'instructorAfter',
+        ) && new Set(keys).size === keys.length,
+        '$',
+        'query',
+      );
+      const cursor = (key: string) => {
+        const value = url.searchParams.get(key) ?? '';
+        assert(
+          value === '' || /^[A-Za-z0-9_-]{1,128}$/.test(value),
+          '$.' + key,
+        );
+        return value;
+      };
+      return json({
+        workspaces: await authority.contexts(
+          principal,
+          cursor('studentAfter'),
+          cursor('instructorAfter'),
+        ),
+      });
+    }
     if (request.method === 'GET' && url.pathname === '/api/courses/creation')
       return json({ canCreate: await creation.canCreate(principal) });
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/api/courses/contexts/verify'
+    ) {
+      await auth.requireMutationOrigin(request);
+      assert(url.search === '', '$', 'query');
+      const body = object(await readAuthBody(request, 1024 * 1024), ['ids']);
+      const ids = array(body.ids, id, '$.ids', 1, 5000);
+      assert(new Set(ids).size === ids.length, '$.ids');
+      return json({
+        courses: await authority.verifyInstructorCourses(principal, ids),
+      });
+    }
     const selected = /^\/api\/courses\/([A-Za-z0-9_-]{1,128})$/.exec(
       url.pathname,
     );

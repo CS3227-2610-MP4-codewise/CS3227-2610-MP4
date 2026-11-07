@@ -8,6 +8,10 @@ import { AssignmentWorkspace } from './assignments/AssignmentWorkspace';
 import { instructorClient } from './assignments/client';
 import { courseClient } from './courses/client';
 import { CreateCourseForm } from './courses/CreateCourseForm';
+import type { CreationState } from './courses/controller';
+import { workspaceContextsSchema } from '../../shared/courses';
+import { courseRequest } from './courses/client';
+import { WorkspaceSwitch } from '../ui/workspace-switch';
 
 type Course = { id: string; name: string };
 
@@ -20,7 +24,15 @@ export function InstructorWorkspace() {
   const [canCreate, setCanCreate] = useState(false);
   const [creationStatus, setCreationStatus] = useState('');
   const [creating, setCreating] = useState(false);
+  const [creationPhase, setCreationPhase] =
+    useState<CreationState['phase']>('editing');
+  const [role, setRole] = useState<'student' | 'instructor' | null>(null);
   const createButton = useRef<HTMLButtonElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (role && new URLSearchParams(window.location.search).has('role'))
+      heading.current?.focus();
+  }, [role]);
   const openCreated = useCallback((item: Course) => {
     window.location.assign(
       '/instructor/assignments?courseId=' + encodeURIComponent(item.id),
@@ -39,7 +51,69 @@ export function InstructorWorkspace() {
     void (async () => {
       try {
         const user = authViewSchema.parse(await authRequest('session'));
-        const items: Course[] = await courseClient.list();
+        const contexts = workspaceContextsSchema.parse(
+          await courseRequest('/contexts'),
+        );
+        const requestedRole = new URLSearchParams(window.location.search).get(
+          'role',
+        );
+        const roles = contexts.workspaces.map((item) => item.role);
+        const fallbackRole = roles.includes('instructor')
+          ? 'instructor'
+          : roles.includes('student')
+            ? 'student'
+            : null;
+        const selectedRole =
+          (requestedRole === 'student' || requestedRole === 'instructor') &&
+          roles.includes(requestedRole)
+            ? requestedRole
+            : fallbackRole;
+        if (selectedRole !== 'instructor') {
+          if (active) {
+            setView(user);
+            setRole(selectedRole);
+            setStatus(
+              requestedRole && requestedRole !== selectedRole
+                ? 'The requested workspace is unavailable.'
+                : selectedRole
+                  ? ''
+                  : 'This workspace is unavailable to you.',
+            );
+          }
+          return;
+        }
+        if (!roles.includes('instructor'))
+          throw new Error('Workspace unavailable.');
+        if (active) setRole('instructor');
+        let instructorContext = contexts.workspaces.find(
+          (item) => item.role === 'instructor',
+        )!;
+        const items: Course[] = [...instructorContext.courses];
+        while (instructorContext.nextCursor) {
+          const cursor = instructorContext.nextCursor;
+          const page = workspaceContextsSchema.parse(
+            await courseRequest(
+              '/contexts?instructorAfter=' + encodeURIComponent(cursor),
+            ),
+          );
+          const next = page.workspaces.find(
+            (item) => item.role === 'instructor',
+          );
+          if (!next || next.nextCursor === cursor)
+            throw new Error('Workspace unavailable.');
+          items.push(...next.courses);
+          instructorContext = next;
+        }
+        // Pagination spans requests; reauthorize every accumulated course before display.
+        if (items.length > 100) {
+          const verified = await courseClient.verify(
+            items.map((item) => item.id),
+            user.csrfToken,
+          );
+          if (verified.some((item, index) => item.id !== items[index].id))
+            throw new Error('Workspace unavailable.');
+          items.splice(0, items.length, ...verified);
+        }
         let assignedCourse = '';
         if (deepId) {
           const draftResponse = await fetch(
@@ -119,6 +193,18 @@ export function InstructorWorkspace() {
       <header className="cw-header">
         <Brand />
         <nav className="cw-app-nav" aria-label="Main navigation">
+          {role && (
+            <WorkspaceSwitch
+              role={role}
+              courses={role === 'instructor' ? courses : undefined}
+              csrf={view?.csrfToken}
+              beforeLeave={() =>
+                !creating ||
+                (creationPhase === 'editing' &&
+                  window.confirm('Leave this form? Your changes will be lost.'))
+              }
+            />
+          )}
           <a href="/workspace" aria-current="page">
             Courses
           </a>
@@ -135,8 +221,13 @@ export function InstructorWorkspace() {
         </nav>
       </header>
       <main id="main-content" className="cw-home">
-        <h1>Your courses</h1>
+        <h1 tabIndex={-1} ref={heading}>
+          {role === 'student' ? 'Student workspace' : 'Your courses'}
+        </h1>
         {status && <p role="status">{status}</p>}
+        {role === 'student' && (
+          <p role="status">The Student workspace is not yet available.</p>
+        )}
         {creationStatus && <p role="status">{creationStatus}</p>}
         {ready &&
           view &&
@@ -145,6 +236,7 @@ export function InstructorWorkspace() {
           (creating ? (
             <CreateCourseForm
               csrf={view.csrfToken}
+              onPhaseChange={setCreationPhase}
               onCreated={openCreated}
               onCancel={() => {
                 setCreating(false);
@@ -160,7 +252,7 @@ export function InstructorWorkspace() {
               Create course
             </button>
           ))}
-        {ready && view && !courses.length && (
+        {ready && view && role === 'instructor' && !courses.length && (
           <p>You do not have a course workspace yet.</p>
         )}
         {ready &&

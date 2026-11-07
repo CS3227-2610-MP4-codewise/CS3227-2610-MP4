@@ -15,6 +15,7 @@ import {
 import { Brand, Icon } from '../../ui/brand';
 import { AccountMenu } from '../../ui/account-menu';
 import { CourseNavigation } from '../../ui/course-navigation';
+import { WorkspaceSwitch } from '../../ui/workspace-switch';
 import { feedbackVisibility } from './presentation';
 import { AssessmentController } from './controller';
 import './styles.css';
@@ -223,6 +224,11 @@ export function AssessmentWorkspace({
           <span>Synthetic instructor preview</span>
         ) : (
           <nav className="cw-app-nav" aria-label="Main navigation">
+            <WorkspaceSwitch
+              role="instructor"
+              courseId={v?.head.courseId}
+              beforeLeave={() => !s.busy}
+            />
             <a href="/workspace">Courses</a>
             {account && (
               <AccountMenu

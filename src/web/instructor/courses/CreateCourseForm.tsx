@@ -9,10 +9,12 @@ export function CreateCourseForm({
   csrf,
   onCancel,
   onCreated,
+  onPhaseChange,
 }: {
   csrf: string;
   onCancel: () => void;
   onCreated: (course: Course) => void;
+  onPhaseChange?: (phase: CreationState['phase']) => void;
 }) {
   const [state, setState] = useState<CreationState>({
     name: '',
@@ -24,7 +26,10 @@ export function CreateCourseForm({
     () =>
       new CreationController(
         (input) => courseClient.create(input, csrf),
-        setState,
+        (next) => {
+          onPhaseChange?.(next.phase);
+          setState(next);
+        },
       ),
   );
   const input = useRef<HTMLInputElement>(null);
