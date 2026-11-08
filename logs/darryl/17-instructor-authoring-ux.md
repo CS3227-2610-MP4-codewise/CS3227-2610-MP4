@@ -211,3 +211,4 @@ Owner: Darryl. Requirements: IAS-02/03/06, UI-01/04/05/07/08; warm-workbook-v1. 
 ### Experiment outcome
 
 - Preparing separate Python highlighting and formatted-instruction increments. The latest full project check passed 375 tests and four deployment tests before the small preview newline change; afterward 18 focused tests, typecheck and lint passed. Visual browser review and student-side formatted rendering remain pending.
+- Committed Python highlighting as `57ce938` and formatted-instruction work as `436a6d5`, pushed `codex/instructor-authoring-ux`, and opened draft PR [#22](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/22). The existing untracked `.worktrees/` directories were excluded.
