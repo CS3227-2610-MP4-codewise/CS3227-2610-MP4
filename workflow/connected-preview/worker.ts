@@ -4,11 +4,12 @@ import { SecureAIGateway } from '../../src/server/ai/gateway';
 import { GatewayStore } from '../../src/server/ai/store';
 import type { AssessmentGatewayFactory } from '../../src/server/instructor/assessments/workflow';
 export const syntheticAssessmentGateway =
-  (db: D1Database): AssessmentGatewayFactory =>
+  (db: D1Database, clock?: () => number): AssessmentGatewayFactory =>
   (resolve) =>
     new SecureAIGateway(new GatewayStore(db), {
       action: 'assessment-draft',
       resolve,
+      ...(clock ? { clock } : {}),
       profile: {
         verified: true,
         model: 'synthetic-preview',
@@ -17,7 +18,7 @@ export const syntheticAssessmentGateway =
         outputTokenLimit: 512,
         inputTokenReservation: 1024,
         maxInputBytes: 100000,
-      deadlineMs: 60000,
+        deadlineMs: 60000,
         cacheMs: 0,
       },
       limits: {

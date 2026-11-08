@@ -212,3 +212,68 @@ Owner: Darryl. Requirements: IAS-02/03/06, UI-01/04/05/07/08; warm-workbook-v1. 
 
 - Preparing separate Python highlighting and formatted-instruction increments. The latest full project check passed 375 tests and four deployment tests before the small preview newline change; afterward 18 focused tests, typecheck and lint passed. Visual browser review and student-side formatted rendering remain pending.
 - Committed Python highlighting as `57ce938` and formatted-instruction work as `436a6d5`, pushed `codex/instructor-authoring-ux`, and opened draft PR [#22](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/22). The existing untracked `.worktrees/` directories were excluded.
+
+## Prompt IUX-13 — 2026-11-08 Asia/Singapore (time unavailable)
+
+**Prompt:** Clarify which AI-assisted features are available for instructors.
+
+### Agents spawned
+
+- None; the main agent inspected the existing instructor UI and handoffs for this question.
+
+### Token count
+
+- Main usage unavailable at this checkpoint; recorder reconciliation pending. No child usage for this prompt.
+
+### Experiment outcome
+
+- Explained private AI assessment drafts, suggested criterion scores and source observations, optional instructor references, explicit adoption and separate approval/release. Clarified that current connected preview uses synthetic output, normal hosted composition has no AI gateway, and live provider and real submission integration remain pending. No feature implementation or live call was performed.
+
+## Prompt IUX-14 — 2026-11-08 Asia/Singapore (time unavailable)
+
+**Prompt:** Clarify whether AI assessment and grading are implemented and where to find them, since only assignment creation is visible.
+
+### Agents spawned
+
+- None; the main agent checked the assessment and local-preview handoffs and entry points.
+
+### Token count
+
+- Main usage unavailable at this checkpoint; recorder reconciliation pending. No child usage for this prompt.
+
+### Experiment outcome
+
+- Explained implemented assessment and synthetic AI preview versus missing real submission integration and hosted AI composition, with local assessment and connected workflow entry points. No service was started and no account or learner data was changed.
+
+## Prompt IUX-15 — 2026-11-08 Asia/Singapore (time unavailable)
+
+**Prompt:** Why was the LLM grader not connected after the SoCLaaS API keys were entered?
+
+### Agents spawned
+
+- None; the main agent checked the gateway activation evidence and application composition.
+
+### Token count
+
+- Main usage unavailable at this checkpoint; recorder reconciliation pending. No child usage for this prompt.
+
+### Experiment outcome
+
+- Explained that the key and successful read-only model/budget discovery did not wire the normal application to the gateway or validate live completions. The original requested activation gates, remaining quota/model evidence and real submission integration are explicit; synthetic preview and hosted activation were not represented as live. No live provider call was made for this question.
+
+## Prompt IUX-16 — 2026-11-08 Asia/Singapore (time unavailable)
+
+**Prompt (redacted):** The PR check failed because synthetic gateway generation returned expired instead of succeeded.
+
+### Agents spawned
+
+- None; the main agent investigated the connected test and gateway timing directly.
+
+### Token count
+
+- Main usage unavailable at this checkpoint; recorder reconciliation pending. No child usage for this prompt.
+
+### Experiment outcome
+
+- The synthetic success test used the wall clock while a gateway lease ends at the current quota-window boundary; starting near that boundary can expire the request. Injected a fixed clock only into the connected success test. Runtime preview and production gateway deadline behavior remain unchanged; focused verification is in progress. The reported CI failure's timing makes this a plausible cause, not a proven diagnosis from CI logs alone.
+- Focused connected and gateway suites passed 23 tests; full `npm run check` passed 376 Vitest tests, four deployment tests, spec validation, typecheck, lint and build. GitHub CI must verify the pushed revision separately.
