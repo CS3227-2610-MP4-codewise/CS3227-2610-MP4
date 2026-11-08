@@ -258,3 +258,4 @@ Owner: Darryl. Requirements: GRADE-01–04, AI-02/05, UI-01/04/06/07/08; design 
 
 - Preparing reviewable batches and a pull request. Manual browser/touch acceptance, Keith integration and live provider activation remain pending; this request does not constitute acceptance of unverified behavior.
 - Created branch `codex/instructor-ai-assessment` and committed the server/contract group as `e920387` and workspace/preview group as `523c3c3`. Documentation, push and PR creation follow; unrelated `.worktrees/` remains untouched.
+- Documentation group committed as `eef7bfc`, branch pushed, and draft PR #21 created. Draft status reflects pending manual acceptance and integration verification. GitHub app/CLI and local browser were unavailable; Git's existing credential was used without printing it.
