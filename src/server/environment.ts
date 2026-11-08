@@ -17,6 +17,7 @@ export interface Environment {
   AUTH_MAIL_ENABLED?: string;
   BOOTSTRAP_OWNER_EMAIL?: string;
   BOOTSTRAP_OWNER_PASSWORD?: string;
-  // Future AI integration reads this only on the server. No AI routes exist yet.
-  SOCLAAS_API_KEY?: string;
+  // Server-only; no AI routes or live provider activation are enabled yet.
+  SOCLAAS_INSTRUCTOR_API_KEY?: string;
+  SOCLAAS_STUDENT_API_KEY?: string;
 }
