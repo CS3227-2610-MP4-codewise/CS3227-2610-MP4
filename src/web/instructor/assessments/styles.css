@@ -197,6 +197,9 @@
   padding: 4px;
   gap: 4px;
 }
+.assessment-line.is-annotated {
+  background: var(--cw-annotation);
+}
 .assessment-line.is-selected {
   background: var(--cw-annotation);
   border-left: 3px solid var(--cw-accent);
@@ -226,10 +229,6 @@
 }
 .assessment-note p {
   margin: 6px 0;
-}
-.assessment-range {
-  display: flex;
-  gap: 20px;
 }
 .assessment-pagination {
   display: flex;
@@ -318,9 +317,6 @@
   }
   .assessment-actions {
     width: 100%;
-  }
-  .assessment-range {
-    gap: 12px;
   }
   .assessment-pagination button {
     padding-inline: 8px;

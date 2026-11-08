@@ -11,6 +11,7 @@ import { createApplication, allowLocalSamples } from '../../src/server/index';
 import { returnDestination } from '../../src/server/auth/primitives';
 import type { Environment } from '../../src/server/environment';
 import { localSamples } from './samples';
+import { syntheticAssessmentGateway } from './worker';
 let db: Awaited<ReturnType<typeof assessmentDatabase>>,
   f: Awaited<ReturnType<typeof fixture>>,
   assignments: AssignmentService,
@@ -86,6 +87,86 @@ async function created() {
   });
 }
 describe('IAL-10 connected instructor composition', { timeout: 30000 }, () => {
+  it('generates, recovers and adopts a synthetic gateway draft through the connected workflow', async () => {
+    for (const migration of [
+      '0013_ai_gateway.sql',
+      '0014_assessment_ai_candidates.sql',
+    ]) {
+      const sql = await readFile(
+        'src/server/db/migrations/' + migration,
+        'utf8',
+      );
+      await db.db.batch(
+        sql
+          .split(/^-- statement\s*$/m)
+          .filter((s) => s.replace(/^--.*$/gm, '').trim())
+          .map((s) => db.db.prepare(s)),
+      );
+    }
+    const v = await created();
+    const path = '/api/instructor/assessments/' + v.head.id;
+    const run = (request: Request) =>
+      new AssessmentWorkflow(
+        request,
+        base,
+        assignments,
+        repo,
+        localSamples(assignments, request),
+        syntheticAssessmentGateway(db.db),
+      ).handle();
+    let response = await run(
+      f.request(path + '/generate-ai', 'POST', {
+        expectedRevisionId: v.head.headRevisionId,
+        requestKey: 'connected_ai',
+        includePrivateReferences: true,
+      }),
+    );
+    expect(response.status, JSON.stringify(await response.clone().json())).toBe(200);
+    const generated = (await response.json()) as {
+      status: string;
+      candidateId: string;
+      payload: { reviewFlags: string[] };
+    };
+    expect(generated.status).toBe('succeeded');
+    expect(generated.payload.reviewFlags[0]).toContain('Synthetic preview');
+    await db.db
+      .prepare(
+        "UPDATE course_memberships SET active=0 WHERE course_id=? AND user_id=? AND role='instructor'",
+      )
+      .bind(f.publication.courseId, f.principal.userId)
+      .run();
+    response = await run(f.request(path + '/ai-candidate'));
+    expect(response.status).toBe(403);
+    response = await run(
+      f.request(path + '/adopt-ai', 'POST', {
+        expectedRevisionId: v.head.headRevisionId,
+        candidateId: generated.candidateId,
+      }),
+    );
+    expect(response.status).toBe(403);
+    await db.db
+      .prepare(
+        "UPDATE course_memberships SET active=1 WHERE course_id=? AND user_id=? AND role='instructor'",
+      )
+      .bind(f.publication.courseId, f.principal.userId)
+      .run();
+    response = await run(f.request(path + '/ai-candidate'));
+    expect(await response.json()).toMatchObject({
+      status: 'succeeded',
+      candidateId: generated.candidateId,
+    });
+    response = await run(
+      f.request(path + '/adopt-ai', 'POST', {
+        expectedRevisionId: v.head.headRevisionId,
+        candidateId: generated.candidateId,
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      revision: { provenance: 'ai-assisted' },
+      head: { approvedRevisionId: null, currentReleaseVersion: null },
+    });
+  });
   it('lists real authorized assignments/publications and opens a pinned sample in the same service', async () => {
     let r = await workflow(
       f.request('/api/instructor/review?courseId=' + f.publication.courseId),

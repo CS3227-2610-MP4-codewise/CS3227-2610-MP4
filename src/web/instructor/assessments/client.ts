@@ -8,6 +8,10 @@ import { publicationSchema } from '../../../shared/instructor-contracts/publicat
 import type { Attempt } from '../../../shared/instructor-contracts/submission';
 import { attemptSchema } from '../../../shared/instructor-contracts/submission';
 import {
+  assessmentDraftSchema,
+  type AssessmentDraft,
+} from '../../../shared/instructor-contracts/ai';
+import {
   BoundaryError,
   errorCodes,
   type ErrorCode,
@@ -18,6 +22,7 @@ import {
   timestamp,
   array,
   literal,
+  oneOf,
 } from '../../../shared/instructor-contracts/schema';
 export type Workspace = AssessmentView & {
   publication: Publication;
@@ -68,7 +73,11 @@ export function workspace(v: unknown): Workspace {
           : id(r.parentRevisionId, p + '.parentRevisionId'),
       actorId: id(r.actorId, p + '.actorId'),
       createdAt: timestamp(r.createdAt, p + '.createdAt'),
-      provenance: literal(r.provenance, 'manual', p + '.provenance'),
+      provenance: oneOf(
+        r.provenance,
+        ['manual', 'ai-assisted'] as const,
+        p + '.provenance',
+      ),
       feedback: draftFeedbackSchema.parse(r.feedback),
     };
   };
@@ -123,7 +132,11 @@ export function workspace(v: unknown): Workspace {
               : id(r.parentRevisionId, p + '.parentRevisionId'),
           actorId: id(r.actorId, p + '.actorId'),
           createdAt: timestamp(r.createdAt, p + '.createdAt'),
-          provenance: literal(r.provenance, 'manual', p + '.provenance'),
+          provenance: oneOf(
+            r.provenance,
+            ['manual', 'ai-assisted'] as const,
+            p + '.provenance',
+          ),
         };
       },
       '$.history',
@@ -172,6 +185,20 @@ export interface AssessmentClient {
     action: 'approve' | 'release' | 'withdraw' | 'correct',
     body: unknown,
   ): Promise<void>;
+  generateAI?(
+    id: string,
+    revision: string,
+    key: string,
+    includePrivateReferences: boolean,
+  ): Promise<{ candidateId: string; payload: AssessmentDraft }>;
+  recoverAI?(
+    id: string,
+  ): Promise<{ candidateId: string; payload: AssessmentDraft } | null>;
+  adoptAI?(
+    id: string,
+    revision: string,
+    candidateId: string,
+  ): Promise<Workspace>;
 }
 export function assessmentClient(
   csrf: string,
@@ -223,5 +250,69 @@ export function assessmentClient(
         body,
       );
     },
+    recoverAI: async (assessmentId) => {
+      const value = await send(
+        '/assessments/' + encodeURIComponent(assessmentId) + '/ai-candidate',
+      );
+      if ((value as { status?: unknown }).status === 'none') return null;
+      const result = object(value, [
+        'status',
+        'candidateId',
+        'payload',
+        'promptVersion',
+        'modelVersion',
+      ]);
+      literal(result.status, 'succeeded', '$.status');
+      return {
+        candidateId: id(result.candidateId, '$.candidateId'),
+        payload: assessmentDraftSchema.parse(result.payload),
+      };
+    },
+    generateAI: async (
+      assessmentId,
+      revision,
+      key,
+      includePrivateReferences,
+    ) => {
+      const value = await send(
+        '/assessments/' + encodeURIComponent(assessmentId) + '/generate-ai',
+        'POST',
+        {
+          expectedRevisionId: revision,
+          requestKey: key,
+          includePrivateReferences,
+        },
+      );
+      if (
+        (value as { status?: unknown }).status === 'pending' ||
+        (value as { status?: unknown }).status === 'running'
+      )
+        throw new Error('AI_PENDING');
+      if (
+        (value as { status?: unknown }).status === 'failed' ||
+        (value as { status?: unknown }).status === 'expired'
+      )
+        throw new Error('AI_FAILED');
+      const result = object(value, [
+        'status',
+        'candidateId',
+        'payload',
+        'promptVersion',
+        'modelVersion',
+      ]);
+      literal(result.status, 'succeeded', '$.status');
+      return {
+        candidateId: id(result.candidateId, '$.candidateId'),
+        payload: assessmentDraftSchema.parse(result.payload),
+      };
+    },
+    adoptAI: async (assessmentId, revision, candidateId) =>
+      workspace(
+        await send(
+          '/assessments/' + encodeURIComponent(assessmentId) + '/adopt-ai',
+          'POST',
+          { expectedRevisionId: revision, candidateId },
+        ),
+      ),
   };
 }

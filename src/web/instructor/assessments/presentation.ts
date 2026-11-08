@@ -2,6 +2,40 @@ import { excerpt } from '../../../shared/instructor-contracts/schema';
 import type { DraftFeedback } from '../../../shared/instructor-contracts/assessment';
 import type { Workspace } from './client';
 
+/** Convert ordered browser selection endpoints to inclusive logical source lines. */
+export function selectedSourceLines(
+  start: number,
+  end: number,
+  endAtLineStart: boolean,
+) {
+  if (
+    !Number.isInteger(start) ||
+    !Number.isInteger(end) ||
+    start < 1 ||
+    end < start
+  )
+    return null;
+  return { start, end: endAtLineStart && end > start ? end - 1 : end };
+}
+export function draftSourceLines(
+  start: string,
+  end: string,
+  lineCount: number,
+) {
+  if (!/^\d+$/.test(start) || !/^\d+$/.test(end)) return null;
+  const first = Number(start),
+    last = Number(end);
+  if (
+    !Number.isSafeInteger(first) ||
+    !Number.isSafeInteger(last) ||
+    first < 1 ||
+    last < first ||
+    last > lineCount
+  )
+    return null;
+  return { start: first, end: last };
+}
+
 /** Attach an observation only to the exact pinned answer and rubric evidence. */
 export function observationMatches(
   note: DraftFeedback['annotations'][number],

@@ -10,6 +10,9 @@ import {
   releaseSchema,
 } from '../../src/shared/instructor-contracts/release';
 import { sourceHash } from '../../src/shared/instructor-contracts/schema';
+import { readFile } from 'node:fs/promises';
+import type { AIGatewayPort } from '../../src/server/instructor/ports/contracts';
+import type { AssessmentDraft } from '../../src/shared/instructor-contracts/ai';
 let database: Awaited<ReturnType<typeof assessmentDatabase>>,
   f: Awaited<ReturnType<typeof fixture>>;
 beforeEach(async () => {
@@ -78,6 +81,226 @@ describe(
   'IAL instructor assessment with real local D1 and synthetic external ports',
   { timeout: 20000 },
   () => {
+    it('keeps a validated synthetic AI candidate private until explicit adoption', async () => {
+      const sql = await readFile(
+        'src/server/db/migrations/0014_assessment_ai_candidates.sql',
+        'utf8',
+      );
+      await database.db.batch(
+        sql
+          .split(/^-- statement\s*$/m)
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((s) => database.db.prepare(s)),
+      );
+      const v = await create();
+      const draft: AssessmentDraft = {
+        kind: 'assessment-draft',
+        codeExecuted: false,
+        reviewFlags: [],
+        annotations: [],
+        criteria: v.publication.questions.flatMap((q) =>
+          q.criteria.map((c) => ({
+            questionVersionId: q.questionVersionId,
+            rubricVersionId: q.rubricVersionId,
+            criterionId: c.criterionId,
+            comparisonKey: c.comparisonKey,
+            minimumScore: c.minimumScore,
+            maximumScore: c.maximumScore,
+            score: 3,
+            explanation: 'Synthetic review',
+          })),
+        ),
+      };
+      const outcome = {
+        schemaVersion: 1 as const,
+        action: 'assessment-draft' as const,
+        status: 'succeeded' as const,
+        requestId: 'candidate_test',
+        evidenceKey: 'e_test',
+        promptVersion: 'prompt_v1',
+        modelVersion: 'synthetic',
+        latencyMs: 1,
+        retries: 0,
+        usage: { status: 'unavailable' as const },
+        payload: draft,
+      };
+      const gateway: AIGatewayPort<'assessment-draft', AssessmentDraft> = {
+        request: async () => outcome,
+        readAuthorized: async () => outcome,
+      };
+      const base = f.service();
+      const service = new AssessmentService(
+        f.repository,
+        f.identity,
+        base.submissions,
+        base.publications,
+        undefined,
+        undefined,
+        gateway,
+      );
+      const revoking = new AssessmentService(
+        f.repository,
+        f.identity,
+        base.submissions,
+        base.publications,
+        undefined,
+        undefined,
+        {
+          ...gateway,
+          request: async () => {
+            f.state.revoked = true;
+            return outcome;
+          },
+        },
+      );
+      await expect(
+        revoking.generateAI(f.request('/', 'POST'), v.head.id, {
+          expectedRevisionId: v.head.headRevisionId,
+          requestKey: 'revocation_test',
+          includePrivateReferences: false,
+        }),
+      ).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+      f.state.revoked = false;
+      expect(
+        await database.db
+          .prepare('SELECT count(*) AS n FROM instructor_ai_candidates')
+          .first('n'),
+      ).toBe(0);
+      draft.criteria[0].score = Infinity;
+      await expect(
+        service.generateAI(f.request('/', 'POST'), v.head.id, {
+          expectedRevisionId: v.head.headRevisionId,
+          requestKey: 'invalid_test',
+          includePrivateReferences: false,
+        }),
+      ).rejects.toMatchObject({ code: 'INVALID_CONTRACT' });
+      expect(
+        await database.db
+          .prepare('SELECT count(*) AS n FROM instructor_ai_candidates')
+          .first('n'),
+      ).toBe(0);
+      draft.criteria[0].score = 3;
+      const answer = v.attempt.answers[0];
+      const q = v.publication.questions.find(
+        (item) => item.questionVersionId === answer.questionVersionId,
+      )!;
+      draft.annotations.push({
+        submittedAnswerId: answer.submittedAnswerId,
+        questionVersionId: q.questionVersionId,
+        rubricVersionId: q.rubricVersionId,
+        criterionId: q.criteria[0].criterionId,
+        startLine: 1,
+        endLine: 1,
+        excerpt: 'fabricated synthetic text',
+        explanation: 'Invalid evidence',
+      });
+      await expect(
+        service.generateAI(f.request('/', 'POST'), v.head.id, {
+          expectedRevisionId: v.head.headRevisionId,
+          requestKey: 'fabricated_test',
+          includePrivateReferences: false,
+        }),
+      ).rejects.toMatchObject({ code: 'INVALID_CONTRACT' });
+      expect(
+        await database.db
+          .prepare('SELECT count(*) AS n FROM instructor_ai_candidates')
+          .first('n'),
+      ).toBe(0);
+      draft.annotations = [];
+      const candidate = await service.generateAI(
+        f.request('/', 'POST'),
+        v.head.id,
+        {
+          expectedRevisionId: v.head.headRevisionId,
+          requestKey: 'generate_test',
+          includePrivateReferences: false,
+        },
+      );
+      expect(candidate.status).toBe('succeeded');
+      expect(await service.recoverAI(f.request(), v.head.id)).toMatchObject({
+        status: 'succeeded',
+        candidateId: 'candidate_test',
+      });
+      expect(
+        (
+          await service.generateAI(f.request('/', 'POST'), v.head.id, {
+            expectedRevisionId: v.head.headRevisionId,
+            requestKey: 'generate_test',
+            includePrivateReferences: false,
+          })
+        ).status,
+      ).toBe('succeeded');
+      expect(
+        (await service.load(f.request(), v.head.id)).head.headRevisionId,
+      ).toBe(v.head.headRevisionId);
+      f.state.revoked = true;
+      await expect(
+        service.adoptAI(f.request('/', 'POST'), v.head.id, {
+          expectedRevisionId: v.head.headRevisionId,
+          candidateId: 'candidate_test',
+        }),
+      ).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+      f.state.revoked = false;
+      const adopted = await service.adoptAI(f.request('/', 'POST'), v.head.id, {
+        expectedRevisionId: v.head.headRevisionId,
+        candidateId: 'candidate_test',
+      });
+      expect(adopted.head.headRevisionId).not.toBe(v.head.headRevisionId);
+      expect(adopted.head.approvedRevisionId).toBeNull();
+      expect(adopted.revision.provenance).toBe('ai-assisted');
+      expect(adopted.head.currentReleaseVersion).toBeNull();
+      expect(
+        await database.db
+          .prepare(
+            'SELECT candidate_id FROM instructor_ai_adoptions WHERE revision_id=?',
+          )
+          .bind(adopted.head.headRevisionId)
+          .first(),
+      ).toMatchObject({ candidate_id: 'candidate_test' });
+      await expect(
+        service.adoptAI(f.request('/', 'POST'), v.head.id, {
+          expectedRevisionId: v.head.headRevisionId,
+          candidateId: 'candidate_test',
+        }),
+      ).rejects.toMatchObject({ code: 'REVISION_CONFLICT' });
+      const changedFeedback = structuredClone(adopted.revision.feedback);
+      changedFeedback.criteria[0].explanation =
+        'Instructor edit during generation';
+      const staleGateway: AIGatewayPort<'assessment-draft', AssessmentDraft> = {
+        ...gateway,
+        request: async () => {
+          await service.save(f.request('/', 'PUT'), v.head.id, {
+            expectedRevisionId: adopted.head.headRevisionId,
+            feedback: changedFeedback,
+          });
+          return { ...outcome, requestId: 'candidate_stale' };
+        },
+      };
+      const staleService = new AssessmentService(
+        f.repository,
+        f.identity,
+        base.submissions,
+        base.publications,
+        undefined,
+        undefined,
+        staleGateway,
+      );
+      await expect(
+        staleService.generateAI(f.request('/', 'POST'), v.head.id, {
+          expectedRevisionId: adopted.head.headRevisionId,
+          requestKey: 'stale_test',
+          includePrivateReferences: false,
+        }),
+      ).rejects.toMatchObject({ code: 'STALE_EVIDENCE' });
+      expect(
+        await f.repository.aiCandidate(
+          v.head.id,
+          f.principal.userId,
+          'candidate_stale',
+        ),
+      ).toBeNull();
+    });
     it('creates one assessment per attempt, persists partial drafts and rejects changed create keys', async () => {
       let v = await create();
       const again = await create();

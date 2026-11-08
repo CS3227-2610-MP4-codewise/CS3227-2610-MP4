@@ -1,6 +1,27 @@
 import { describe, it, expect } from 'vitest';
-import { feedbackVisibility, observationMatches } from './presentation';
+import {
+  feedbackVisibility,
+  observationMatches,
+  selectedSourceLines,
+  draftSourceLines,
+} from './presentation';
 import type { Workspace } from './client';
+
+describe('source selection line boundaries', () => {
+  it('uses whole inclusive lines and excludes an untouched line at the end', () => {
+    expect(selectedSourceLines(1, 3, false)).toEqual({ start: 1, end: 3 });
+    expect(selectedSourceLines(1, 3, true)).toEqual({ start: 1, end: 2 });
+    expect(selectedSourceLines(2, 2, true)).toEqual({ start: 2, end: 2 });
+    expect(selectedSourceLines(0, 2, false)).toBeNull();
+    expect(selectedSourceLines(3, 2, false)).toBeNull();
+  });
+  it('highlights only a valid editable line range', () => {
+    expect(draftSourceLines('2', '3', 4)).toEqual({ start: 2, end: 3 });
+    expect(draftSourceLines('', '3', 4)).toBeNull();
+    expect(draftSourceLines('2', '5', 4)).toBeNull();
+    expect(draftSourceLines('3', '2', 4)).toBeNull();
+  });
+});
 describe('IAL-11/UI-04/UI-08 displayed feedback visibility', () => {
   const releases = [
     { revisionId: 'original', version: 1, withdrawnAt: null },
