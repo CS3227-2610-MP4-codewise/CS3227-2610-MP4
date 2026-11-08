@@ -620,3 +620,77 @@ Earlier workflow/setup questions are redacted summaries, not copies of private s
 - Comparison basis: no controlled comparison; token totals do not establish efficiency.
 - Next owner: Darryl runs bounded remaining prompts; Keith supplies actual contract review, student dashboard and immutable submission consumers/producers before joint acceptance.
 - Verification follow-up: `git diff --check -- logs/darryl/08-workflow-setup-and-planning.md` passed. Required `npm run check` passed all eight strict OpenSpec changes and typecheck, then failed lint with 1,030 errors while ESLint traversed pre-existing untracked `.worktrees/shared-foundation/dist/client/assets/` generated JavaScript. Tests/build were not reached by this run; no passing full-check claim. No lint configuration, generated files or other worktrees were changed. Use a clean isolated checkout for the next feature and address the workspace/tooling issue in its own agreed scope.
+
+## Prompt SEQ-20261108-01 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Pull latest main, inspect specs and regenerate remaining Darryl implementation prompts.
+
+### Agents spawned
+
+- **New agents:** None — direct Git/reference inspection and sequencing need no duplicated agent investigation.
+- **Reused agents:** None.
+- **Main agent:** `/root`; no delegated implementation/review or runtime edits.
+- **Scope/outcome:** Fetch main, preserve dirty feature checkout, inspect exact remote-main tasks and producer handoffs, generate bounded continuation prompts rather than rebuild completed work.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main `/root` | 756,174 | 499,712 | 664 | 756,838 | `turn-eb335cb1fd202bfb7b7a4433` | Provisional; later calls/final excluded |
+| Child agents | 0 | 0 | 0 | 0 | None | No spawned/reused children |
+
+- Source/checkpoint: private Codewise recorder, `per_response_usage`, `2026-11-07T19:50:35.316Z` (2026-11-08 Singapore); project path verified. Detailed records remain outside Git.
+- Shared-turn group: `01a18601-a793-7f90-8bfe-c3677cb20fb4/01a1b78e-e0c8-77c2-b08d-5dc66f185974`; per-message allocation unavailable if shared. Count the turn once. Cached/reasoning counts are subsets. Unlinked approval reviews excluded.
+- Coverage/reconciliation: current turn incomplete; finalize at next checkpoint, retaining snapshots without adding them together.
+- Preceding prompt SEQ-20261107-01 reconciliation: completed `turn-370ebf554ad2a1737e7742a8`, input 2,794,658; cached input 2,562,816; output 5,729; total 2,800,387. No turn warnings. Supersedes earlier provisional measurement; count once.
+
+### Experiment outcome
+
+- Fetched origin/main and fast-forwarded unused local main from 1200323 to 4e95c533df387664664088ddf8498c584e7ccc43. Both refs match. Preserved current codex/authorized-dashboard-contexts checkout, all pre-existing dirty files/deletions and worktrees; did not stash/reset/switch or merge main into dirty feature work.
+- Inspected latest main via Git object reads, not potentially older dirty task files. Course creation, invitation/identity recovery, People roster/coordinator protection and dashboard-context code already exist despite unchecked or stale plan statements. Remaining work includes source/evidence reconciliation, UI/manual checks, unknown-provider-reset recovery, provider/hosted verification, AI runtime and real Keith integration. Assessment PR18 is merged and user-accepted with explicitly unverified observations/accessibility evidence; do not rerun full implementation or represent acceptance as tests passed.
+- Checks performed: Git status/worktree/ref/history inspection, exact-main OpenSpec/config/task and producer-handoff reads, private recorder refresh. No product tests or build run: no product code changed, and dirty checkout is not the requested reviewed-main snapshot. Prior full-check limitation remains documented; no passing runtime claim.
+- Only this required member-log entry is added by this prompt. No application/spec/skill edits, commit, push or deployment. No controlled efficiency comparison.
+- Next owner: Darryl uses bounded continuation prompts on a clean main-based branch/worktree; Keith supplies actual student/submission consumer revision and joint review. Conflicting/stale checklist status is reconciled from source and evidence, never blindly rebuilt.
+
+
+## Prompt GROUP-20261108-01 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Ask whether remaining feature prompts can be logically grouped without reducing quality.
+
+### Agents spawned
+
+- New agents: None — bounded sequencing judgment uses the already inspected plans; delegation would duplicate context.
+- Reused agents: None.
+- Main agent: `/root`; no product edits.
+
+### Token count
+
+- Source group: `turn-30b5330355fe812fe80758ce` / `01a1b791-fe47-75f1-b3c0-0f47128ced1f`, private Codewise recorder checkpoint `2026-11-07T19:53:03.876Z`; project scope verified.
+- Shared with GROUP-20261108-02. Per-prompt allocation unavailable. Shared-group main input 267,163; cached input 267,008 (subset); output 187; total 267,350, provisional, later calls/final excluded. No children: zero measured child consumption from this task. Count this group once, at this entry, not again for the follow-up.
+- Preceding SEQ-20261108-01 finalized: `turn-eb335cb1fd202bfb7b7a4433`, input 2,066,615; cached input 1,802,624; output 4,374; total 2,070,989. Supersedes earlier snapshot; count once.
+- Reconcile current group next checkpoint. Unlinked approval sessions excluded; no charges or efficiency claim.
+
+### Experiment outcome
+
+- Recommend two bounded combinations: existing UI/acceptance-gap verification, and secure provider adapter plus gateway controls with internal staged checks. Keep reset recovery, instructor AI, evaluation, real cross-role integration, operational acceptance and final release separate.
+- Checks: inspected Git status/log policy and refreshed local recorder. No application edits or runtime tests; earlier dirty work preserved. No controlled comparison or guaranteed token-saving claim.
+
+## Prompt GROUP-20261108-02 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Generate the revised sequence if sensible grouping is possible.
+
+### Agents spawned
+
+- New agents: None — continuation of the same prompt-sequencing work.
+- Reused agents: None.
+- Main agent: `/root` prepares copyable prompts and dependency notes.
+
+### Token count
+
+- Shared source group `turn-30b5330355fe812fe80758ce` with GROUP-20261108-01. Main per-prompt input/cached/output/total unavailable; group snapshot is recorded above and counted only there. Current turn provisional; later work/final excluded. Child agents: none, zero task child consumption.
+- Private checkpoint `2026-11-07T19:53:03.876Z`; reconcile completed group next checkpoint. Do not divide the group total between steering prompts.
+
+### Experiment outcome
+
+- Deliver eight remaining prompts, keeping reset recovery and activation/integration boundaries explicit. Shared setup preserves branch isolation, existing implementations, per-prompt logging and release authorization. Keith wait applies to cross-role acceptance, not independent producer implementation.
+- No source/spec/skill changes, commit/push/deployment or messages to Keith. Required narrative log append only; all prior dirty changes preserved. Token reduction is an objective, not a measured result. No runtime checks run for this advice-only request.
