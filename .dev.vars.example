@@ -15,4 +15,7 @@ AUTH_MAIL_ENABLED=false
 # After completion these may be removed; the owner identity remains in D1/Firebase.
 BOOTSTRAP_OWNER_EMAIL=
 BOOTSTRAP_OWNER_PASSWORD=
-# SOCLAAS_API_KEY=
+# Separate server-only credentials; empty values keep each action disabled.
+# The gateway is not wired into live routes and must not be activated without verified limits.
+SOCLAAS_INSTRUCTOR_API_KEY=
+SOCLAAS_STUDENT_API_KEY=

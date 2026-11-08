@@ -119,3 +119,7 @@ Darryl answered "Darryl, as recorded on main" on2026-11-07. This supersedes the 
 ## Setup-reset recovery window — approved 2026-11-08
 
 Darryl is sole writer for `src/server/auth/managed-store.ts`, `managed-routes.ts`, additive next migration 0012 after numbering check, affected synthetic auth tests, shared-authentication artifacts, auth recovery evidence/handoff and Darryl log. /root/reset_review is read-only. This window does not grant permission for live provider operations, deployments, student code or other shared schema changes. Keith cross-review remains pending.
+
+## Secure AI gateway writer window — approved 2026-11-08
+
+Darryl is the sole shared schema/API writer for `src/server/ai/`, additive migration 0013 after numbering check, minimal server-only environment and blank `.dev.vars.example` entries, gateway tests and this change's spec/evidence/handoff. Two specialists own non-overlapping adapter and D1 files; the main agent owns integration; independent review is read-only. Separate instructor/student keys do not imply separate provider quota pools. No live provider calls, secrets access, Keith progress implementation or deployment are authorized by this window; Keith cross-review remains pending.
