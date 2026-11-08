@@ -3,6 +3,7 @@ import {
   AssignmentController,
   singaporeInput,
   singaporeUtc,
+  reorderQuestions,
 } from './controller';
 import {
   emptyAuthoring,
@@ -10,6 +11,13 @@ import {
   type AssignmentDraft,
   type PublicationResult,
 } from '../../../shared/instructor-contracts/authoring';
+it('reorders questions without losing or mutating them', () => {
+  const original = ['a', 'b', 'c', 'd'];
+  expect(reorderQuestions(original, 0, 3)).toEqual(['b', 'c', 'd', 'a']);
+  expect(reorderQuestions(original, 3, 1)).toEqual(['a', 'd', 'b', 'c']);
+  expect(reorderQuestions(original, -1, 2)).toEqual(original);
+  expect(original).toEqual(['a', 'b', 'c', 'd']);
+});
 function draft(id = 'a', revision = 1): AssignmentDraft {
   return {
     schemaVersion: 1,
