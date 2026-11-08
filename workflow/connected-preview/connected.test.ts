@@ -112,7 +112,9 @@ describe('IAL-10 connected instructor composition', { timeout: 30000 }, () => {
         assignments,
         repo,
         localSamples(assignments, request),
-        syntheticAssessmentGateway(db.db),
+        // Keep this successful-flow test away from real quota-window rollovers.
+        // Deadline and expiry behavior is covered separately by the gateway tests.
+        syntheticAssessmentGateway(db.db, () => 1_800_000_000_000),
       ).handle();
     let response = await run(
       f.request(path + '/generate-ai', 'POST', {

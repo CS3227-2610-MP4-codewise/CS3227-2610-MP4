@@ -10,11 +10,14 @@ import type {
   Authoring,
   DraftSummary,
 } from '../../../shared/instructor-contracts/authoring';
+import { highlightPython } from './python-highlight';
+import { InstructionEditor } from './InstructionEditor';
 import { Action, StatusMessage, QuestionNavigation } from '../../ui/primitives';
 import {
   AssignmentController,
   singaporeInput,
   singaporeUtc,
+  reorderQuestions,
   errorMessage,
   type WorkspaceState,
 } from './controller';
@@ -61,8 +64,49 @@ function Code({ label, source }: { label: string; source: string }) {
     <div className="ia-code-view">
       <p className="ia-label">{label}</p>
       <pre tabIndex={0} aria-label={label}>
-        {source || 'No code provided.'}
+        <code
+          dangerouslySetInnerHTML={{
+            __html: highlightPython(source || 'No code provided.'),
+          }}
+        />
       </pre>
+    </div>
+  );
+}
+function PythonEditor({
+  label,
+  value,
+  readOnly,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  readOnly: boolean;
+  onChange: (value: string) => void;
+}) {
+  const highlighted = useRef<HTMLPreElement>(null);
+  return (
+    <div className="ia-code-editor">
+      <pre ref={highlighted} aria-hidden="true">
+        <code
+          dangerouslySetInnerHTML={{ __html: highlightPython(value + '\n') }}
+        />
+      </pre>
+      <textarea
+        className="ia-code-input"
+        aria-label={label}
+        value={value}
+        readOnly={readOnly}
+        spellCheck={false}
+        wrap="off"
+        onChange={(event) => onChange(event.target.value)}
+        onScroll={(event) => {
+          if (highlighted.current) {
+            highlighted.current.scrollTop = event.currentTarget.scrollTop;
+            highlighted.current.scrollLeft = event.currentTarget.scrollLeft;
+          }
+        }}
+      />
     </div>
   );
 }
@@ -127,8 +171,12 @@ export function AssignmentWorkspace({
     [listing, setListing] = useState(false),
     [listError, setListError] = useState('');
   const [versionSummary, setVersionSummary] = useState(false);
+  const [reorderStatus, setReorderStatus] = useState('');
+  const [keyboardGrabbed, setKeyboardGrabbed] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<number | null>(null);
   const pageHeading = useRef<HTMLHeadingElement>(null),
-    questionHeading = useRef<HTMLHeadingElement>(null);
+    questionHeading = useRef<HTMLHeadingElement>(null),
+    draggingQuestion = useRef<number | null>(null);
   async function list(after = '') {
     setListing(true);
     setListError('');
@@ -228,16 +276,24 @@ export function AssignmentWorkspace({
     });
     controller.question(state.payload.questions.length);
   };
-  const moveQuestion = (delta: number) => {
+  const moveQuestion = (from: number, target: number) => {
     if (!state.payload || locked) return;
-    const questions = [...state.payload.questions],
-      target = state.index + delta;
-    [questions[state.index], questions[target]] = [
-      questions[target],
-      questions[state.index],
-    ];
-    edit({ ...state.payload, questions });
-    controller.question(target);
+    const questions = [...state.payload.questions];
+    if (
+      from < 0 ||
+      target < 0 ||
+      from >= questions.length ||
+      target >= questions.length ||
+      from === target
+    )
+      return;
+    const currentId = questions[state.index]?.questionId;
+    const reordered = reorderQuestions(questions, from, target);
+    edit({ ...state.payload, questions: reordered });
+    controller.question(reordered.findIndex((q) => q.questionId === currentId));
+    setReorderStatus(
+      `Moved ${questions[from].title || `question ${from + 1}`} to position ${target + 1} of ${questions.length}.`,
+    );
   };
   const discard = () => {
     if (
@@ -638,22 +694,117 @@ export function AssignmentWorkspace({
                     <h2>Questions</h2>
                   </div>
                   {payload.questions.length > 0 ? (
-                    <div className="ia-question-toolbar">
-                      <Field label="Question">
-                        <select
-                          value={state.index}
-                          disabled={locked && !readOnly}
-                          onChange={(event) =>
-                            controller.question(Number(event.target.value))
-                          }
-                        >
-                          {payload.questions.map((q, i) => (
-                            <option key={q.questionId} value={i}>
+                    <aside
+                      className="ia-question-toolbar"
+                      aria-label="Question list"
+                    >
+                      <p className="ia-hint">
+                        {readOnly
+                          ? 'Questions'
+                          : 'Drag the handle to reorder. Keyboard: Space, arrow keys, Space.'}
+                      </p>
+                      <ol className="ia-question-list">
+                        {payload.questions.map((q, i) => (
+                          <li
+                            key={q.questionId}
+                            className={
+                              dropTarget === i ? 'ia-drop-target' : undefined
+                            }
+                            onDragOver={(event) => {
+                              if (
+                                !locked &&
+                                !readOnly &&
+                                draggingQuestion.current !== null
+                              ) {
+                                event.preventDefault();
+                                setDropTarget(i);
+                              }
+                            }}
+                            onDrop={(event) => {
+                              event.preventDefault();
+                              const from = draggingQuestion.current;
+                              draggingQuestion.current = null;
+                              setDropTarget(null);
+                              if (from !== null) moveQuestion(from, i);
+                            }}
+                          >
+                            {!readOnly && (
+                              <button
+                                type="button"
+                                className="ia-drag-handle"
+                                draggable={!locked}
+                                disabled={locked}
+                                aria-label={`Reorder question ${i + 1}: ${q.title || 'Untitled question'}`}
+                                aria-pressed={keyboardGrabbed === q.questionId}
+                                onDragStart={(event) => {
+                                  draggingQuestion.current = i;
+                                  event.dataTransfer.effectAllowed = 'move';
+                                  event.dataTransfer.setData(
+                                    'text/plain',
+                                    q.questionId,
+                                  );
+                                }}
+                                onDragEnd={() => {
+                                  draggingQuestion.current = null;
+                                  setDropTarget(null);
+                                }}
+                                onClick={() => {
+                                  const active =
+                                    keyboardGrabbed !== q.questionId;
+                                  setKeyboardGrabbed(
+                                    active ? q.questionId : null,
+                                  );
+                                  setReorderStatus(
+                                    active
+                                      ? `Question ${i + 1} selected for reordering. Use arrow keys, then Space to drop.`
+                                      : `Question dropped at position ${i + 1}.`,
+                                  );
+                                }}
+                                onKeyDown={(event) => {
+                                  if (keyboardGrabbed !== q.questionId) return;
+                                  if (event.key === 'Escape') {
+                                    event.preventDefault();
+                                    setKeyboardGrabbed(null);
+                                    setReorderStatus('Reordering finished.');
+                                  } else if (
+                                    event.key === 'ArrowUp' ||
+                                    event.key === 'ArrowDown'
+                                  ) {
+                                    event.preventDefault();
+                                    const target =
+                                      i + (event.key === 'ArrowUp' ? -1 : 1);
+                                    if (
+                                      target >= 0 &&
+                                      target < payload.questions.length
+                                    ) {
+                                      const handle = event.currentTarget;
+                                      moveQuestion(i, target);
+                                      requestAnimationFrame(() =>
+                                        handle.focus(),
+                                      );
+                                    }
+                                  }
+                                }}
+                              >
+                                <span aria-hidden="true">⠿</span>
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="ia-question-select"
+                              aria-current={
+                                state.index === i ? 'step' : undefined
+                              }
+                              onClick={() => controller.question(i)}
+                            >
                               {i + 1}. {q.title || 'Untitled question'}
-                            </option>
-                          ))}
-                        </select>
-                      </Field>
+                            </button>
+                          </li>
+                        ))}
+                      </ol>
+                      <p className="ia-hint" role="status" aria-live="polite">
+                        {reorderStatus}
+                      </p>
                       {!readOnly && (
                         <Action
                           variant="secondary"
@@ -663,7 +814,7 @@ export function AssignmentWorkspace({
                           <Icon name="plus" /> Add question
                         </Action>
                       )}
-                    </div>
+                    </aside>
                   ) : (
                     <div className="ia-empty">
                       <h3>No questions yet.</h3>
@@ -702,41 +853,17 @@ export function AssignmentWorkspace({
                                     }
                                   />
                                 </Field>
-                                <Field label="Instructions for students">
-                                  <textarea
-                                    rows={6}
-                                    maxLength={16384}
-                                    readOnly={locked}
-                                    value={question.instructions}
-                                    placeholder="Describe the task and what students should produce."
-                                    onChange={(event) =>
-                                      editQuestion({
-                                        instructions: event.target.value,
-                                      })
-                                    }
-                                  />
-                                </Field>
+                                <InstructionEditor
+                                  key={question.questionId}
+                                  readOnly={locked}
+                                  value={question.instructions}
+                                  onChange={(instructions) =>
+                                    editQuestion({ instructions })
+                                  }
+                                />
                                 <details className="ia-options">
                                   <summary>Question options</summary>
                                   <div className="ia-actions">
-                                    <Action
-                                      variant="secondary"
-                                      disabled={locked || state.index === 0}
-                                      onClick={() => moveQuestion(-1)}
-                                    >
-                                      Move up
-                                    </Action>
-                                    <Action
-                                      variant="secondary"
-                                      disabled={
-                                        locked ||
-                                        state.index ===
-                                          payload.questions.length - 1
-                                      }
-                                      onClick={() => moveQuestion(1)}
-                                    >
-                                      Move down
-                                    </Action>
                                     <Action
                                       variant="secondary"
                                       disabled={locked}
@@ -777,15 +904,13 @@ export function AssignmentWorkspace({
                             />
                           ) : (
                             <Field label="Starter code (Python)">
-                              <textarea
-                                className="ia-source"
-                                rows={6}
-                                spellCheck={false}
+                              <PythonEditor
+                                label="Starter code (Python)"
                                 readOnly={locked}
                                 value={question.starterCode}
-                                onChange={(event) =>
+                                onChange={(value) =>
                                   editQuestion({
-                                    starterCode: event.target.value,
+                                    starterCode: value,
                                   })
                                 }
                               />
@@ -810,15 +935,13 @@ export function AssignmentWorkspace({
                               />
                             ) : (
                               <Field label="Reference code">
-                                <textarea
-                                  className="ia-source"
-                                  rows={5}
-                                  spellCheck={false}
+                                <PythonEditor
+                                  label="Reference code"
                                   readOnly={locked}
                                   value={question.privateReference}
-                                  onChange={(event) =>
+                                  onChange={(value) =>
                                     editQuestion({
-                                      privateReference: event.target.value,
+                                      privateReference: value,
                                     })
                                   }
                                 />
@@ -884,24 +1007,13 @@ export function AssignmentWorkspace({
                                   />
                                 </Field>
                                 <div className="ia-score">
-                                  <Field label="Minimum points">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      max="1000"
-                                      step="0.01"
-                                      readOnly={locked}
-                                      value={criterion.minimumScore ?? ''}
-                                      onChange={(event) =>
-                                        change({
-                                          minimumScore:
-                                            event.target.value === ''
-                                              ? null
-                                              : Number(event.target.value),
-                                        })
-                                      }
-                                    />
-                                  </Field>
+                                  {criterion.minimumScore !== null &&
+                                    criterion.minimumScore !== 0 && (
+                                      <p className="ia-hint">
+                                        Existing minimum:{' '}
+                                        {criterion.minimumScore} points
+                                      </p>
+                                    )}
                                   <Field label="Maximum points">
                                     <input
                                       type="number"
@@ -913,6 +1025,8 @@ export function AssignmentWorkspace({
                                       placeholder="e.g. 10"
                                       onChange={(event) =>
                                         change({
+                                          minimumScore:
+                                            criterion.minimumScore ?? 0,
                                           maximumScore:
                                             event.target.value === ''
                                               ? null
