@@ -115,3 +115,7 @@ Darryl requested the new course/onboarding product plan and is the sole writer o
 ### Ownership conflict resolved by explicit user reply
 
 Darryl answered "Darryl, as recorded on main" on2026-11-07. This supersedes the stale user-supplied/project AGENTS sentence assigning SH-ID to Keith. Project AGENTS.md and DeveloperGuide/PlanningDecisions ownership statements are reconciled in this documentation-only window so subsequent implementations do not repeat the conflict. Keith retains student/submission work and actual joint review remains pending. No personal skill or runtime authority changed.
+
+## Setup-reset recovery window — approved 2026-11-08
+
+Darryl is sole writer for `src/server/auth/managed-store.ts`, `managed-routes.ts`, additive next migration 0012 after numbering check, affected synthetic auth tests, shared-authentication artifacts, auth recovery evidence/handoff and Darryl log. /root/reset_review is read-only. This window does not grant permission for live provider operations, deployments, student code or other shared schema changes. Keith cross-review remains pending.
