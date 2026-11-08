@@ -58,3 +58,5 @@ Owner: Darryl. Requirements: IAS-02/03/06, UI-01/04/05/07/08; warm-workbook-v1. 
 ### Experiment outcome
 
 - Committed the prior instructor UI and Python highlighting group as `3266ab0`; committing its planning and evidence separately. Beginning the previously deferred formatted-instruction work; existing plain-text publications and student contract compatibility remain requirements.
+- Planning and evidence committed separately as `8056c14`. Inspected the strict v1 publication schema and immutable question snapshot path; documented a proposed versioned rich document plus unchanged plaintext fallback. No formatting editor or persistence changes are claimed yet.
+- Strict OpenSpec validation of the formatting change passed. Rich editor, durable versioned persistence, instructor/student rendering, consumer review and end-to-end verification remain unfinished; no markup is being inserted into the existing plain-text publication field.
