@@ -16,7 +16,12 @@ import { Brand, Icon } from '../../ui/brand';
 import { AccountMenu } from '../../ui/account-menu';
 import { CourseNavigation } from '../../ui/course-navigation';
 import { WorkspaceSwitch } from '../../ui/workspace-switch';
-import { feedbackVisibility, observationMatches } from './presentation';
+import {
+  feedbackVisibility,
+  observationMatches,
+  selectedSourceLines,
+  draftSourceLines,
+} from './presentation';
 import { AssessmentController } from './controller';
 import './styles.css';
 export function AssessmentWorkspace({
@@ -43,6 +48,12 @@ export function AssessmentWorkspace({
     [explanation, setExplanation] = useState(''),
     [noteError, setNoteError] = useState(''),
     [noteDirty, setNoteDirty] = useState(false),
+    [sourceSelection, setSourceSelection] = useState<{
+      start: number;
+      end: number;
+      answerId: string;
+    } | null>(null),
+    [includePrivateReferences, setIncludePrivateReferences] = useState(false),
     [withdrawVersion, setWithdrawVersion] = useState<number | null>(null),
     [reason, setReason] = useState(''),
     [audit, setAudit] = useState(''),
@@ -54,6 +65,9 @@ export function AssessmentWorkspace({
     focusQuestion = useRef(false),
     auditEpoch = useRef(0),
     reviewHeading = useRef<HTMLHeadingElement>(null),
+    sourceRegion = useRef<HTMLDivElement>(null),
+    commentDetails = useRef<HTMLDetailsElement>(null),
+    commentInput = useRef<HTMLTextAreaElement>(null),
     publicEpoch = useRef(0);
   useEffect(() => {
     if (focusQuestion.current) {
@@ -66,6 +80,9 @@ export function AssessmentWorkspace({
     setPublicFeedback(null);
     setPublicStatus('');
   }, [id, v?.head.availabilityRevision]);
+  useEffect(() => {
+    setIncludePrivateReferences(false);
+  }, [v?.head.id, v?.head.headRevisionId]);
   useEffect(() => {
     setQuestion(0);
     resetNote();
@@ -157,6 +174,60 @@ export function AssessmentWorkspace({
     setEnd('1');
     setCriterion('');
     setNoteError('');
+    setSourceSelection(null);
+  }
+  function captureSourceSelection() {
+    const selection = window.getSelection(),
+      region = sourceRegion.current;
+    if (
+      !selection ||
+      selection.isCollapsed ||
+      !region ||
+      selection.rangeCount !== 1
+    ) {
+      setSourceSelection(null);
+      return;
+    }
+    const range = selection.getRangeAt(0);
+    const line = (node: Node) => {
+      const element =
+        node.nodeType === Node.ELEMENT_NODE
+          ? (node as Element)
+          : node.parentElement;
+      const code = element?.closest('code[data-source-line]');
+      return code && region.contains(code)
+        ? Number(code.getAttribute('data-source-line'))
+        : null;
+    };
+    const first = line(range.startContainer),
+      last = line(range.endContainer);
+    if (first === null || last === null || !answer) {
+      setSourceSelection(null);
+      return;
+    }
+    const lines = selectedSourceLines(first, last, range.endOffset === 0);
+    setSourceSelection(
+      lines ? { ...lines, answerId: answer.submittedAnswerId } : null,
+    );
+  }
+  function commentOnSelection() {
+    if (
+      !sourceSelection ||
+      sourceSelection.answerId !== answer?.submittedAnswerId ||
+      locked
+    )
+      return;
+    if (noteDirty && !window.confirm('Discard this unfinished observation?'))
+      return;
+    setSelected(null);
+    setStart(String(sourceSelection.start));
+    setEnd(String(sourceSelection.end));
+    setExplanation('');
+    setCriterion('');
+    setNoteError('');
+    setNoteDirty(true);
+    if (commentDetails.current) commentDetails.current.open = true;
+    window.requestAnimationFrame(() => commentInput.current?.focus());
   }
   function edit(next: DraftFeedback) {
     controller.edit(next);
@@ -165,6 +236,7 @@ export function AssessmentWorkspace({
     if (noteDirty && !window.confirm('Discard this unfinished observation?'))
       return;
     setNoteDirty(false);
+    setSourceSelection(null);
     const n = feedback!.annotations[index];
     setSelected(index);
     setStart(String(n.startLine));
@@ -172,6 +244,7 @@ export function AssessmentWorkspace({
     setCriterion(n.criterionId);
     setExplanation(n.explanation);
     setNoteError('');
+    if (commentDetails.current) commentDetails.current.open = true;
   }
   async function open(revision?: string, cursor?: string) {
     if (
@@ -209,6 +282,7 @@ export function AssessmentWorkspace({
       else annotations.push(n);
       edit({ ...feedback, annotations });
       resetNote();
+      sourceRegion.current?.focus();
     } catch {
       setNoteError('Choose a valid source line range.');
     }
@@ -313,6 +387,103 @@ export function AssessmentWorkspace({
                   )
               : 'Loading assessment…')}
         </p>
+        {v && !historical && (
+          <details className="assessment-context">
+            <summary>
+              AI assessment draft{s.candidate ? ' · Ready to review' : ''}
+            </summary>
+            {(preview || v.attempt.attemptId.startsWith('sample_')) && (
+              <p>
+                Sample only: no model is used. Suggested scores start at the
+                rubric minimum and are not grades.
+              </p>
+            )}
+            <p>Review suggestions before approval. Code is not executed.</p>
+            <label>
+              <input
+                type="checkbox"
+                checked={includePrivateReferences}
+                disabled={!!s.busy}
+                onChange={(event) =>
+                  setIncludePrivateReferences(event.target.checked)
+                }
+              />{' '}
+              Include instructor-only reference solutions
+            </label>
+            <button
+              className="cw-text-action"
+              disabled={!!s.busy || s.dirty || noteDirty}
+              onClick={() =>
+                void controller.generateAI(includePrivateReferences)
+              }
+            >
+              Generate draft
+            </button>
+            {(s.dirty || noteDirty) && (
+              <p>
+                Save your draft and finish any observation before generating or
+                adopting.
+              </p>
+            )}
+            {s.candidate && (
+              <div>
+                <h3>Private AI suggestion</h3>
+                <p>
+                  Check scores and source observations before adopting this
+                  draft. Remove private reference content before releasing
+                  feedback.
+                </p>
+                {v.publication.questions.map((question, index) => (
+                  <details key={question.questionVersionId}>
+                    <summary>
+                      Question {index + 1}: {question.title}
+                    </summary>
+                    <ul>
+                      {s
+                        .candidate!.payload.criteria.filter(
+                          (item) =>
+                            item.questionVersionId ===
+                            question.questionVersionId,
+                        )
+                        .map((item) => (
+                          <li key={item.criterionId}>
+                            {question.criteria.find(
+                              (criterion) =>
+                                criterion.criterionId === item.criterionId,
+                            )?.descriptor ?? item.criterionId}
+                            : {item.score} / {item.maximumScore} —{' '}
+                            {item.explanation}
+                          </li>
+                        ))}
+                      {s
+                        .candidate!.payload.annotations.filter(
+                          (item) =>
+                            item.questionVersionId ===
+                            question.questionVersionId,
+                        )
+                        .map((item, noteIndex) => (
+                          <li key={'note-' + noteIndex}>
+                            Lines {item.startLine}–{item.endLine}:{' '}
+                            {item.excerpt} — {item.explanation}
+                          </li>
+                        ))}
+                    </ul>
+                  </details>
+                ))}
+                {s.candidate.payload.reviewFlags.map((flag, index) => (
+                  <p key={index}>{flag}</p>
+                ))}
+                <button
+                  className="cw-action"
+                  disabled={!!s.busy || s.dirty || noteDirty}
+                  onClick={() => void controller.adoptAI()}
+                >
+                  Adopt AI draft
+                </button>
+              </div>
+            )}
+          </details>
+        )}
         {!v || !feedback || !q || !answer ? (
           <section className="assessment-empty">
             <h2>Assessment unavailable</h2>
@@ -374,7 +545,7 @@ export function AssessmentWorkspace({
                           type="number"
                           min={c.minimumScore}
                           max={c.maximumScore}
-                          step="0.01"
+                          step="any"
                           value={score.score ?? ''}
                           onChange={(e) => {
                             const criteria = structuredClone(feedback.criteria);
@@ -401,9 +572,6 @@ export function AssessmentWorkspace({
                     </fieldset>
                   );
                 })}
-                <p className="assessment-secondary">
-                  Static source review · no execution
-                </p>
               </section>
               <section
                 className="assessment-work"
@@ -413,31 +581,57 @@ export function AssessmentWorkspace({
                   <h2>Submitted source</h2>
                   <span>Read only</span>
                 </div>
+                {!historical && (
+                  <p className="assessment-secondary">
+                    Select code to add a comment.
+                  </p>
+                )}
                 <div
                   className="assessment-source"
+                  ref={sourceRegion}
                   role="region"
                   aria-label="Immutable submitted Python source"
                   tabIndex={0}
+                  onMouseUp={captureSourceSelection}
+                  onKeyUp={captureSourceSelection}
                 >
                   {answer.source.split('\n').map((line, index) => {
                     const marked = notes.filter(
                         (n) =>
                           index + 1 >= n.startLine && index + 1 <= n.endLine,
                       ),
-                      active =
-                        note?.submittedAnswerId === answer.submittedAnswerId &&
-                        index + 1 >= note.startLine &&
-                        index + 1 <= note.endLine;
+                      draftRange = noteDirty
+                        ? draftSourceLines(
+                            start,
+                            end,
+                            answer.source.split('\n').length,
+                          )
+                        : null,
+                      active = noteDirty
+                        ? !!draftRange &&
+                          index + 1 >= draftRange.start &&
+                          index + 1 <= draftRange.end
+                        : note
+                          ? note.submittedAnswerId ===
+                              answer.submittedAnswerId &&
+                            index + 1 >= note.startLine &&
+                            index + 1 <= note.endLine
+                          : sourceSelection?.answerId ===
+                              answer.submittedAnswerId &&
+                            index + 1 >= sourceSelection.start &&
+                            index + 1 <= sourceSelection.end;
                     return (
                       <div
                         className={
-                          'assessment-line' + (active ? ' is-selected' : '')
+                          'assessment-line' +
+                          (marked.length ? ' is-annotated' : '') +
+                          (active ? ' is-selected' : '')
                         }
                         key={index}
                       >
                         {marked.length ? (
                           <button
-                            aria-label={`Line ${index + 1}, observation ${marked[0].index + 1}`}
+                            aria-label={`Line ${index + 1}, comment ${marked[0].index + 1}`}
                             aria-pressed={selected === marked[0].index}
                             onClick={() => select(marked[0].index)}
                           >
@@ -452,17 +646,42 @@ export function AssessmentWorkspace({
                             {index + 1}
                           </span>
                         )}
-                        <code>{line || '\u00a0'}</code>
+                        <code data-source-line={index + 1}>
+                          {line || '\u00a0'}
+                        </code>
                       </div>
                     );
                   })}
                 </div>
+                {!historical && (
+                  <div className="assessment-actions">
+                    <button
+                      disabled={
+                        !sourceSelection ||
+                        sourceSelection.answerId !== answer.submittedAnswerId ||
+                        locked
+                      }
+                      onClick={commentOnSelection}
+                    >
+                      Comment on selection
+                    </button>
+                    <span
+                      className="assessment-secondary"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {sourceSelection?.answerId === answer.submittedAnswerId
+                        ? `Selected lines ${sourceSelection.start}–${sourceSelection.end}`
+                        : ''}
+                    </span>
+                  </div>
+                )}
                 <section
                   className="assessment-observations"
                   aria-labelledby="observations-heading"
                 >
                   <h3 id="observations-heading">
-                    Observations{' '}
+                    Comments{' '}
                     {!invalidEvidence && (
                       <span className="assessment-secondary">
                         {notes.length}
@@ -476,7 +695,7 @@ export function AssessmentWorkspace({
                     </p>
                   )}
                   {!invalidEvidence && notes.length === 0 ? (
-                    <p className="assessment-secondary">No observations yet.</p>
+                    <p className="assessment-secondary">No comments yet.</p>
                   ) : notes.length > 0 ? (
                     <ol>
                       {notes.map((n) => (
@@ -485,7 +704,7 @@ export function AssessmentWorkspace({
                             aria-pressed={selected === n.index}
                             onClick={() => select(n.index)}
                           >
-                            Observation {n.index + 1} · Lines {n.startLine}–
+                            Comment {n.index + 1} · Lines {n.startLine}–
                             {n.endLine}
                           </button>
                         </li>
@@ -508,62 +727,52 @@ export function AssessmentWorkspace({
                     )}
                   </div>
                   {!historical && (
-                    <details open={selected !== null}>
+                    <details
+                      ref={commentDetails}
+                      hidden={selected === null && !noteDirty}
+                    >
                       <summary>
-                        {selected === null
-                          ? 'Add observation'
-                          : 'Edit observation'}
+                        {selected === null ? 'Add comment' : 'Edit comment'}
                       </summary>
                       <fieldset disabled={locked}>
-                        <div className="assessment-range">
+                        <p>
+                          Lines {start}–{end}
+                        </p>
+                        <details>
+                          <summary>
+                            Rubric item:{' '}
+                            {
+                              q.criteria.find(
+                                (c) =>
+                                  c.criterionId ===
+                                  (criterion || q.criteria[0].criterionId),
+                              )?.descriptor
+                            }
+                          </summary>
                           <label>
-                            First line
-                            <input
-                              inputMode="numeric"
-                              type="number"
-                              min={1}
-                              max={answer.source.split('\n').length}
-                              value={start}
+                            Link comment to rubric item
+                            <select
+                              value={criterion || q.criteria[0].criterionId}
                               onChange={(e) => {
-                                setStart(e.target.value);
+                                setCriterion(e.target.value);
                                 setNoteDirty(true);
                               }}
-                            />
+                            >
+                              {q.criteria.map((c) => (
+                                <option
+                                  key={c.criterionId}
+                                  value={c.criterionId}
+                                >
+                                  {c.descriptor}
+                                </option>
+                              ))}
+                            </select>
                           </label>
-                          <label>
-                            Last line
-                            <input
-                              inputMode="numeric"
-                              type="number"
-                              min={1}
-                              max={answer.source.split('\n').length}
-                              value={end}
-                              onChange={(e) => {
-                                setEnd(e.target.value);
-                                setNoteDirty(true);
-                              }}
-                            />
-                          </label>
-                        </div>
+                        </details>
                         <label>
-                          Criterion
-                          <select
-                            value={criterion || q.criteria[0].criterionId}
-                            onChange={(e) => {
-                              setCriterion(e.target.value);
-                              setNoteDirty(true);
-                            }}
-                          >
-                            {q.criteria.map((c) => (
-                              <option key={c.criterionId} value={c.criterionId}>
-                                {c.descriptor}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label>
-                          Observation
+                          Comment
                           <textarea
+                            ref={commentInput}
                             value={explanation}
                             rows={3}
                             onChange={(e) => {
@@ -576,8 +785,8 @@ export function AssessmentWorkspace({
                         <div className="assessment-actions">
                           <button onClick={observation}>
                             {selected === null
-                              ? 'Add observation'
-                              : 'Update observation'}
+                              ? 'Add comment'
+                              : 'Update comment'}
                           </button>
                           {selected !== null && (
                             <>
@@ -590,12 +799,24 @@ export function AssessmentWorkspace({
                                     ),
                                   });
                                   resetNote();
+                                  sourceRegion.current?.focus();
                                 }}
                               >
                                 Remove
                               </button>
-                              <button onClick={resetNote}>Cancel</button>
                             </>
+                          )}
+                          {(noteDirty || selected !== null) && (
+                            <button
+                              onClick={() => {
+                                resetNote();
+                                if (commentDetails.current)
+                                  commentDetails.current.open = false;
+                                sourceRegion.current?.focus();
+                              }}
+                            >
+                              Cancel
+                            </button>
                           )}
                         </div>
                       </fieldset>
@@ -660,15 +881,15 @@ export function AssessmentWorkspace({
                 </h2>
                 <p>
                   {total === null
-                    ? 'Check scores'
-                    : (total / 100).toFixed(2) + ' scored points'}{' '}
-                  ·{' '}
-                  {
-                    feedback.criteria.filter(
-                      (c) => c.score !== null && c.explanation.trim(),
-                    ).length
-                  }{' '}
-                  / {feedback.criteria.length} criteria complete
+                    ? 'Check the entered scores.'
+                    : feedback.criteria.every((c) => c.score === null)
+                      ? 'No scores yet.'
+                      : `Total entered: ${total / 100} points.`}{' '}
+                  {feedback.criteria.some(
+                    (c) => c.score === null || !c.explanation.trim(),
+                  )
+                    ? 'Add a score and explanation for every rubric item in all questions before approving.'
+                    : 'All rubric items have a score and explanation.'}
                 </p>
               </div>
               <div className="assessment-actions">

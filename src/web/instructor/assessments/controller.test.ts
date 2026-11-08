@@ -65,6 +65,35 @@ function setup() {
   return { api, c: new AssessmentController(api) };
 }
 describe('IAL-08 workbook acknowledgements and version context', () => {
+  it('preserves instructor edits made while an AI draft is generating', async () => {
+    const { api, c } = setup();
+    const pending = deferred<{
+      candidateId: string;
+      payload: import('../../../shared/instructor-contracts/ai').AssessmentDraft;
+    }>();
+    api.generateAI = vi.fn(() => pending.promise);
+    api.adoptAI = vi.fn(async () => view('revision_2'));
+    await c.open('assessment_demo');
+    const generating = c.generateAI(false);
+    const edited = structuredClone(c.state.feedback!);
+    edited.criteria[0].explanation = 'Instructor edit';
+    c.edit(edited);
+    pending.resolve({
+      candidateId: 'candidate_1',
+      payload: {
+        kind: 'assessment-draft',
+        codeExecuted: false,
+        criteria: examples[4].criteria.map((item) => ({ ...item })),
+        annotations: examples[4].annotations.map((item) => ({ ...item })),
+        reviewFlags: [],
+      },
+    });
+    await generating;
+    expect(c.state.feedback?.criteria[0].explanation).toBe('Instructor edit');
+    expect(c.state.dirty).toBe(true);
+    await c.adoptAI();
+    expect(api.adoptAI).not.toHaveBeenCalled();
+  });
   it('reports withdrawal failure without treating it as a successful action', async () => {
     const { api, c } = setup();
     await c.open('assessment_demo');

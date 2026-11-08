@@ -34,7 +34,12 @@ import type {
   PublicationReadPort,
   TrustedPrincipal,
   ReleaseReadPort,
+  AIGatewayPort,
 } from '../ports/contracts';
+import {
+  validateAssessmentDraft,
+  type AssessmentDraft,
+} from '../../../shared/instructor-contracts/ai';
 import type { AssignmentService } from '../assignments/service';
 import { AssessmentRepository, type Receipt } from './repository';
 export function publicationAdapter(
@@ -55,6 +60,7 @@ export class AssessmentService {
     readonly publications: PublicationReadPort | undefined,
     readonly clock: () => Date = () => new Date(),
     readonly nextId: () => string = () => crypto.randomUUID(),
+    readonly ai?: AIGatewayPort<'assessment-draft', AssessmentDraft>,
   ) {}
   async session(request: Request) {
     if (!this.identity) throw new BoundaryError('UNAUTHENTICATED');
@@ -345,6 +351,192 @@ export class AssessmentService {
           createdAt: now,
           provenance: 'manual',
           feedback: cmd.feedback,
+        },
+      },
+    );
+    return this.load(request, value);
+  }
+  async generateAI(request: Request, value: string, raw: unknown) {
+    const cmd = schema((v) => {
+      const o = object(v, [
+        'expectedRevisionId',
+        'requestKey',
+        'includePrivateReferences',
+      ]);
+      assert(
+        typeof o.includePrivateReferences === 'boolean',
+        '$.includePrivateReferences',
+      );
+      return {
+        expectedRevisionId: id(o.expectedRevisionId, '$.expectedRevisionId'),
+        requestKey: id(o.requestKey, '$.requestKey'),
+        includePrivateReferences: o.includePrivateReferences as boolean,
+      };
+    }).parse(raw);
+    const c = await this.context(request, value, true);
+    if (c.head.headRevisionId !== cmd.expectedRevisionId)
+      throw new BoundaryError('REVISION_CONFLICT');
+    if (!this.ai) throw new BoundaryError('AI_DISABLED');
+    const outcome = await this.ai.request(c.principal, {
+      schemaVersion: 1,
+      action: 'assessment-draft',
+      courseId: c.courseId,
+      idempotencyKey: cmd.requestKey,
+      evidenceRefs: [{ kind: 'submission', attemptId: c.attemptId }],
+      outputTokenLimit: 512,
+      includePrivateReferences: cmd.includePrivateReferences,
+    });
+    const fresh = await this.context(request, value, true);
+    if (
+      fresh.principal.userId !== c.principal.userId ||
+      fresh.head.headRevisionId !== cmd.expectedRevisionId ||
+      fresh.fingerprint !== c.fingerprint
+    )
+      throw new BoundaryError('STALE_EVIDENCE');
+    if (outcome.status !== 'succeeded') return { status: outcome.status };
+    const payload = await validateAssessmentDraft(
+      outcome.payload,
+      fresh.publication,
+      fresh.attempt,
+    );
+    await this.repository.saveAICandidate(
+      {
+        id: outcome.requestId,
+        assessment_id: value,
+        actor_id: c.principal.userId,
+        expected_revision_id: cmd.expectedRevisionId,
+        evidence: c.fingerprint,
+        payload: JSON.stringify(payload),
+        prompt_version: outcome.promptVersion,
+        model_version: outcome.modelVersion,
+        created_at: this.clock().toISOString(),
+      },
+      c.courseId,
+      c.principal,
+    );
+    await this.scope(request, value);
+    return {
+      status: 'succeeded' as const,
+      candidateId: outcome.requestId,
+      payload,
+      promptVersion: outcome.promptVersion,
+      modelVersion: outcome.modelVersion,
+    };
+  }
+  async recoverAI(request: Request, value: string) {
+    const c = await this.context(request, value);
+    if (!this.ai) throw new BoundaryError('AI_DISABLED');
+    const candidate = await this.repository.latestAICandidate(
+      value,
+      c.principal.userId,
+      c.head.headRevisionId,
+    );
+    if (!candidate) return { status: 'none' as const };
+    const outcome = await this.ai.readAuthorized(c.principal, candidate.id);
+    if (
+      outcome.status !== 'succeeded' ||
+      candidate.evidence !== c.fingerprint ||
+      outcome.promptVersion !== candidate.prompt_version ||
+      outcome.modelVersion !== candidate.model_version
+    )
+      throw new BoundaryError('STALE_EVIDENCE');
+    const payload = await validateAssessmentDraft(
+      outcome.payload,
+      c.publication,
+      c.attempt,
+    );
+    if (JSON.stringify(payload) !== candidate.payload)
+      throw new BoundaryError('STALE_EVIDENCE');
+    const final = await this.context(request, value);
+    if (
+      final.head.headRevisionId !== c.head.headRevisionId ||
+      final.principal.userId !== c.principal.userId
+    )
+      throw new BoundaryError('STALE_EVIDENCE');
+    return {
+      status: 'succeeded' as const,
+      candidateId: candidate.id,
+      payload,
+      promptVersion: candidate.prompt_version,
+      modelVersion: candidate.model_version,
+    };
+  }
+  async adoptAI(request: Request, value: string, raw: unknown) {
+    const cmd = schema((v) => {
+      const o = object(v, ['candidateId', 'expectedRevisionId']);
+      return {
+        candidateId: id(o.candidateId, '$.candidateId'),
+        expectedRevisionId: id(o.expectedRevisionId, '$.expectedRevisionId'),
+      };
+    }).parse(raw);
+    const c = await this.context(request, value, true);
+    if (c.head.headRevisionId !== cmd.expectedRevisionId)
+      throw new BoundaryError('REVISION_CONFLICT');
+    const candidate = await this.repository.aiCandidate(
+      value,
+      c.principal.userId,
+      cmd.candidateId,
+    );
+    if (!candidate) throw new BoundaryError('NOT_FOUND');
+    if (
+      candidate.expected_revision_id !== cmd.expectedRevisionId ||
+      candidate.evidence !== c.fingerprint
+    )
+      throw new BoundaryError('STALE_EVIDENCE');
+    if (!this.ai) throw new BoundaryError('AI_DISABLED');
+    const outcome = await this.ai.readAuthorized(c.principal, candidate.id);
+    if (outcome.status !== 'succeeded')
+      throw new BoundaryError('STALE_EVIDENCE');
+    const payload = await validateAssessmentDraft(
+      outcome.payload,
+      c.publication,
+      c.attempt,
+    );
+    if (
+      JSON.stringify(payload) !== candidate.payload ||
+      outcome.promptVersion !== candidate.prompt_version ||
+      outcome.modelVersion !== candidate.model_version
+    )
+      throw new BoundaryError('STALE_EVIDENCE');
+    const feedback = draftFeedbackSchema.parse({
+      criteria: payload.criteria.map(
+        ({
+          questionVersionId,
+          rubricVersionId,
+          criterionId,
+          score,
+          explanation,
+        }) => ({
+          questionVersionId,
+          rubricVersionId,
+          criterionId,
+          score,
+          explanation,
+        }),
+      ),
+      annotations: payload.annotations,
+    });
+    await this.validate(feedback, c, true);
+    await this.context(request, value, true);
+    const revisionId = this.nextId(),
+      now = this.clock().toISOString();
+    await this.repository.commit(
+      c.head,
+      { ...c.head, headRevisionId: revisionId, approvedRevisionId: null },
+      c.principal.userId,
+      'adopt-ai',
+      now,
+      {
+        principal: c.principal,
+        aiCandidateId: candidate.id,
+        revision: {
+          id: revisionId,
+          assessmentId: value,
+          parentRevisionId: c.head.headRevisionId,
+          actorId: c.principal.userId,
+          createdAt: now,
+          provenance: 'manual',
+          feedback,
         },
       },
     );

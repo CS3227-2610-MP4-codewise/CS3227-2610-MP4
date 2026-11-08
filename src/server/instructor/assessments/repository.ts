@@ -32,7 +32,7 @@ type RevisionRow = {
   actor_id: string;
   created_at: string;
   feedback: string;
-  provenance: 'manual';
+  provenance: 'manual' | 'ai-assisted';
   sequence: number;
 };
 export type Receipt = {
@@ -42,6 +42,17 @@ export type Receipt = {
   operation: string;
   version: number | null;
   revision_id: string | null;
+};
+export type AICandidate = {
+  id: string;
+  assessment_id: string;
+  actor_id: string;
+  expected_revision_id: string;
+  evidence: string;
+  payload: string;
+  prompt_version: string;
+  model_version: string;
+  created_at: string;
 };
 const head = (r: HeadRow): AssessmentHead => ({
   id: r.id,
@@ -100,6 +111,74 @@ export class AssessmentRepository {
       ? { courseId: r.course_id, attemptId: r.attempt_id, evidence: r.evidence }
       : null;
   }
+  async aiCandidate(
+    assessmentId: string,
+    actorId: string,
+    candidateId: string,
+  ) {
+    return this.db
+      .prepare(
+        'SELECT * FROM instructor_ai_candidates WHERE assessment_id=? AND actor_id=? AND id=?',
+      )
+      .bind(assessmentId, actorId, candidateId)
+      .first<AICandidate>();
+  }
+  async latestAICandidate(
+    assessmentId: string,
+    actorId: string,
+    revisionId: string,
+  ) {
+    return this.db
+      .prepare(
+        'SELECT * FROM instructor_ai_candidates WHERE assessment_id=? AND actor_id=? AND expected_revision_id=? ORDER BY created_at DESC, rowid DESC LIMIT 1',
+      )
+      .bind(assessmentId, actorId, revisionId)
+      .first<AICandidate>();
+  }
+  async saveAICandidate(
+    candidate: AICandidate,
+    courseId: string,
+    principal: TrustedPrincipal,
+  ) {
+    await this.batch(
+      [
+        this.db
+          .prepare(
+            'INSERT OR IGNORE INTO instructor_ai_candidates SELECT ?,id,?,?,?,?,?,?,? FROM instructor_assessments WHERE id=? AND course_id=? AND head_revision_id=? AND evidence=?',
+          )
+          .bind(
+            candidate.id,
+            candidate.actor_id,
+            candidate.expected_revision_id,
+            candidate.evidence,
+            candidate.payload,
+            candidate.prompt_version,
+            candidate.model_version,
+            candidate.created_at,
+            candidate.assessment_id,
+            courseId,
+            candidate.expected_revision_id,
+            candidate.evidence,
+          ),
+      ],
+      courseId,
+      principal,
+    );
+    const stored = await this.aiCandidate(
+      candidate.assessment_id,
+      candidate.actor_id,
+      candidate.id,
+    );
+    if (!stored) throw new BoundaryError('REVISION_CONFLICT');
+    if (
+      stored.expected_revision_id !== candidate.expected_revision_id ||
+      stored.evidence !== candidate.evidence ||
+      stored.payload !== candidate.payload ||
+      stored.prompt_version !== candidate.prompt_version ||
+      stored.model_version !== candidate.model_version
+    )
+      throw new BoundaryError('IDEMPOTENCY_CONFLICT');
+  }
   async receipt(scope: string) {
     return this.db
       .prepare('SELECT * FROM instructor_assessment_receipts WHERE scope=?')
@@ -130,7 +209,7 @@ export class AssessmentRepository {
         r.actorId,
         r.createdAt,
         JSON.stringify(r.feedback),
-        r.provenance,
+        'manual',
       );
   }
   async create(
@@ -223,6 +302,26 @@ export class AssessmentRepository {
       b = results[1].results[0] as RevisionRow | undefined;
     if (!a || !b) throw new BoundaryError('NOT_FOUND');
     const rows = results[2].results as RevisionRow[];
+    const hasAdoptions = await this.db
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='instructor_ai_adoptions'",
+      )
+      .first();
+    const adopted = hasAdoptions
+      ? new Set(
+          (
+            await this.db
+              .prepare(
+                'SELECT x.revision_id FROM instructor_ai_adoptions x JOIN instructor_assessment_revisions r ON r.id=x.revision_id WHERE r.assessment_id=?',
+              )
+              .bind(id)
+              .all<{ revision_id: string }>()
+          ).results.map((r) => r.revision_id),
+        )
+      : new Set<string>();
+    if (adopted.has(b.id)) b.provenance = 'ai-assisted';
+    for (const row of rows)
+      if (adopted.has(row.id)) row.provenance = 'ai-assisted';
     return {
       head: head(a),
       revision: revision(b),
@@ -262,6 +361,7 @@ export class AssessmentRepository {
       release?: Release;
       withdraw?: { version: number; reason: string };
       receipt?: Receipt;
+      aiCandidateId?: string;
     } = {},
   ) {
     const nonce = crypto.randomUUID();
@@ -302,6 +402,12 @@ export class AssessmentRepository {
     ];
     if (options.revision)
       statements.push(this.revisionStatement(options.revision));
+    if (options.aiCandidateId && options.revision)
+      statements.push(
+        this.db
+          .prepare('INSERT INTO instructor_ai_adoptions VALUES(?,?,?,?)')
+          .bind(options.revision.id, options.aiCandidateId, actor, at),
+      );
     if (options.release) {
       const r = options.release;
       statements.push(

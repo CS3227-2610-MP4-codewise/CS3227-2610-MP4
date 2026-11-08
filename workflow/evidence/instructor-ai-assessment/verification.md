@@ -1,0 +1,16 @@
+# Instructor AI assessment verification
+
+Requirements: GRADE-01–04, AI-02/05, UI-01/04/06/07/08; warm-workbook-v1. All submission and gateway fixtures are synthetic.
+
+- Prior focused run: assessment service, controller and gateway suites passed 37 tests, before subsequent recovery and UI repairs.
+- Connected workflow test passed in isolation for generation, recovery and explicit adoption through the actual gateway and synthetic transport, including AI provenance, revoked access and no approval/release. The isolated preview HTTP check also generated a synthetic draft with private references selected; no actual model was called.
+- Firebase Worker test passed in isolation with intercepted synthetic responses. Prior full-suite timeout did not reproduce; no real Firebase operations were performed.
+- Independent review identified provenance projection, recovery, synthetic composition, pending retry and multi-question labeling issues. Repairs were reviewed; reference-selection reset across navigation still needs UI verification.
+- Full `npm run check`: 336 tests passed and 13 failed across four files, including five-second timeouts and Miniflare temporary-directory/poisoned-stub errors. Spec validation, typecheck and lint passed; a later standalone build passed. Serial rerun: 348 passed and one connected synthetic generation returned HTTP 409. That test passed in isolation. Its 10-second synthetic deadline was increased after the failure occurred in a run taking over 10 seconds; whether this was the cause is unconfirmed. The subsequent connected suite passed 9/9.
+- A fresh parallel `npm run check` subsequently passed 346 tests and failed three synthetic authentication cases at the five-second limit. Those three passed with one worker and a 20-second test timeout. That invocation failed, and the intermittent cause is not established. Some UI edits occurred during that run; later separate typecheck and lint passed.
+- Final `npm run check` with `VITEST_MAX_WORKERS=2` passed: strict OpenSpec validation, typecheck, lint, 350 Vitest tests, four deployment tests and production build. The exact default-concurrency invocation had timed out as recorded above. Final focused gateway/controller run passed 23 tests after the last test additions.
+- Latest focused controller/gateway suites passed 22 tests. The synthetic candidate test passed fabricated excerpt, invalid score, revoked access during generation and adoption, stale generation and explicit adoption checks. The connected suite passed nine tests, including revoked recovery and adoption.
+- Browser keyboard/focus, announcements, 320px, 200% zoom, both appearances and manual instructor acceptance remain pending; local browser access was disabled in Work settings. Real submission integration, provider activation and hosted checks are not established.
+- The instructor reported the synthetic flow looked right but felt cluttered; controls were subsequently consolidated into a disclosure and its acceptance remains pending.
+- The instructor could not check the revised layout now. No acceptance is inferred.
+- Model explanations are untrusted and may reproduce instructor reference material; instructors must review and remove private content before releasing feedback. No automated semantic guarantee against disclosure is claimed.

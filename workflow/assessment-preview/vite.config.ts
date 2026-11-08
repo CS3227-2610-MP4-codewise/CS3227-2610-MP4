@@ -3,12 +3,17 @@ import react from '@vitejs/plugin-react';
 import { Readable } from 'node:stream';
 import { resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { assessmentDatabase } from './database';
 import { fixture, origin, cookieName } from './fixture';
 import {
   assessmentHandler,
   ASSESSMENT_API,
 } from '../../src/server/instructor/assessments/http';
+import { AssessmentService } from '../../src/server/instructor/assessments/service';
+import { assessmentResolver } from '../../src/server/ai/assessment';
+import { BoundaryError } from '../../src/shared/instructor-contracts/schema';
+import { syntheticAssessmentGateway } from '../connected-preview/worker';
 export default defineConfig({
   build: {
     outDir: resolve('dist/assessment-preview'),
@@ -24,6 +29,30 @@ export default defineConfig({
           ),
           token = randomBytes(32).toString('hex'),
           f = await fixture(database.db, token);
+        for (const name of [
+          '0013_ai_gateway.sql',
+          '0014_assessment_ai_candidates.sql',
+        ]) {
+          const existing = await database.db
+            .prepare('SELECT name FROM _assessment_migrations WHERE name=?')
+            .bind(name)
+            .first();
+          if (!existing) {
+            const sql = await readFile(
+              'src/server/db/migrations/' + name,
+              'utf8',
+            );
+            await database.db.batch([
+              ...sql
+                .split(/^-- statement\s*$/m)
+                .filter((s) => s.replace(/^--.*$/gm, '').trim())
+                .map((s) => database.db.prepare(s)),
+              database.db
+                .prepare('INSERT INTO _assessment_migrations VALUES(?)')
+                .bind(name),
+            ]);
+          }
+        }
         server.httpServer?.once('close', () => {
           void database.close();
         });
@@ -85,9 +114,59 @@ export default defineConfig({
               );
               return;
             }
-            const response = await assessmentHandler(f.service(request))(
-              request,
+            const base = f.service(request);
+            const resolver = assessmentResolver(
+              async (principal, courseId, attemptId) => {
+                const current = await f.identity.requireSession(request);
+                if (
+                  current.userId !== principal.userId ||
+                  current.sessionHandle !== principal.sessionHandle
+                )
+                  throw new BoundaryError('FORBIDDEN');
+                const match =
+                  /^\/__assessment-preview\/api\/assessments\/([^/]+)/.exec(
+                    new URL(request.url).pathname,
+                  );
+                if (!match) throw new BoundaryError('FORBIDDEN');
+                const view = await service.load(
+                  request,
+                  decodeURIComponent(match[1]),
+                );
+                if (
+                  view.head.courseId !== courseId ||
+                  view.attempt.attemptId !== attemptId
+                )
+                  throw new BoundaryError('FORBIDDEN');
+                return { publication: view.publication, attempt: view.attempt };
+              },
+              async (principal, courseId, versionId) => {
+                await f.identity.requireCourse(
+                  principal,
+                  courseId,
+                  'instructor-read',
+                );
+                const publication = await f.publicationService.privateVersion(
+                  request,
+                  versionId,
+                );
+                if (
+                  publication.publication.courseId !== courseId ||
+                  publication.publication.assignmentVersionId !== versionId
+                )
+                  throw new BoundaryError('FORBIDDEN');
+                return publication.privateReferences;
+              },
             );
+            const service = new AssessmentService(
+              f.repository,
+              f.identity,
+              base.submissions,
+              base.publications,
+              undefined,
+              undefined,
+              syntheticAssessmentGateway(database.db)(resolver),
+            );
+            const response = await assessmentHandler(service)(request);
             res.writeHead(
               response.status,
               Object.fromEntries(response.headers),
