@@ -12,3 +12,13 @@ it('colors Python syntax while escaping source markup', () => {
   expect(result).toContain('&lt;img');
   expect(result).not.toContain('<img');
 });
+it('highlights dotted and ordinary calls without interpreting comments or strings as code', () => {
+  const result = highlightPython(
+    'import math\nmath.floor(2.8)\ncustom()\n# fake.call()\n"fake.call()"\n',
+  );
+  expect(result).toContain('token call-receiver">math');
+  expect(result).toContain('token callable">floor');
+  expect(result).toContain('token callable">custom');
+  expect(result).toContain('token comment"># fake.call()');
+  expect(result).toContain('token string">"fake.call()"');
+});
