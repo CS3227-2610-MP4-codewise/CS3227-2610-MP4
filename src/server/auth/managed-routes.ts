@@ -316,8 +316,19 @@ export class ManagedAuthRoutes extends AuthRoutes {
             throw new BoundaryError('INVALID_CONTRACT');
           const password = passwordValue(input.password);
           await store.rate('password:' + i.email, 5);
-          const setupClaim = account ? null : await store.lockSetup(i.email);
+          const setupProof = account
+            ? null
+            : await store.proof(bearer(input.ticket), 'setup', invite);
+          if (
+            setupProof &&
+            (await this.credentials.inspect(codeValue(input.code))) !== i.email
+          )
+            throw new BoundaryError('UNAUTHENTICATED');
+          const setupClaim = account
+            ? null
+            : await store.lockSetup(i.email, setupProof!);
           let uncertainReset = false;
+          let resetOutcome: 'succeeded' | 'rejected' | null = null;
           try {
             if (setupClaim)
               account = await store.account(i.email, this.credentials.issuer);
@@ -385,8 +396,8 @@ export class ManagedAuthRoutes extends AuthRoutes {
               }
               await store.consume(proof);
               if (!recovering || input.mode === 'reset') {
-                await store.beginSetupReset(i.email, setupClaim!);
                 uncertainReset = true;
+                await store.beginSetupReset(i.email, setupClaim!, proof);
                 let resetEmail;
                 try {
                   resetEmail = await this.credentials.reset(
@@ -394,12 +405,12 @@ export class ManagedAuthRoutes extends AuthRoutes {
                     password,
                   );
                 } catch (error) {
-                  if (error instanceof ProofRejected) uncertainReset = false;
+                  if (error instanceof ProofRejected) resetOutcome = 'rejected';
                   throw error;
                 }
-                uncertainReset = false;
                 if (resetEmail !== i.email)
                   throw new BoundaryError('UNAUTHENTICATED');
+                resetOutcome = 'succeeded';
               }
               await this.credentials.verifyEmail(proof.firebase_uid);
               user = await this.credentials.current(proof.firebase_uid);
@@ -462,6 +473,10 @@ export class ManagedAuthRoutes extends AuthRoutes {
               ),
             });
           } finally {
+            if (setupClaim && resetOutcome) {
+              await store.finishSetupReset(i.email, setupClaim, resetOutcome);
+              uncertainReset = false;
+            }
             if (setupClaim && !uncertainReset)
               await store.unlockSetup(i.email, setupClaim);
           }
@@ -575,8 +590,13 @@ export class ManagedAuthRoutes extends AuthRoutes {
           throw new BoundaryError('FORBIDDEN');
         if (setup && (await store.pending(token!)).target_role !== null)
           throw new BoundaryError('FORBIDDEN');
-        const setupClaim = setup ? await store.lockSetup(proof.email) : null;
+        if ((await this.credentials.inspect(code)) !== proof.email)
+          throw new BoundaryError('UNAUTHENTICATED');
+        const setupClaim = setup
+          ? await store.lockSetup(proof.email, proof)
+          : null;
         let uncertainReset = false;
+        let resetOutcome: 'succeeded' | 'rejected' | null = null;
         try {
           if (
             setup &&
@@ -589,18 +609,20 @@ export class ManagedAuthRoutes extends AuthRoutes {
           if (before.disabled || before.email !== proof.email)
             throw new BoundaryError('UNAUTHENTICATED');
           await store.consume(proof);
-          if (setupClaim) await store.beginSetupReset(proof.email, setupClaim);
           uncertainReset = setup;
+          if (setupClaim)
+            await store.beginSetupReset(proof.email, setupClaim, proof);
           let resetEmail;
           try {
             resetEmail = await this.credentials.reset(code, password);
           } catch (error) {
-            if (error instanceof ProofRejected) uncertainReset = false;
+            if (error instanceof ProofRejected && setupClaim)
+              resetOutcome = 'rejected';
             throw error;
           }
-          uncertainReset = false;
           if (resetEmail !== proof.email)
             throw new BoundaryError('UNAUTHENTICATED');
+          if (setupClaim) resetOutcome = 'succeeded';
           if (setup) {
             await this.credentials.verifyEmail(proof.firebase_uid);
             // Rechecks pending/revoked admission immediately before the D1 acceptance transaction.
@@ -620,6 +642,10 @@ export class ManagedAuthRoutes extends AuthRoutes {
           }
           return json({ ok: true });
         } finally {
+          if (setupClaim && resetOutcome) {
+            await store.finishSetupReset(proof.email, setupClaim, resetOutcome);
+            uncertainReset = false;
+          }
           if (setupClaim && !uncertainReset)
             await store.unlockSetup(proof.email, setupClaim);
         }

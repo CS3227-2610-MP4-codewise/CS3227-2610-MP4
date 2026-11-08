@@ -53,6 +53,7 @@ export default defineConfig({
           '0009_course_creation.sql',
           '0010_invitation_target_role.sql',
           '0011_invitation_identity_recovery.sql',
+          '0012_setup_reset_journal.sql',
         ]) {
           const sql = await readFile(
             'src/server/db/migrations/' + name,
