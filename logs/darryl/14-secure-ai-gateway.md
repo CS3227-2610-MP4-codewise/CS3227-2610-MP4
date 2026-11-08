@@ -382,3 +382,5 @@ SAI-13/14 reconciliation, 2026-11-08: completed main record `turn-5b2a3b979d790c
 
 - Local candidate implementation and extended-timeout tests complete; user acceptance, actual provider capability/quotas/hosted verification, progress consumer review and live activation remain open. `npm run check` failed four auth timeouts plus a later assertion; full 30-second-timeout Vitest run passed 346 tests, and specs/type/lint/deployment checks/build passed separately. Local read-only discovery found 30 RPM and model listing; not staging connectivity.
 - User authorized batched commits/push/PR, not deployment or automatic acceptance. PR is draft while acceptance and provider/integration gates remain. Consult Git history and PR for final publication outcome. No controlled comparison.
+
+SAI-15 publication: draft PR #20, https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/20, targets main at 1a4e0d5. Implementation 2bbb6cb, requirements/evidence 69bc32e, prompt history 45f7d4a; branch pushed. Draft records pending manual acceptance, live provider and hosted validation, and Keith integration. No merge or deployment.
