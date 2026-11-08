@@ -384,3 +384,27 @@ SAI-13/14 reconciliation, 2026-11-08: completed main record `turn-5b2a3b979d790c
 - User authorized batched commits/push/PR, not deployment or automatic acceptance. PR is draft while acceptance and provider/integration gates remain. Consult Git history and PR for final publication outcome. No controlled comparison.
 
 SAI-15 publication: draft PR #20, https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/20, targets main at 1a4e0d5. Implementation 2bbb6cb, requirements/evidence 69bc32e, prompt history 45f7d4a; branch pushed. Draft records pending manual acceptance, live provider and hosted validation, and Keith integration. No merge or deployment.
+
+## Prompt SAI-16 — 2026-11-08 Asia/Singapore (time unavailable)
+
+**Prompt (redacted):** Report connecting the GitHub plugin while publication is in progress.
+
+### Agents spawned
+
+- New agents: None; publication verification uses existing Git and GitHub tooling.
+- Reused agents: None.
+- Main agent: /root; model identity unavailable.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | shared active turn; unavailable | provisional |
+| Children | none | none | none | none | observed | none spawned |
+
+- This steering prompt may share the active turn with SAI-15; per-prompt allocation unavailable. Count any shared turn once and reconcile at the next checkpoint. Later calls and final excluded; cached input is a subset and unlinked review sessions excluded.
+
+### Experiment outcome
+
+- User reported connecting GitHub. The plugin was initially unavailable, so draft PR #20 was created through the existing Git authentication, without exposing credentials. The newly surfaced plugin returned an unknown-tool error during verification; Git push and PR creation succeeded. No deployment or merge. The PR records pending acceptance, provider and integration gates.
+- No controlled comparison; next owner Darryl reviews the draft and Keith reviews the shared consumer boundary.
