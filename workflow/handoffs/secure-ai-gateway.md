@@ -1,0 +1,11 @@
+# Secure AI gateway handoff
+
+Darryl owns the candidate gateway and D1 migration. Requirements AI-01–05, CON-06, OPS-01. Keith owns student progress selection, authorization/currentness and domain validation; no Keith acceptance is inferred.
+
+The server-only entry is `SecureAIGateway` implementing the existing `AIGatewayPort`; supply trusted per-action `resolve` callbacks that reauthorize exact evidence on every invocation and a mandatory async action-domain validator. `assessmentResolver` validates the pinned publication/attempt and uses `validateAssessmentDraft`. Progress has no default resolver/validator, and fails closed if one is absent. The provider adapter receives an action-specific key; all reservations use one shared D1 provider pool and fixed-window policy.
+
+Runtime uses bounded synchronous calls, not detached work. Successful cached results are actor/course/action/evidence/model/prompt scoped and reauthorized on read. Unknown/expired in-flight attempts hold concurrency debt because timeout does not prove remote cancellation; operational reconciliation is not yet implemented. Usage missing from a provider is unavailable; cache copies do not duplicate reported provider usage.
+
+See [setup and activation gates](../evidence/secure-ai-gateway/setup.md) for secrets and provider verification. Local tests and synthetic fixtures do not prove provider quotas, live connectivity, authorization composition, independent cross-environment budgets or deployment. No production route is enabled; review source/tests and record exact producer/consumer revisions before integration. Keith must implement and review progress evidence selection, authorization/currentness and validation and run reusable consumer checks.
+
+Reusable synthetic progress checks are exported by `workflow/contracts/progress-gateway-consumer.ts`. Keith supplies a fresh fixture for each check, including unowned/unreleased evidence, missing validator, invalid provider output, cross-user access and revocation. Passing this suite alone does not establish real integration or replace C-ID/C-REL authorization tests. The current gateway tests also exercise the selected student key using a synthetic resolver; the real progress validator is not supplied.
