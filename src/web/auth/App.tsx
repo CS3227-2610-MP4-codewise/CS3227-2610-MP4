@@ -995,6 +995,7 @@ export function AuthApp() {
                             type="email"
                             autoComplete="off"
                             required
+                            disabled={pending}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                           />
@@ -1003,6 +1004,7 @@ export function AuthApp() {
                           <label htmlFor="invite-role">Role</label>
                           <select
                             id="invite-role"
+                            disabled={pending}
                             value={targetRole}
                             onChange={(e) =>
                               setTargetRole(
