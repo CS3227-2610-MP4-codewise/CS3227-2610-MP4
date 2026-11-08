@@ -171,6 +171,7 @@ describe('Firebase native mail real isolated D1, synthetic provider boundaries',
       '0007_courses.sql',
       '0010_invitation_target_role.sql',
       '0011_invitation_identity_recovery.sql',
+      '0012_setup_reset_journal.sql',
     ]) {
       const sql = await readFile('src/server/db/migrations/' + name, 'utf8');
       await database.db.batch(

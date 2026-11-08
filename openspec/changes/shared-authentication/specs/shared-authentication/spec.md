@@ -97,3 +97,15 @@ The system SHALL support one-time operator-pinned first-admin admission with aut
 #### Scenario: Forged bootstrap, collision or interruption
 - **WHEN** a wrong password/browser-admin flag/cross-site request, existing foreign UID/email, concurrent attempt or interrupted provisioning is encountered
 - **THEN** no unauthorized owner is granted, credentials/mailbox verification are not overwritten, partial work grants no owner access and a correct same-reservation retry may finish once.
+
+### Requirement: SHA-13 Fail-closed setup reset reconciliation
+
+The system SHALL journal setup resets before dispatch and permit claim replacement only after the original execution records a terminal result and ends local continuation. Reconciliation SHALL require fresh proof and current authority, never replay a password change, and leave unknown or legacy operations locked. [AUTH-01–03, SHA-05/08/11]
+
+#### Scenario: Terminal response and interrupted cleanup
+- **WHEN** the original execution records a definitive provider result after ending local continuation, then stops before releasing its claim
+- **THEN** a later setup attempt may replace that exact claim but must prove current mailbox and invitation authority anew; no credential mutation occurs during reconciliation.
+
+#### Scenario: Unknown provider result
+- **WHEN** the provider result or terminal journal write is unknown, or the lock predates the journal
+- **THEN** reconciliation SHALL leave the lock held and SHALL NOT admit, bind or reset the account based on elapsed time or email text.

@@ -158,6 +158,7 @@ describe('course-role invitations against isolated D1 and synthetic mail/provide
     await migrate('0009_course_creation.sql');
     await migrate('0010_invitation_target_role.sql');
     await migrate('0011_invitation_identity_recovery.sql');
+    await migrate('0012_setup_reset_journal.sql');
     store = new ManagedStore(database.db);
     routes = new ManagedAuthRoutes(
       store,
@@ -992,6 +993,206 @@ describe('course-role invitations against isolated D1 and synthetic mail/provide
     } finally {
       rejection.mockRestore();
     }
+  });
+
+  it('recovers a terminal rejection after cleanup fails only with a fresh proof', async () => {
+    const owner = await actor(),
+      firstCourse = await course(owner),
+      secondCourse = await course(owner);
+    const email = crypto.randomUUID() + '@u.nus.edu';
+    const first = await invite(owner, firstCourse, email, 'student');
+    const other = await invite(owner, secondCourse, email, 'instructor');
+    const rejected = vi
+      .spyOn(provider, 'reset')
+      .mockRejectedValueOnce(new ProofRejected());
+    const unlock = vi
+      .spyOn(store, 'unlockSetup')
+      .mockRejectedValueOnce(new Error('synthetic crash during cleanup'));
+    try {
+      expect(
+        (
+          await call(
+            'invitation/join',
+            {
+              invite: first.invite,
+              ticket: first.ticket,
+              code: first.code,
+              password,
+              mode: 'reset',
+            },
+            randomToken(),
+          )
+        ).status,
+      ).not.toBe(200);
+    } finally {
+      rejected.mockRestore();
+      unlock.mockRestore();
+    }
+    expect(
+      await database.db
+        .prepare('SELECT outcome FROM auth_setup_reset_journal WHERE email=?')
+        .bind(email)
+        .first(),
+    ).toEqual({ outcome: 'rejected' });
+    expect(
+      (
+        await call(
+          'invitation/join',
+          {
+            invite: first.invite,
+            ticket: first.ticket,
+            code: first.code,
+            password,
+            mode: 'reset',
+          },
+          randomToken(),
+        )
+      ).status,
+    ).not.toBe(200);
+    expect(await store.account(email, provider.issuer)).toBeNull();
+    expect(
+      (
+        await call(
+          'invitation/join',
+          {
+            invite: other.invite,
+            ticket: other.ticket,
+            code: other.code,
+            password,
+            mode: 'reset',
+          },
+          randomToken(),
+        )
+      ).status,
+    ).not.toBe(200);
+    expect(
+      await database.db
+        .prepare('SELECT phase FROM auth_course_setup_locks WHERE email=?')
+        .bind(email)
+        .first(),
+    ).toEqual({ phase: 'resetting' });
+    expect(
+      (await call('setup/request', { invite: first.invite }, randomToken()))
+        .status,
+    ).toBe(202);
+    const refreshed = new URLSearchParams(
+      new URL(sent.filter((m) => m.email === email).at(-1)!.url).hash.slice(1),
+    );
+    const freshProof = await store.proof(
+      refreshed.get('ticket')!,
+      'setup',
+      first.invite,
+    );
+    await database.db
+      .prepare('UPDATE auth_invites SET revoked_at=? WHERE id=?')
+      .bind(Date.now(), first.id)
+      .run();
+    await expect(store.lockSetup(email, freshProof)).rejects.toThrow();
+    await database.db
+      .prepare('UPDATE auth_invites SET revoked_at=NULL WHERE id=?')
+      .bind(first.id)
+      .run();
+    await database.db
+      .prepare(
+        "UPDATE course_memberships SET active=0 WHERE course_id=? AND user_id=? AND role='instructor'",
+      )
+      .bind(firstCourse, owner.session.user_id)
+      .run();
+    await expect(store.lockSetup(email, freshProof)).rejects.toThrow();
+    await database.db
+      .prepare(
+        "UPDATE course_memberships SET active=1 WHERE course_id=? AND user_id=? AND role='instructor'",
+      )
+      .bind(firstCourse, owner.session.user_id)
+      .run();
+    await expect(
+      store.lockSetup(email, { ...freshProof, firebase_uid: 'wrong_uid' }),
+    ).rejects.toThrow();
+    expect(
+      await database.db
+        .prepare('SELECT phase FROM auth_course_setup_locks WHERE email=?')
+        .bind(email)
+        .first(),
+    ).toEqual({ phase: 'resetting' });
+    const attempts = await Promise.allSettled([
+      store.lockSetup(email, freshProof),
+      store.lockSetup(email, freshProof),
+    ]);
+    const claims = attempts.filter(
+      (item): item is PromiseFulfilledResult<string> =>
+        item.status === 'fulfilled',
+    );
+    expect(claims).toHaveLength(1);
+    await store.unlockSetup(email, claims[0].value);
+    expect(
+      (
+        await call(
+          'invitation/join',
+          {
+            invite: first.invite,
+            ticket: refreshed.get('ticket'),
+            code: refreshed.get('code'),
+            password,
+            mode: 'reset',
+          },
+          randomToken(),
+        )
+      ).status,
+    ).toBe(200);
+    expect(await membership(firstCourse, email, 'student')).toMatchObject({
+      active: 1,
+    });
+    expect(
+      await database.db
+        .prepare('SELECT COUNT(*) AS n FROM auth_setup_reset_reconciliations')
+        .first(),
+    ).toMatchObject({ n: 1 });
+  });
+
+  it('retains an unknown lock when terminal journal persistence fails', async () => {
+    const owner = await actor(),
+      courseId = await course(owner);
+    const email = crypto.randomUUID() + '@u.nus.edu';
+    const i = await invite(owner, courseId, email, 'student');
+    const rejected = vi
+      .spyOn(provider, 'reset')
+      .mockRejectedValueOnce(new ProofRejected());
+    const journal = vi
+      .spyOn(store, 'finishSetupReset')
+      .mockRejectedValueOnce(new Error('synthetic journal interruption'));
+    try {
+      expect(
+        (
+          await call(
+            'invitation/join',
+            {
+              invite: i.invite,
+              ticket: i.ticket,
+              code: i.code,
+              password,
+              mode: 'reset',
+            },
+            randomToken(),
+          )
+        ).status,
+      ).not.toBe(200);
+    } finally {
+      rejected.mockRestore();
+      journal.mockRestore();
+    }
+    expect(
+      await database.db
+        .prepare('SELECT outcome FROM auth_setup_reset_journal WHERE email=?')
+        .bind(email)
+        .first(),
+    ).toEqual({ outcome: null });
+    expect(
+      await database.db
+        .prepare('SELECT phase FROM auth_course_setup_locks WHERE email=?')
+        .bind(email)
+        .first(),
+    ).toEqual({ phase: 'resetting' });
+    expect(await store.account(email, provider.issuer)).toBeNull();
   });
 
   it('retains the lock after an uncertain provider reset outcome', async () => {

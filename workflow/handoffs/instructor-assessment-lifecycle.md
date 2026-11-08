@@ -52,3 +52,9 @@ IAL-11 manual rejection repaired: central course navigation and labelled rows su
 ## PR publication — 2026-11-07
 
 [PR11: Connect instructor grading lifecycle and consistent course navigation](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/11) is open for review as a normal PR. Application producer is b9f3f6de496db9581cd44bb9abaa50219698d604; evidence/planning715d96c and subsequent publication-note commits change documentation only. Branch pushed; manual acceptance/Keith integration/deployment gates remain pending. No merge or deploy performed.
+
+## Instructor UI acceptance continuation — 2026-11-08
+
+Darryl owns the continuation in `.worktrees/instructor-assessment-completion`, base 7b593a7. Requirements COU-01–07, IAL-03/08/11 and UI-01–08; warm-workbook-v1. Scope: pinned observation validation and unavailable state, pending invitation inputs, question focus, and task-status clarification. Independent /root/review inspected changes and re-reviewed fixes. [Review and verification evidence](../evidence/instructor-assessment-lifecycle/ui-acceptance-continuation.md) records actual synthetic browser results and outstanding checks. Prior accepted closure and its limitations are preserved.
+
+On 2026-11-08 Darryl accepted the verified repair group with the stated limitations. The denied-assessment-access/private-view versus unsaved recovery issue needs a separately scoped design and repair. No live delivery, hosted verification, complete UI acceptance, Keith submission/student consumer or joint agreement is claimed. Next owner: Darryl for remaining UI/denial recovery; Keith for his integration and review. The original checkout's pre-existing overlapping changes were preserved.

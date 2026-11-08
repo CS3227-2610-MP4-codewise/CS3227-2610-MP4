@@ -163,28 +163,73 @@ export class ManagedStore extends AuthStore {
       this.db.prepare('DELETE FROM course_write_guards WHERE id=?').bind(guard),
     ]);
   }
-  async lockSetup(email: string) {
+  async lockSetup(email: string, proof: ActionProof) {
     const claim = randomToken(),
       now = this.clock();
     const row = await this.db
       .prepare(
         `INSERT INTO auth_course_setup_locks(email,claim_id,expires_at) VALUES(?,?,?)
-      ON CONFLICT(email) DO UPDATE SET claim_id=excluded.claim_id,expires_at=excluded.expires_at
-      WHERE phase='preparing' AND expires_at<=? RETURNING claim_id`,
+      ON CONFLICT(email) DO UPDATE SET claim_id=excluded.claim_id,expires_at=excluded.expires_at,phase='preparing'
+      WHERE (phase='preparing' AND expires_at<=?) OR
+        (phase='resetting' AND EXISTS (SELECT 1 FROM auth_setup_reset_journal j
+          JOIN auth_invites i ON i.id=j.invite_id AND i.email=j.email AND i.token_hash=j.invite_generation
+          JOIN auth_actions p ON p.id=? AND p.invite_id=i.id AND p.email=j.email AND p.firebase_uid=j.firebase_uid AND p.invite_generation=j.invite_generation AND p.consumed_at IS NULL AND p.expires_at>?
+          WHERE j.claim_id=auth_course_setup_locks.claim_id AND j.email=auth_course_setup_locks.email AND j.terminal_at IS NOT NULL
+          AND j.proof_id<>p.id AND j.firebase_uid=? AND i.revoked_at IS NULL AND i.accepted_at IS NULL
+          AND NOT EXISTS (SELECT 1 FROM auth_accounts a WHERE a.email=j.email OR a.subject=j.firebase_uid)
+          AND (i.target_role IS NULL OR EXISTS (SELECT 1 FROM course_memberships m JOIN auth_accounts a ON a.id=m.user_id AND a.active=1 JOIN courses c ON c.id=m.course_id AND c.active=1 WHERE m.course_id=i.course_id AND m.user_id=i.created_by AND m.role='instructor' AND m.active=1))))
+      RETURNING claim_id`,
       )
-      .bind(email, claim, now + 120000, now)
+      .bind(email, claim, now + 120000, now, proof.id, now, proof.firebase_uid)
       .first();
     if (!row) throw new BoundaryError('RATE_LIMITED');
     return claim;
   }
-  async beginSetupReset(email: string, claim: string) {
+  async beginSetupReset(email: string, claim: string, proof: ActionProof) {
+    if (!proof.invite_id || !proof.invite_generation || proof.email !== email)
+      throw new BoundaryError('FORBIDDEN');
+    const results = await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO auth_setup_reset_journal
+        (claim_id,email,firebase_uid,proof_id,invite_id,invite_generation,started_at)
+        SELECT ?,?,?,?,?,?,? WHERE EXISTS (
+          SELECT 1 FROM auth_course_setup_locks WHERE email=? AND claim_id=? AND phase='preparing')`,
+        )
+        .bind(
+          claim,
+          email,
+          proof.firebase_uid,
+          proof.id,
+          proof.invite_id,
+          proof.invite_generation,
+          this.clock(),
+          email,
+          claim,
+        ),
+      this.db
+        .prepare(
+          "UPDATE auth_course_setup_locks SET phase='resetting' WHERE email=? AND claim_id=? AND phase='preparing' AND EXISTS (SELECT 1 FROM auth_setup_reset_journal WHERE claim_id=? AND email=?)",
+        )
+        .bind(email, claim, claim, email),
+    ]);
+    if (results[0].meta.changes !== 1 || results[1].meta.changes !== 1)
+      throw new BoundaryError('RATE_LIMITED');
+  }
+  async finishSetupReset(
+    email: string,
+    claim: string,
+    outcome: 'succeeded' | 'rejected',
+  ) {
     const row = await this.db
       .prepare(
-        "UPDATE auth_course_setup_locks SET phase='resetting' WHERE email=? AND claim_id=? AND phase='preparing' RETURNING claim_id",
+        `UPDATE auth_setup_reset_journal SET terminal_at=?,outcome=?
+      WHERE claim_id=? AND email=? AND terminal_at IS NULL AND EXISTS
+      (SELECT 1 FROM auth_course_setup_locks WHERE email=? AND claim_id=? AND phase='resetting') RETURNING claim_id`,
       )
-      .bind(email, claim)
+      .bind(this.clock(), outcome, claim, email, email, claim)
       .first();
-    if (!row) throw new BoundaryError('RATE_LIMITED');
+    if (!row) throw new BoundaryError('FORBIDDEN');
   }
   async unlockSetup(email: string, claim: string) {
     await this.db

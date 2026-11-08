@@ -81,3 +81,10 @@ Detailed implementation/verification tasks live in [course-onboarding](../course
 - [ ] 10.1 Extend first-admin creator eligibility and invitation Student/Instructor target/authority while preserving exact account/session/provider identity and mail audit; verify COU-01/03/07 with shared C-ID review.
 - [ ] 10.2 Implement new-versus-registered recipient password branch and atomic authenticated course-role acceptance with replay/revocation/partial-failure recovery; verify COU-04/05, existing password preservation and one stable account.
 - [ ] 10.3 Verify composed allowed-context role discovery and both opposite-role dashboard journeys with the actual Keith consumer, plus authorized controlled mail/hosted evidence and manual acceptance. Keep unexecuted integration pending.
+
+## 11. Setup-reset reconciliation — approved 2026-11-08
+
+- [x] 11.1 Record Darryl's exclusive auth migration/write window; preserve legacy locks and existing account and proof boundaries. [AUTH-01–03, SHA-05/08/11/13]
+- [x] 11.2 Journal claim-bound reset dispatch and terminal completion; permit safe exact-claim recovery without provider replay, fresh proof required; leave unknown outcomes locked. [SHA-05/08/11/13]
+- [x] 11.3 Test interrupted/crashed, terminal retry, wrong account, stale proof, revoked invitation, concurrency and legacy lock paths with synthetic provider and local D1; independent security review and focused re-review. [AUTH-01–03, SHA-05/08/11/13] — Focused cases pass; live provider settlement remains unverified.
+- [ ] 11.4 Run required checks and provide redacted operator escalation and user acceptance checklist; live provider/hosted and Keith integration remain pending. [SHA-13]

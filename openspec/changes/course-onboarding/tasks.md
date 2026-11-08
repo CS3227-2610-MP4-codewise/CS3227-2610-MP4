@@ -1,6 +1,6 @@
 # Tasks
 
-Planning only: Darryl confirmed the product target on2026-11-07. All implementation, live delivery, joint review and acceptance tasks remain pending. Detailed work here is authoritative for COU-01–07; MVP roadmap links these increments. Preserve warm-workbook-v1 and existing AUTH/SHA/C-ID contracts. Do not implement Keith's student features.
+Darryl confirmed the product target on 2026-11-07. Local implementation exists for portions of these flows, as recorded in the task notes and handoffs; unchecked tasks include outstanding verification or integration and do not imply that all code is absent. Live delivery, Keith's consumer integration and joint review remain pending. Detailed work here is authoritative for COU-01–07; MVP roadmap links these increments. Preserve warm-workbook-v1 and existing AUTH/SHA/C-ID contracts. Do not implement Keith's student features.
 
 ## 1. Shared boundary and rollout preparation
 

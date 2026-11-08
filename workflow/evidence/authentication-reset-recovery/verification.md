@@ -1,0 +1,19 @@
+# Setup-reset recovery evidence
+
+Owner: Darryl. Requirements: AUTH-01–03, SHA-05/08/11/13. Base 06b5f6c, local uncommitted implementation. Independent read-only reviewer /root/reset_review identified takeover phase and audit gaps; repaired and source re-reviewed. No live provider/account operation was performed.
+
+## Procedure and boundaries
+
+A resetting claim is coupled to an operation journal before dispatch. Provider success or definitive proof rejection is recorded as terminal only after the original execution's local continuation has ended; the only following action is claim-specific cleanup. A later attempt may atomically replace the exact terminal claim, resetting its phase and recording old/new claim IDs and time. The takeover requires a different unconsumed, unexpired proof for the same invitation generation and provider UID, a still-pending invitation and no admitted identity collision. For role invitations the original inviter and course must still be active. The route checks the provider proof before claiming and rechecks authorization and identity before admission. It never replays the provider mutation during takeover. New setup uses the recipient's explicit credential choice.
+
+Legacy resetting rows without journal, missing/unknown terminal records, expired/consumed/wrong-invitation proofs, changed UIDs, revoked invites or inviter, and local collisions stay blocked. Client timeout, age, provider password timestamps, invalid code and email match are not settlement evidence. Operators should retain the lock, record redacted environment and correlation metadata, and escalate to the service owner/provider. Do not delete a lock, change a password, admit a user or infer settlement from this runbook. No documented provider settlement guarantee or live reconciliation method is established here. Normal admitted-account password reset is outside this change.
+
+## Verification
+
+Focused reset interruption, terminal-retry and legacy lock tests passed 3/3 with 30-second timeout; 36 unrelated cases were skipped in that focused run. An earlier two-file run passed 64 cases and timed out on three unrelated invitation cases at the default five-second limit. Full project check and final independent review are recorded separately. Synthetic tests do not establish hosted provider behavior, production migration success, mail delivery, or Keith integration.
+
+Project checkpoint: `VITEST_MAX_WORKERS=2 npm run check` passed strict validation of eight changes, typecheck, lint, 314 tests across 28 files, four deployment checks and build. The test file was extended afterward, so final focused results and repeated static checks are reported separately. Earlier strict validation rejected an overlong SHA-13 requirement; shortening its normative text resolved that warning without removing the scenarios. Earlier full auth run had three default-timeout failures, retained above.
+
+Final focused checkpoint: four interruption/terminal-retry/legacy-lock/journal-failure tests passed with 30-second timeout and one worker (36 cases skipped); the terminal retry includes consumed proof, wrong invitation, wrong UID, revoked inviter, concurrent takeover and audit assertions. Typecheck and lint passed again after the final test edit. Full-suite result above precedes the final two test edits, which were covered by this focused run. A distinct terminal-lock revoked-invitation test and live provider settlement remain unverified; task 11.3 remains open pending complete scenario reconciliation.
+
+Follow-up: the distinct terminal-lock revoked-invitation guard was exercised in the final synthetic recovery test; all four focused tests passed, followed by typecheck and lint. This supersedes only the earlier note that this synthetic case was unverified. Live provider settlement remains unverified.
