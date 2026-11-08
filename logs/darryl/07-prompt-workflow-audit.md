@@ -482,3 +482,65 @@ Source `turn-9effde2fa11331042640d07d`, completed: input 732,374, cached input 5
 ### Experiment outcome
 
 Checked worktree inventory: main is not checked out in any listed worktree. Explain fetch into local main without switching or affecting current edits; distinguish that from merging main into current branch, which can require conflict resolution. No fetch/ref mutation/stash/merge/reset performed for this question; only required log append. Current changes preserved.
+
+### Prior prompt reconciliation — 2026-11-08T12:23:57.035Z
+
+Source `turn-1e35c64515fe6470dc123fc1`, completed: input 744,817, cached input 743,680, output 988, total 745,805. Supersedes its provisional snapshot; count once.
+
+## Prompt P029 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Ask whether the marking rubric is AI-generated or manually entered by the grader.
+
+### Agents spawned
+
+- **New agents:**
+  - None — reading the existing UI and assessment requirements is sufficient for this explanation.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`.
+
+### Token count
+
+**Usage report for P029:**
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/root` | 434,319 | 216,960 | 338 | 434,657 | `turn-b4f26cd2480c2c87cff77532` | Provisional; later calls/final excluded |
+| Child agents | 0 | 0 | 0 | 0 | None | No child activity |
+
+- Source/checkpoint: `per_response_usage`, `2026-11-08T12:23:57.035Z`; cached/reasoning subsets not added. Finalize next checkpoint.
+
+### Experiment outcome
+
+Inspected actual rubric inputs in AssignmentWorkspace and SUB-01/GRADE-01 requirements. Current rubric is instructor-authored: comparison key/name, scoring descriptor and score bounds. AI assessment consumes the pinned rubric to propose scores/evidence/explanations for instructor review; rubric generation is not an approved existing requirement. Explain optional future drafting assistance as a proposal, not committed scope. No product, planning, deployment or Git publication changes; only this mandatory log append. Existing measured-evaluation work untouched.
+
+### P029 reconciliation — 2026-11-08T12:26:19.322Z
+
+Source `turn-b4f26cd2480c2c87cff77532`, completed: input 876,264, cached input 655,360, output 1,271, total 877,535. Supersedes its earlier snapshot; count once.
+
+## Prompt P030 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Is AI involved during assignment creation?
+
+### Agents spawned
+
+- **New agents:**
+  - None — direct source/spec clarification needs no separate agent.
+- **Reused agents:**
+  - None.
+- **Main agent:** `/root`.
+
+### Token count
+
+**Usage report for P030:**
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/root` | 222,055 | 221,952 | 274 | 222,329 | `turn-08a59e0ad7b37a4906c228cc` | Provisional; later calls/final excluded |
+| Child agents | 0 | 0 | 0 | 0 | None | No children used |
+
+- Source/checkpoint: `per_response_usage`, `2026-11-08T12:26:19.322Z`; cached/reasoning subsets not added. Finalize at next checkpoint.
+
+### Experiment outcome
+
+Checked AssignmentService dependencies and assignment authoring code against the already-read SUB-01/GRADE-01 requirements. Assignment creation is manual; AI assessment later proposes scores/feedback using the existing rubric. AI question/starter/rubric drafting is possible future scope, not the current implementation/approved plan. Initial search referenced a nonexistent routes.ts and matched await as an ai substring; corrected to actual directories with word boundaries. No runtime tests or feature/planning/Git changes; mandatory log only.
