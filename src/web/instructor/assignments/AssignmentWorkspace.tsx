@@ -11,6 +11,7 @@ import type {
   DraftSummary,
 } from '../../../shared/instructor-contracts/authoring';
 import { highlightPython } from './python-highlight';
+import { InstructionEditor } from './InstructionEditor';
 import { Action, StatusMessage, QuestionNavigation } from '../../ui/primitives';
 import {
   AssignmentController,
@@ -852,20 +853,14 @@ export function AssignmentWorkspace({
                                     }
                                   />
                                 </Field>
-                                <Field label="Instructions for students">
-                                  <textarea
-                                    rows={6}
-                                    maxLength={16384}
-                                    readOnly={locked}
-                                    value={question.instructions}
-                                    placeholder="Describe the task and what students should produce."
-                                    onChange={(event) =>
-                                      editQuestion({
-                                        instructions: event.target.value,
-                                      })
-                                    }
-                                  />
-                                </Field>
+                                <InstructionEditor
+                                  key={question.questionId}
+                                  readOnly={locked}
+                                  value={question.instructions}
+                                  onChange={(instructions) =>
+                                    editQuestion({ instructions })
+                                  }
+                                />
                                 <details className="ia-options">
                                   <summary>Question options</summary>
                                   <div className="ia-actions">

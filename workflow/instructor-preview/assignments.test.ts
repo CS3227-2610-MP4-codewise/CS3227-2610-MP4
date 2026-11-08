@@ -139,6 +139,26 @@ describe('actual local D1 instructor publication', () => {
       payload,
     });
   }
+  it('persists Markdown instruction source through draft and publication without changing the v1 projection', async () => {
+    const payload = validAuthoring();
+    const source = '**Bold** and <u>underlined</u>\n\n> A quoted note';
+    payload.questions[0].instructions = source;
+    const draft = await saved(payload);
+    expect(
+      (await service.load(request(), draft.assignmentId)).payload.questions[0]
+        .instructions,
+    ).toBe(source);
+    const published = await service.publish(
+      request('POST'),
+      draft.assignmentId,
+      { expectedRevision: draft.revision, idempotencyKey: 'markdown_source' },
+    );
+    expect(published.publication.questions[0].instructions).toBe(source);
+    expect(
+      (await service.publicVersion(request(), published.assignmentVersionId))
+        .questions[0].instructions,
+    ).toBe(source);
+  });
   it('rejects invalid saved publication content without any receipt', async () => {
     const cases = [
       (p: Authoring) => {
