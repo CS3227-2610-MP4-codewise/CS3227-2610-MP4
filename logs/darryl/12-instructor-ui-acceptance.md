@@ -91,3 +91,5 @@ IUA-02 reconciliation, 2026-11-08: completed main record `turn-c306797441c19acb8
 - Evidence: `workflow/evidence/instructor-assessment-lifecycle/ui-acceptance-continuation.md`; prior check result: reduced-concurrency full check passed 313 application and 4 deployment tests, specs/type/lint/build.
 - Comparison: no controlled comparison; token totals alone do not prove efficiency.
 - Blockers / next owner: Darryl for remaining UI verification and separate denial/recovery iteration; Keith for his student/submission integration and review. Live delivery and hosted checks remain open.
+
+IUA-03 reconciliation, 2026-11-08: completed main record `turn-8e240545e7203576f4820d62`, group `01a1b990-16c8-7a91-b5e3-4aa93f8cfe59`: input 1598904, cached input 1589120, output 3813, total 1602717; per-response usage, no warnings. Supersedes the provisional snapshot; count the completed turn once. No child agents spawned.
