@@ -16,7 +16,7 @@ import { Brand, Icon } from '../../ui/brand';
 import { AccountMenu } from '../../ui/account-menu';
 import { CourseNavigation } from '../../ui/course-navigation';
 import { WorkspaceSwitch } from '../../ui/workspace-switch';
-import { feedbackVisibility } from './presentation';
+import { feedbackVisibility, observationMatches } from './presentation';
 import { AssessmentController } from './controller';
 import './styles.css';
 export function AssessmentWorkspace({
@@ -51,9 +51,16 @@ export function AssessmentWorkspace({
     ),
     [publicStatus, setPublicStatus] = useState('');
   const heading = useRef<HTMLHeadingElement>(null),
+    focusQuestion = useRef(false),
     auditEpoch = useRef(0),
     reviewHeading = useRef<HTMLHeadingElement>(null),
     publicEpoch = useRef(0);
+  useEffect(() => {
+    if (focusQuestion.current) {
+      focusQuestion.current = false;
+      heading.current?.focus();
+    }
+  }, [question]);
   useEffect(() => {
     publicEpoch.current++;
     setPublicFeedback(null);
@@ -88,11 +95,22 @@ export function AssessmentWorkspace({
     ),
     historical = !!s.selectedRevision,
     locked = historical || (!!s.busy && s.busy !== 'Saving');
+  const invalidEvidence =
+    !!v &&
+    !!feedback &&
+    feedback.annotations.some((item) => !observationMatches(item, v));
   const notes =
       feedback?.annotations
         .map((n, index) => ({ ...n, index }))
-        .filter((n) => n.submittedAnswerId === answer?.submittedAnswerId) ?? [],
-    note = selected === null ? undefined : feedback?.annotations[selected];
+        .filter(
+          (n) =>
+            !invalidEvidence &&
+            n.submittedAnswerId === answer?.submittedAnswerId,
+        ) ?? [],
+    note =
+      selected === null || invalidEvidence
+        ? undefined
+        : feedback?.annotations[selected];
   async function loadPublic(version: number) {
     const epoch = ++publicEpoch.current;
     setPublicFeedback(null);
@@ -445,11 +463,21 @@ export function AssessmentWorkspace({
                 >
                   <h3 id="observations-heading">
                     Observations{' '}
-                    <span className="assessment-secondary">{notes.length}</span>
+                    {!invalidEvidence && (
+                      <span className="assessment-secondary">
+                        {notes.length}
+                      </span>
+                    )}
                   </h3>
-                  {notes.length === 0 ? (
+                  {invalidEvidence && (
+                    <p role="alert">
+                      Observation evidence is unavailable because it does not
+                      match the pinned source. Reload or contact support.
+                    </p>
+                  )}
+                  {!invalidEvidence && notes.length === 0 ? (
                     <p className="assessment-secondary">No observations yet.</p>
-                  ) : (
+                  ) : notes.length > 0 ? (
                     <ol>
                       {notes.map((n) => (
                         <li key={n.index}>
@@ -463,7 +491,7 @@ export function AssessmentWorkspace({
                         </li>
                       ))}
                     </ol>
-                  )}
+                  ) : null}
                   <div role="status" aria-live="polite" aria-atomic="true">
                     {note && (
                       <aside className="assessment-note">
@@ -588,9 +616,9 @@ export function AssessmentWorkspace({
                     !window.confirm('Discard this unfinished observation?')
                   )
                     return;
+                  focusQuestion.current = true;
                   setQuestion(question - 1);
                   resetNote();
-                  queueMicrotask(() => heading.current?.focus());
                 }}
               >
                 <Icon name="arrow-left" />
@@ -611,9 +639,9 @@ export function AssessmentWorkspace({
                     reviewHeading.current?.scrollIntoView({ block: 'start' });
                     return;
                   }
+                  focusQuestion.current = true;
                   setQuestion(question + 1);
                   resetNote();
-                  queueMicrotask(() => heading.current?.focus());
                 }}
               >
                 {question === v.publication.questions.length - 1

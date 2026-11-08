@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { feedbackVisibility } from './presentation';
+import { feedbackVisibility, observationMatches } from './presentation';
+import type { Workspace } from './client';
 describe('IAL-11/UI-04/UI-08 displayed feedback visibility', () => {
   const releases = [
     { revisionId: 'original', version: 1, withdrawnAt: null },
@@ -32,5 +33,61 @@ describe('IAL-11/UI-04/UI-08 displayed feedback visibility', () => {
     expect(feedbackVisibility('old-draft', 2, releases, true)).toBe(
       'Historical draft · Private',
     );
+  });
+});
+
+describe('IAL-03 pinned observation evidence', () => {
+  const workspace = {
+    attempt: {
+      answers: [
+        {
+          submittedAnswerId: 'a',
+          questionVersionId: 'q',
+          rubricVersionId: 'r',
+          source: 'λ\nlast\n',
+        },
+      ],
+    },
+    publication: {
+      questions: [
+        {
+          questionVersionId: 'q',
+          rubricVersionId: 'r',
+          criteria: [{ criterionId: 'c' }],
+        },
+      ],
+    },
+  } as unknown as Workspace;
+  const note = {
+    submittedAnswerId: 'a',
+    questionVersionId: 'q',
+    rubricVersionId: 'r',
+    criterionId: 'c',
+    startLine: 1,
+    endLine: 2,
+    excerpt: 'λ\nlast',
+    explanation: 'note',
+  };
+  it('matches exact Unicode and trailing empty logical lines', () => {
+    expect(observationMatches(note, workspace)).toBe(true);
+    expect(
+      observationMatches(
+        { ...note, startLine: 3, endLine: 3, excerpt: '' },
+        workspace,
+      ),
+    ).toBe(true);
+  });
+  it('rejects mismatched, out-of-range and foreign evidence', () => {
+    for (const changed of [
+      { excerpt: 'wrong' },
+      { endLine: 4 },
+      { submittedAnswerId: 'other' },
+      { questionVersionId: 'other' },
+      { rubricVersionId: 'other' },
+      { criterionId: 'other' },
+    ])
+      expect(observationMatches({ ...note, ...changed }, workspace)).toBe(
+        false,
+      );
   });
 });
