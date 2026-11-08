@@ -16,6 +16,7 @@ import { assignmentHandler } from './instructor/assignments/http';
 import {
   AssessmentWorkflow,
   type SubmissionCatalog,
+  type AssessmentGatewayFactory,
 } from './instructor/assessments/workflow';
 import { AssessmentRepository } from './instructor/assessments/repository';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
@@ -63,6 +64,7 @@ export interface DevelopmentPorts {
     assignments: AssignmentService;
     request: Request;
   }) => SubmissionCatalog;
+  localAssessmentGateway?: (db: D1Database) => AssessmentGatewayFactory;
 }
 export function allowLocalSamples(
   env: Environment,
@@ -162,6 +164,9 @@ export function createApplication(ports: DevelopmentPorts = {}) {
             }),
             allowLocalSamples(env, request, config?.origin)
               ? ports.localSubmissions?.({ assignments, request })
+              : undefined,
+            allowLocalSamples(env, request, config?.origin)
+              ? ports.localAssessmentGateway?.(env.DB)
               : undefined,
           );
         };

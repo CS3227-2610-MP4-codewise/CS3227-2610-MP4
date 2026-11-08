@@ -29,7 +29,7 @@ const baseKeys = [
   'outputTokenLimit',
 ];
 function decodeRequest(v: unknown) {
-  const o = object(v, baseKeys);
+  const o = object(v, baseKeys, '$', ['includePrivateReferences']);
   const common = {
     schemaVersion: literal(o.schemaVersion, 1, '$.schemaVersion'),
     courseId: id(o.courseId, '$.courseId'),
@@ -38,6 +38,12 @@ function decodeRequest(v: unknown) {
   };
   const action = oneOf(o.action, actions, '$.action');
   if (action === 'assessment-draft') {
+    assert(
+      o.includePrivateReferences === undefined ||
+        typeof o.includePrivateReferences === 'boolean',
+      '$.includePrivateReferences',
+      'boolean',
+    );
     const evidenceRefs = array(
       o.evidenceRefs,
       (v, p) => {
@@ -51,8 +57,19 @@ function decodeRequest(v: unknown) {
       1,
       1,
     );
-    return { ...common, action, evidenceRefs };
+    return {
+      ...common,
+      action,
+      evidenceRefs,
+      ...(o.includePrivateReferences === undefined
+        ? {}
+        : { includePrivateReferences: o.includePrivateReferences as boolean }),
+    };
   }
+  assert(
+    o.includePrivateReferences === undefined,
+    '$.includePrivateReferences',
+  );
   const evidenceRefs = array(
     o.evidenceRefs,
     (v, p) => {

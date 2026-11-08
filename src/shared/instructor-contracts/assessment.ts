@@ -112,7 +112,7 @@ export type AssessmentRevision = {
   parentRevisionId: string | null;
   actorId: string;
   createdAt: string;
-  provenance: 'manual';
+  provenance: 'manual' | 'ai-assisted';
   feedback: DraftFeedback;
 };
 export type AssessmentView = {

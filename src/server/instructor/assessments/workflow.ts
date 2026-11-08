@@ -15,6 +15,13 @@ import { readJson } from '../assignments/http';
 import { AssessmentRepository } from './repository';
 import { AssessmentService, publicationAdapter } from './service';
 import { assessmentHandler } from './http';
+import { assessmentResolver } from '../../ai/assessment';
+import type { GatewayResolver } from '../../ai/gateway';
+import type { AssessmentDraft } from '../../../shared/instructor-contracts/ai';
+import type { AIGatewayPort } from '../ports/contracts';
+export type AssessmentGatewayFactory = (
+  resolver: GatewayResolver<'assessment-draft', AssessmentDraft>,
+) => AIGatewayPort<'assessment-draft', AssessmentDraft>;
 export interface SubmissionCatalog extends SubmissionReadPort {
   readonly sampleMode: boolean;
   scope(
@@ -41,6 +48,7 @@ export class AssessmentWorkflow {
     readonly assignments: AssignmentService,
     readonly repository: AssessmentRepository,
     readonly submissions?: SubmissionCatalog,
+    gatewayFactory?: AssessmentGatewayFactory,
   ) {
     const identity: IdentityCoursePort = {
       ...base,
@@ -68,11 +76,54 @@ export class AssessmentWorkflow {
         return base.requireObject(p, target, action);
       },
     };
+    const resolver = assessmentResolver(
+      async (principal, courseId, attemptId) => {
+        const current = await base.requireSession(request);
+        if (
+          current.userId !== principal.userId ||
+          current.sessionHandle !== principal.sessionHandle
+        )
+          throw new BoundaryError('FORBIDDEN');
+        const match = /^\/api\/instructor\/assessments\/([^/]+)/.exec(
+          new URL(request.url).pathname,
+        );
+        if (!match) throw new BoundaryError('FORBIDDEN');
+        const view = await this.service.load(
+          request,
+          decodeURIComponent(match[1]),
+        );
+        if (
+          view.head.courseId !== courseId ||
+          view.attempt.attemptId !== attemptId
+        )
+          throw new BoundaryError('FORBIDDEN');
+        return { publication: view.publication, attempt: view.attempt };
+      },
+      async (principal, courseId, versionId) => {
+        const current = await base.requireSession(request);
+        if (
+          current.userId !== principal.userId ||
+          current.sessionHandle !== principal.sessionHandle
+        )
+          throw new BoundaryError('FORBIDDEN');
+        await base.requireCourse(current, courseId, 'instructor-read');
+        const result = await assignments.privateVersion(request, versionId);
+        if (
+          result.publication.courseId !== courseId ||
+          result.publication.assignmentVersionId !== versionId
+        )
+          throw new BoundaryError('FORBIDDEN');
+        return result.privateReferences;
+      },
+    );
     this.service = new AssessmentService(
       repository,
       identity,
       submissions,
       publicationAdapter(assignments, request),
+      undefined,
+      undefined,
+      gatewayFactory?.(resolver),
     );
   }
   async authorizeDestination(principal: TrustedPrincipal, destination: string) {
