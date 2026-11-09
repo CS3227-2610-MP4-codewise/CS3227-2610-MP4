@@ -472,6 +472,20 @@ class TrackerTest(unittest.TestCase):
                 self.assertIn('unsupported',self.tracker.snapshot()['sources'][0]['warning'])
                 with self.assertRaises(ValueError):self.tracker.current_turn('session-a')
 
+    def test_snapshot_exports_linked_members_without_admitted_turns(self):
+        self.attach();self.tracker.link_child('session-a','turn-a','child');self.tracker.db.commit()
+        self.tracker.control('session-a','pause')
+        snapshot=self.tracker.snapshot('test-increment')
+        self.assertEqual({'session-a','child'},{m['session_id'] for m in snapshot['members']})
+        self.assertEqual({'session-a'},{a['session_id'] for a in snapshot['admitted_turns']})
+        child=next(m for m in snapshot['members'] if m['session_id']=='child')
+        self.assertEqual('session-a',child['parent'])
+        self.assertEqual(snapshot['runs'][0]['id'],child['run_id'])
+        exported=mod.export_summary(self.tracker,'test-increment',self.root/'export')
+        summary=json.loads((exported/'summary.json').read_text())
+        self.assertEqual(snapshot['members'],summary['members'])
+        self.assertNotIn(str(self.source),json.dumps(summary))
+
     def test_nested_children_require_actual_links_during_recording(self):
         self.attach()
         self.assertTrue(self.tracker.link_child('session-a','turn-a','child'))

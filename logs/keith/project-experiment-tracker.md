@@ -121,3 +121,16 @@ Implement explicit recording windows, graceful lifecycle controls, root roles an
 - Both original bugs reproduced before repair. All 69 tracker cases now pass, including eight new cases with malformed callback CLI checks, coverage/export/increment isolation and late-usage recovery. Full Node 24.21.0 project check passes (14 strict changes, type/lint, 376 Vitest cases, four deployment cases and build); whitespace checks pass.
 - [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#usage-coverage-and-malformed-header-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#usage-coverage-and-header-repair-continuation--2026-11-09).
 - Existing private tracker sync/report succeeded without starting/resuming recording. Current-request usage unavailable; historical exports unchanged. Publish the follow-up to PR #23. No merge, deployment or live-client callback verification. Next owner: Keith for PR review and separately opted-in live verification.
+
+
+## Request
+
+2026-11-09: Verify linked-but-unadmitted report membership and coverage leaking across active filters.
+
+## Results
+
+- Human owner: Keith. User supplied both findings; main reproduced and repaired them without child agents or independent review. Requirements EXP-01/02/04/09; tasks 6.6–6.7 complete, overall 14/15, with live-client task 5.4 still open.
+- Export actual run members, select linked sessions independently of admissions and show attached/missing source rows. Recompute dashboard coverage/status for selected increments/groups/runs/sessions. Retain source-wide warning, model/annotation scope and workspace-wide overhead limitations explicitly.
+- Python baseline lacked member exports. A DOM test harness URL issue was corrected before comparison; all seven initial dashboard cases failed against original HTML. After repair, 70 Python cases and 12 dashboard DOM regressions pass. Full project check passes on Node 24.21.0: 14 strict changes, type/lint, 388 Vitest cases in 36 files including report tests, four deployment cases and build; whitespace checks pass.
+- [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#dashboard-membership-and-filter-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#dashboard-membershipfilter-continuation--2026-11-09).
+- Existing private sync/report succeeded without starting/resuming recording; current-request measured usage unavailable. Historical shared exports unchanged. Publish the follow-up in PR #23; no merge, deployment, live callback or manual visual acceptance. Next owner: Keith for PR review and separately opted-in live verification.

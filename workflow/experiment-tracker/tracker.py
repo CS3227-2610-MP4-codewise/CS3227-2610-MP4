@@ -416,7 +416,8 @@ class Tracker(Recording):
         runs=[dict(r) for r in self.db.execute('SELECT * FROM runs ORDER BY created')
               if increment is None or r['increment_id']==increment]
         run_ids={r['id'] for r in runs}
-        member_ids={r['session_id'] for r in self.db.execute('SELECT * FROM members') if r['run_id'] in run_ids}
+        members=[dict(r) for r in self.db.execute('SELECT * FROM members') if r['run_id'] in run_ids]
+        member_ids={r['session_id'] for r in members}
         sessions = [dict(r) for r in self.db.execute('SELECT * FROM sessions ORDER BY created,id')
                     if r['id'] in member_ids]
         for item in sessions:
@@ -523,7 +524,7 @@ class Tracker(Recording):
                                if increment is None or r['id'] == increment],
                 'sessions': [{k: v for k, v in s.items() if k != 'cwd'} for s in sessions],
                 'runs':runs,'windows':[dict(r) for r in self.db.execute('SELECT * FROM windows') if r['run_id'] in run_ids],
-                'admitted_turns':admitted,
+                'members':members,'admitted_turns':admitted,
                 'roles':[dict(r) for r in self.db.execute('SELECT * FROM roles ORDER BY id') if r['run_id'] in run_ids],
                 'legacy':{'classification':'legacy/unbounded','excluded_records':legacy_count},
                 'sources': sources, 'totals': totals, 'status': 'partial' if partial else 'provisional' if provisional else 'observed-complete' if usage else 'unavailable',

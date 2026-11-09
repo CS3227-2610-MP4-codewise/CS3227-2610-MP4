@@ -52,6 +52,14 @@ The tracker SHALL provide offline filters, agent timelines, resource and compari
 - **WHEN** a client does not expose a requested metric
 - **THEN** reports identify the gap and do not substitute zero or a fabricated cost.
 
+#### Scenario: Linked session before turn admission
+- **WHEN** a child belongs to a run but is paused before its first turn is admitted
+- **THEN** exported membership and filtered report counts retain that child, and its attached or missing source row stays visible.
+
+#### Scenario: Filtered telemetry coverage
+- **WHEN** report filters select increments, groups, runs or sessions whose coverage differs from the full snapshot
+- **THEN** coverage and status are recomputed for that selection, unrelated telemetry gaps are omitted, and reset restores global coverage without fabricating complete coverage for an empty selection.
+
 ### Requirement: EXP-05 Keith increment logs
 The tracker SHALL create one template-based Keith log per increment and append idempotent substantial Request/Results checkpoints with evidence links, preserving previous entries.
 

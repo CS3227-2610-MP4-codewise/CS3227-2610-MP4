@@ -107,7 +107,7 @@ python3 workflow/experiment-tracker/tracker.py export student-drafts \
   --output workflow/evidence/student-drafts/tracker
 ```
 
-Open ignored `.experiment-tracker/report.html`; it is offline and self-contained. Filter increments/runs/sessions/models/comparison groups; task filtering narrows annotations only, never inventing task-level token allocation. Recording windows, pending draining turns, roles, provenance and coverage are shown. Refresh with sync/report after terminal source records appear, including at the next session after the prior final response.
+Open ignored `.experiment-tracker/report.html`; it is offline and self-contained. Filter increments/runs/sessions/models/comparison groups; task filtering narrows annotations only, never inventing task-level token allocation. Recording windows, pending draining turns, roles, provenance and coverage are shown. Snapshot/export member rows retain linked children even before turn admission, and each selected session has an attached or missing source row. Coverage/status follow increment/group/run/session filters; model filters narrow token totals while coverage retains all models within that selection. Whole-run partial flags remain visible separately from session-specific status. Source warnings remain source-wide. Run-specific coverage omits annotation gaps without run attribution. Legacy exclusion counts and sync overhead describe the workspace. Refresh with sync/report after terminal source records appear, including at the next session after the prior final response.
 
 Schema v2 backs up v1 SQLite locally before transactional migration. Old records without run attribution stay **legacy/unbounded**, excluded from bounded totals and marked separately. Existing logs/exports remain historical; append a correction rather than rewriting them. Old queued events without admitted run identity are discarded. There is no automatic retrospective turn assignment. Explicit exports omit local source paths and raw request records; review author-written annotations before publishing. Existing v1 exports must not be mixed into bounded comparison totals.
 
@@ -119,6 +119,7 @@ Response IDs deduplicate usage. Cached input is an input subset; reasoning outpu
 
 ```sh
 python3 -m unittest discover -s workflow/experiment-tracker -v
+npx vitest run workflow/experiment-tracker/report.test.ts
 npm run check
 ```
 

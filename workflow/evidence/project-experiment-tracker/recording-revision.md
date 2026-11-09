@@ -99,3 +99,21 @@ Verification:
 - Existing private tracker sync/report succeeds without recording activation. Current-request measured usage is unavailable; historical shared exports are unchanged. No live callback evidence or deployment is claimed.
 
 Next owner: Keith reviews the follow-up repair in PR #23 and later explicitly opts into live-client lifecycle verification.
+
+
+## Dashboard membership and filter verification — 2026-11-09
+
+Input: `4bb2181`, PR #23. Both findings are valid: the browser derived session membership from admissions, dropping linked/unadmitted children, and reused global coverage/status across filters. Main implementation/self-review only; no child agents or independent reviewer. Requirements EXP-01/02/04/09; tasks 6.6–6.7 complete, overall 14/15. Live-client task 5.4 remains pending.
+
+- Snapshot and JSON summaries now expose actual member rows (`run_id`, `session_id`, `parent`). The dashboard uses those rows to select runs and sessions, including a linked child paused before admission. Every selected session has a source row; missing transcripts are explicit rather than hidden.
+- Dynamic coverage and generated-header status are recomputed for selected increment/group/run/session relationships. Missing sources, source warnings, completed-turn usage gaps, unavailable counters, fallback and pending/draining evidence stay within that selection. A complete selected experiment is not labelled by unrelated gaps; conflicting empty filters show unavailable; reset restores global coverage. Reused sessions are associated through their actual run memberships.
+- Session-specific status uses selected turn partial flags; whole-run partial flags remain in the run table. Source warnings remain source-wide for selected sessions. Model filtering narrows totals only; coverage includes all models in selected runs/sessions. Task filtering narrows annotations; run-specific coverage omits annotation gaps without run attribution. Legacy counts and sync overhead are labelled workspace-wide.
+
+Verification:
+
+- Python baseline regression failed because snapshot/export omitted `members`. After repair all 70 Python tracker tests pass, including paused-before-admission member/export identity and privacy checks.
+- Initial DOM harness used a non-file import.meta URL; corrected template loading before baseline comparison. The seven initial report regressions all failed against the original HTML and passed after repair. Expanded coverage now has 12 passing jsdom/Vitest cases executing the actual report script and change/reset controls: linked source/missing-source rows, increment/group/run/session isolation, empty selections, reset, shared-session runs, pending/draining, unavailable counters/fallback and per-session partial isolation.
+- Full `npm run check` on Node 24.21.0 with local listener access: PASS, 14 strict OpenSpec changes, typecheck, ESLint, 388 Vitest cases in 36 files (including the 12 report cases), four deployment cases and Vite build. `git diff --check` passes.
+- Existing private sync/report succeeds without activating recording; current-request usage is unavailable. Historical shared pilot exports remain unchanged. No new dependency, database migration, application UI/runtime change, browser screenshot, live callback, manual UI acceptance, merge or deployment is claimed. DOM regression tests are not a live-client lifecycle test.
+
+Next owner: Keith reviews the additional PR #23 repair and separately opts into live-client lifecycle verification.

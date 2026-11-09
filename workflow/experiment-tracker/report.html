@@ -213,8 +213,6 @@
         .filter((a) => a.kind === 'experiment')
         .map((a) => a.data.task_type),
     );
-    $('generated').textContent =
-      `Generated ${data.generated}; collection status: ${data.status}. Re-run sync and report to refresh.`;
     function render() {
       const inc = $('increment').value,
         sid = $('session').value,
@@ -228,13 +226,19 @@
       );
       const incs = new Set(increments.map((i) => i.id));
       const runs = data.runs.filter(
-        (r) => incs.has(r.increment_id) && (!runFilter || r.id === runFilter),
+        (r) =>
+          incs.has(r.increment_id) &&
+          (!runFilter || r.id === runFilter) &&
+          (!sid ||
+            data.members.some(
+              (m) => m.run_id === r.id && m.session_id === sid,
+            )),
       );
       const runIds = new Set(runs.map((r) => r.id));
       const members = new Set(
-        data.admitted_turns
-          .filter((t) => runIds.has(t.run_id))
-          .map((t) => t.session_id),
+        data.members
+          .filter((m) => runIds.has(m.run_id))
+          .map((m) => m.session_id),
       );
       const sessions = data.sessions.filter(
         (s) => members.has(s.id) && (!sid || s.id === sid),
@@ -275,6 +279,112 @@
         cached = sum('cached_input_tokens'),
         output = sum('output_tokens'),
         reasoning = sum('reasoning_output_tokens');
+      // Coverage describes selected runs/sessions across all models. Model
+      // filtering narrows totals only; a hidden model is not lost telemetry.
+      const admitted = data.admitted_turns.filter(
+        (t) => runIds.has(t.run_id) && ids.has(t.session_id),
+      );
+      const sourceRows = sessions.map((s) => ({
+        session_id: s.id,
+        source: data.sources.find((source) => source.session_id === s.id),
+      }));
+      const coverageUsage = records.filter((r) => r.kind.startsWith('usage'));
+      const turnKey = (r) =>
+        JSON.stringify([r.run_id, r.session_id, r.turn_id]);
+      const measured = new Set(
+        coverageUsage.filter((r) => r.data.total_tokens != null).map(turnKey),
+      );
+      const unmeasured = admitted.filter(
+        (t) => t.terminal === 'task_complete' && !measured.has(turnKey(t)),
+      );
+      const missingSources = sourceRows.filter((s) => !s.source);
+      const sourceWarnings = sourceRows.some((s) => s.source?.warning);
+      const missingCounters = [
+        'input_tokens',
+        'cached_input_tokens',
+        'output_tokens',
+        'reasoning_output_tokens',
+        'total_tokens',
+      ].filter((key) => coverageUsage.some((r) => r.data[key] == null));
+      // Run.partial is a whole-run flag; in a session view use that session's
+      // turn evidence. Whole-run flags remain visible in the run table.
+      const partial =
+        missingSources.length ||
+        sourceWarnings ||
+        unmeasured.length ||
+        missingCounters.length ||
+        admitted.some((t) => t.partial) ||
+        (!sid && runs.some((r) => r.partial));
+      const pending = admitted.some((t) => !t.terminal && !t.partial);
+      const completed = new Set(
+        admitted.filter((t) => t.terminal === 'task_complete').map(turnKey),
+      );
+      const provisional =
+        pending || coverageUsage.some((r) => !completed.has(turnKey(r)));
+      const status = partial
+        ? 'partial'
+        : provisional
+          ? 'provisional'
+          : coverageUsage.length
+            ? 'observed-complete'
+            : 'unavailable';
+      const coverage = [
+        'Active/idle time and unnecessary retries require annotations; silence is not evidence.',
+        'Client hook coverage is observational, not guaranteed; unknown fields are unavailable.',
+        'Only admitted turns count; excluded conversation may still appear as context in later project requests.',
+        'No causal savings or monetary cost inferred. Comparisons require equivalent scope and quality.',
+      ];
+      if (
+        (!sid && runs.some((r) => r.partial)) ||
+        admitted.some((t) => t.partial)
+      )
+        coverage.push(
+          'Explicit partial finalization or aborted turn: coverage incomplete.',
+        );
+      if (pending && runs.some((r) => r.state.startsWith('draining-')))
+        coverage.push(
+          'Draining: pending turns require source terminal evidence or explicit partial finalization.',
+        );
+      if (missingSources.length)
+        coverage.push(
+          `${missingSources.length} session(s) have no registered transcript; token coverage incomplete.`,
+        );
+      if (sourceWarnings)
+        coverage.push(
+          'Source warnings for selected sessions are source-wide, not turn-specific; token coverage partial and totals represent observed records only.',
+        );
+      if (unmeasured.length)
+        coverage.push(
+          `${unmeasured.length} completed admitted turn(s) have no usable token usage; totals cover observed records only.`,
+        );
+      if (missingCounters.length)
+        coverage.push(
+          `Usage counters unavailable: ${missingCounters.join(', ')}. Coverage partial; no missing values are treated as zero.`,
+        );
+      if (coverageUsage.some((r) => r.kind === 'usage_fallback'))
+        coverage.push(
+          'Cumulative fallback: request-level attribution unavailable.',
+        );
+      // Annotations have increment/session provenance, not run attribution.
+      // Do not assign an increment's unmatched wait to a particular run.
+      const blocked = new Set();
+      for (const a of runFilter || !sessions.length ? [] : annotations) {
+        const key = JSON.stringify([
+          a.increment_id,
+          a.session_id,
+          a.agent,
+          a.task,
+          a.dependency,
+        ]);
+        if (a.kind === 'blocked') blocked.add(key);
+        else if (a.kind === 'unblocked') blocked.delete(key);
+      }
+      if (blocked.size)
+        coverage.push(
+          'Open blocked intervals: duration unavailable until an unblocked annotation.',
+        );
+      $('generated').textContent =
+        `Generated ${data.generated}; selected coverage: ${status}. Re-run sync and report to refresh.`;
       const cards = [
         ['Observed total tokens', fmt(total)],
         ['Input', fmt(input)],
@@ -295,15 +405,21 @@
             : 'unavailable',
         ],
       ];
-      let out = `<section aria-label="Resource summary"><div class="cards">${cards.map(([k, v]) => `<div class="card"><div>${esc(k)}</div><div class="value">${esc(v)}</div></div>`).join('')}</div><p>Tokens are measured; ratios are derived. Totals are observed coverage, not proof of complete accounting. Task-type filtering applies to annotations; task-level token allocation is unavailable.</p></section>`;
-      out += `<section><h2>Recording runs and boundaries</h2><p>Default off. Legacy/unbounded records excluded: ${esc(data.legacy.excluded_records)}. Role labels are annotations; runtime identities are preserved.</p>${table(
+      let out = `<section aria-label="Resource summary"><div class="cards">${cards.map(([k, v]) => `<div class="card"><div>${esc(k)}</div><div class="value">${esc(v)}</div></div>`).join('')}</div><p>Tokens are measured; ratios are derived. Totals are observed coverage, not proof of complete accounting. Coverage uses selected runs/sessions across all models; the model filter narrows token totals only. Task-type filtering applies to annotations; task-level token allocation is unavailable. Run-specific coverage omits annotation gaps without run attribution.</p></section>`;
+      out += `<section><h2>Recording runs and boundaries</h2><p>Default off. Workspace legacy/unbounded records excluded: ${esc(data.legacy.excluded_records)}. Role labels are annotations; runtime identities are preserved.</p>${table(
         ['Run', 'Increment', 'State', 'Pending turns', 'Partial'],
         runs.map((r) => [
           r.id,
           r.increment_id,
           r.state,
           data.admitted_turns
-            .filter((t) => t.run_id === r.id && !t.terminal && !t.partial)
+            .filter(
+              (t) =>
+                t.run_id === r.id &&
+                ids.has(t.session_id) &&
+                !t.terminal &&
+                !t.partial,
+            )
             .map((t) => `${t.session_id}/${t.turn_id}`)
             .join('; ') || 'none',
           r.partial ? 'yes' : 'no',
@@ -317,7 +433,7 @@
       ${table(
         ['Agent', 'Runtime identity', 'Role / label', 'Assigned'],
         data.roles
-          .filter((r) => runIds.has(r.run_id))
+          .filter((r) => runIds.has(r.run_id) && ids.has(r.session_id))
           .map((r) => [
             r.session_id,
             r.runtime_id,
@@ -325,15 +441,16 @@
             r.ts,
           ]),
       )}</section>`;
-      out += `<section><h2>Coverage and tracker overhead</h2><ul>${data.coverage.map((g) => `<li>${esc(g)}</li>`).join('')}</ul><p>Last sync overhead (measured): ${esc(data.tracker_overhead?.duration_ms)} ms. Annotation effort requires an overhead annotation.</p>${table(
+      out += `<section><h2>Coverage and tracker overhead</h2><ul>${coverage.map((g) => `<li>${esc(g)}</li>`).join('')}</ul><p>Workspace last sync overhead (measured): ${esc(data.tracker_overhead?.duration_ms)} ms. Annotation effort requires an overhead annotation.</p>${table(
         ['Session', 'Source warning', 'Last sync'],
-        data.sources
-          .filter((s) => ids.has(s.session_id))
-          .map((s) => [
-            s.session_id,
-            s.warning ?? 'No parser warning; completeness not guaranteed',
-            s.last_sync,
-          ]),
+        sourceRows.map((s) => [
+          s.session_id,
+          s.source
+            ? (s.source.warning ??
+              'No parser warning; completeness not guaranteed')
+            : 'No registered transcript; token coverage incomplete',
+          s.source?.last_sync ?? 'unavailable',
+        ]),
       )}</section>`;
       out += `<section><details><summary>Usage provenance and model configuration — measured</summary>${table(
         ['Session', 'Turn', 'Model', 'Effort', 'Total tokens', 'Method'],

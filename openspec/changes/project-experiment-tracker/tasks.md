@@ -38,3 +38,6 @@
 
 - [x] 6.4 Mark completed admitted turns without usable usage and missing counters as incomplete coverage; verify late usage recovery, zero counters, filtered snapshots and exports (EXP-02/04/09).
 - [x] 6.5 Validate transcript header/payload structure consistently before dereferencing it; verify malformed linked-child hook callbacks return empty success without admitting/persisting invalid sources, and attach/import/current-turn paths fail safely (EXP-01/06/07).
+
+- [x] 6.6 Export actual run membership and include linked sessions without admitted turns in report counts and source rows; verify paused-before-admission children and filtered memberships (EXP-01/04/09).
+- [x] 6.7 Recompute report coverage/status for selected increments, groups, runs and sessions instead of reusing global gaps; verify isolation, empty selections, missing usage/source and reset through actual dashboard controls (EXP-02/04/09).

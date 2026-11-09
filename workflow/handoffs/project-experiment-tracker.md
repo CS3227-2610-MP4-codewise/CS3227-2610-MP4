@@ -43,3 +43,8 @@ Against `c7130ec`, confirmed that same-size middle-of-file rewrites escape the t
 ## Usage coverage and header repair continuation — 2026-11-09
 
 Against `09ccb87`, both findings reproduced and repaired: completed turns missing usable usage and absent counters now produce explicit partial coverage; malformed transcript headers/payloads are validated consistently and child hooks retain empty successful responses without invalid admission/persistence. [Verification](../evidence/project-experiment-tracker/recording-revision.md#usage-coverage-and-malformed-header-verification--2026-11-09): all 69 tracker cases and full project checks (376+4) pass. Tasks 6.4–6.5 complete, overall 12/13; task 5.4 remains pending. Main-only work; no recording opt-in or independent review. Next owner: Keith reviews PR #23 and separately opts into live-client verification.
+
+
+## Dashboard membership/filter continuation — 2026-11-09
+
+Against `4bb2181`, both report findings are confirmed and repaired: snapshots/JSON exports retain actual run membership; linked/unadmitted children remain visible with source rows; report coverage/status follows selected increment/group/run/session scope. [Verification and scope limits](../evidence/project-experiment-tracker/recording-revision.md#dashboard-membership-and-filter-verification--2026-11-09) records baseline failures, 70 passing Python cases, 12 actual-report DOM regressions and full project checks (388+4). Tasks 6.6–6.7 complete, overall 14/15; task 5.4 remains open. Source-wide warnings, model/annotation scope and workspace-wide overhead are documented. Main-only work, no recording activation or independent review. Next owner: Keith reviews PR #23 and later explicitly opts into real live-client verification.
