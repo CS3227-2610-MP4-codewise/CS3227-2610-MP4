@@ -24,6 +24,8 @@ class ClaudeAdapterTest(unittest.TestCase):
         (self.root / 'workflow/templates').mkdir(parents=True)
         (self.root / 'workflow/templates/member-log.md').write_text(
             '# Increment title\n\n## Request\n\nName the human owner, bounded objective, OpenSpec change/requirement IDs, and branch/PR if known.\n')
+        (self.root / 'workflow/templates/keith-prompt-experiment.md').write_text(
+            (Path(__file__).resolve().parents[1] / 'templates/keith-prompt-experiment.md').read_text())
         self.tracker = mod.Tracker(self.root)
         self.source = self.root / (SID + '.jsonl')
         self.prompts = 0
@@ -228,7 +230,16 @@ class ClaudeAdapterTest(unittest.TestCase):
         entry = self.tracker.admission('a1234', 'child-prompt')
         self.assertEqual('task_complete', entry['terminal'])
         self.assertEqual(SID, self.tracker.db.execute("SELECT parent FROM sessions WHERE id='a1234'").fetchone()[0])
+        # EXP-12: the hook-derived spawning turn is stored structurally.
+        self.assertEqual('turn-two', self.tracker.db.execute(
+            "SELECT parent_turn FROM members WHERE session_id='a1234'").fetchone()[0])
         snapshot = self.tracker.snapshot()
+        child_turn = next(t for t in snapshot['turns'] if t['session_id'] == 'a1234')
+        parent_turn = next(t for t in snapshot['turns'] if t['turn_id'] == 'turn-two')
+        self.assertEqual(('Explore', 'Explore', SID, 'turn-two'), (child_turn['role'], child_turn['label'],
+                         child_turn['parent_session'], child_turn['parent_turn']))
+        self.assertEqual(['a1234'], parent_turn['children'])
+        self.assertEqual(60, parent_turn['output_including_spawned'])
         self.assertEqual(320, snapshot['totals']['total_tokens'])
         self.assertEqual('observed-complete', snapshot['status'])
         self.assertNotIn('Inline sidechain', json.dumps(snapshot['sources']))
@@ -296,11 +307,27 @@ class ClaudeAdapterTest(unittest.TestCase):
         snapshot = self.tracker.snapshot()
         self.assertEqual((160, 'partial'), (snapshot['totals']['total_tokens'], snapshot['status']))
         self.assertIn('without usable usage', snapshot['sources'][0]['warning'])
+        turn = next(t for t in snapshot['turns'] if t['turn_id'] == 'turn-two')
+        self.assertEqual(('partial', 30), (turn['status'], turn['output']))  # EXP-11: observed output only.
         self.write(self.reply('msg-a', tool='toolu_a'))  # A later split record supplies the usage.
         self.tracker.sync()
         snapshot = self.tracker.snapshot()
         self.assertEqual((320, 'observed-complete'), (snapshot['totals']['total_tokens'], snapshot['status']))
         self.assertIsNone(snapshot['sources'][0]['warning'])
+        turn = next(t for t in snapshot['turns'] if t['turn_id'] == 'turn-two')
+        self.assertEqual(('final', 60), (turn['status'], turn['output']))
+
+    def test_turn_lists_mixed_models_and_unavailable_effort(self):
+        self.start()
+        other = self.reply('msg-b', 'end_turn', model='claude-sonnet-5-5')
+        del other['effort']
+        self.write(self.reply('msg-a', thinking=None), other, self.done())
+        self.tracker.sync()
+        turn = next(t for t in self.tracker.snapshot()['turns'] if t['turn_id'] == 'turn-two')
+        self.assertEqual(['claude-opus-5-5', 'claude-sonnet-5-5'], turn['models'])
+        self.assertEqual(['medium', 'unavailable'], turn['efforts'])
+        self.assertEqual((60, 5), (turn['output'], turn['reasoning_output']))
+        self.assertCountEqual([None, 5], [r['reasoning_output'] for r in turn['responses']])
 
     def test_model_and_effort_are_not_inherited_across_responses(self):
         self.start()
@@ -377,7 +404,7 @@ class ClaudeAdapterTest(unittest.TestCase):
         run = self.tracker.run_for(SID)['id']
         self.tracker.session('codex-session', str(self.root))
         self.tracker.db.execute("UPDATE sessions SET client='0.99.0' WHERE id='codex-session'")
-        self.tracker.db.execute("INSERT INTO members VALUES (?,'codex-session',NULL)", (run,))
+        self.tracker.db.execute("INSERT INTO members(run_id,session_id,parent) VALUES (?,'codex-session',NULL)", (run,))
         self.tracker.db.commit()
         self.assertIn(mod.MIXED_CLIENT_GAP, self.tracker.snapshot()['coverage'])
 

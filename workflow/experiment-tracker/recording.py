@@ -205,6 +205,13 @@ class Recording:
             for field in ('run_id', 'window_id'):
                 if field not in columns:
                     self.db.execute(f'ALTER TABLE records ADD COLUMN {field} TEXT')
+            # Additive: the spawning turn of a linked child (NULL when not recorded, EXP-12).
+            if 'parent_turn' not in {r['name'] for r in self.db.execute('PRAGMA table_info(members)')}:
+                self.db.execute('ALTER TABLE members ADD COLUMN parent_turn TEXT')
+            # Turns already shown in a Keith checkpoint table, with their status then (EXP-13).
+            self.db.execute('''CREATE TABLE IF NOT EXISTS checkpoint_turns(increment_id TEXT NOT NULL,
+                checkpoint_id TEXT NOT NULL,session_id TEXT NOT NULL,turn_id TEXT NOT NULL,status TEXT NOT NULL,
+                PRIMARY KEY(increment_id,session_id,turn_id,checkpoint_id))''')
             columns = {r['name'] for r in self.db.execute('PRAGMA table_info(admitted)')}
             if 'finalized_partial' not in columns:
                 self.db.execute('ALTER TABLE admitted ADD COLUMN finalized_partial INTEGER NOT NULL DEFAULT 0 CHECK(finalized_partial IN (0,1))')
@@ -283,7 +290,7 @@ class Recording:
                 raise ValueError('Initiating turn was already assigned; start in a new turn')
             run_id = uuid.uuid4().hex
             self.db.execute("INSERT INTO runs VALUES (?,?,?,'recording',?,0)",(run_id,increment,sid,stamp()))
-            self.db.execute('INSERT INTO members VALUES (?,?,NULL)',(run_id,sid))
+            self.db.execute('INSERT INTO members(run_id,session_id,parent) VALUES (?,?,NULL)',(run_id,sid))
             self.db.execute('INSERT INTO windows VALUES (?,?,?,NULL)',(uuid.uuid4().hex,run_id,stamp()))
             run=self.run_for(sid)
             self.admit(run,sid,turn,stamp())
@@ -421,7 +428,8 @@ class Recording:
         if existing and existing['id']!=run['id']:
             return False
         self.session(child,parent=parent)
-        self.db.execute('INSERT OR IGNORE INTO members VALUES (?,?,?)',(run['id'],child,parent))
+        self.db.execute('INSERT OR IGNORE INTO members(run_id,session_id,parent,parent_turn) VALUES (?,?,?,?)',
+                        (run['id'],child,parent,parent_turn))
         if spawn and not self.db.execute('SELECT 1 FROM admitted WHERE session_id=?',(child,)).fetchone():
             self.db.execute('INSERT OR IGNORE INTO spawned VALUES (?,?,?,?,?,?,NULL)',
                             (run['id'],child,parent,parent_turn,entry['window_id'],stamp()))

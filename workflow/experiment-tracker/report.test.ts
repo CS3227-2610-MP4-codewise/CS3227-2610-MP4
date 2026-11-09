@@ -629,14 +629,186 @@ it('shows Claude Code cache writes and flags mixed clients only within the selec
 it('keeps a run provisional while a spawned child has not been imported', () => {
   const data = fixture() as ReturnType<typeof fixture> & { spawned: object[] };
   data.spawned = [
-    { run_id: 'good-run', session_id: 'good', parent: 'root', parent_turn: 't', resolved: null },
+    {
+      run_id: 'good-run',
+      session_id: 'good',
+      parent: 'root',
+      parent_turn: 't',
+      resolved: null,
+    },
   ];
   load(data);
   select('session', 'good');
   expect(selectedStatus()).toContain('provisional');
-  expect(coverageText()).toContain('1 spawned child session(s) not yet imported');
+  expect(coverageText()).toContain(
+    '1 spawned child session(s) not yet imported',
+  );
   data.spawned = [{ ...data.spawned[0], resolved: 'admitted' }];
   load(data);
   select('session', 'good');
   expect(selectedStatus()).toContain('observed-complete');
+});
+
+// EXP-11/12: per-turn agent activity (experiment-turn-activity).
+function response(
+  model: string,
+  output: number | null,
+  reasoning: number | null,
+) {
+  return {
+    ts: '2026-11-09T00:00:00Z',
+    model,
+    effort: 'medium',
+    output,
+    reasoning_output: reasoning,
+    method: 'response_id',
+    response: 'abc123def456',
+  };
+}
+
+function activityTurn(overrides: object) {
+  return {
+    run_id: 'good-run',
+    increment_id: 'complete',
+    session_id: 'good',
+    turn_id: 'good-turn',
+    parent_session: null,
+    parent_turn: null,
+    role: 'coordinator',
+    label: 'Coordinator',
+    start: '2026-11-09T00:00:00Z',
+    end: '2026-11-09T00:01:00Z',
+    terminal: 'task_complete',
+    status: 'final',
+    models: ['opus'],
+    efforts: ['medium'],
+    responses: [response('opus', 20, 5)],
+    children: [],
+    ...overrides,
+  };
+}
+
+function activityFixture() {
+  const data = fixture();
+  data.members.push(
+    { run_id: 'good-run', session_id: 'child', parent: 'good' },
+    { run_id: 'good-run', session_id: 'grandchild', parent: 'child' },
+  );
+  data.sessions.push(
+    { id: 'child', parent: 'good' },
+    { id: 'grandchild', parent: 'child' },
+  );
+  return {
+    ...data,
+    turns: [
+      activityTurn({
+        models: ['opus', 'sonnet'],
+        responses: [response('opus', 20, 5), response('sonnet', 10, null)],
+        children: ['child'],
+      }),
+      activityTurn({
+        session_id: 'child',
+        turn_id: 'child-turn',
+        parent_session: 'good',
+        parent_turn: 'good-turn',
+        role: 'reviewer',
+        label: 'Reviewer',
+        responses: [response('opus', 7, null)],
+        children: ['grandchild'],
+      }),
+      activityTurn({
+        session_id: 'grandchild',
+        turn_id: 'grand-turn',
+        parent_session: 'child',
+        parent_turn: 'child-turn',
+        role: 'Explore',
+        label: 'Explore',
+        status: 'partial',
+        responses: [],
+        models: [],
+        efforts: [],
+      }),
+    ],
+    unattributed_children: [
+      {
+        run_id: 'good-run',
+        parent_session: 'good',
+        session_id: 'legacy-child',
+      },
+    ],
+  };
+}
+
+function activityRows() {
+  return [...document.querySelectorAll('#activity > tbody > tr')].map((row) =>
+    [...row.children].map((c) => c.textContent ?? ''),
+  );
+}
+
+it('shows one row per turn with collapsed responses and nested partial rollup', () => {
+  load(activityFixture());
+  const rows = activityRows();
+  expect(rows.map((r) => r[0])).toEqual([
+    'Coordinator / coordinator',
+    'Reviewer / reviewer',
+    'Explore / Explore',
+  ]);
+  const [root, child, grand] = rows;
+  expect(root.slice(5, 12)).toEqual([
+    'final',
+    'opus, sonnet',
+    'medium',
+    '30',
+    '5',
+    '37 (partial)',
+    'Reviewer (child)',
+  ]);
+  expect(child[2]).toBe('Coordinator (good) / good-turn');
+  expect(child[9]).toBe('unavailable');
+  expect(grand.slice(8, 11)).toEqual([
+    'unavailable',
+    'unavailable',
+    'unavailable',
+  ]);
+  const details = document.querySelector(
+    '#activity details',
+  ) as HTMLDetailsElement;
+  expect(details.open).toBe(false);
+  expect(details.querySelectorAll(':scope table > tbody > tr')).toHaveLength(2);
+  expect(document.body.textContent).toContain('not what it cost');
+  expect(document.body.textContent).toContain(
+    'legacy-child (legacy-child) under good',
+  );
+});
+
+it('narrows responses and sums by model, keeps status and restores on reset', () => {
+  load(activityFixture());
+  select('model', 'sonnet');
+  let rows = activityRows();
+  expect(rows).toHaveLength(1);
+  expect(rows[0].slice(5, 10)).toEqual([
+    'final',
+    'opus, sonnet',
+    'medium',
+    '10',
+    'unavailable',
+  ]);
+  select('increment', 'incomplete');
+  expect(activityRows()).toEqual([['No observed records']]);
+  (document.getElementById('reset') as HTMLButtonElement).click();
+  rows = activityRows();
+  expect(rows).toHaveLength(3);
+});
+
+it('keeps descendants in the rollup when filtered to one session', () => {
+  load(activityFixture());
+  select('session', 'good');
+  const rows = activityRows();
+  expect(rows).toHaveLength(1);
+  expect(rows[0][10]).toBe('37 (partial)');
+});
+
+it('renders snapshots without turn data as no observed records', () => {
+  load();
+  expect(activityRows()).toEqual([['No observed records']]);
 });

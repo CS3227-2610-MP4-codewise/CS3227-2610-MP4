@@ -1,0 +1,26 @@
+# Experiment turn activity verification
+
+Owner: Keith. Requirements: EXP-11, EXP-12, EXP-13 (OpenSpec change `experiment-turn-activity`). Branch: `keith/experiment-turn-activity`, input main `f62b238`. This change affects development tooling only. No application route, migration, shared contract, hook allowlist or deployment changes.
+
+## Executed checks — 2026-11-09
+
+| Check                                                                                                | Actual outcome                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `python3 -m unittest discover -s workflow/experiment-tracker -v`                                     | PASS: 138 tests (adds 18 for this change). One new test flaked during development because it searched for `999` in JSON containing a random run ID. The test was fixed, and 15 consecutive runs then passed.                                                                                                                                                                                                                                                                  |
+| `npx vitest run workflow/experiment-tracker/report.test.ts`                                          | PASS: 34 tests (adds 4): per-turn rows, collapsed responses, nested partial rollup, model filter/conflicting filter/reset, session filter keeps descendants, and snapshots without turn data.                                                                                                                                                                                                                                                                                 |
+| `npx openspec validate experiment-turn-activity --strict`                                            | PASS.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `npm run check`                                                                                      | PASS: 16 strict OpenSpec items, typecheck, ESLint, 410 Vitest tests in 36 files, 4 Node tests, Vite build.                                                                                                                                                                                                                                                                                                                                                                    |
+| Synthetic end-to-end ([log](synthetic-checkpoint-log.md), [report rows](synthetic-report-rows.json)) | PASS: a synthetic root and Reviewer child (Codex-format JSONL in a temporary directory; no real sessions) were checkpointed twice and a report was generated. The report's activity rows match the log turn for turn. The root turn appeared as provisional (180/40/220 incl. spawned) at `first`, and was reconciled to final with the same values at `second`. The Reviewer (40/8) and the later root turn (15/unavailable) each appear in exactly one Turn activity table. |
+
+## Behaviour notes
+
+- New views show output and reasoning output only. Stored counters, existing totals, exports and the cumulative usage line are unchanged.
+- The tracker now stores the spawning turn for each child linked from now on (`members.parent_turn`). Children linked before this change show "spawning turn unavailable".
+- Committed log tables contain labels, roles, 8-character session prefixes, timestamps, models, efforts, statuses and counters. Prefixes can collide when IDs share a prefix, as in the synthetic `syntheti`; real Codex and Claude IDs are random. The private report shows full IDs.
+- Recovery after database loss uses hashed `<!-- experiment-turns -->` keys in the log. Unmatched hashes are ignored.
+
+## Not verified
+
+- A live opted-in Claude Code or Codex session: recording was not explicitly started, so this was not run.
+- A visual/browser check of the report beyond jsdom.
+- Independent review: main-agent self-review only, and no subagents were spawned.

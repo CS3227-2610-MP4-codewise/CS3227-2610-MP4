@@ -22,6 +22,8 @@ class TrackerTest(unittest.TestCase):
         self.root = Path(self.temp.name)
         (self.root / 'workflow/templates').mkdir(parents=True)
         (self.root / 'workflow/templates/member-log.md').write_text('# Increment title\n\n## Request\n\nName the human owner, bounded objective, OpenSpec change/requirement IDs, and branch/PR if known.\n\n## Results\n\nPreserve this history.\n')
+        (self.root / 'workflow/templates/keith-prompt-experiment.md').write_text(
+            (Path(__file__).resolve().parents[1] / 'templates/keith-prompt-experiment.md').read_text())
         self.tracker = mod.Tracker(self.root)
         self.source = self.root / 'synthetic.jsonl'
         self.rows = [{'type':'session_meta','payload':{'id':'session-a','cwd':str(self.root),'cli_version':'synthetic-1'}}]
@@ -1083,6 +1085,203 @@ class TrackerTest(unittest.TestCase):
         self.append_record('token_usage_record',self.usage('general','general')['payload']);self.tracker.sync()
         self.assertEqual('paused',self.tracker.recording_status('session-a')['state'])
         self.assertFalse(any(r['turn_id']=='general' for r in self.tracker.snapshot()['records']))
+
+
+    # EXP-12/13 turn activity (experiment-turn-activity)
+    def test_migration_adds_parent_turn_and_keeps_existing_members(self):
+        self.attach();self.tracker.link_child('session-a','turn-a','child');self.tracker.db.commit()
+        db=self.tracker.db
+        db.execute('CREATE TABLE members_old AS SELECT run_id,session_id,parent FROM members')
+        db.execute('DROP TABLE members');db.execute('ALTER TABLE members_old RENAME TO members')
+        db.execute('DROP TABLE checkpoint_turns');db.commit();db.close()
+        self.tracker=mod.Tracker(self.root)
+        self.assertIn('parent_turn',{r['name'] for r in self.tracker.db.execute('PRAGMA table_info(members)')})
+        self.assertIsNotNone(self.tracker.db.execute("SELECT 1 FROM sqlite_master WHERE name='checkpoint_turns'").fetchone())
+        row=self.tracker.db.execute("SELECT parent,parent_turn FROM members WHERE session_id='child'").fetchone()
+        self.assertEqual(('session-a',None),tuple(row))
+
+    def test_linked_child_records_validated_parent_turn(self):
+        self.attach()
+        self.assertTrue(self.tracker.link_child('session-a','turn-a','child'))
+        self.assertFalse(self.tracker.link_child('session-a','unknown-turn','other'))
+        rows=dict(self.tracker.db.execute('SELECT session_id,parent_turn FROM members').fetchall())
+        self.assertEqual({'session-a':None,'child':'turn-a'},rows)
+
+
+    def turn(self,turn_id,increment='test-increment'):
+        return next(t for t in self.tracker.snapshot(increment)['turns'] if t['turn_id']==turn_id)
+
+    def test_turn_sums_responses_and_expands_each_response(self):
+        self.attach()
+        for r in ('r1','r2','r3'):self.append_record('token_usage_record',self.usage(r)['payload'])
+        self.end('turn-a');self.tracker.sync()
+        t=self.turn('turn-a')
+        self.assertEqual((60,30,'final',3),(t['output'],t['reasoning_output'],t['status'],len(t['responses'])))
+        self.assertEqual(['unavailable'],t['models'])
+        self.assertTrue(all(len(r['response'])==12 and 'r1'!=r['response'] for r in t['responses']))
+        self.assertEqual(60,t['output_including_spawned']);self.assertFalse(t['rollup_partial'])
+
+    def test_turn_reasoning_unavailable_is_not_zero(self):
+        self.attach()
+        payload=self.usage()['payload'];del payload['usage']['reasoning_output_tokens']
+        self.append_record('token_usage_record',payload)
+        zero=self.usage('r-zero')['payload'];zero['usage']['reasoning_output_tokens']=0
+        self.begin('turn-b');self.append_record('token_usage_record',{**zero,'turn_id':'turn-b'});self.tracker.sync()
+        self.assertIsNone(self.turn('turn-a')['reasoning_output'])
+        self.assertEqual(0,self.turn('turn-b')['reasoning_output'])
+
+    def test_turn_status_provisional_pending_partial(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.tracker.sync()
+        self.assertEqual('provisional',self.turn('turn-a')['status'])
+        self.tracker.control('session-a','pause');self.tracker.sync()
+        self.assertEqual('pending',self.turn('turn-a')['status'])
+        self.append_record('event_msg',{'type':'turn_aborted','turn_id':'turn-a'});self.tracker.sync()
+        t=self.turn('turn-a')
+        self.assertEqual(('partial',20),(t['status'],t['output']))
+
+    def test_completed_turn_without_usage_is_partial_until_late_usage(self):
+        self.attach();self.end('turn-a');self.tracker.sync()
+        t=self.turn('turn-a')
+        self.assertEqual(('partial',None,None),(t['status'],t['output'],t['output_including_spawned']))
+        self.append_record('token_usage_record',self.usage()['payload']);self.tracker.sync()
+        self.assertEqual(('final',20),(self.turn('turn-a')['status'],self.turn('turn-a')['output']))
+
+    def test_turns_exclude_legacy_and_unadmitted_records(self):
+        self.attach()
+        self.tracker.db.execute("INSERT INTO records(id,source,session_id,turn_id,ts,kind,data) VALUES ('legacy',?,'session-a','old',?,'usage',?)",
+                                (str(self.source),mod.now(),json.dumps({'output_tokens':999})))
+        self.tracker.db.commit();self.tracker.sync()
+        self.assertEqual(['turn-a'],[t['turn_id'] for t in self.tracker.snapshot()['turns']])
+        turn=self.tracker.snapshot()['turns'][0]
+        self.assertEqual((None,[]),(turn['output'],turn['responses']))
+
+    def test_turn_activity_contains_no_content_or_paths(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.end('turn-a');self.tracker.sync()
+        text=json.dumps(self.tracker.snapshot()['turns'])
+        self.assertNotIn(str(self.source),text);self.assertNotIn('response-a',text)
+
+
+    def child_source(self,sid,turn,output=None,complete=True):
+        rows=[{'type':'session_meta','payload':{'id':sid,'cwd':str(self.root)}},
+              {'type':'event_msg','timestamp':mod.now(),'payload':{'type':'task_started','turn_id':turn}}]
+        if output is not None:
+            rows.append({'type':'token_usage_record','timestamp':mod.now(),'payload':{'response_id':'resp-'+sid,'turn_id':turn,'usage':{
+                'input_tokens':5,'cached_input_tokens':0,'output_tokens':output,'reasoning_output_tokens':0,'total_tokens':5+output}}})
+        if complete:
+            rows.append({'type':'event_msg','timestamp':mod.now(),'payload':{'type':'task_complete','turn_id':turn}})
+        path=self.root/(sid+'.jsonl');path.write_text(''.join(json.dumps(r)+'\n' for r in rows))
+        return path
+
+    def test_spawn_attribution_nested_rollup_counts_each_turn_once(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload'])
+        self.assertTrue(self.tracker.link_child('session-a','turn-a','child'))
+        run=self.tracker.run_for('child');self.tracker.admit(run,'child','child-turn',mod.now())
+        self.assertTrue(self.tracker.link_child('child','child-turn','grandchild'))
+        self.tracker.admit(run,'grandchild','grand-turn',mod.now())
+        self.tracker.attach(self.child_source('child','child-turn',7),'session-a')
+        self.tracker.attach(self.child_source('grandchild','grand-turn',3),'child')
+        self.end('turn-a');self.tracker.sync()
+        root,child,grand=self.turn('turn-a'),self.turn('child-turn'),self.turn('grand-turn')
+        self.assertEqual(['child'],root['children']);self.assertEqual(['grandchild'],child['children'])
+        self.assertEqual(('child','child-turn'),(grand['parent_session'],grand['parent_turn']))
+        self.assertEqual((20,30,False),(root['output'],root['output_including_spawned'],root['rollup_partial']))
+        self.assertEqual((7,10),(child['output'],child['output_including_spawned']))
+        self.assertEqual([],self.tracker.snapshot()['unattributed_children'])
+
+    def test_unmeasured_descendant_makes_rollup_partial(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload'])
+        self.tracker.link_child('session-a','turn-a','child')
+        self.tracker.admit(self.tracker.run_for('child'),'child','child-turn',mod.now())
+        self.tracker.attach(self.child_source('child','child-turn'),'session-a')
+        self.end('turn-a');self.tracker.sync()
+        root=self.turn('turn-a')
+        self.assertEqual((20,20,True),(root['output'],root['output_including_spawned'],root['rollup_partial']))
+
+    def test_child_without_recorded_spawning_turn_is_unattributed(self):
+        self.attach();self.tracker.link_child('session-a','turn-a','child')
+        self.tracker.db.execute("UPDATE members SET parent_turn=NULL WHERE session_id='child'");self.tracker.db.commit()
+        snapshot=self.tracker.snapshot()
+        self.assertEqual([],self.turn('turn-a')['children'])
+        self.assertEqual([{'run_id':snapshot['runs'][0]['id'],'parent_session':'session-a','session_id':'child'}],snapshot['unattributed_children'])
+
+    def test_role_label_follows_reassignment_without_identity_change(self):
+        self.attach()
+        self.assertEqual(('coordinator','Coordinator'),(self.turn('turn-a')['role'],self.turn('turn-a')['label']))
+        self.tracker.agent_role('session-a','session-a','implementer','Implementer')
+        t=self.turn('turn-a')
+        self.assertEqual(('implementer','Implementer','session-a'),(t['role'],t['label'],t['session_id']))
+
+
+    def test_new_log_uses_keith_prompt_experiment_template(self):
+        self.attach()
+        body=self.tracker.ensure_log('test-increment').read_text()
+        self.assertTrue(body.startswith('# Synthetic increment\n'))
+        self.assertIn('Increment: `test-increment`. Requirements: EXP-01–06.',body)
+        self.assertIn('Turn activity',body);self.assertNotIn('Increment title',body)
+
+    def test_existing_member_log_header_is_preserved(self):
+        self.attach()
+        path=self.root/'logs/keith/test-increment.md';path.parent.mkdir(parents=True,exist_ok=True)
+        legacy=(self.root/'workflow/templates/member-log.md').read_text().replace('# Increment title','# Legacy header',1)
+        path.write_text(legacy)
+        self.tracker.checkpoint('test-increment','first','Implement','PASS synthetic tests')
+        self.assertTrue(path.read_text().startswith(legacy))
+
+    def test_missing_prompt_experiment_template_refuses_new_log(self):
+        self.attach();(self.root/'workflow/templates/keith-prompt-experiment.md').unlink()
+        (self.root/'logs/keith/test-increment.md').unlink()
+        with self.assertRaisesRegex(ValueError,'template missing'):self.tracker.ensure_log('test-increment')
+
+
+    def log_entry(self,checkpoint):
+        body=(self.root/'logs/keith/test-increment.md').read_text()
+        return body.split(f'<!-- experiment-checkpoint:test-increment:{checkpoint} -->',1)[1].split('<!-- experiment-checkpoint:',1)[0]
+
+    def test_checkpoint_tables_show_each_turn_once_and_reconcile_provisional(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.tracker.sync()
+        self.tracker.checkpoint('test-increment','first','Implement','Done')
+        first=self.log_entry('first')
+        self.assertIn('| Coordinator / coordinator | session- | root |',first)
+        self.assertIn('| provisional |',first);self.assertIn('No earlier provisional',first)
+        self.end('turn-a');self.begin('turn-b');self.append_record('token_usage_record',self.usage('r-b','turn-b')['payload'])
+        self.end('turn-b');self.tracker.sync()
+        self.tracker.checkpoint('test-increment','second','Continue','Done')
+        second=self.log_entry('second')
+        activity,reconciliation=second.split('### Reconciliation',1)
+        self.assertEqual(1,activity.count('| Coordinator / coordinator |'))
+        self.assertIn('| final | unavailable | unavailable | 20 | 10 | 20 |',activity)
+        self.assertIn('| provisional | final | 20 | 10 | 20 |',reconciliation)
+        self.assertEqual(first.rstrip(),self.log_entry('first').rstrip())  # Earlier entry and row unchanged.
+        self.tracker.checkpoint('test-increment','third','Again','Done')
+        third=self.log_entry('third')
+        self.assertIn('No new turns recorded',third);self.assertIn('No earlier provisional',third)
+
+    def test_checkpoint_turns_recover_after_database_loss_without_duplication(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.end('turn-a');self.tracker.sync()
+        path=self.tracker.checkpoint('test-increment','first','Implement','Done')
+        self.tracker.db.execute('DELETE FROM checkpoint_turns');self.tracker.db.execute('DELETE FROM checkpoints');self.tracker.db.commit()
+        body=path.read_text();self.tracker.checkpoint('test-increment','first','Changed','Changed')
+        self.assertEqual(body,path.read_text())
+        self.assertEqual(1,self.tracker.db.execute('SELECT count(*) FROM checkpoint_turns').fetchone()[0])
+        self.tracker.checkpoint('test-increment','second','Continue','Done')
+        self.assertIn('No new turns recorded',self.log_entry('second'))
+        self.assertEqual(1,self.tracker.db.execute('SELECT count(*) FROM checkpoint_turns').fetchone()[0])
+
+    def test_checkpoint_without_bounded_runs_reports_metrics_unavailable(self):
+        self.tracker.db.execute("INSERT INTO increments VALUES ('off-increment','Recording off','','','',?)",(mod.now(),))
+        self.tracker.db.commit()
+        path=self.tracker.checkpoint('off-increment','first','Narrative only','Done')
+        self.assertIn('Turn metrics unavailable: no admitted bounded turns',path.read_text())
+
+    def test_checkpoint_log_has_no_paths_or_full_session_ids(self):
+        self.attach();self.tracker.link_child('session-a','turn-a','child-session-full-id')
+        self.tracker.admit(self.tracker.run_for('child-session-full-id'),'child-session-full-id','child-turn',mod.now())
+        self.tracker.db.commit();self.append_record('token_usage_record',self.usage()['payload']);self.tracker.sync()
+        body=self.tracker.checkpoint('test-increment','first','Implement','Done').read_text()
+        entry=self.log_entry('first')
+        self.assertNotIn(str(self.root),body);self.assertNotIn('child-session-full-id',entry)
+        self.assertNotIn('session-a',entry.split('### Coverage')[0])
+        self.assertIn('spawned Unassigned agent / unassigned (child-se).',entry)
 
 
 if __name__=='__main__':unittest.main()
