@@ -34,6 +34,14 @@ The tracker SHALL deduplicate usage by source identity, preserve subset counters
 - **WHEN** an admitted completed turn has no usable total-token measurement or requested counters are unavailable
 - **THEN** reports and exports mark coverage partial, identify the gap, retain only observed totals without substituting zero, and reevaluate coverage if late measurements arrive.
 
+#### Scenario: Exact usage supersedes boundary ambiguity
+- **WHEN** an admitted turn's ambiguous cumulative sample is followed by valid response usage, within the same or a later sync
+- **THEN** fallback records and the boundary warning for that turn are removed, other unresolved turns and malformed-record warnings remain partial, and snapshots and exports reevaluate completeness.
+
+#### Scenario: Structurally malformed record
+- **WHEN** a source record contains malformed nested metadata such as a numeric timestamp or non-object token-count info
+- **THEN** sync skips the record without traceback, continues importing valid records and reports a redacted partial-coverage gap.
+
 ### Requirement: EXP-03 Experiment annotations
 The tracker SHALL associate increments and sessions explicitly and record hypotheses, coordination, context, verification, review and recovery annotations without inferring intent from tool calls.
 
@@ -63,6 +71,10 @@ The tracker SHALL provide offline filters, agent timelines, resource and compari
 #### Scenario: Filtered repeated tools
 - **WHEN** report filters narrow tool-call records to selected increments, groups, runs or sessions
 - **THEN** repeated-name candidates and counts are derived only from those tool records, names occurring once in that selection are omitted, and reset restores unfiltered counts.
+
+#### Scenario: Run-filtered annotations
+- **WHEN** a report selects a run with or without increment/group filters
+- **THEN** its decisions/context annotations are restricted to the selected run's increment and any selected session, conflicting filters return no annotations, reset restores all annotations, and the report identifies individual-run attribution as unavailable.
 
 ### Requirement: EXP-05 Keith increment logs
 The tracker SHALL create one template-based Keith log per increment and append idempotent substantial Request/Results checkpoints with evidence links, preserving previous entries.

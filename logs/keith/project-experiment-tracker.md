@@ -159,3 +159,50 @@ Implement explicit recording windows, graceful lifecycle controls, root roles an
 - Derive repeated-name counts from the selected tool records; exclude names occurring once locally and clear/restore results for empty filters/reset. Five new dashboard regressions failed before repair and pass afterward.
 - All 17 dashboard tests, 81 Python cases and full Node 24.21.0 project checks pass (14 strict changes, type/lint, 393 Vitest cases in 36 files, four deployment cases and build); whitespace checks pass. [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#filtered-repeated-tool-verification--2026-11-09).
 - Existing private sync/report succeeded without recording activation; current usage unavailable, historical exports unchanged. Publish follow-up in PR #23; no merge, deployment or live-client acceptance. Next owner: Keith for PR review and separately opted-in live verification.
+
+
+<!-- experiment-checkpoint:project-experiment-tracker:boundary-structural-repair-20261109 -->
+## Request
+
+Verify stale boundary warnings after exact usage and structural metadata tracebacks.
+
+## Results
+
+- Checkpoint: 2026-11-09T08:55:16.253421+00:00 (`boundary-structural-repair-20261109`); owner: Keith.
+- Changes and why: Keith-owned EXP-02/04/06/08 repair; main reproduced and self-reviewed both bugs, no children or independent review. Track boundary ambiguity per turn, clear matching warnings with exact usage, replay legacy checkpoints and skip malformed structural records with redacted partial coverage. Five new regressions; 86 Python cases and full Node 24.21.0 project checks pass (14 strict changes, type/lint, 393 Vitest cases, four deployment cases, build). Initial sandbox listener failure resolved with listener access. Private sync/report and whitespace checks pass without recording activation; request usage unavailable. Tasks 6.11–6.12 complete, overall 19/20; live-client task 5.4 pending. No commit/push/merge/deployment or shared exports.
+- Contributor / agent responsibilities: see linked experiment annotations; no inferred agent activity.
+- Measured usage: input 4735839; cached input subset 4712448; output 35044; reasoning output subset 12098; total 4770883.
+- Coverage/status: observed-complete; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded totals are excluded. Totals are cumulative for this increment; do not add checkpoint totals together.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Verification](../../workflow/evidence/project-experiment-tracker/recording-revision.md#boundary-warning-and-structural-record-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#boundary-warningstructural-record-continuation--2026-11-09).
+- Remaining limitations and next owner: Keith: review the repair and separately opt into live-client lifecycle verification..
+
+
+<!-- experiment-checkpoint:project-experiment-tracker:run-annotation-scope-20261109 -->
+## Request
+
+Verify run-only annotation leakage and repair conflicting filter behavior.
+
+## Results
+
+- Checkpoint: 2026-11-09T09:05:18.285676+00:00 (`run-annotation-scope-20261109`); owner: Keith.
+- Changes and why: Keith-owned EXP-03/04/09 repair; main reproduced and self-reviewed, no children or independent review. Restrict annotations to surviving selected-run increments, preserve session/task filters and reset, and disclose lack of individual-run attribution. All five new DOM regressions failed before repair; 22 dashboard and 86 Python cases pass after repair. Full Node 24.21.0 npm run check passes: 14 strict changes, type/lint, 398 Vitest cases, four deployment cases and build. Updated spec validation, whitespace and private sync/report checks pass. Task 6.13 complete, overall 20/21; live-client task 5.4 pending. Recording remains off; usage unavailable. Existing uncommitted repairs preserved, no commit/push/merge/deployment or shared export.
+- Contributor / agent responsibilities: see linked experiment annotations; no inferred agent activity.
+- Measured usage: input 4735839; cached input subset 4712448; output 35044; reasoning output subset 12098; total 4770883.
+- Coverage/status: observed-complete; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded totals are excluded. Totals are cumulative for this increment; do not add checkpoint totals together.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Verification](../../workflow/evidence/project-experiment-tracker/recording-revision.md#run-scoped-annotation-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#run-scoped-annotations-continuation--2026-11-09).
+- Remaining limitations and next owner: Keith: review repair and separately opt into live-client lifecycle verification..
+
+
+## Request
+
+2026-11-09: Commit the verified tracker repairs and push them to PR #23.
+
+## Results
+
+- Human owner Keith; main publication/self-review only, no child agents. Confirmed PR #23 is open on `codex/project-experiment-tracker`, matching this checkout and remote base `3da108b`.
+- Publish EXP-02/03/04/06/08/09 repairs for boundary-warning recovery, safe malformed-record coverage and run-filtered annotations, including their regression tests and existing planning/evidence/handoff updates.
+- Reuse completed validation: 86 Python cases; Node 24.21.0 `npm run check` passing 14 strict changes, type/lint, 398 Vitest cases, four deployment cases and build. Staged diff/whitespace reviewed before commit. No implementation changes since those checks.
+- [Boundary/structural evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#boundary-warning-and-structural-record-verification--2026-11-09); [annotation evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#run-scoped-annotation-verification--2026-11-09). Recording remains off, usage unavailable; no independent review.
+- Commit/push authorized by this request; publication result is verified from Git/PR metadata after execution. Task 5.4 remains pending; next owner Keith for PR review and separately opted-in live verification. No merge or deployment.

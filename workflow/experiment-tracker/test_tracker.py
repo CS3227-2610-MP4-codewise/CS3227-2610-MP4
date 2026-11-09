@@ -781,6 +781,96 @@ class TrackerTest(unittest.TestCase):
         self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
         self.assertIn('partial',self.tracker.snapshot()['sources'][0]['warning'])
 
+    def cumulative(self, turn, n):
+        self.append_record('event_msg',{'type':'token_count','turn_id':turn,'info':{
+            'total_token_usage':{k:n if k in ('input_tokens','total_tokens') else 0 for k in mod.COUNTERS}}})
+
+    def boundary_setup(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.end('turn-a')
+        self.begin('turn-b');self.cumulative('turn-b',200);self.cumulative('turn-b',220);self.end('turn-b')
+
+    def test_exact_usage_clears_boundary_warning_same_or_later_sync(self):
+        self.boundary_setup()
+        # The ambiguous sample and exact response may arrive within one import.
+        self.append_record('token_usage_record',self.usage('response-b','turn-b')['payload'])
+        self.tracker.sync()
+        self.assertIsNone(self.tracker.snapshot()['sources'][0]['warning'])
+        self.assertEqual('observed-complete',self.tracker.snapshot()['status'])
+        self.begin('turn-c');self.cumulative('turn-c',300);self.end('turn-c');self.tracker.sync()
+        self.assertIn('Boundary',self.tracker.snapshot()['sources'][0]['warning'])
+        self.append_record('token_usage_record',self.usage('response-c','turn-c')['payload'])
+        for _ in range(2):
+            self.tracker.sync()
+            snapshot=self.tracker.snapshot()
+            self.assertIsNone(snapshot['sources'][0]['warning'])
+            self.assertEqual('observed-complete',snapshot['status'])
+            self.assertEqual(360,snapshot['totals']['total_tokens'])
+            self.assertFalse(any(r['kind']=='usage_fallback' for r in snapshot['records']))
+        exported=mod.export_summary(self.tracker,'test-increment',self.root/'export')
+        self.assertEqual('observed-complete',json.loads((exported/'summary.json').read_text())['status'])
+
+    def test_exact_usage_preserves_other_turn_boundary_and_malformed_warnings(self):
+        self.boundary_setup();self.begin('turn-c');self.cumulative('turn-c',300);self.end('turn-c')
+        with self.source.open('a') as f:f.write('[]\n')
+        self.tracker.sync()
+        self.append_record('token_usage_record',self.usage('response-b','turn-b')['payload']);self.tracker.sync()
+        warning=self.tracker.snapshot()['sources'][0]['warning']
+        self.assertIn('Boundary',warning);self.assertIn('Malformed',warning)
+        self.append_record('token_usage_record',self.usage('response-c','turn-c')['payload']);self.tracker.sync()
+        warning=self.tracker.snapshot()['sources'][0]['warning']
+        self.assertNotIn('Boundary',warning);self.assertIn('Malformed',warning)
+        self.assertEqual('partial',self.tracker.snapshot()['status'])
+
+    def test_legacy_boundary_warning_checkpoint_replays_for_turn_provenance(self):
+        self.boundary_setup();self.tracker.sync()
+        row=self.tracker.db.execute('SELECT state FROM sources').fetchone()
+        state=json.loads(row['state']);state.pop('boundary_turns',None)
+        state.setdefault('warnings',[]).append('Boundary cumulative sample excluded: exact delta unavailable; coverage partial')
+        self.tracker.db.execute('UPDATE sources SET state=?',(json.dumps(state),));self.tracker.db.commit()
+        self.append_record('token_usage_record',self.usage('response-b','turn-b')['payload']);self.tracker.sync()
+        self.assertIsNone(self.tracker.snapshot()['sources'][0]['warning'])
+        self.assertEqual('observed-complete',self.tracker.snapshot()['status'])
+        self.assertEqual(240,self.tracker.snapshot()['totals']['total_tokens'])
+        # Repair a legacy warning even when exact usage is already in the consumed prefix.
+        state=json.loads(self.tracker.db.execute('SELECT state FROM sources').fetchone()['state'])
+        state.pop('boundary_turns',None)
+        state['warnings']=['Boundary cumulative sample excluded: exact delta unavailable; coverage partial']
+        self.tracker.db.execute('UPDATE sources SET state=?,warning=?',(json.dumps(state),state['warnings'][0]))
+        self.tracker.db.commit();self.tracker.sync()
+        self.assertIsNone(self.tracker.snapshot()['sources'][0]['warning'])
+        self.assertEqual('observed-complete',self.tracker.snapshot()['status'])
+
+    def test_structural_record_errors_become_redacted_coverage_gaps(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.end('turn-a')
+        self.begin('turn-b');self.tracker.sync()
+        malformed=[
+            {'type':'event_msg','timestamp':123,'payload':{'type':'task_started','turn_id':'turn-c'}},
+            self.record('event_msg',{'type':'token_count','turn_id':'turn-b','info':'PRIVATE-MALFORMED'}),
+            self.record('event_msg',{'type':'token_count','turn_id':'turn-b','info':[1]}),
+        ]
+        for row in malformed:
+            with self.source.open('a') as f:f.write(json.dumps(row)+'\n')
+        self.append_record('token_usage_record',self.usage('response-b','turn-b')['payload']);self.end('turn-b')
+        self.tracker.sync();self.tracker.sync()
+        snapshot=self.tracker.snapshot()
+        self.assertEqual(240,snapshot['totals']['total_tokens'])
+        self.assertEqual('partial',snapshot['status'])
+        self.assertIn('Malformed/unsupported',snapshot['sources'][0]['warning'])
+        self.assertNotIn('turn-c',[a['turn_id'] for a in snapshot['admitted_turns']])
+        self.assertNotIn('PRIVATE-MALFORMED',json.dumps(snapshot))
+
+    def test_sync_cli_skips_structural_errors_without_traceback(self):
+        self.attach();self.end('turn-a');self.begin('turn-b');self.tracker.sync()
+        with self.source.open('a') as f:
+            f.write(json.dumps({'type':'event_msg','timestamp':123,'payload':{'type':'task_started','turn_id':'turn-c'}})+'\n')
+        self.append_record('event_msg',{'type':'token_count','turn_id':'turn-b','info':42})
+        self.append_record('token_usage_record',self.usage('response-b','turn-b')['payload']);self.end('turn-b')
+        result=subprocess.run([sys.executable,str(Path(mod.__file__)),'--root',str(self.root),'sync'],capture_output=True,text=True)
+        self.assertEqual(0,result.returncode,result.stderr)
+        self.assertNotIn('Traceback',result.stderr)
+        self.assertIn('Malformed/unsupported',self.tracker.snapshot()['sources'][0]['warning'])
+        self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
+
     def test_v1_migration_backups_and_excludes_unbounded_records(self):
         self.tracker.db.execute("INSERT INTO records(id,source,session_id,ts,kind,data) VALUES ('legacy','old','old',?,'usage',?)",(mod.now(),json.dumps({'total_tokens':999})))
         self.tracker.db.execute("UPDATE settings SET value='1' WHERE key='version'");self.tracker.db.commit();self.tracker.db.close()

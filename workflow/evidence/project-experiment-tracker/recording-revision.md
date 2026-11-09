@@ -142,3 +142,30 @@ Next owner: Keith reviews the follow-up in PR #23 and later explicitly opts into
 Input: `bfdbec8`, PR #23. Confirmed the report scoped its tool records/call header but rendered the snapshot's global repeated-name aggregate. Recompute name counts from selected tool records with a Map, retain counts above one, and render that derived object. No collector/snapshot or application runtime change. Requirements EXP-04/09; task 6.10 complete, overall 17/18; live-client task 5.4 remains open. Main implementation/self-review only, no children or independent reviewer.
 
 Five new DOM regressions failed before repair and pass afterward: increment/group/run/session selections show local counts, exclude names repeated elsewhere or used only once locally, and empty selections/reset clear/restore counts consistently with the observed-call header. All 17 dashboard tests and 81 Python tracker cases pass. Full Node 24.21.0 `npm run check` passes: 14 strict OpenSpec changes, typecheck, lint, 393 Vitest cases in 36 files (including 17 dashboard cases), four deployment cases and build. `git diff --check` passes. Existing private sync/report succeeds without recording activation; usage for this request is unavailable and shared historical exports stay unchanged. Repeated names remain descriptive candidates, not inferred waste. Next owner: Keith reviews PR #23; no merge, deployment or live-client verification.
+
+
+## Boundary-warning and structural-record verification — 2026-11-09
+
+Keith owns this bounded repair (EXP-02/04/06/08; tasks 6.11–6.12). Main implemented and self-reviewed; no child agents or independent review. Both user findings reproduced against the original implementation: five new cases produced four failures and one error, including the CLI AttributeError traceback. A new test assertion used an incorrect snapshot key; corrected it to `admitted_turns` before final validation.
+
+- Boundary ambiguity now retains unresolved turn IDs and derives its source-wide message after import. Exact response usage removes only that turn and its fallback records, within the same sync or a later one. Other unresolved boundaries and generic malformed warnings remain partial. Legacy checkpoints replay once to recover turn provenance, including stale warnings whose exact records were already consumed.
+- Numeric timestamps are rejected before changing source turn state. The per-record parser catches structural AttributeError and continues with later valid records, retaining only the fixed redacted partial warning. No broad CLI exception suppression or raw error persistence was added.
+- `python3 -m unittest discover -s workflow/experiment-tracker -v`: 86 cases passed (five new), covering same/incremental sync recovery, repeated sync, exports, multiple unresolved turns, malformed-warning isolation, legacy replay, malformed numeric/list/string metadata and CLI success without traceback.
+- `PATH=/Users/keith/.nvm/versions/node/v24.21.0/bin:$PATH npm run check`: passed strict validation of 14 changes, typecheck, lint, 393 Vitest cases in 36 files (including 17 dashboard regressions), four deployment cases and build. The first sandboxed attempt failed because local test listeners were denied (`listen EPERM`); the rerun with local listener access passed.
+- `git diff --check`: passed. Existing private `sync` and `report` succeeded, queued=0, without start/resume or new exports. Request usage unavailable; historical shared evidence unchanged.
+
+Tasks 6.11–6.12 complete; overall 19/20. Live-client task 5.4 remains pending. Generic parser warnings remain source-wide and persist until source replay resolves them. No commit, push, merge, deployment, live callback observation or independent review is claimed. Next owner Keith: review the repair and separately opt into live lifecycle verification.
+
+
+## Run-scoped annotation verification — 2026-11-09
+
+Keith-owned EXP-03/04/09 repair; main implemented and self-reviewed without child agents or independent review. Confirmed the run-only filter left `!inc && !group` true and leaked workspace annotations into the decisions/context table. Five new DOM regressions all failed against the original template; all pass after repair.
+
+Intersect annotations with the increments of runs surviving increment/group/run/session filters when a run is selected. Conflicting filters yield an empty set. Existing session/task filters and reset behavior remain, including increment-wide annotations without session identity when no session filter is selected. Report text explicitly identifies the lack of individual-run annotation attribution; runs sharing an increment cannot be distinguished by these annotations.
+
+- `npx vitest run workflow/experiment-tracker/report.test.ts` (Node 24.21.0): 22 cases passed, including five new cases for run-only selection/reset, conflicting increment/group/session filters and overlapping session IDs across increments.
+- `python3 -m unittest discover -s workflow/experiment-tracker -v`: all 86 cases passed.
+- `npm run check` (Node 24.21.0, local listener access for Miniflare): passed 14 strict changes, typecheck, lint, 398 Vitest cases in 36 files, four deployment cases and build.
+- Updated spec validated separately with `openspec validate project-experiment-tracker --strict`; `git diff --check` passed. Private sync/report refreshed successfully without start/resume or shared exports.
+
+Task 6.13 complete; overall 20/21, with live-client task 5.4 still pending. No commit/push/merge/deployment or independent review claimed. Request usage unavailable; recording remains off. Next owner Keith: review repair and separately opt into live-client verification.

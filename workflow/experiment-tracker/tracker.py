@@ -22,6 +22,7 @@ from recording import Recording, session_metadata
 
 VERSION = 2
 OWNER = "Codewise experiment tracker"
+BOUNDARY_WARNING = "Boundary cumulative sample excluded: exact delta unavailable; coverage partial"
 EVENTS = ("SessionStart", "SessionEnd", "SubagentStart", "SubagentStop", "Stop",
           "Interrupt", "PreToolUse", "PostToolUse", "PreCompact", "PostCompact",
           "UserPromptSubmit", "PreModelRequest", "PostModelRequest")
@@ -314,7 +315,8 @@ class Tracker(Recording):
                 consumed.update(chunk)
                 remaining -= len(chunk)
             if (source['prefix'] != digest or remaining or
-                    offset and state.get('consumed_sha256') != consumed.hexdigest()):
+                    offset and state.get('consumed_sha256') != consumed.hexdigest() or
+                    BOUNDARY_WARNING in state.get('warnings', []) and 'boundary_turns' not in state):
                 # Source replay must never erase the preserved v1/unbounded archive.
                 self.db.execute("DELETE FROM records WHERE source=? AND run_id IS NOT NULL", (str(path),))
                 # Terminal/abort flags are derived from this session's source.
@@ -323,7 +325,9 @@ class Tracker(Recording):
                 offset, state = 0, {}
                 consumed = hashlib.sha256()
             f.seek(offset)
-            warnings = set(state.get('warnings', []))
+            # Old source-wide boundary warnings require replay above to recover turn identity.
+            state.setdefault('boundary_turns', [])
+            warnings = set(state.get('warnings', [])) - {BOUNDARY_WARNING}
             while True:
                 position = f.tell()
                 line = f.readline(16 * 1024 * 1024 + 1)
@@ -338,11 +342,12 @@ class Tracker(Recording):
                 try:
                     record = json.loads(line)
                     self.import_record(sid, str(path), position, record, state)
-                except (ValueError, TypeError, KeyError):
+                except (ValueError, TypeError, KeyError, AttributeError):
                     warnings.add('Malformed/unsupported records skipped; coverage partial')
             state.pop('tail', None)  # Upgrade legacy tail-only checkpoints on replay.
             state['consumed_sha256'] = consumed.hexdigest()
-            warnings.update(state.get('warnings',[]))
+            if state['boundary_turns']:
+                warnings.add(BOUNDARY_WARNING)
             state['warnings'] = sorted(warnings)
             self.db.execute("UPDATE sources SET offset=?,prefix=?,state=?,warning=?,last_sync=? WHERE path=?",
                             (offset, digest, json.dumps(state), '; '.join(sorted(warnings)) or None, now(), str(path)))
@@ -355,6 +360,7 @@ class Tracker(Recording):
             raise ValueError('Invalid metadata record')
         p=record.get('payload',{});rt=record.get('type');pt=p.get('type')
         ts=record.get('timestamp') or now()
+        safe_text(ts, 150)  # Reject structural timestamp errors before mutating turn state.
         turn=p.get('turn_id') or state.get('turn')
         if turn: identifier(turn)
         if rt=='turn_context':
@@ -376,6 +382,7 @@ class Tracker(Recording):
                     state.setdefault('response_turns',[])
                     if turn not in state['response_turns']: state['response_turns'].append(turn)
                     self.db.execute("DELETE FROM records WHERE session_id=? AND turn_id=? AND kind='usage_fallback' AND run_id IS NOT NULL",(sid,turn))
+                    state['boundary_turns']=[t for t in state.get('boundary_turns',[]) if t!=turn]
                     self.put(f"{sid}:response:{response}",source,sid,turn,ts,'usage',
                              {**usage,'model':state.get('model','unavailable'),'effort':state.get('effort','unavailable'),'method':'response_id'})
         elif rt=='event_msg' and pt=='token_count':
@@ -394,9 +401,8 @@ class Tracker(Recording):
                         self.put(rid,source,sid,turn,ts,'usage_fallback',
                                  {**delta,'model':state.get('model','unavailable'),'effort':state.get('effort','unavailable'),'method':'cumulative_delta'})
                 elif entry and turn not in state.get('response_turns',[]):
-                    state.setdefault('warnings',[])
-                    message='Boundary cumulative sample excluded: exact delta unavailable; coverage partial'
-                    if message not in state['warnings']:state['warnings'].append(message)
+                    state.setdefault('boundary_turns',[])
+                    if turn not in state['boundary_turns']:state['boundary_turns'].append(turn)
                 state['total']=total
                 state['fallback_ready']=True
         elif entry and rt=='event_msg' and pt in ('task_started','task_complete','turn_aborted'):

@@ -363,3 +363,107 @@ it('clears candidates for empty selections and restores counts on reset', () => 
     SharedOnce: 2,
   });
 });
+
+function annotationFixture() {
+  const data = fixture();
+  return {
+    ...data,
+    annotations: [
+      {
+        increment_id: 'complete',
+        session_id: 'good',
+        ts: data.generated,
+        kind: 'context',
+        agent: 'main',
+        task: 'editor',
+        data: { summary: 'Clean context' },
+      },
+      {
+        increment_id: 'incomplete',
+        session_id: 'bad',
+        ts: data.generated,
+        kind: 'decision',
+        agent: 'main',
+        task: 'review',
+        data: { summary: 'Unrelated decision' },
+      },
+      {
+        increment_id: 'complete',
+        session_id: null,
+        ts: data.generated,
+        kind: 'decision',
+        agent: 'main',
+        task: null,
+        data: { summary: 'Increment decision' },
+      },
+    ],
+  };
+}
+
+function annotationText() {
+  return (
+    [...document.querySelectorAll('section')].find(
+      (element) =>
+        element.querySelector('h2')?.textContent ===
+        'Decisions, context, reviews and handoffs — annotated',
+    )?.textContent ?? ''
+  );
+}
+
+it('scopes run-only annotations to the run increment and restores all annotations on reset', () => {
+  load(annotationFixture());
+  expect(annotationText()).toContain('Unrelated decision');
+  select('run', 'good-run');
+  expect(annotationText()).toContain('Clean context');
+  expect(annotationText()).toContain('Increment decision');
+  expect(annotationText()).not.toContain('Unrelated decision');
+  select('run', 'bad-run');
+  expect(annotationText()).toContain('Unrelated decision');
+  expect(annotationText()).not.toContain('Clean context');
+  expect(annotationText()).not.toContain('Increment decision');
+  document.getElementById('reset')?.click();
+  expect(annotationText()).toContain('Clean context');
+  expect(annotationText()).toContain('Unrelated decision');
+});
+
+it.each([
+  ['increment', 'incomplete'],
+  ['group', 'gaps'],
+  ['session', 'bad'],
+])(
+  'shows no annotations for a selected run conflicting with %s',
+  (id, value) => {
+    const data = annotationFixture();
+    // Shared-session annotations still must not cross a conflicting run boundary.
+    data.annotations.push({
+      ...data.annotations[0],
+      increment_id: 'incomplete',
+      data: { summary: 'Conflicting shared-session annotation' },
+    });
+    load(data);
+    select('run', 'good-run');
+    select(id, value);
+    expect(linkedSessions()).toBe('0');
+    expect(annotationText()).not.toContain('Clean context');
+    expect(annotationText()).not.toContain('Increment decision');
+    expect(annotationText()).not.toContain('Unrelated decision');
+    expect(annotationText()).not.toContain(
+      'Conflicting shared-session annotation',
+    );
+  },
+);
+
+it('retains session filtering within the selected run increment', () => {
+  const data = annotationFixture();
+  data.annotations.push({
+    ...data.annotations[0],
+    increment_id: 'incomplete',
+    data: { summary: 'Other increment with same session' },
+  });
+  load(data);
+  select('run', 'good-run');
+  select('session', 'good');
+  expect(annotationText()).toContain('Clean context');
+  expect(annotationText()).not.toContain('Increment decision');
+  expect(annotationText()).not.toContain('Other increment with same session');
+});

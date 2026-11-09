@@ -254,9 +254,12 @@
         const r = rows.at(-1);
         return r ? `${r.label} (${r.runtime_id}; ${session})` : session;
       };
+      // Annotations have increment/session identity, but no individual-run identity.
+      const runIncrements = new Set(runs.map((r) => r.increment_id));
       let annotations = data.annotations.filter(
         (a) =>
           ((!inc && !group) || incs.has(a.increment_id)) &&
+          (!runFilter || runIncrements.has(a.increment_id)) &&
           (!sid || a.session_id === sid),
       );
       if (task) {
@@ -584,7 +587,7 @@
           ];
         }),
       )}</section>`;
-      out += `<section><h2>Decisions, context, reviews and handoffs — annotated</h2>${table(
+      out += `<section><h2>Decisions, context, reviews and handoffs — annotated</h2><p>Annotations have increment and session attribution. Selecting a run shows its increment’s annotations; individual-run attribution is unavailable.</p>${table(
         ['Time', 'Kind / task', 'Agent', 'Redacted summary / evidence'],
         annotations.map((a) => [
           a.ts,

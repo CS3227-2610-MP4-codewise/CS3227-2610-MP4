@@ -58,3 +58,17 @@ Against `23e5b09`, both findings reproduced and repaired: replay reopens stopped
 ## Repeated-tool filter continuation — 2026-11-09
 
 Against `bfdbec8`, confirmed and repaired global repeated-tool names/counts leaking into filtered report views. Counts now derive from selected tool records and omit locally single-use names. [Verification](../evidence/project-experiment-tracker/recording-revision.md#filtered-repeated-tool-verification--2026-11-09): five failing-before DOM regressions now pass; all 17 report tests, 81 Python cases and full project checks (393+4) pass. Task 6.10 complete, overall 17/18; task 5.4 remains pending. Main-only work, no recording activation or independent review. Next owner: Keith reviews PR #23 and later explicitly opts into live-client verification.
+
+
+## Boundary-warning/structural-record continuation — 2026-11-09
+
+Keith-owned EXP-02/04/06/08 repair: unresolved boundary warnings are tracked per turn and removed when exact usage supersedes ambiguity; old checkpoints replay for provenance. Structural record errors are skipped at the parser boundary with a redacted coverage warning, allowing later valid metadata to import. Owned files: tracker implementation/tests/README, existing OpenSpec change, evidence/handoff and Keith log. Main implementation/self-review only; no children or independent review.
+
+[Verification](../evidence/project-experiment-tracker/recording-revision.md#boundary-warning-and-structural-record-verification--2026-11-09): both findings reproduced before repair; all 86 Python cases and full Node 24.21.0 project check pass (14 strict changes, type/lint, 393 Vitest cases, four deployment cases, build). Sandbox listener restriction resolved by rerunning checks with listener access. Private sync/report and whitespace checks pass; no recording activation or shared export. Tasks 6.11–6.12 complete, overall 19/20; live-client task 5.4 remains open. Next owner Keith for repair review and separately opted-in live verification. No commit/push/merge/deployment.
+
+
+## Run-scoped annotations continuation — 2026-11-09
+
+Keith-owned EXP-03/04/09 repair: scope decisions/context annotations to the increment of the run surviving all active filters and show none when filters conflict. Session/task filtering and reset remain supported. Annotations lack run IDs; report text discloses increment-level attribution. Owned files: report template/DOM tests/README, existing OpenSpec artifacts and evidence/handoff/Keith log. Main implementation/self-review only, no child agents.
+
+[Evidence](../evidence/project-experiment-tracker/recording-revision.md#run-scoped-annotation-verification--2026-11-09): five regressions failed before repair; 22 dashboard cases, 86 Python cases and full Node 24.21.0 project checks pass (14 strict changes, type/lint, 398 Vitest cases, four deployment cases, build). Updated spec validation, private sync/report and whitespace checks pass. Task 6.13 complete; overall 20/21. No recording activation or shared export; usage unavailable. Next owner Keith for review and separately opted-in live lifecycle verification (task 5.4). No commit/push/merge/deployment or independent review.

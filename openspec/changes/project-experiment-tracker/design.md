@@ -80,3 +80,15 @@ A historical stop recovery can coexist with a newer live run. Retain uniqueness 
 ## Filtered repeated-tool counts — 2026-11-09
 
 Build repeated tool-name candidates from the selected `kind=tool` records on every dashboard render. Count names using a Map and retain only counts above one. The observed-call header and candidates share the same record set; do not render the snapshot's whole-workspace aggregate in a filtered view. These remain descriptive name repetitions, not inferred waste or repeated analysis.
+
+
+## Boundary-warning recovery and structural records — 2026-11-09
+
+Store unresolved cumulative boundary turn IDs separately from generic parser warnings. Derive the source-wide boundary message from that set after each import; response usage removes only its own turn alongside fallback records. Existing checkpoints containing the old message without turn provenance replay once to reconstruct it, including when exact usage was consumed earlier. Generic malformed-record warnings remain partial until source replay resolves them.
+
+Reject non-string timestamps before updating turn state. Handle AttributeError alongside the existing malformed-record exceptions only at the per-record import boundary, allowing malformed nested metadata to be skipped while subsequent valid records import. Store only the fixed redacted coverage warning; no source payload or exception text is persisted. This does not widen the CLI's outer exception suppression.
+
+
+## Run-filtered annotations — 2026-11-09
+
+Annotations carry increment/session identity but no run ID. When a run filter is active, intersect annotation increments with the increments of the runs surviving all increment/group/run/session filters. Conflicting filters leave that set empty and therefore show no annotations. Preserve the existing session/task filters and workspace view on reset. State the increment-level attribution limit beside the decisions/context table; do not claim precise allocation between runs sharing an increment.

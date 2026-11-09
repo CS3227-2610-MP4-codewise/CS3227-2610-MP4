@@ -46,3 +46,8 @@
 - [x] 6.9 Recompute run partial flags from rebuilt admissions, preserving explicit partial-finalization provenance across replay and late completion; verify snapshots, exports and existing metadata upgrade (EXP-02/08/09).
 
 - [x] 6.10 Recompute repeated tool-name candidates and counts from selected report tool records; verify increment/group/run/session filtering, locally single-use names, empty selections and reset (EXP-04/09).
+
+- [x] 6.11 Track ambiguous cumulative boundary coverage per turn and clear only superseded warnings on exact usage; verify incremental/same-sync recovery, multiple turns, persistent malformed warnings and legacy checkpoints (EXP-02/04/08).
+- [x] 6.12 Skip structurally malformed admitted records safely and preserve redacted partial coverage; verify numeric timestamps, non-object token metadata and CLI sync without traceback (EXP-02/06).
+
+- [x] 6.13 Scope annotations to the selected run’s increment and return none for conflicting run/increment/group/session filters; verify run-only selection, session overlap and reset without inventing run attribution (EXP-03/04/09).
