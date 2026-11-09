@@ -226,3 +226,20 @@ export class RequestGenerations {
     this.controller = null;
   }
 }
+
+/**
+ * `/workspace` entry choice. Preserves the existing Instructor-first fallback,
+ * including an eligible first-admin Instructor with zero courses; a Student-only
+ * account opens the Student workspace. Role preferences never grant access: each
+ * workspace re-checks trusted contexts itself.
+ */
+export function chooseWorkspace(
+  requested: string | null,
+  roles: readonly ('student' | 'instructor')[],
+): 'student' | 'instructor' {
+  if (requested === 'student') return 'student';
+  if (requested !== null) return 'instructor';
+  return !roles.includes('instructor') && roles.includes('student')
+    ? 'student'
+    : 'instructor';
+}

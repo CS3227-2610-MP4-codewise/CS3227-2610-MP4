@@ -417,6 +417,154 @@ describe('student exact-version overview', () => {
   });
 });
 
+describe('maximum authorized overview payload', () => {
+  async function seed(
+    version: string,
+    instructions: string,
+    starter: string,
+    descriptor: string,
+    criteria: number,
+  ) {
+    await db.batch([
+      db
+        .prepare(
+          `INSERT INTO instructor_assignment_drafts(id,course_id,revision,payload,created_by,create_key,created_at,updated_at)
+           VALUES(?,'course-a',1,'{}','instructor-a',?,?,?)`,
+        )
+        .bind('a-' + version, 'k-' + version, iso(-20), iso(-20)),
+      db
+        .prepare(
+          `INSERT INTO instructor_assignment_publications(id,assignment_id,course_id,publication_number,source_revision,published_by,published_at,request_key,fingerprint,title,deadline_at)
+           VALUES(?,?,'course-a',1,1,'instructor-a',?,?,'fp',?,?)`,
+        )
+        .bind(
+          version,
+          'a-' + version,
+          iso(-5),
+          'r-' + version,
+          'T'.repeat(200),
+          iso(10),
+        ),
+    ]);
+    for (let q = 0; q < 20; q++)
+      await db.batch([
+        db
+          .prepare(
+            `INSERT INTO instructor_question_versions(id,question_id,publication_id,position,title,instructions,language,starter_code,private_reference)
+             VALUES(?,?,?,?,?,?,'python',?,?)`,
+          )
+          .bind(
+            version + '-q' + q,
+            'q' + q,
+            version,
+            q,
+            'Q'.repeat(200),
+            instructions,
+            starter,
+            PRIVATE,
+          ),
+        db
+          .prepare(
+            'INSERT INTO instructor_rubric_versions(id,rubric_id,question_version_id) VALUES(?,?,?)',
+          )
+          .bind(version + '-r' + q, 'r' + q, version + '-q' + q),
+        ...Array.from({ length: criteria }, (_, c) =>
+          db
+            .prepare(
+              'INSERT INTO instructor_criterion_versions(rubric_version_id,criterion_id,position,comparison_key,descriptor,minimum_units,maximum_units) VALUES(?,?,?,?,?,0,100)',
+            )
+            .bind(version + '-r' + q, 'c' + c, c, 'k' + c, descriptor),
+        ),
+      ]);
+  }
+
+  it('serves the largest publication C-PUB accepts and records the size', async () => {
+    const version = 'max-v1';
+    const starter = 'x = 1\n'.repeat(5000);
+    const shape = (instructions: number) => ({
+      schemaVersion: 1,
+      assignmentId: 'a-' + version,
+      assignmentVersionId: version,
+      courseId: 'course-a',
+      title: 'T'.repeat(200),
+      publishedAt: iso(-5),
+      deadlineAt: iso(10),
+      questions: Array.from({ length: 20 }, (_, q) => ({
+        questionId: 'q' + q,
+        questionVersionId: version + '-q' + q,
+        title: 'Q'.repeat(200),
+        instructions: 'I'.repeat(instructions),
+        language: 'python',
+        starterCode: starter,
+        rubricId: 'r' + q,
+        rubricVersionId: version + '-r' + q,
+        criteria: Array.from({ length: 30 }, (_, c) => ({
+          criterionId: 'c' + c,
+          comparisonKey: 'k' + c,
+          descriptor: 'D'.repeat(100),
+          minimumScore: 0,
+          maximumScore: 1,
+        })),
+      })),
+    });
+    // C-PUB caps total string and key content at 1 MiB; find the largest accepted size.
+    let low = 0,
+      high = 16384;
+    while (low < high) {
+      const mid = Math.ceil((low + high) / 2);
+      if (publicationSchema.safeParse(shape(mid)).success) low = mid;
+      else high = mid - 1;
+    }
+    expect(publicationSchema.safeParse(shape(low + 1)).success).toBe(false);
+    await seed(version, 'I'.repeat(low), starter, 'D'.repeat(100), 30);
+    const started = performance.now();
+    const response = await call(
+      '/api/student/publications/' + version,
+      'student',
+    );
+    const body = await response.text();
+    const elapsed = performance.now() - started;
+    expect(response.status).toBe(200);
+    const publication = publicationSchema.parse(JSON.parse(body));
+    expect(publication.questions).toHaveLength(20);
+    expect(publication.questions.map((q) => q.questionVersionId)).toEqual(
+      Array.from({ length: 20 }, (_, q) => version + '-q' + q),
+    );
+    expect(publication.questions[19].criteria).toHaveLength(30);
+    expect(body).not.toContain(PRIVATE);
+    const bytes = new TextEncoder().encode(body).length;
+    // Recorded in implementation evidence; bound is C-PUB-derived (~5.0 MB).
+    console.info(
+      JSON.stringify({
+        maxOverviewBytes: bytes,
+        elapsedMs: Math.round(elapsed),
+      }),
+    );
+    expect(bytes).toBeLessThan(5_500_000);
+  }, 60000);
+
+  it('pins question and rubric version IDs to the requested publication', async () => {
+    const v1 = publicationSchema.parse(
+      await (
+        await call('/api/student/publications/alpha-v1', 'student')
+      ).json(),
+    );
+    const v2 = publicationSchema.parse(
+      await (
+        await call('/api/student/publications/alpha-v2', 'student')
+      ).json(),
+    );
+    expect(v1.questions[0]).toMatchObject({
+      questionVersionId: 'qv-alpha-v1',
+      rubricVersionId: 'rv-alpha-v1',
+    });
+    expect(v2.questions[0]).toMatchObject({
+      questionVersionId: 'qv-alpha-v2',
+      rubricVersionId: 'rv-alpha-v2',
+    });
+  });
+});
+
 describe('application wiring', () => {
   it('routes /api/student/ through the authenticated boundary', async () => {
     const app = createApplication();

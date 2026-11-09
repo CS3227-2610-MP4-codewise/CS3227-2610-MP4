@@ -39,3 +39,10 @@
 - Still open: tasks 2.3, 3.x, 4.x and 5.x.
 
 - Decision (Keith, 2026-11-09): no SH-AUTH `/student…` return destinations in this change; sign-in lands on `/workspace`. Deferred to a later SH-AUTH change. No Darryl action required; spec SD-05, design §5, task 3.3 and proposal updated.
+
+## Second pass — 2026-11-09
+
+- Tasks 2.3–4.2 are done; see the follow-up section of [implementation-verification.md](../evidence/student-assignment-dashboard/implementation-verification.md).
+- Two repairs: stored content that breaks the contract now fails closed with 503, and failure messages are no longer shown twice.
+- `npm run check` exits 0 (452 tests). No dependency change.
+- Open: 5.1–5.3. They need a composed run against the real sign-in setup, ui-review evidence, manual acceptance and a final review. Next owner: Keith.

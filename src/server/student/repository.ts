@@ -7,7 +7,21 @@ import {
   publicationSchema,
   type Publication,
 } from '../../shared/instructor-contracts/publication';
-import { BoundaryError } from '../../shared/instructor-contracts/schema';
+import {
+  BoundaryError,
+  ContractError,
+} from '../../shared/instructor-contracts/schema';
+
+/** Stored data that fails the public contract fails closed as unavailable, never as a client error. */
+function stored<T>(decode: () => T): T {
+  try {
+    return decode();
+  } catch (error) {
+    if (error instanceof ContractError)
+      throw new BoundaryError('UPSTREAM_UNAVAILABLE');
+    throw error;
+  }
+}
 import {
   STUDENT_ASSIGNMENT_PAGE,
   decodeCursor,
@@ -69,24 +83,26 @@ export class StudentAssignments {
     const present = rows.results.filter((r) => r.id !== null);
     const page = present.slice(0, STUDENT_ASSIGNMENT_PAGE);
     const last = page.at(-1);
-    return studentAssignmentPageSchema.parse({
-      schemaVersion: 1,
-      course: {
-        id: rows.results[0].course_id,
-        name: rows.results[0].course_name,
-      },
-      items: page.map((r) => ({
-        assignmentId: r.assignment_id,
-        assignmentVersionId: r.id,
-        title: r.title,
-        publishedAt: r.published_at,
-        deadlineAt: r.deadline_at,
-      })),
-      nextCursor:
-        present.length > STUDENT_ASSIGNMENT_PAGE && last
-          ? encodeCursor(last.deadline_at!, last.assignment_id!)
-          : null,
-    });
+    return stored(() =>
+      studentAssignmentPageSchema.parse({
+        schemaVersion: 1,
+        course: {
+          id: rows.results[0].course_id,
+          name: rows.results[0].course_name,
+        },
+        items: page.map((r) => ({
+          assignmentId: r.assignment_id,
+          assignmentVersionId: r.id,
+          title: r.title,
+          publishedAt: r.published_at,
+          deadlineAt: r.deadline_at,
+        })),
+        nextCursor:
+          present.length > STUDENT_ASSIGNMENT_PAGE && last
+            ? encodeCursor(last.deadline_at!, last.assignment_id!)
+            : null,
+      }),
+    );
   }
 
   /** Exact version only: never substitutes the latest publication. */
@@ -153,34 +169,36 @@ export class StudentAssignments {
       minimum_units: number;
       maximum_units: number;
     }[];
-    const publication = publicationSchema.parse({
-      schemaVersion: 1,
-      assignmentId: r.assignment_id,
-      assignmentVersionId: r.id,
-      courseId: r.course_id,
-      title: r.title,
-      publishedAt: r.published_at,
-      deadlineAt: r.deadline_at,
-      questions: q.map((v) => ({
-        questionId: v.question_id,
-        questionVersionId: v.id,
-        title: v.title,
-        instructions: v.instructions,
-        language: v.language,
-        starterCode: v.starter_code,
-        rubricId: v.rubric_id,
-        rubricVersionId: v.rubric_version_id,
-        criteria: c
-          .filter((x) => x.rubric_version_id === v.rubric_version_id)
-          .map((x) => ({
-            criterionId: x.criterion_id,
-            comparisonKey: x.comparison_key,
-            descriptor: x.descriptor,
-            minimumScore: x.minimum_units / 100,
-            maximumScore: x.maximum_units / 100,
-          })),
-      })),
-    });
+    const publication = stored(() =>
+      publicationSchema.parse({
+        schemaVersion: 1,
+        assignmentId: r.assignment_id,
+        assignmentVersionId: r.id,
+        courseId: r.course_id,
+        title: r.title,
+        publishedAt: r.published_at,
+        deadlineAt: r.deadline_at,
+        questions: q.map((v) => ({
+          questionId: v.question_id,
+          questionVersionId: v.id,
+          title: v.title,
+          instructions: v.instructions,
+          language: v.language,
+          starterCode: v.starter_code,
+          rubricId: v.rubric_id,
+          rubricVersionId: v.rubric_version_id,
+          criteria: c
+            .filter((x) => x.rubric_version_id === v.rubric_version_id)
+            .map((x) => ({
+              criterionId: x.criterion_id,
+              comparisonKey: x.comparison_key,
+              descriptor: x.descriptor,
+              minimumScore: x.minimum_units / 100,
+              maximumScore: x.maximum_units / 100,
+            })),
+        })),
+      }),
+    );
     if (publication.assignmentVersionId !== versionId)
       throw new BoundaryError('NOT_FOUND');
     return publication;

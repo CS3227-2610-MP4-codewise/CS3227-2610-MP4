@@ -183,7 +183,13 @@ export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
         <h1 tabIndex={-1} ref={heading}>
           {title}
         </h1>
-        <p role="status" className="cw-student-status">
+        {/* Failures are announced here and shown once, visibly, in the notice below. */}
+        <p
+          role="status"
+          className={
+            state.phase === 'failed' ? 'cw-sr-only' : 'cw-student-status'
+          }
+        >
           {state.phase === 'loading' ? 'Loading…' : announcement}
         </p>
         {state.phase === 'failed' && (

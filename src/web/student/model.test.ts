@@ -310,6 +310,20 @@ describe('student rendering', () => {
     expect(html).toContain('    return 1');
   });
 
+  it('keeps plain-text meaning and renders long content without truncation', () => {
+    const long = Array.from({ length: 400 }, (_, i) => 'Step ' + i + '.').join(
+      ' ',
+    );
+    const html = renderToStaticMarkup(
+      createElement(InstructionText, {
+        value: 'Return x * 2 when x > 0.\n\n' + long,
+      }),
+    );
+    expect(html).toContain('Return x * 2 when x &gt; 0.');
+    expect(html).toContain('Step 0.');
+    expect(html).toContain('Step 399.');
+  });
+
   it('never persists protected student data in browser storage', async () => {
     const files = (await readdir('src/web/student')).filter(
       (name) => /\.tsx?$/.test(name) && !name.endsWith('.test.ts'),

@@ -89,3 +89,52 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 6336655; cached input subset 6190058; output 61140; reasoning output subset 12068; total 6397795.
 - Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-assignment-dashboard:followup-tests-2026-11-09 -->
+<!-- experiment-turns:followup-tests-2026-11-09:f30bc0978e533338,c1e82e2ff8a6b67f,a7bff704906e9b46,aa423308f6126837,338aa8542418986d,2cac428c0f656527,70c03957a0247f72,67373f1cbb9d06bb,701888729b1d0333,f34c2153156eae1a,a1caed28b630f21b,ddb91aa09d8487bc -->
+## Checkpoint `followup-tests-2026-11-09` — 2026-11-09T14:44:51.300092+00:00
+
+### Request
+
+PR 25 drafted; Darryl approval recorded as reported by Keith; sign-in return to /student descoped (SD-05/design/3.3/proposal); continue remaining tasks
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Draft PR 25 opened (2b2da64), record/descoping commit 7e238c2; tasks 2.3-4.2 verified and ticked with jsdom/D1 tests; repairs: invalid stored data fails closed 503, single visible failure message; max overview 1,048,564 bytes; npm run check exit 0 (452 tests); no child agents
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-assignment-dashboard/implementation-verification.md.
+- Remaining limitations and next owner: Keith: composed run with real sign-in, ui-review evidence, manual acceptance (5.1-5.3); obtain GitHub review on PR 25.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T13:51:20.793Z | 2026-11-09T13:51:28.863Z | final | claude-opus-5-5 | medium | 728 | 143 | 728 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T13:53:12.444Z | 2026-11-09T13:53:46.581Z | final | claude-opus-5-5 | medium | 2733 | 105 | 2733 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T13:55:58.209Z | 2026-11-09T13:56:12.596Z | final | claude-opus-5-5 | medium | 1149 | 81 | 1149 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:00:32.786Z | 2026-11-09T14:00:46.071Z | final | claude-opus-5-5 | medium | 1294 | 201 | 1294 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:05:03.672Z | 2026-11-09T14:05:16.257Z | final | claude-opus-5-5 | medium | 1059 | 305 | 1059 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:05:53.328Z | 2026-11-09T14:06:04.845Z | final | claude-opus-5-5 | medium | 1009 | 251 | 1009 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:10:18.607Z | 2026-11-09T14:10:29.985Z | final | claude-opus-5-5 | medium | 984 | 260 | 984 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:32:59.447Z | 2026-11-09T14:33:28.703Z | final | claude-opus-5-5 | medium | 2499 | 708 | 2499 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:33:49.270Z | 2026-11-09T14:34:15.722Z | final | claude-opus-5-5 | medium | 2567 | 61 | 2567 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:36:33.865Z | 2026-11-09T14:36:44.930Z | final | claude-opus-5-5 | medium | 926 | 169 | 926 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T14:37:15.613Z | open | provisional | claude-opus-5-5 | medium | 28126 | 6376 | 28126 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | 2026-11-09T13:38:25.837Z | provisional | final | 53037 | 10770 | 53037 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 17041088; cached input subset 16833152; output 105426; reasoning output subset 20777; total 17146514.
+- Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
