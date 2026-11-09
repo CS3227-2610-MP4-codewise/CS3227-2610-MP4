@@ -100,6 +100,14 @@ The tracker SHALL expose start/pause/resume/stop/status and explicit partial fin
 - **WHEN** a truncated or rewritten transcript no longer contains a previously imported terminal record for an admitted turn
 - **THEN** replay clears that turn's source-derived terminal and abort flags, reconstructs surviving terminal evidence, preserves unrelated sessions and explicit partial finalization, and pause/stop cannot finish draining from the removed evidence.
 
+#### Scenario: Replay invalidates a settled lifecycle
+- **WHEN** a rewrite removes terminal evidence after pause or stop has settled
+- **THEN** the affected run returns to the corresponding draining state without reactivating recording, and restored evidence or explicit partial finalization can recover it without disrupting a newer run.
+
+#### Scenario: Rebuilt partial provenance
+- **WHEN** replay removes abort evidence and normal completion survives or later arrives
+- **THEN** admission and run partial flags are rebuilt from surviving evidence, while explicit partial-finalization provenance remains partial through replay and late completion.
+
 ### Requirement: EXP-09 Agent roles and bounded reports
 The tracker SHALL preserve actual runtime identities separately from assigned roles/display labels and show run/window provenance, lifecycle states, coverage and legacy exclusions in reports and logs.
 

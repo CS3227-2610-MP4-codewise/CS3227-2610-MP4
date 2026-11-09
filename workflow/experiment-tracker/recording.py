@@ -32,8 +32,9 @@ class Recording:
         row = self.db.execute("SELECT value FROM settings WHERE key='version'").fetchone()
         if row and int(row[0]) not in (1, 2):
             raise ValueError('Unsupported tracker database version')
-        if row and int(row[0]) == 1:
-            backup = self.state / 'backups' / ('v1-' + uuid.uuid4().hex + '.sqlite3')
+        admission_columns = {r['name'] for r in self.db.execute('PRAGMA table_info(admitted)')}
+        if row and (int(row[0]) == 1 or 'finalized_partial' not in admission_columns):
+            backup = self.state / 'backups' / ('v' + row[0] + '-' + uuid.uuid4().hex + '.sqlite3')
             backup.parent.mkdir(mode=0o700, exist_ok=True)
             with contextlib.closing(sqlite3.connect(backup)) as destination:
                 self.db.backup(destination)
@@ -43,7 +44,10 @@ class Recording:
             statements = [
                 '''CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,increment_id TEXT NOT NULL,
                    root TEXT NOT NULL,state TEXT NOT NULL,created TEXT NOT NULL,partial INTEGER NOT NULL DEFAULT 0)''',
-                '''CREATE UNIQUE INDEX IF NOT EXISTS active_root ON runs(root) WHERE state!='stopped' ''',
+                '''DROP INDEX IF EXISTS active_root''',
+                # Historical stop recovery may coexist with a newer live run.
+                '''CREATE UNIQUE INDEX active_root ON runs(root)
+                   WHERE state IN ('recording','paused','draining-to-pause')''',
                 '''CREATE TABLE IF NOT EXISTS windows(id TEXT PRIMARY KEY,run_id TEXT NOT NULL,
                    opened TEXT NOT NULL,closed TEXT)''',
                 '''CREATE TABLE IF NOT EXISTS members(run_id TEXT NOT NULL,session_id TEXT NOT NULL,parent TEXT,
@@ -60,6 +64,14 @@ class Recording:
             for field in ('run_id', 'window_id'):
                 if field not in columns:
                     self.db.execute(f'ALTER TABLE records ADD COLUMN {field} TEXT')
+            columns = {r['name'] for r in self.db.execute('PRAGMA table_info(admitted)')}
+            if 'finalized_partial' not in columns:
+                self.db.execute('ALTER TABLE admitted ADD COLUMN finalized_partial INTEGER NOT NULL DEFAULT 0 CHECK(finalized_partial IN (0,1))')
+                # Older explicit finalization is identifiable by a partial row
+                # with no terminal evidence; do not relabel abort-derived rows.
+                self.db.execute('UPDATE admitted SET finalized_partial=1 WHERE partial=1 AND terminal IS NULL')
+            for run in self.db.execute('SELECT id FROM runs').fetchall():
+                self.reconcile_run(run['id'])
             self.db.execute("INSERT OR REPLACE INTO settings VALUES ('version','2')")
             if row and int(row[0]) == 1:
                 self.db.execute("INSERT OR REPLACE INTO settings VALUES ('legacy_notice','v1 unbounded records retained and excluded')")
@@ -170,13 +182,15 @@ class Recording:
         except Exception:
             self.db.rollback();raise
 
-    def control(self, sid, action):
+    def control(self, sid, action, run_id=None):
         # Reconcile terminal evidence before freezing the active-turn set.
         self.sync()
         turn=self.current_turn(sid) if action=='resume' else None
         self.db.execute('BEGIN IMMEDIATE')
         try:
-            run=self.run_for(sid)
+            if run_id is not None and action != 'finalize':
+                raise ValueError('Only partial finalization accepts a target run')
+            run=self.db.execute('SELECT * FROM runs WHERE id=?',(run_id,)).fetchone() if run_id is not None else self.run_for(sid)
             if not run or run['root']!=sid:
                 raise ValueError('Lifecycle commands require an open root run')
             if action=='resume':
@@ -193,35 +207,43 @@ class Recording:
                     raise ValueError('Run is already draining')
                 self.db.execute("UPDATE runs SET state=? WHERE id=?",('draining-to-'+action,run['id']))
                 self.db.execute('UPDATE windows SET closed=? WHERE run_id=? AND closed IS NULL',(stamp(),run['id']))
-                self.settle(run['id'])
+                self.reconcile_run(run['id'])
             elif action=='finalize':
                 if not run['state'].startswith('draining-'):
                     raise ValueError('Partial finalization requires draining state')
-                self.db.execute('UPDATE admitted SET partial=1 WHERE run_id=? AND terminal IS NULL',(run['id'],))
-                self.db.execute("UPDATE runs SET state='stopped',partial=1 WHERE id=?",(run['id'],))
+                self.db.execute('UPDATE admitted SET finalized_partial=1 WHERE run_id=? AND terminal IS NULL',(run['id'],))
+                self.db.execute("UPDATE runs SET state='stopped' WHERE id=?",(run['id'],))
+                self.reconcile_run(run['id'])
             else:
                 raise ValueError('Unknown lifecycle action')
             self.db.commit()
         except Exception:
             self.db.rollback();raise
-        return self.recording_status(sid)
+        return self.recording_status(sid,run['id'])
 
-    def settle(self, run_id):
+    def reconcile_run(self, run_id):
+        """Rebuild aggregates without changing the requested recording boundary."""
         run=self.db.execute('SELECT * FROM runs WHERE id=?',(run_id,)).fetchone()
-        if run and run['state'].startswith('draining-'):
-            pending=self.db.execute('SELECT 1 FROM admitted WHERE run_id=? AND terminal IS NULL AND partial=0',(run_id,)).fetchone()
-            if not pending:
-                self.db.execute('UPDATE runs SET state=? WHERE id=?',
-                                ('paused' if run['state']=='draining-to-pause' else 'stopped',run_id))
+        if not run:
+            return
+        self.db.execute("""UPDATE admitted SET partial=CASE
+            WHEN finalized_partial=1 OR terminal='turn_aborted' THEN 1 ELSE 0 END
+            WHERE run_id=?""",(run_id,))
+        partial=self.db.execute('SELECT 1 FROM admitted WHERE run_id=? AND partial=1',(run_id,)).fetchone() is not None
+        pending=self.db.execute('SELECT 1 FROM admitted WHERE run_id=? AND terminal IS NULL AND partial=0',(run_id,)).fetchone() is not None
+        state=run['state']
+        if state in ('stopped','draining-to-stop'):
+            state='draining-to-stop' if pending else 'stopped'
+        elif state in ('paused','draining-to-pause'):
+            state='draining-to-pause' if pending else 'paused'
+        self.db.execute('UPDATE runs SET state=?,partial=? WHERE id=?',(state,int(partial),run_id))
 
     def terminal(self, sid, turn, status):
         entry=self.admission(sid,turn)
         if entry:
-            self.db.execute('UPDATE admitted SET terminal=?,partial=? WHERE session_id=? AND turn_id=?',
-                            (status,int(status!='task_complete'),sid,turn))
-            if status!='task_complete':
-                self.db.execute('UPDATE runs SET partial=1 WHERE id=?',(entry['run_id'],))
-            self.settle(entry['run_id'])
+            self.db.execute('UPDATE admitted SET terminal=? WHERE session_id=? AND turn_id=?',
+                            (status,sid,turn))
+            self.reconcile_run(entry['run_id'])
 
     def admit_started(self, sid, turn, at):
         entry=self.admission(sid,turn)
@@ -247,10 +269,13 @@ class Recording:
         self.db.execute('INSERT OR IGNORE INTO members VALUES (?,?,?)',(run['id'],child,parent))
         return True
 
-    def recording_status(self, sid):
-        run=self.db.execute('SELECT r.* FROM runs r JOIN members m ON m.run_id=r.id WHERE m.session_id=? ORDER BY r.created DESC LIMIT 1',
-                            (sid,)).fetchone()
+    def recording_status(self, sid, run_id=None):
+        run=self.run_for(sid) if run_id is None else None
+        run=run or self.db.execute('SELECT r.* FROM runs r JOIN members m ON m.run_id=r.id WHERE m.session_id=? AND (? IS NULL OR r.id=?) ORDER BY r.created DESC LIMIT 1',
+                            (sid,run_id,run_id)).fetchone()
         if not run:
+            if run_id is not None:
+                raise ValueError('Requested run is not linked to this session')
             return {'session':sid,'state':'off','pending_turns':[]}
         return {**dict(run),'pending_turns':[dict(r) for r in self.db.execute(
             'SELECT session_id,turn_id,partial FROM admitted WHERE run_id=? AND terminal IS NULL',(run['id'],))],

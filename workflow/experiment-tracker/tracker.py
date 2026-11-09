@@ -318,11 +318,8 @@ class Tracker(Recording):
                 # Source replay must never erase the preserved v1/unbounded archive.
                 self.db.execute("DELETE FROM records WHERE source=? AND run_id IS NOT NULL", (str(path),))
                 # Terminal/abort flags are derived from this session's source.
-                # Keep explicit partial finalization (terminal already NULL),
-                # but require fresh terminal evidence when rebuilding records.
-                self.db.execute("""UPDATE admitted SET
-                    partial=CASE WHEN terminal IS NULL THEN partial ELSE 0 END,
-                    terminal=NULL WHERE session_id=?""", (sid,))
+                # Durable explicit finalization survives terminal replay.
+                self.db.execute('UPDATE admitted SET partial=finalized_partial,terminal=NULL WHERE session_id=?', (sid,))
                 offset, state = 0, {}
                 consumed = hashlib.sha256()
             f.seek(offset)
@@ -349,6 +346,8 @@ class Tracker(Recording):
             state['warnings'] = sorted(warnings)
             self.db.execute("UPDATE sources SET offset=?,prefix=?,state=?,warning=?,last_sync=? WHERE path=?",
                             (offset, digest, json.dumps(state), '; '.join(sorted(warnings)) or None, now(), str(path)))
+        for run in self.db.execute('SELECT DISTINCT run_id FROM admitted WHERE session_id=?',(sid,)).fetchall():
+            self.reconcile_run(run['run_id'])
         self.db.commit()
 
     def import_record(self, sid, source, position, record, state):
@@ -742,6 +741,7 @@ def parser():
     for command in ('pause','resume','stop','status','finalize'):
         control=sub.add_parser(command);control.add_argument('--session',required=True)
         if command=='finalize':control.add_argument('--partial',action='store_true',required=True)
+        if command in ('status','finalize'):control.add_argument('--run')
     role=sub.add_parser('agent-role');role.add_argument('--session',required=True);role.add_argument('--agent',required=True)
     role.add_argument('--role',required=True);role.add_argument('--label',required=True);role.add_argument('--runtime-id')
     start.add_argument('--role',default='coordinator');start.add_argument('--label',default='Coordinator')
@@ -773,10 +773,10 @@ def main(argv=None):
             tracker.start(args.increment,args.title,args.requirements,args.hypothesis,args.group,args.session,args.role,args.label)
             print(tracker.ensure_log(args.increment))
         elif args.command in ('pause','resume','stop','finalize'):
-            print(json.dumps(tracker.control(args.session,args.command),indent=2))
+            print(json.dumps(tracker.control(args.session,args.command,getattr(args,'run',None)),indent=2))
         elif args.command == 'status':
             tracker.sync()
-            print(json.dumps(tracker.recording_status(args.session),indent=2))
+            print(json.dumps(tracker.recording_status(args.session,args.run),indent=2))
         elif args.command == 'agent-role':
             tracker.agent_role(args.session,args.agent,args.role,args.label,args.runtime_id)
         elif args.command == 'attach':

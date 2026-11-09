@@ -41,3 +41,6 @@
 
 - [x] 6.6 Export actual run membership and include linked sessions without admitted turns in report counts and source rows; verify paused-before-admission children and filtered memberships (EXP-01/04/09).
 - [x] 6.7 Recompute report coverage/status for selected increments, groups, runs and sessions instead of reusing global gaps; verify isolation, empty selections, missing usage/source and reset through actual dashboard controls (EXP-02/04/09).
+
+- [x] 6.8 Recompute settled lifecycle state after replay removes terminal evidence, retaining stop/pause intent without reactivating recording; verify restored evidence, explicit recovery and later-run isolation (EXP-07/08/09).
+- [x] 6.9 Recompute run partial flags from rebuilt admissions, preserving explicit partial-finalization provenance across replay and late completion; verify snapshots, exports and existing metadata upgrade (EXP-02/08/09).

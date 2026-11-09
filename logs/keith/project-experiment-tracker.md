@@ -134,3 +134,16 @@ Implement explicit recording windows, graceful lifecycle controls, root roles an
 - Python baseline lacked member exports. A DOM test harness URL issue was corrected before comparison; all seven initial dashboard cases failed against original HTML. After repair, 70 Python cases and 12 dashboard DOM regressions pass. Full project check passes on Node 24.21.0: 14 strict changes, type/lint, 388 Vitest cases in 36 files including report tests, four deployment cases and build; whitespace checks pass.
 - [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#dashboard-membership-and-filter-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#dashboard-membershipfilter-continuation--2026-11-09).
 - Existing private sync/report succeeded without starting/resuming recording; current-request measured usage unavailable. Historical shared exports unchanged. Publish the follow-up in PR #23; no merge, deployment, live callback or manual visual acceptance. Next owner: Keith for PR review and separately opted-in live verification.
+
+
+## Request
+
+2026-11-09: Verify replay leaving settled runs stopped with pending evidence and stale run-level partial flags after removed abort records.
+
+## Results
+
+- Human owner: Keith. User supplied both findings; main reproduced both failures and repaired them without child agents or independent review. Requirements EXP-02/07/08/09; tasks 6.8–6.9 complete, overall 16/17 with live-client task 5.4 still open.
+- Reconcile paused/stopped recovery and partial aggregates from rebuilt admissions without opening windows or admitting new work. Preserve explicit finalization in a durable provenance field; add backed-up v2 metadata upgrade and targeted historical status/finalize commands so newer runs remain isolated. Existing erased provenance cannot be invented.
+- All 81 Python tracker cases pass (11 new), including temporary-database recovery/CLI/upgrade cases. Full Node 24.21.0 project check passes (14 strict changes, type/lint, 388 Vitest cases including 12 dashboard cases, four deployment cases and build). Skill validation, whitespace and actual private sync/report/integrity checks pass. Current local metadata upgrade is backed up; no real finalize/start/resume command was issued.
+- [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#settled-lifecycle-and-partial-provenance-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#settled-lifecyclepartial-reconciliation-continuation--2026-11-09).
+- Recording remains off for this request; measured usage unavailable. Historical shared exports preserved. Publish repair to PR #23; no merge, application migration, provider action, deployment or live-client verification. Next owner: Keith for PR review and separately opted-in live verification.

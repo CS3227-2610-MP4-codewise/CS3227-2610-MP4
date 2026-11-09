@@ -117,3 +117,21 @@ Verification:
 - Existing private sync/report succeeds without activating recording; current-request usage is unavailable. Historical shared pilot exports remain unchanged. No new dependency, database migration, application UI/runtime change, browser screenshot, live callback, manual UI acceptance, merge or deployment is claimed. DOM regression tests are not a live-client lifecycle test.
 
 Next owner: Keith reviews the additional PR #23 repair and separately opts into live-client lifecycle verification.
+
+
+## Settled lifecycle and partial provenance verification — 2026-11-09
+
+Input: `23e5b09`, PR #23. Both findings are valid: replay after a settled stop left stopped-plus-unresolved admissions, and removed abort evidence left a sticky run partial flag. Two initial regressions reproduced both failures. Main implementation/self-review only; no children or independent reviewer. Requirements EXP-02/07/08/09; tasks 6.8–6.9 complete, overall 16/17; live-client task 5.4 remains open. Earlier checkpoint statements that closed runs stay closed and run partial flags remain conservative describe the superseded implementation.
+
+- Reconcile run aggregates from rebuilt admissions after terminal transitions, replay and metadata startup. Stopped/paused intent returns to the matching draining state when non-finalized terminal evidence disappears, then settles when restored. Recording windows remain closed; new turns/children are not admitted by recovery.
+- Separate explicit `finalized_partial` provenance from source-derived abort flags. Admission/run partial values are rebuilt from remaining evidence and explicit rows. Removing abort evidence clears stale partial classification, while explicit partial finalization persists through late completion and replay. Other admissions' abort/partial state is retained.
+- The backed-up additive private SQLite upgrade preserves identifiable old explicit rows, repairs existing stale aggregates and adjusts the active-root index to permit historical stop recovery beside a newer live run while preserving one recording/paused owner. The transactional start guard still blocks new runs while unresolved work exists. Previously erased provenance cannot be reconstructed.
+- Default status finds open recovery before the latest settled history. `status --session ROOT --run ID` and root-owned `finalize --session ROOT --run ID --partial` target historical recovery without finalizing or changing a newer run. No real partial-finalization command was run during this request; tests use temporary synthetic databases.
+
+Verification:
+
+- All 81 Python tracker cases pass (11 added). Cases cover settled stop/pause rewrites, later terminal restoration, no implicit admission/window reopening, explicit recovery, stale abort flags in snapshots/exports, other admissions, persistent explicit provenance, CLI targeting, newer live/stopped runs, and backed-up v2 upgrades including the original index beside a newer recording. Existing concurrent-start and callback/privacy cases still pass.
+- Full Node 24.21.0 `npm run check` with local listener access passes: 14 strict OpenSpec changes, typecheck, ESLint, 388 Vitest cases in 36 files (including 12 report cases), four deployment cases and build. Updated repository skill validation and `git diff --check` pass.
+- Existing private tracker sync/report and database integrity validation pass; the existing metadata upgrade was backed up. Recording was not started/resumed; current-request usage is unavailable and historical shared pilot exports are unchanged.
+
+Next owner: Keith reviews the follow-up in PR #23 and later explicitly opts into live-client lifecycle verification. No application D1 migration, provider operation, merge, deployment or live callback/manual acceptance is claimed.

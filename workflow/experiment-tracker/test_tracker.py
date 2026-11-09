@@ -284,7 +284,146 @@ class TrackerTest(unittest.TestCase):
         self.tracker.sync()
         entry=self.tracker.admission('session-a','turn-a')
         self.assertIsNone(entry['terminal']);self.assertEqual(0,entry['partial'])
+        self.assertEqual(0,self.tracker.recording_status('session-a')['partial'])
         self.assertEqual('draining-to-stop',self.tracker.control('session-a','stop')['state'])
+
+    def test_replay_reopens_settled_stop_for_explicit_recovery(self):
+        self.attach();self.end('turn-a')
+        self.assertEqual('stopped',self.tracker.control('session-a','stop')['state'])
+        self.source.write_text(self.source.read_text().replace('task_complete','other_message'))
+        self.tracker.sync()
+        status=self.tracker.recording_status('session-a')
+        self.assertEqual('draining-to-stop',status['state'])
+        self.assertEqual('turn-a',status['pending_turns'][0]['turn_id'])
+        self.assertEqual('stopped',self.tracker.control('session-a','finalize')['state'])
+
+    def test_replay_clears_run_partial_when_abort_becomes_normal_completion(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload'])
+        self.append_record('event_msg',{'type':'turn_aborted','turn_id':'turn-a'})
+        self.tracker.sync()
+        self.assertEqual(1,self.tracker.recording_status('session-a')['partial'])
+        self.tracker.control('session-a','stop')
+        self.source.write_text(self.source.read_text().replace('turn_aborted','task_complete'))
+        self.tracker.sync()
+        snapshot=self.tracker.snapshot()
+        self.assertEqual(0,snapshot['runs'][0]['partial'])
+        self.assertEqual('observed-complete',snapshot['status'])
+        self.assertNotIn('aborted turn',' '.join(snapshot['coverage']))
+        exported=mod.export_summary(self.tracker,'test-increment',self.root/'export')
+        self.assertEqual(0,json.loads((exported/'summary.json').read_text())['runs'][0]['partial'])
+
+    def test_replay_reopens_settled_stop_until_restored_evidence_without_new_admission(self):
+        self.attach();self.end('turn-a');self.tracker.control('session-a','stop')
+        self.source.write_text(self.source.read_text().replace('task_complete','other_message'))
+        self.begin('untracked');self.tracker.sync()
+        self.assertEqual('draining-to-stop',self.tracker.recording_status('session-a')['state'])
+        self.assertIsNone(self.tracker.admission('session-a','untracked'))
+        self.assertTrue(all(w['closed'] is not None for w in self.tracker.snapshot()['windows']))
+        self.end('turn-a');self.tracker.sync();self.tracker.sync()
+        self.assertEqual('stopped',self.tracker.recording_status('session-a')['state'])
+
+    def test_replay_reopens_settled_pause_without_resuming_recording(self):
+        self.attach();self.end('turn-a');self.tracker.control('session-a','pause')
+        self.source.write_text(self.source.read_text().replace('task_complete','other_message'))
+        self.tracker.sync()
+        self.assertEqual('draining-to-pause',self.tracker.recording_status('session-a')['state'])
+        self.begin('excluded');self.tracker.sync()
+        self.assertIsNone(self.tracker.admission('session-a','excluded'))
+        self.end('turn-a');self.tracker.sync()
+        self.assertEqual('paused',self.tracker.recording_status('session-a')['state'])
+
+    def test_historical_stop_recovery_does_not_disrupt_newer_recording(self):
+        self.attach();self.end('turn-a')
+        old=self.tracker.control('session-a','stop')['id']
+        self.begin('next');self.tracker.start('second','Second',session='session-a')
+        current=self.tracker.recording_status('session-a')['id']
+        self.source.write_text(self.source.read_text().replace('task_complete','other_message'))
+        self.tracker.sync()
+        self.assertEqual('draining-to-stop',self.tracker.recording_status('session-a',old)['state'])
+        self.assertEqual(current,self.tracker.run_for('session-a')['id'])
+        self.assertEqual('recording',self.tracker.recording_status('session-a')['state'])
+        result=subprocess.run([sys.executable,str(Path(mod.__file__)),'--root',str(self.root),
+            'status','--session','session-a','--run',old],capture_output=True,text=True)
+        self.assertEqual(0,result.returncode,result.stderr)
+        self.assertEqual('draining-to-stop',json.loads(result.stdout)['state'])
+        result=subprocess.run([sys.executable,str(Path(mod.__file__)),'--root',str(self.root),
+            'finalize','--session','session-a','--run',old,'--partial'],capture_output=True,text=True)
+        self.assertEqual(0,result.returncode,result.stderr)
+        self.assertEqual(old,json.loads(result.stdout)['id'])
+        self.assertEqual('stopped',self.tracker.recording_status('session-a',old)['state'])
+        self.assertEqual('recording',self.tracker.recording_status('session-a',current)['state'])
+        self.assertEqual(0,self.tracker.recording_status('session-a',current)['partial'])
+
+    def test_default_status_recovers_older_pending_run_after_newer_stop(self):
+        self.attach();self.end('turn-a');old=self.tracker.control('session-a','stop')['id']
+        self.begin('next');self.tracker.start('second','Second',session='session-a')
+        self.end('next');self.tracker.control('session-a','stop')
+        # Remove only the older turn's completion; keep the later one intact.
+        original=self.source.read_text()
+        self.source.write_text(original.replace('task_complete','other_message',1))
+        self.tracker.sync()
+        status=self.tracker.recording_status('session-a')
+        self.assertEqual(old,status['id']);self.assertEqual('draining-to-stop',status['state'])
+        self.assertEqual(old,self.tracker.control('session-a','finalize')['id'])
+
+    def test_explicit_partial_survives_late_completion_and_source_replay(self):
+        self.attach();self.tracker.control('session-a','stop');self.tracker.control('session-a','finalize')
+        self.end('turn-a');self.tracker.sync()
+        self.assertEqual(1,self.tracker.admission('session-a','turn-a')['finalized_partial'])
+        self.assertEqual(1,self.tracker.recording_status('session-a')['partial'])
+        self.source.write_text(self.source.read_text().replace('task_complete','other_message'))
+        self.tracker.sync()
+        self.assertEqual('stopped',self.tracker.recording_status('session-a')['state'])
+        self.assertEqual(1,self.tracker.admission('session-a','turn-a')['partial'])
+        self.end('turn-a');self.tracker.sync()
+        self.assertEqual(1,self.tracker.recording_status('session-a')['partial'])
+
+    def test_replay_does_not_clear_another_admissions_abort_flag(self):
+        self.attach();self.tracker.link_child('session-a','turn-a','child')
+        self.tracker.admit(self.tracker.run_for('child'),'child','child-turn',mod.now())
+        self.tracker.terminal('child','child-turn','turn_aborted');self.tracker.db.commit()
+        self.append_record('event_msg',{'type':'turn_aborted','turn_id':'turn-a'});self.tracker.sync()
+        self.source.write_text(self.source.read_text().replace('turn_aborted','task_complete'))
+        self.tracker.sync()
+        self.assertEqual(0,self.tracker.admission('session-a','turn-a')['partial'])
+        self.assertEqual(1,self.tracker.admission('child','child-turn')['partial'])
+        self.assertEqual(1,self.tracker.recording_status('session-a')['partial'])
+
+    def test_v2_upgrade_preserves_explicit_partial_provenance_and_backup(self):
+        self.attach();self.tracker.control('session-a','stop');self.tracker.control('session-a','finalize')
+        self.tracker.db.execute('ALTER TABLE admitted DROP COLUMN finalized_partial')
+        self.tracker.db.commit();self.tracker.db.close()
+        self.tracker=mod.Tracker(self.root)
+        self.assertTrue(list((self.tracker.state/'backups').glob('v2-*.sqlite3')))
+        self.assertEqual(1,self.tracker.admission('session-a','turn-a')['finalized_partial'])
+        self.assertEqual('stopped',self.tracker.recording_status('session-a')['state'])
+        self.end('turn-a');self.tracker.sync()
+        self.assertEqual(1,self.tracker.recording_status('session-a')['partial'])
+
+    def test_v2_upgrade_repairs_stale_aggregate_state(self):
+        self.attach();self.tracker.control('session-a','stop');self.end('turn-a');self.tracker.sync()
+        self.tracker.db.execute('UPDATE admitted SET terminal=NULL')
+        self.tracker.db.execute('UPDATE runs SET partial=1')
+        self.tracker.db.execute('ALTER TABLE admitted DROP COLUMN finalized_partial')
+        self.tracker.db.commit();self.tracker.db.close()
+        self.tracker=mod.Tracker(self.root)
+        status=self.tracker.recording_status('session-a')
+        self.assertEqual('draining-to-stop',status['state']);self.assertEqual(0,status['partial'])
+
+    def test_v2_upgrade_recovers_historical_stop_beside_newer_active_run(self):
+        self.attach();self.end('turn-a');old=self.tracker.control('session-a','stop')['id']
+        self.begin('next');self.tracker.start('second','Second',session='session-a')
+        current=self.tracker.recording_status('session-a')['id']
+        self.tracker.db.execute('UPDATE admitted SET terminal=NULL WHERE run_id=?',(old,))
+        self.tracker.db.execute('ALTER TABLE admitted DROP COLUMN finalized_partial')
+        self.tracker.db.execute('DROP INDEX active_root')
+        self.tracker.db.execute("CREATE UNIQUE INDEX active_root ON runs(root) WHERE state!='stopped'")
+        self.tracker.db.commit();self.tracker.db.close()
+        self.tracker=mod.Tracker(self.root)
+        self.assertEqual('draining-to-stop',self.tracker.recording_status('session-a',old)['state'])
+        self.assertEqual(current,self.tracker.run_for('session-a')['id'])
+        self.assertEqual('recording',self.tracker.recording_status('session-a',current)['state'])
+        self.assertTrue(list((self.tracker.state/'backups').glob('v2-*.sqlite3')))
 
     def test_replay_preserves_explicit_partial_finalization(self):
         self.attach();self.tracker.control('session-a','stop')
