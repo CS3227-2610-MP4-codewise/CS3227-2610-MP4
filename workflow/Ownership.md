@@ -1,5 +1,7 @@
 # Ownership and integration agreement
 
+Current confirmation — 2026-11-09: Keith directly accepts Darryl's SH-AUTH/SH-ID ownership and the C-ID, onboarding, dashboard-context and K1–K6 contract decisions recorded in [IntegrationContracts.md](IntegrationContracts.md#current-decision-status--keith-confirmation-2026-11-09). Earlier pending policy-agreement statements are historical; exact-revision source review and real student consumer integration remain pending. This confirmation changes no runtime permissions or shared write windows.
+
 Confirmed by the team: Darryl implements instructor features; Keith implements student features. Both contribute a substantial share of team-level work.
 
 | Area                                                            | Primary owner                    | Integration rule                                               |
