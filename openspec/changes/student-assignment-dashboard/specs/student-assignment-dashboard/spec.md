@@ -67,7 +67,7 @@ Every listing and overview read SHALL enforce current session, Student course me
 - **THEN** it omits Not started, Submitted, Graded and feedback/progress badges rather than inferring them from missing data.
 
 ### Requirement: SD-05 Recoverable student navigation
-The dashboard SHALL reuse the shared authorized role switch, support course/list/overview navigation and safe local return after sign-in, reject stale asynchronous results and distinguish loading, empty, denied, expired-session and network failure. It SHALL preserve existing unsaved-work cancellation when entering or leaving another workspace. [COU-06/07, UI-02/03/08]
+The dashboard SHALL reuse the shared authorized role switch, support course/list/overview navigation, reject stale asynchronous results and distinguish loading, empty, denied, expired-session and network failure. It SHALL preserve existing unsaved-work cancellation when entering or leaving another workspace. [COU-06/07, UI-02/03/08]
 
 #### Scenario: Single and dual roles
 - **WHEN** trusted context changes between single-role and dual-role eligibility
@@ -79,7 +79,7 @@ The dashboard SHALL reuse the shared authorized role switch, support course/list
 
 #### Scenario: Empty, failure and session recovery
 - **WHEN** an authorized course has no publications, a request fails, or the session expires
-- **THEN** the interface distinguishes these states, offers appropriate retry or existing sign-in, and restores only a validated local authorized destination without exposing previous-account content.
+- **THEN** the interface distinguishes these states, offers appropriate retry or the existing sign-in. After sign-in the student starts from the shared `/workspace` entry rather than being returned to the earlier student destination, and no previous-account content is exposed.
 
 #### Scenario: Dirty instructor workspace
 - **WHEN** entering Student would leave unsaved instructor work and the user cancels the existing recovery prompt

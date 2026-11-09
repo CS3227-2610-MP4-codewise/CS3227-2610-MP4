@@ -252,3 +252,5 @@ Keith reported that Darryl agreed the student-assignment-dashboard design §2–
 - **Authority:** both reads require explicit current Student membership at disclosure. A course where the account is only an instructor gets a non-enumerating unavailable response.
 
 Keith accepted the 1.1 producer review at HEAD `3a7e5e4` (dashboard producer `8f93f51`; later SH-AUTH `5e0ed6b`). See `workflow/evidence/student-assignment-dashboard/apply-gates.md`. Composed consumer acceptance is still pending.
+
+Update 2026-11-09: Keith reported that Darryl approved the student listing and overview producer additions in draft PR #25 (`2b2da64`). This is treated as Darryl's approval at Keith's instruction; GitHub shows no submitted review. Composed consumer acceptance (task 5.1) is still pending.

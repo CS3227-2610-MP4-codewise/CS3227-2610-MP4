@@ -32,3 +32,10 @@
 - **Open:** 2.3 (maximum payload), 3.x/4.x test gaps, and 5.x composed/manual/UI-review acceptance. Sign-in return to `/student…` needs an SH-AUTH `returnDestination` change, which is outside the window.
 - **Next owners:** Darryl reviews the shared edits (authority.ts guard, index.ts, main.tsx, InstructionPreview extraction) and decides on the SH-AUTH return paths. Keith completes the remaining tests and the browser and manual acceptance.
 - Uncommitted on main at `3a7e5e4`; no commit, push or deployment.
+
+## Review status — 2026-11-09
+
+- Darryl's approval of draft PR #25 (`2b2da64`) was reported by Keith, who asked for it to be treated as approved. GitHub shows no submitted review (`reviewDecision: REVIEW_REQUIRED`). CI checks `checks` and `secrets` pass.
+- Still open: tasks 2.3, 3.x, 4.x and 5.x.
+
+- Decision (Keith, 2026-11-09): no SH-AUTH `/student…` return destinations in this change; sign-in lands on `/workspace`. Deferred to a later SH-AUTH change. No Darryl action required; spec SD-05, design §5, task 3.3 and proposal updated.

@@ -68,6 +68,8 @@ Use existing canvas/page/ink/secondary/rule/accent tokens, proportional text, re
 
 Each request has a destination/generation key; abort where supported and ignore results after navigation, logout/account change, role change or unmount. Clear incompatible content before rendering another role/account/course. Revalidate on browser back/forward restoration and focus return; access remains authorized per request, with no promise of instantaneous server-push revocation. Network loss shows unavailable/retry rather than stale protected content as current. No automatic polling or unbounded retries.
 
+**Return after sign-in (Keith, 2026-11-09):** this change adds no SH-AUTH `/student…` return destinations. Expired-session recovery links to the existing sign-in, which lands on `/workspace`. Student-only accounts reach the course list; dual-role accounts keep the instructor-first fallback and use the shared switch. Returning to a deep link is deferred to a later SH-AUTH change owned by Darryl.
+
 | Surface | Required states | Recovery |
 | --- | --- | --- |
 | Courses | loading, authorized page, no eligible workspace, revoked role, network/expired session | next/back refetch; shared sign-in or authorized workspace |
@@ -90,6 +92,7 @@ This plan is authored by main `/root`, role Coordinator, without subagents or in
 - Protected data outlives revocation in browser state → no persistent payload storage, revalidation on entry/focus/history restore, generation guards and content clearing on denial.
 - Rich instructions can execute content or reinterpret legacy text → reuse reviewed sanitizer and format contract with malicious/legacy fixtures.
 - Full publication payloads include up to 20 questions with bounded source/rubrics → retain existing C-PUB bounds, fetch one overview only on demand, never preload all publications; measure worst-case authorized payload/rendering before acceptance.
+- Students re-signing in lose their place (dual-role accounts land in Instructor) → accepted for read-only browsing; revisit before submission work.
 
 ## Migration Plan
 

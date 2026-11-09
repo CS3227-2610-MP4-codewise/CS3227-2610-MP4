@@ -77,7 +77,7 @@ The web tests cover:
 - **2.3:** no measurement of the maximum payload (20 questions with full bounds); the fixture has 1 question.
 - **3.1:** no consumer tests yet for first-admin zero-course Instructor retention, a selected course beyond page one, or composed dual-role switching. Course pages offer next and first-page links plus browser Back, not an explicit "previous" link.
 - **3.2:** no test that a new publication appears after refresh in the browser.
-- **3.3:** stale-result and abort guards are covered only by unit tests; no DOM race test. **Safe sign-in return to `/student…` is not implemented**: SH-AUTH `returnDestination` accepts only `/workspace` and instructor paths, so an expired session returns the student to `/workspace`. This needs a change to the SH-AUTH return destinations, which is outside the recorded window.
+- **3.3:** stale-result and abort guards are covered only by unit tests; no DOM race test. Sign-in return to `/student…` is out of scope by Keith's decision (2026-11-09): SH-AUTH `returnDestination` accepts only `/workspace` and instructor paths, so an expired session returns the student to `/workspace`. Spec SD-05 and task 3.3 were revised to match; deep-link return is deferred to a later SH-AUTH change.
 - **4.1:** reload and direct entry were not run in a browser.
 - **4.2:** no long-content test; no record yet of format-revision compatibility.
 - **5.1–5.3:** no composed run against real SH-AUTH (Firebase), no `ui-review.md` evidence (keyboard, 320px, zoom, themes, screenshots), no manual acceptance, no independent review.
