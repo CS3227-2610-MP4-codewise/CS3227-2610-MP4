@@ -1,0 +1,107 @@
+/* SD-06 / warm-workbook-v1: student browsing reuses shared tokens; ruled rows, no cards. */
+.cw-student {
+  max-width: 46rem;
+  margin-top: 6vh;
+  padding: 0 16px;
+  overflow-wrap: anywhere;
+}
+.cw-student h1:focus {
+  outline: 2px solid var(--cw-accent);
+  outline-offset: 4px;
+}
+.cw-student-back,
+.cw-student a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cw-ink);
+}
+.cw-student-status:empty {
+  display: none;
+}
+.cw-student-notice {
+  border-top: 1px solid var(--cw-rule);
+  border-bottom: 1px solid var(--cw-rule);
+  padding: 16px 0;
+  margin: 16px 0;
+}
+.cw-student-assignments > li {
+  display: grid;
+  gap: 4px;
+}
+.cw-student-assignments h2 {
+  margin: 0;
+}
+.cw-student-deadline,
+.cw-student-meta,
+.cw-student-points,
+.cw-student-version,
+.cw-student-readonly {
+  color: var(--cw-secondary);
+  font-size: 0.9375rem;
+}
+.cw-student-deadline {
+  margin: 0;
+}
+.cw-student-pager {
+  margin: 8px 0 32px;
+}
+.cw-student-meta {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+.cw-student-meta div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.cw-student-meta dt {
+  font-weight: 600;
+  color: var(--cw-ink);
+}
+.cw-student-meta dd {
+  margin: 0;
+}
+.cw-student-questions {
+  list-style: none;
+  margin: 24px 0;
+  padding: 0;
+  border-top: 1px solid var(--cw-rule);
+}
+.cw-student-questions > li {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--cw-rule);
+}
+.cw-student-questions h2 {
+  font: 1.4rem/1.4 var(--cw-font-editorial);
+  margin: 0 0 12px;
+}
+.cw-student-questions h3 {
+  font-size: 1rem;
+  margin: 20px 0 8px;
+}
+.cw-student-source {
+  font-family: var(--cw-font-code);
+  background: var(--cw-page);
+  border: 1px solid var(--cw-rule);
+  padding: 12px;
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 4;
+  user-select: text;
+}
+.cw-student-source:focus-visible {
+  outline: 2px solid var(--cw-accent);
+  outline-offset: 2px;
+}
+.cw-student-instructions pre {
+  overflow-x: auto;
+}
+.cw-student-rubric {
+  padding-left: 20px;
+}
+.cw-student-rubric li {
+  margin: 6px 0;
+}
