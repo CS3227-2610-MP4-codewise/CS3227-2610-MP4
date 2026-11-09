@@ -101,6 +101,77 @@ class TrackerTest(unittest.TestCase):
         self.rows[-1]=self.usage(amount=200);self.write();self.tracker.sync()
         self.assertEqual(220,self.tracker.snapshot()['totals']['total_tokens'])
 
+    def assert_replay_requires_terminal(self, rewrite, action):
+        self.attach();self.end('turn-a');self.tracker.sync()
+        self.assertEqual('task_complete',self.tracker.admission('session-a','turn-a')['terminal'])
+        completed=self.source.read_text()
+        if rewrite:
+            # Same-length source rewrite must invalidate the old completion too.
+            self.source.write_text(completed.replace('task_complete','other_message'))
+        else:
+            self.source.write_text(''.join(completed.splitlines(keepends=True)[:-1]))
+        self.tracker.sync()
+        self.assertIsNone(self.tracker.admission('session-a','turn-a')['terminal'])
+        status=self.tracker.control('session-a',action)
+        self.assertEqual('draining-to-'+action,status['state'])
+        self.assertEqual('turn-a',status['pending_turns'][0]['turn_id'])
+        self.end('turn-a');self.tracker.sync();self.tracker.sync()
+        self.assertEqual('paused' if action=='pause' else 'stopped',
+                         self.tracker.recording_status('session-a')['state'])
+
+    def test_truncation_requires_fresh_terminal_before_pause(self):
+        self.assert_replay_requires_terminal(False,'pause')
+
+    def test_truncation_requires_fresh_terminal_before_stop(self):
+        self.assert_replay_requires_terminal(False,'stop')
+
+    def test_rewrite_requires_fresh_terminal_before_pause(self):
+        self.assert_replay_requires_terminal(True,'pause')
+
+    def test_rewrite_requires_fresh_terminal_before_stop(self):
+        self.assert_replay_requires_terminal(True,'stop')
+
+    def test_replay_recomputes_surviving_terminal_without_resetting_other_session(self):
+        self.attach()
+        self.tracker.link_child('session-a','turn-a','child')
+        self.tracker.admit(self.tracker.run_for('child'),'child','child-turn',mod.now())
+        child=self.root/'child.jsonl'
+        child.write_text(''.join(json.dumps(r)+'\n' for r in (
+            {'type':'session_meta','payload':{'id':'child','cwd':str(self.root)}},
+            {'type':'event_msg','timestamp':mod.now(),'payload':{'type':'task_started','turn_id':'child-turn'}},
+            {'type':'event_msg','timestamp':mod.now(),'payload':{'type':'task_complete','turn_id':'child-turn'}})))
+        self.tracker.attach(child,'session-a')
+        self.end('turn-a');self.begin('later')
+        self.tracker.sync()
+        self.assertIsNone(self.tracker.admission('session-a','later')['terminal'])
+        completed=self.source.read_text()
+        self.source.write_text(''.join(completed.splitlines(keepends=True)[:-1]))
+        self.tracker.sync()
+        self.assertEqual('task_complete',self.tracker.admission('session-a','turn-a')['terminal'])
+        self.assertEqual('task_complete',self.tracker.admission('child','child-turn')['terminal'])
+        self.assertIsNone(self.tracker.admission('session-a','later')['terminal'])
+        self.assertEqual('draining-to-stop',self.tracker.control('session-a','stop')['state'])
+
+    def test_replay_clears_derived_abort_partial_flag(self):
+        self.attach();self.append_record('event_msg',{'type':'turn_aborted','turn_id':'turn-a'})
+        self.tracker.sync()
+        self.assertEqual(1,self.tracker.admission('session-a','turn-a')['partial'])
+        self.source.write_text(''.join(self.source.read_text().splitlines(keepends=True)[:-1]))
+        self.tracker.sync()
+        entry=self.tracker.admission('session-a','turn-a')
+        self.assertIsNone(entry['terminal']);self.assertEqual(0,entry['partial'])
+        self.assertEqual('draining-to-stop',self.tracker.control('session-a','stop')['state'])
+
+    def test_replay_preserves_explicit_partial_finalization(self):
+        self.attach();self.tracker.control('session-a','stop')
+        self.tracker.control('session-a','finalize')
+        self.source.write_text(self.source.read_text()+'\n')
+        self.tracker.db.execute("UPDATE sources SET offset=0,prefix=NULL,state='{}'")
+        self.tracker.db.commit();self.tracker.sync()
+        entry=self.tracker.admission('session-a','turn-a')
+        self.assertIsNone(entry['terminal']);self.assertEqual(1,entry['partial'])
+        self.assertEqual('stopped',self.tracker.recording_status('session-a')['state'])
+
     def test_malformed_input_is_reported_without_raw_data(self):
         self.attach()
         with self.source.open('a') as f:f.write('SENSITIVE_INVALID_PAYLOAD\n')
@@ -189,6 +260,28 @@ class TrackerTest(unittest.TestCase):
         self.tracker.annotate('test-increment','unblocked',{'summary':'Producer ready'},task='task-a',ts='2026-11-08T01:02:00+00:00')
         self.assertEqual(120,self.tracker.snapshot()['blocked_intervals'][0]['seconds'])
         with self.assertRaises(ValueError):self.tracker.annotate('test-increment','context',{'raw_prompt':'not allowed'})
+
+    def test_blocked_intervals_do_not_pair_across_increments(self):
+        self.attach()
+        self.tracker.control('session-a','stop');self.end('turn-a');self.tracker.sync()
+        self.begin('next');self.tracker.start('second','Second',session='session-a')
+        for increment,kind,at in (
+                ('test-increment','blocked','2026-11-08T01:00:00+00:00'),
+                ('second','unblocked','2026-11-08T01:01:00+00:00'),
+                ('second','blocked','2026-11-08T01:02:00+00:00'),
+                ('test-increment','unblocked','2026-11-08T01:03:00+00:00'),
+                ('second','unblocked','2026-11-08T01:04:00+00:00')):
+            self.tracker.annotate(increment,kind,{'summary':'Synthetic wait'},
+                session='session-a',agent='main',task='same-task',dependency='same-producer',ts=at)
+            if at=='2026-11-08T01:01:00+00:00':
+                self.assertEqual([],self.tracker.snapshot()['blocked_intervals'])
+                self.assertIn('Open blocked intervals',' '.join(self.tracker.snapshot()['coverage']))
+        all_waits=self.tracker.snapshot()['blocked_intervals']
+        self.assertEqual([('test-increment',180),('second',120)],
+                         [(w['increment_id'],w['seconds']) for w in all_waits])
+        for increment in ('test-increment','second'):
+            self.assertEqual([w for w in all_waits if w['increment_id']==increment],
+                             self.tracker.snapshot(increment)['blocked_intervals'])
 
     def test_conflicting_ownership_is_visible(self):
         self.attach()

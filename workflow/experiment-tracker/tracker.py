@@ -314,6 +314,12 @@ class Tracker(Recording):
             if source['prefix'] != digest or path.stat().st_size < offset or (tail and tail != observed_tail):
                 # Source replay must never erase the preserved v1/unbounded archive.
                 self.db.execute("DELETE FROM records WHERE source=? AND run_id IS NOT NULL", (str(path),))
+                # Terminal/abort flags are derived from this session's source.
+                # Keep explicit partial finalization (terminal already NULL),
+                # but require fresh terminal evidence when rebuilding records.
+                self.db.execute("""UPDATE admitted SET
+                    partial=CASE WHEN terminal IS NULL THEN partial ELSE 0 END,
+                    terminal=NULL WHERE session_id=?""", (sid,))
                 offset, state = 0, {}
             f.seek(offset)
             warnings = set(state.get('warnings', []))
@@ -446,7 +452,7 @@ class Tracker(Recording):
         blocked = {}
         waits = []
         for a in annotations:
-            key = (a['session_id'], a['agent'], a['task'], a['dependency'])
+            key = (a['increment_id'], a['session_id'], a['agent'], a['task'], a['dependency'])
             if a['kind'] == 'blocked':
                 blocked.setdefault(key, a['ts'])
             elif a['kind'] == 'unblocked' and key in blocked:

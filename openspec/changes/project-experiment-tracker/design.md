@@ -36,3 +36,10 @@ User chose explicit opt-in only, include the initiating turn, graceful draining 
 Admission requires a proven session/turn identity. Start/resume inspect the registered source's latest active task_started/current turn and open a window for it; earlier turns never enter. Future turns can enter only while recording. Pause/stop first reconcile known sources, then freeze admissions; admitted active turns drain through source task_complete. Stop callbacks alone do not prove final counters have been flushed. Missing terminal records remain draining until explicit partial finalization. No semantic project-question classifier or automatic activation.
 
 Hooks gate before queue writes, under the same database transaction used by lifecycle controls; importers independently validate run/window/turn membership. Hook attachment never activates. Child membership requires actual parent evidence within an admitted parent turn and an open recording window; no descendants join during drain. Cumulative fallback must observe baselines across excluded intervals without persisting excluded usage; ambiguous deltas are unavailable. Records retain run/window provenance and real session/turn IDs, with role labels separately historized.
+
+
+## Replay and interval isolation repairs — 2026-11-09
+
+Transcript replay deletes only bounded records and resets the affected session's source-derived admission terminal/abort flags in the same import transaction. Re-imported lifecycle records reconstruct terminal evidence. Explicit partial finalization of a turn without terminal evidence is retained, and other sessions are untouched. Run-level partial warnings remain conservative; replay does not activate recording or reopen closed runs. Missing evidence remains visible through pending turns and provisional coverage.
+
+Blocked interval pairing uses `(increment_id, session_id, agent, task, dependency)`. Unmatched annotations never cross experiment boundaries, including the all-increment report; valid same-increment intervals retain their existing durations and attribution.

@@ -29,6 +29,10 @@ The tracker SHALL associate increments and sessions explicitly and record hypoth
 - **WHEN** no explicit blocked/unblocked pair exists
 - **THEN** blocked duration is unavailable rather than inferred from agent silence.
 
+#### Scenario: Reused identifiers across increments
+- **WHEN** one increment has a blocked annotation and another has an unblocked annotation with the same session, agent, task and dependency
+- **THEN** no wait interval is paired across increments, and all-increment reports agree with the corresponding increment-filtered intervals.
+
 ### Requirement: EXP-04 Honest visibility
 The tracker SHALL provide offline filters, agent timelines, resource and comparison views with provenance and coverage, and SHALL require comparable evidence for savings claims.
 
@@ -71,6 +75,10 @@ The tracker SHALL expose start/pause/resume/stop/status and explicit partial fin
 #### Scenario: Migration
 - **WHEN** existing v1 data is migrated
 - **THEN** a local backup and historical logs are preserved and unbounded measurements are excluded from new totals.
+
+#### Scenario: Terminal evidence removed during source replay
+- **WHEN** a truncated or rewritten transcript no longer contains a previously imported terminal record for an admitted turn
+- **THEN** replay clears that turn's source-derived terminal and abort flags, reconstructs surviving terminal evidence, preserves unrelated sessions and explicit partial finalization, and pause/stop cannot finish draining from the removed evidence.
 
 ### Requirement: EXP-09 Agent roles and bounded reports
 The tracker SHALL preserve actual runtime identities separately from assigned roles/display labels and show run/window provenance, lifecycle states, coverage and legacy exclusions in reports and logs.

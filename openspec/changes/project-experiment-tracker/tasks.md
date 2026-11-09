@@ -27,3 +27,9 @@
 - [x] 5.2 Gate hooks before persistence and import independently, inherit actual nested children, preserve runtime IDs with role history; verify unrelated events, conflicting identities and concurrent controls (EXP-07/09).
 - [x] 5.3 Update dashboard, skill, logs and exports for bounded runs and excluded legacy data; verify filters, totals, role labels and preserved history (EXP-08/09).
 - [ ] 5.4 Run tracker/skill/project checks and bounded pilot reconciliation, recording actual callback coverage and limitations in the existing evidence/handoff (EXP-07–09, DEV-02/04). Tracker/skill/browser/full project checks and current-turn reconciliation passed; real loaded-client pause/general/resume lifecycle remains pending after restart.
+
+
+## 6. PR review repairs — 2026-11-09
+
+- [x] 6.1 Reset source-derived admission terminal state during transcript replay and rebuild it from current evidence; preserve explicit partial finalization and unrelated sessions, and verify pause/stop draining after truncation or rewrite (EXP-02/08).
+- [x] 6.2 Scope blocked/unblocked pairing to the increment as well as session/agent/task/dependency; verify all-increment and filtered reports cannot fabricate cross-increment waits (EXP-03/04/09).

@@ -49,3 +49,21 @@ Base: `62eb11d` on `codex/project-experiment-tracker`. Requirements EXP-01–09 
 Contract/design confirmation is a separate documentation commit: Keith directly accepted C-ID, onboarding, dashboard contexts and K1–K6 on 2026-11-09. Exact-revision source review, real student integration and unresolved SH-SUB policy proposals remain pending. Preserve the old K-packet anchor for historical links. No runtime, API, database or application UI change is included in that confirmation.
 
 Task 5.4 stays open for real loaded-client callback and pause/general/resume lifecycle verification. No live recording test, independent review, deployment, archive or completed student implementation is claimed by publication.
+
+
+## PR review repairs — 2026-11-09
+
+Input: `a794d01`, PR #23. User reported two confirmed defects; main implemented and self-reviewed the repairs without child agents. Requirements EXP-02/03/04/08/09; tasks 6.1–6.2 complete, overall 9/10 tasks. Live callback task 5.4 remains open.
+
+1. Source replay deleted lifecycle records while retaining `admitted.terminal`, allowing pause/stop to settle on removed evidence. Reset terminal and source-derived abort flags for the affected session within the import transaction, then reconstruct them from replayed lifecycle records. Preserve explicit partial finalization and other sessions. Run-level partial warnings stay conservative; closed runs are not automatically reopened or recording activated.
+2. Blocked interval keys omitted `increment_id`, pairing unrelated experiments with reused session/agent/task/dependency identifiers. Include the increment in the key. All-increment and filtered reports now agree; unmatched annotations remain open without fabricated duration.
+
+Verification:
+
+- Before repairs, new regression cases failed for removed terminal evidence (truncation/rewrite with both pause/stop) and cross-increment wait pairing: five failing assertions. Existing tests continued to pass.
+- After repairs, `python3 -m unittest discover -s workflow/experiment-tracker -v`: PASS, 57 cases. Eight new tests cover the four replay/drain combinations, surviving completion and unrelated-session preservation, derived abort reset, explicit partial preservation, and interleaved increment waits/filter parity. Restored terminal evidence settles draining and repeated sync remains safe.
+- `npm run check` using Node 24.21.0 with local listener access: PASS, 14 strict changes, typecheck, lint, 376 Vitest cases in 35 files, four deployment tests and Vite build.
+- OpenSpec apply confirms tasks 6.1 and 6.2 complete; task 5.4 is still pending. `git diff --check`: PASS.
+- Existing tracker sync/report completed without opt-in or new exports. This request has no recorded usage; no live callback, browser UI change, independent reviewer, savings, migration or deployment claim.
+
+Next: review the repair commit in PR #23, then perform separately opted-in live lifecycle verification. Historical pilot summaries remain unchanged.

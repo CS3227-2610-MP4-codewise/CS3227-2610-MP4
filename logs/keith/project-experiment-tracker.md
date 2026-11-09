@@ -81,3 +81,17 @@ Implement explicit recording windows, graceful lifecycle controls, root roles an
 - Evidence: [publication verification](../../workflow/evidence/project-experiment-tracker/recording-revision.md#setup-publication-verification--2026-11-09), [handoff](../../workflow/handoffs/project-experiment-tracker.md), [accepted contract decisions](../../workflow/IntegrationContracts.md#current-decision-status--keith-confirmation-2026-11-09).
 - Publication: prepare two logical commits on `codex/project-experiment-tracker` and open a review PR; no merge or deployment. Exact published commits and PR are reported in the session and PR metadata.
 - Next owner: Keith for PR review, explicit live tracker lifecycle verification (task 5.4), and subsequent producer-review/student-dashboard increment. Contract acceptance does not establish executed consumer integration.
+
+
+## Request
+
+2026-11-09: Investigate and repair PR findings concerning stale terminal state after transcript replay and blocked/unblocked pairing across increments.
+
+## Results
+
+- Human owner: Keith. User supplied both findings; main reproduced, repaired and self-reviewed them. No child agents or independent review.
+- Requirements EXP-02/03/04/08/09: reset/recompute source-derived terminal flags on replay while retaining explicit partial finalization and unrelated sessions; include increment identity in wait pairing.
+- Regression checks failed before repair for both reported defects. After repair all 57 tracker cases pass (eight new cases); full project check passes with Node 24.21.0: 14 strict changes, type/lint, 376 Vitest cases, four deployment cases and build. Diff whitespace checks pass.
+- [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#pr-review-repairs--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#pr-review-repair-continuation--2026-11-09). Tasks 6.1–6.2 complete; overall 9/10, with live-client task 5.4 still open.
+- Existing admitted tracker data synced and private report refreshed without activating recording; this request's measured usage is unavailable. Historical exports are unchanged.
+- Publish the repair as a follow-up commit to PR #23. No merge, deployment or live-client verification. Next owner: Keith for repair review and separately opted-in live lifecycle verification.
