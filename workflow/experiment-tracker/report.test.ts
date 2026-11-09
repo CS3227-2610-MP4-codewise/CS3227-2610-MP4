@@ -467,3 +467,137 @@ it('retains session filtering within the selected run increment', () => {
   expect(annotationText()).not.toContain('Increment decision');
   expect(annotationText()).not.toContain('Other increment with same session');
 });
+
+function coordinationText() {
+  return (
+    [...document.querySelectorAll('section')].find(
+      (element) =>
+        element.querySelector('h2')?.textContent ===
+        'Coordination checks — annotated evidence',
+    )?.textContent ?? ''
+  );
+}
+
+function coordinationFixture() {
+  return {
+    ...fixture(),
+    coordination_checks: [
+      {
+        increment_id: 'complete',
+        rule: 'Ownership complete',
+        file: 'clean-file',
+        result: 'pass',
+      },
+      {
+        increment_id: 'incomplete',
+        rule: 'Review incomplete',
+        annotation: 'foreign-review',
+        result: 'unknown',
+      },
+    ],
+  };
+}
+
+it('scopes coordination checks to selected run increments and restores them on reset', () => {
+  load(coordinationFixture());
+  select('run', 'good-run');
+  expect(coordinationText()).toContain('Ownership complete');
+  expect(coordinationText()).not.toContain('Review incomplete');
+  select('run', 'bad-run');
+  expect(coordinationText()).not.toContain('Ownership complete');
+  expect(coordinationText()).toContain('Review incomplete');
+  document.getElementById('reset')?.click();
+  expect(coordinationText()).toContain('Ownership complete');
+  expect(coordinationText()).toContain('Review incomplete');
+});
+
+it.each([
+  ['increment', 'incomplete'],
+  ['group', 'gaps'],
+  ['session', 'bad'],
+])('clears coordination checks when run conflicts with %s', (id, value) => {
+  load(coordinationFixture());
+  select('run', 'good-run');
+  select(id, value);
+  expect(coordinationText()).not.toContain('Ownership complete');
+  expect(coordinationText()).not.toContain('Review incomplete');
+});
+
+function taskFixture() {
+  const data = fixture();
+  const annotation = (
+    increment: string,
+    task: string | null,
+    kind: string,
+    summary: string,
+    taskType?: string,
+  ) => ({
+    increment_id: increment,
+    session_id: null,
+    ts: data.generated,
+    agent: 'main',
+    task,
+    kind,
+    data: { summary, task_type: taskType },
+  });
+  return {
+    ...data,
+    annotations: [
+      annotation(
+        'complete',
+        'shared-task',
+        'experiment',
+        'Editor experiment',
+        'editor',
+      ),
+      annotation('complete', 'shared-task', 'context', 'Editor context'),
+      annotation(
+        'incomplete',
+        'shared-task',
+        'experiment',
+        'Review experiment',
+        'review',
+      ),
+      annotation('incomplete', 'shared-task', 'context', 'Review context'),
+      annotation('complete', null, 'experiment', 'Untasked editor', 'editor'),
+      annotation('complete', null, 'experiment', 'Untasked review', 'review'),
+      annotation(
+        'incomplete',
+        null,
+        'experiment',
+        'Foreign untasked review',
+        'review',
+      ),
+      annotation('complete', null, 'context', 'Unlinked context'),
+    ],
+  };
+}
+
+it('keeps task-type association inside its increment for reused task IDs', () => {
+  load(taskFixture());
+  select('task', 'editor');
+  expect(annotationText()).toContain('Editor experiment');
+  expect(annotationText()).toContain('Editor context');
+  expect(annotationText()).not.toContain('Review experiment');
+  expect(annotationText()).not.toContain('Review context');
+  select('task', 'review');
+  expect(annotationText()).toContain('Review context');
+  expect(annotationText()).not.toContain('Editor context');
+  document.getElementById('reset')?.click();
+  expect(annotationText()).toContain('Editor context');
+  expect(annotationText()).toContain('Review context');
+});
+
+it('matches untasked experiment types directly without linking unrelated null tasks', () => {
+  load(taskFixture());
+  select('task', 'editor');
+  expect(annotationText()).toContain('Untasked editor');
+  expect(annotationText()).not.toContain('Untasked review');
+  expect(annotationText()).not.toContain('Foreign untasked review');
+  expect(annotationText()).not.toContain('Unlinked context');
+  select('task', 'review');
+  expect(annotationText()).toContain('Untasked review');
+  expect(annotationText()).toContain('Foreign untasked review');
+  expect(annotationText()).not.toContain('Untasked editor');
+  expect(annotationText()).not.toContain('Unlinked context');
+});

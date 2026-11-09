@@ -19,6 +19,10 @@ The tracker SHALL collect only registered project sessions and linked children, 
 - **WHEN** a source-bearing callback references JSON whose header or session metadata payload is not an object
 - **THEN** the hook returns its empty successful response without traceback, source registration or turn admission, while other transcript entry points reject the same structure safely.
 
+#### Scenario: Hooks during slow source import
+- **WHEN** sync reads, hashes or parses a slow source while an admitted callback arrives
+- **THEN** source I/O does not hold the admission write lock, the callback and valid child linkage are preserved, and each bounded import batch revalidates its checkpoint and current recording boundary atomically before writing.
+
 ### Requirement: EXP-02 Attributable usage
 The tracker SHALL deduplicate usage by source identity, preserve subset counters, and distinguish provisional, unavailable and measured values.
 
@@ -41,6 +45,10 @@ The tracker SHALL deduplicate usage by source identity, preserve subset counters
 #### Scenario: Structurally malformed record
 - **WHEN** a source record contains malformed nested metadata such as a numeric timestamp or non-object token-count info
 - **THEN** sync skips the record without traceback, continues importing valid records and reports a redacted partial-coverage gap.
+
+#### Scenario: Measured zero cumulative delta
+- **WHEN** a fallback-ready admitted turn emits cumulative counters unchanged from its usable baseline
+- **THEN** zero-valued deltas are persisted as measurements, completed-turn coverage recognizes them, exact response usage still supersedes them, and an ambiguous first boundary sample stays excluded.
 
 ### Requirement: EXP-03 Experiment annotations
 The tracker SHALL associate increments and sessions explicitly and record hypotheses, coordination, context, verification, review and recovery annotations without inferring intent from tool calls.
@@ -75,6 +83,14 @@ The tracker SHALL provide offline filters, agent timelines, resource and compari
 #### Scenario: Run-filtered annotations
 - **WHEN** a report selects a run with or without increment/group filters
 - **THEN** its decisions/context annotations are restricted to the selected run's increment and any selected session, conflicting filters return no annotations, reset restores all annotations, and the report identifies individual-run attribution as unavailable.
+
+#### Scenario: Run-filtered coordination evidence
+- **WHEN** a report selects a run with or without increment/group filters
+- **THEN** coordination checks are restricted to surviving selected-run increments, conflicting filters return no checks, reset restores workspace checks, and individual-run attribution is not claimed.
+
+#### Scenario: Task types with reused or absent task identity
+- **WHEN** annotations from different increments reuse a task identifier or omit it
+- **THEN** task-type filtering associates explicit task IDs only within the same increment, retains untasked experiment annotations only by their own matching type, and does not link unrelated untasked annotations.
 
 ### Requirement: EXP-05 Keith increment logs
 The tracker SHALL create one template-based Keith log per increment and append idempotent substantial Request/Results checkpoints with evidence links, preserving previous entries.

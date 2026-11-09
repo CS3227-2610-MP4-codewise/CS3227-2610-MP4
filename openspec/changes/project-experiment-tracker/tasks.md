@@ -51,3 +51,8 @@
 - [x] 6.12 Skip structurally malformed admitted records safely and preserve redacted partial coverage; verify numeric timestamps, non-object token metadata and CLI sync without traceback (EXP-02/06).
 
 - [x] 6.13 Scope annotations to the selected run’s increment and return none for conflicting run/increment/group/session filters; verify run-only selection, session overlap and reset without inventing run attribution (EXP-03/04/09).
+
+- [x] 6.14 Preserve measured zero cumulative deltas for fallback-ready admitted turns; verify completed-turn coverage, exact precedence and ambiguous-boundary exclusion (EXP-02/08).
+- [x] 6.15 Scope coordination checks to surviving selected-run increments and clear conflicting selections; verify reset and document increment-level attribution (EXP-03/04/09).
+- [x] 6.16 Associate task types by increment and non-null task identity; retain only matching experiment annotations when task is absent and verify reused/null task filtering (EXP-03/04/09).
+- [x] 6.17 Move transcript reads/hashing/parsing outside the admission write lock, apply bounded batches with atomic checkpoint/lifecycle revalidation, and verify concurrent hooks/child linkage, pause isolation and competing imports (EXP-01/02/07/08/09).

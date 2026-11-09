@@ -263,12 +263,17 @@
           (!sid || a.session_id === sid),
       );
       if (task) {
+        const matchesType = (a) =>
+          a.kind === 'experiment' && a.data.task_type === task;
+        const taskKey = (a) => JSON.stringify([a.increment_id, a.task]);
         const allowed = new Set(
           annotations
-            .filter((a) => a.kind === 'experiment' && a.data.task_type === task)
-            .map((a) => a.task),
+            .filter((a) => a.task != null && matchesType(a))
+            .map(taskKey),
         );
-        annotations = annotations.filter((a) => allowed.has(a.task));
+        annotations = annotations.filter((a) =>
+          a.task == null ? matchesType(a) : allowed.has(taskKey(a)),
+        );
       }
       const usage = records.filter(
         (r) => r.kind.startsWith('usage') && (!model || r.data.model === model),
@@ -548,10 +553,14 @@
           )
           .map((r) => [r.session_id, r.data.model, r.data.status]),
       )}<details><summary>Repeated tool-name candidates (${tools.length} observed calls)</summary><pre>${esc(JSON.stringify(repeatedTools, null, 2))}</pre></details><p>Repeated names do not prove repeated analysis or unnecessary work.</p></section>`;
-      out += `<section><h2>Coordination checks — annotated evidence</h2>${table(
+      out += `<section><h2>Coordination checks — annotated evidence</h2><p>Checks have increment-level attribution; selecting a run shows checks from its increment.</p>${table(
         ['Rule', 'Agent / file / annotation', 'Result'],
         data.coordination_checks
-          .filter((c) => (!inc && !group) || incs.has(c.increment_id))
+          .filter(
+            (c) =>
+              ((!inc && !group) || incs.has(c.increment_id)) &&
+              (!runFilter || runIncrements.has(c.increment_id)),
+          )
           .map((c) => [c.rule, c.agent ?? c.file ?? c.annotation, c.result]),
       )}</section>`;
       out += `<section><h2>Experiment comparison — descriptive, no causal savings claim</h2>${table(

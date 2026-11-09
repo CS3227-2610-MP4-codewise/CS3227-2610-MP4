@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from recording import Recording, session_metadata
 
 VERSION = 2
+SOURCE_ADAPTER_VERSION = 2
 OWNER = "Codewise experiment tracker"
 BOUNDARY_WARNING = "Boundary cumulative sample excluded: exact delta unavailable; coverage partial"
 EVENTS = ("SessionStart", "SessionEnd", "SubagentStart", "SubagentStop", "Stop",
@@ -290,11 +291,11 @@ class Tracker(Recording):
         return queued
 
     def import_source(self, source):
-        # Source admission and controls share a write lock, so a stale recording
-        # read cannot admit a new turn after pause/stop freezes the run.
-        self.db.execute('BEGIN IMMEDIATE')
         path, sid = Path(source['path']), source['session_id']
-        # Revalidate scope even for previously registered files (including replacement/symlinks).
+        expected = (source['offset'], source['prefix'], source['state'])
+        roots = self.roots()
+        # Read, hash and parse outside the hook/lifecycle write lock. Only bounded
+        # metadata batches enter a transaction, with fresh checkpoint/admission checks.
         with path.open('rb') as f:
             header = f.readline(2 * 1024 * 1024)
             meta = session_metadata(json.loads(header))
@@ -303,8 +304,6 @@ class Tracker(Recording):
             digest = hashlib.sha256(header).hexdigest()
             offset = source['offset']
             state = json.loads(source['state'])
-            # Validate every previously consumed byte, not just the tail:
-            # an earlier record can change without changing size/header/tail.
             consumed = hashlib.sha256()
             remaining = offset
             f.seek(0)
@@ -314,46 +313,72 @@ class Tracker(Recording):
                     break
                 consumed.update(chunk)
                 remaining -= len(chunk)
-            if (source['prefix'] != digest or remaining or
-                    offset and state.get('consumed_sha256') != consumed.hexdigest() or
-                    BOUNDARY_WARNING in state.get('warnings', []) and 'boundary_turns' not in state):
-                # Source replay must never erase the preserved v1/unbounded archive.
-                self.db.execute("DELETE FROM records WHERE source=? AND run_id IS NOT NULL", (str(path),))
-                # Terminal/abort flags are derived from this session's source.
-                # Durable explicit finalization survives terminal replay.
-                self.db.execute('UPDATE admitted SET partial=finalized_partial,terminal=NULL WHERE session_id=?', (sid,))
+            replay = (source['prefix'] != digest or remaining or
+                      offset and state.get('adapter_version') != SOURCE_ADAPTER_VERSION or
+                      offset and state.get('consumed_sha256') != consumed.hexdigest() or
+                      BOUNDARY_WARNING in state.get('warnings', []) and 'boundary_turns' not in state)
+            if replay:
                 offset, state = 0, {}
                 consumed = hashlib.sha256()
             f.seek(offset)
-            # Old source-wide boundary warnings require replay above to recover turn identity.
+            state['adapter_version'] = SOURCE_ADAPTER_VERSION
             state.setdefault('boundary_turns', [])
             warnings = set(state.get('warnings', [])) - {BOUNDARY_WARNING}
-            while True:
-                position = f.tell()
-                line = f.readline(16 * 1024 * 1024 + 1)
-                if not line:
-                    break
-                if not line.endswith(b'\n'):
-                    if len(line) > 16 * 1024 * 1024:
-                        raise ValueError("Oversized source record")
-                    break  # A writer may still be appending this record.
-                offset = f.tell()
-                consumed.update(line)
+            done = False
+            while not done:
+                batch = []
+                batch_start = offset
+                # Bound both metadata processing and transient source bytes. JSON
+                # bodies live only in this in-memory batch and are never persisted.
+                while len(batch) < 64 and offset - batch_start < 1024 * 1024:
+                    position = f.tell()
+                    line = f.readline(16 * 1024 * 1024 + 1)
+                    if not line or not line.endswith(b'\n'):
+                        if len(line) > 16 * 1024 * 1024:
+                            raise ValueError("Oversized source record")
+                        done = True  # Leave incomplete trailing lines for the next sync.
+                        break
+                    offset = f.tell()
+                    consumed.update(line)
+                    try:
+                        record = json.loads(line)
+                    except (ValueError, TypeError):
+                        record = None
+                    batch.append((position, record))
+                self.db.execute('BEGIN IMMEDIATE')
                 try:
-                    record = json.loads(line)
-                    self.import_record(sid, str(path), position, record, state)
-                except (ValueError, TypeError, KeyError, AttributeError):
-                    warnings.add('Malformed/unsupported records skipped; coverage partial')
-            state.pop('tail', None)  # Upgrade legacy tail-only checkpoints on replay.
-            state['consumed_sha256'] = consumed.hexdigest()
-            if state['boundary_turns']:
-                warnings.add(BOUNDARY_WARNING)
-            state['warnings'] = sorted(warnings)
-            self.db.execute("UPDATE sources SET offset=?,prefix=?,state=?,warning=?,last_sync=? WHERE path=?",
-                            (offset, digest, json.dumps(state), '; '.join(sorted(warnings)) or None, now(), str(path)))
-        for run in self.db.execute('SELECT DISTINCT run_id FROM admitted WHERE session_id=?',(sid,)).fetchall():
-            self.reconcile_run(run['run_id'])
-        self.db.commit()
+                    current = self.db.execute('SELECT * FROM sources WHERE path=? AND session_id=?',
+                                              (str(path), sid)).fetchone()
+                    if (not current or (current['offset'], current['prefix'], current['state']) != expected
+                            or self.roots() != roots):
+                        # Another sync or lifecycle control replaced this checkpoint.
+                        # Discard the prepared batch; the next sync reads fresh state.
+                        self.db.rollback()
+                        return
+                    if replay:
+                        self.db.execute("DELETE FROM records WHERE source=? AND run_id IS NOT NULL", (str(path),))
+                        self.db.execute('UPDATE admitted SET partial=finalized_partial,terminal=NULL WHERE session_id=?', (sid,))
+                        replay = False
+                    for position, record in batch:
+                        try:
+                            # import_record consults current admissions/windows while
+                            # holding the same short lock as pause/stop and enqueue.
+                            self.import_record(sid, str(path), position, record, state)
+                        except (ValueError, TypeError, KeyError, AttributeError):
+                            warnings.add('Malformed/unsupported records skipped; coverage partial')
+                    state.pop('tail', None)
+                    state['consumed_sha256'] = consumed.hexdigest()
+                    state['warnings'] = sorted(warnings | ({BOUNDARY_WARNING} if state['boundary_turns'] else set()))
+                    encoded = json.dumps(state)
+                    self.db.execute("UPDATE sources SET offset=?,prefix=?,state=?,warning=?,last_sync=? WHERE path=?",
+                                    (offset, digest, encoded, '; '.join(state['warnings']) or None, now(), str(path)))
+                    for run in self.db.execute('SELECT DISTINCT run_id FROM admitted WHERE session_id=?',(sid,)).fetchall():
+                        self.reconcile_run(run['run_id'])
+                    self.db.commit()
+                    expected = (offset, digest, encoded)
+                except Exception:
+                    self.db.rollback()
+                    raise
 
     def import_record(self, sid, source, position, record, state):
         if not isinstance(record,dict) or not isinstance(record.get('payload',{}),dict):
@@ -397,9 +422,8 @@ class Tracker(Recording):
                     delta={k:total[k]-previous[k] if total[k] is not None and previous.get(k) is not None else None for k in COUNTERS}
                     if any(v is not None and v<0 for v in delta.values()):
                         raise ValueError('Cumulative counters reset')
-                    if any(v for v in delta.values()):
-                        self.put(rid,source,sid,turn,ts,'usage_fallback',
-                                 {**delta,'model':state.get('model','unavailable'),'effort':state.get('effort','unavailable'),'method':'cumulative_delta'})
+                    self.put(rid,source,sid,turn,ts,'usage_fallback',
+                             {**delta,'model':state.get('model','unavailable'),'effort':state.get('effort','unavailable'),'method':'cumulative_delta'})
                 elif entry and turn not in state.get('response_turns',[]):
                     state.setdefault('boundary_turns',[])
                     if turn not in state['boundary_turns']:state['boundary_turns'].append(turn)

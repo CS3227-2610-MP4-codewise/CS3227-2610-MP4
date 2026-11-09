@@ -169,3 +169,26 @@ Intersect annotations with the increments of runs surviving increment/group/run/
 - Updated spec validated separately with `openspec validate project-experiment-tracker --strict`; `git diff --check` passed. Private sync/report refreshed successfully without start/resume or shared exports.
 
 Task 6.13 complete; overall 20/21, with live-client task 5.4 still pending. No commit/push/merge/deployment or independent review claimed. Request usage unavailable; recording remains off. Next owner Keith: review repair and separately opt into live-client verification.
+
+
+## Zero measurements, experiment filters and import locking — 2026-11-09
+
+Input `9a26a47`, Keith-owned EXP-01/02/03/04/07/08/09 repair, tasks 6.14–6.17. Main reproduced, implemented and self-reviewed; no child agents or independent review.
+
+Confirmed all four reports:
+
+- The truthiness guard discarded all-zero fallback deltas. Persist usable deltas including measured zeros, keep ambiguous boundary samples excluded, and preserve exact-response precedence. Adapter revision 2 replays old checkpoints once to recover dropped zero measurements.
+- Coordination checks bypassed run filtering. Restrict them to increments of runs surviving active filters, clear conflicting selections and disclose increment-level attribution.
+- Task types linked raw task IDs across increments and treated null tasks as shared identity. Link explicit `(increment_id, task)` pairs; match untasked experiment annotations by their own type only, without linking context/reviews through null.
+- `import_source` held the admission write lock across full-source reads/hash/JSON parsing. Move that I/O and parsing outside SQLite transactions and apply bounded batches (64 records or 1 MiB of complete lines, allowing one larger line within the existing limit). Compare source identity/checkpoint/parser state and registered roots atomically before each write, and consult current lifecycle/admission state under that short lock. Concurrent source reset/import discards stale prepared work; a later sync uses fresh state. Replay resets source-derived flags with its first batch, preserves explicit finalization and legacy data, and resumes after interrupted batches from committed progress.
+
+Verification:
+
+- Initial two zero-measurement Python regressions failed against original source. After correcting a macOS `/private/var` path mismatch in the new hashing test wrapper, reran the six initial new Python regressions against original source: all six failed, including hash-time SubagentStart loss, parse-time hook loss, concurrent pause and competing import. Restored repaired source afterward. Added two further adapter-upgrade and inter-batch pause/checkpoint invariants.
+- All six new DOM cases failed against the original report and pass after repair: run coordination/reset/conflicts and reused/null task identity.
+- `python3 -m unittest discover -s workflow/experiment-tracker -v`: 94 passed (eight new). Concurrent tests hold source reading/parsing until an independent SQLite callback/control finishes; they verify callback queue persistence, child membership, fresh pause boundaries, competing checkpoint isolation and complete-prefix digests.
+- `npx vitest run workflow/experiment-tracker/report.test.ts` on Node 24.21.0: 28 passed (six new).
+- Full Node 24.21.0 `npm run check` with local Miniflare listener access: 14 strict OpenSpec changes, typecheck, lint, 404 Vitest cases in 36 files, four deployment cases and build passed.
+- Updated change strict validation, `git diff --check`, private sync/report and database integrity/aggregation validation passed. Existing source replay succeeded with queued=0; historical shared exports preserved. No start/resume or new shared export.
+
+Progress 24/25; live-client task 5.4 remains pending. Source hashing remains O(consumed bytes) and filesystem rewrites during an import are revalidated on a later sync. SQLite contention independent of transcript I/O is still possible; no universal callback delivery guarantee or live-client observation is claimed. Annotations/checks remain increment-attributed, not allocated between runs sharing an increment. Recording remains off and request usage unavailable. Next owner Keith: review the uncommitted repair and separately opt into live lifecycle verification. No commit/push/merge/deployment authorized or performed by this repair request.

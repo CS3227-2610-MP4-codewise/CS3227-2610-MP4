@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 SPEC = importlib.util.spec_from_file_location('tracker', Path(__file__).with_name('tracker.py'))
 mod = importlib.util.module_from_spec(SPEC)
@@ -482,6 +483,116 @@ class TrackerTest(unittest.TestCase):
         self.tracker.sync()
         self.assertEqual(40,len([r for r in self.tracker.snapshot()['records'] if r['kind']=='hook']))
 
+    def while_hashing(self, callback):
+        original=Path.open
+        fired=False
+        source=self.source
+        class SlowRead:
+            def __init__(self, file): self.file=file
+            def __enter__(self): return self
+            def __exit__(self,*args): return self.file.__exit__(*args)
+            def __getattr__(self,name): return getattr(self.file,name)
+            def read(self,*args):
+                nonlocal fired
+                if not fired:
+                    fired=True
+                    callback()
+                return self.file.read(*args)
+        def opened(path,*args,**kwargs):
+            file=original(path,*args,**kwargs)
+            return SlowRead(file) if path.resolve()==source.resolve() and args and args[0]=='rb' else file
+        with mock.patch.object(Path,'open',opened): self.tracker.sync()
+        self.assertTrue(fired)
+
+    def test_hashing_does_not_drop_concurrent_subagent_start(self):
+        self.attach();self.tracker.sync()
+        outcomes=[]
+        def callback():
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                future=pool.submit(mod.enqueue,self.root,{'cwd':str(self.root),'session_id':'session-a',
+                    'turn_id':'turn-a','hook_event_name':'SubagentStart','agent_id':'child-during-hash'})
+                try: outcomes.append(future.result(timeout=3))
+                except sqlite3.Error: outcomes.append(False)
+        self.while_hashing(callback)
+        self.assertEqual([True],outcomes)
+        self.assertTrue(any(m['session_id']=='child-during-hash' for m in self.tracker.snapshot()['members']))
+        self.tracker.sync()
+        self.assertTrue(any(r['kind']=='hook' and r['data'].get('agent_id')=='child-during-hash' for r in self.tracker.snapshot()['records']))
+
+    def test_pause_between_import_batches_rechecks_new_admissions(self):
+        self.attach();self.tracker.sync()
+        self.append_record('token_usage_record',self.usage()['payload'])
+        for i in range(70):self.append_record('event_msg',{'type':'ignored','sequence':i})
+        self.append_record('event_msg',{'type':'ignored','marker':'pause-between-batches'})
+        self.begin('after-pause');self.append_record('token_usage_record',self.usage('r-late','after-pause')['payload'])
+        original=json.loads;outcomes=[]
+        def loads(value,*args,**kwargs):
+            if isinstance(value,bytes) and b'pause-between-batches' in value:
+                with sqlite3.connect(self.tracker.state/'tracker.sqlite3',timeout=.5) as db:
+                    db.execute('BEGIN IMMEDIATE')
+                    # A prior bounded batch has already committed the measured response.
+                    outcomes.append(db.execute("SELECT count(*) FROM records WHERE kind='usage'").fetchone()[0])
+                    db.execute("UPDATE runs SET state='draining-to-pause'")
+                    db.execute('UPDATE windows SET closed=?',(mod.now(),))
+            return original(value,*args,**kwargs)
+        with mock.patch.object(mod.json,'loads',loads):self.tracker.sync()
+        self.assertEqual([1],outcomes)
+        self.assertIsNone(self.tracker.admission('session-a','after-pause'))
+        self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
+        row=self.tracker.db.execute('SELECT * FROM sources').fetchone()
+        self.assertEqual(hashlib.sha256(self.source.read_bytes()).hexdigest(),json.loads(row['state'])['consumed_sha256'])
+
+    def test_source_parsing_does_not_hold_hook_admission_lock(self):
+        self.attach();self.tracker.sync()
+        self.append_record('event_msg',{'type':'ignored','marker':'slow-parse-marker'})
+        original=json.loads;outcomes=[]
+        def loads(value,*args,**kwargs):
+            if isinstance(value,bytes) and b'slow-parse-marker' in value:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    future=pool.submit(mod.enqueue,self.root,{'cwd':str(self.root),'session_id':'session-a',
+                        'turn_id':'turn-a','hook_event_name':'PreToolUse','tool_use_id':'during-parse'})
+                    try: outcomes.append(future.result(timeout=3))
+                    except sqlite3.Error: outcomes.append(False)
+            return original(value,*args,**kwargs)
+        with mock.patch.object(mod.json,'loads',loads):self.tracker.sync()
+        self.assertEqual([True],outcomes)
+
+    def test_pause_during_source_read_revalidates_admission(self):
+        self.attach();self.tracker.sync()
+        self.append_record('token_usage_record',self.usage()['payload'])
+        self.begin('too-late');self.append_record('token_usage_record',self.usage('late','too-late')['payload'])
+        outcomes=[]
+        def pause():
+            try:
+                with sqlite3.connect(self.tracker.state/'tracker.sqlite3',timeout=.5) as db:
+                    db.execute('BEGIN IMMEDIATE')
+                    db.execute("UPDATE runs SET state='draining-to-pause'")
+                    db.execute('UPDATE windows SET closed=?',(mod.now(),))
+                outcomes.append(True)
+            except sqlite3.Error:outcomes.append(False)
+        self.while_hashing(pause)
+        self.assertEqual([True],outcomes)
+        self.assertIsNone(self.tracker.admission('session-a','too-late'))
+        self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
+        self.assertEqual('draining-to-pause',self.tracker.recording_status('session-a')['state'])
+
+    def test_competing_import_during_hash_does_not_overwrite_checkpoint(self):
+        self.attach();self.tracker.sync();self.append_record('token_usage_record',self.usage()['payload'])
+        outcomes=[]
+        def compete():
+            try:
+                other=mod.Tracker(self.root)
+                try:other.sync()
+                finally:other.db.close()
+                outcomes.append(True)
+            except sqlite3.Error:outcomes.append(False)
+        self.while_hashing(compete)
+        self.assertEqual([True],outcomes)
+        self.tracker.sync()
+        self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
+        row=self.tracker.db.execute('SELECT * FROM sources').fetchone()
+        self.assertEqual(hashlib.sha256(self.source.read_bytes()[:row['offset']]).hexdigest(),json.loads(row['state'])['consumed_sha256'])
+
     def test_child_inherits_increment_but_not_invented_tokens(self):
         self.attach()
         mod.enqueue(self.root,{'cwd':str(self.root),'session_id':'session-a','hook_event_name':'SubagentStart','agent_id':'child-a','turn_id':'turn-a'})
@@ -780,6 +891,41 @@ class TrackerTest(unittest.TestCase):
         self.tracker.control('session-a','resume');self.append_record('event_msg',cumulative(950));self.append_record('event_msg',cumulative(970));self.tracker.sync()
         self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
         self.assertIn('partial',self.tracker.snapshot()['sources'][0]['warning'])
+
+    def test_fallback_ready_zero_delta_is_a_measurement(self):
+        self.attach();self.cumulative('turn-a',100);self.cumulative('turn-a',100);self.end('turn-a')
+        self.tracker.sync()
+        fallback=[r for r in self.tracker.snapshot()['records'] if r['kind']=='usage_fallback']
+        self.assertEqual(2,len(fallback))
+        self.assertEqual({k:0 for k in mod.COUNTERS},{k:fallback[-1]['data'][k] for k in mod.COUNTERS})
+        self.assertEqual('observed-complete',self.tracker.snapshot()['status'])
+        self.append_record('token_usage_record',self.usage()['payload']);self.tracker.sync()
+        self.assertFalse(any(r['kind']=='usage_fallback' for r in self.tracker.snapshot()['records']))
+        self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
+
+    def test_zero_only_cumulative_turn_is_measured_but_ambiguous_zero_stays_partial(self):
+        self.attach();self.cumulative('turn-a',0);self.end('turn-a');self.tracker.sync()
+        self.assertEqual({k:0 for k in mod.COUNTERS},self.tracker.snapshot()['totals'])
+        self.assertEqual('observed-complete',self.tracker.snapshot()['status'])
+        self.begin('turn-b');self.cumulative('turn-b',0);self.end('turn-b');self.tracker.sync()
+        self.assertEqual('partial',self.tracker.snapshot()['status'])
+        self.assertIn('Boundary',self.tracker.snapshot()['sources'][0]['warning'])
+        self.assertFalse(any(r['turn_id']=='turn-b' and r['kind']=='usage_fallback' for r in self.tracker.snapshot()['records']))
+
+    def test_old_adapter_checkpoint_recovers_dropped_zero_usage_once(self):
+        self.attach();self.cumulative('turn-a',0);self.end('turn-a');self.tracker.sync()
+        row=self.tracker.db.execute('SELECT * FROM sources').fetchone()
+        state=json.loads(row['state']);state.pop('adapter_version')
+        self.tracker.db.execute("DELETE FROM records WHERE kind='usage_fallback'")
+        self.tracker.db.execute('UPDATE sources SET state=?',(json.dumps(state),));self.tracker.db.commit()
+        self.assertEqual('partial',self.tracker.snapshot()['status'])
+        self.tracker.sync()
+        self.assertEqual('observed-complete',self.tracker.snapshot()['status'])
+        self.assertEqual(0,self.tracker.snapshot()['totals']['total_tokens'])
+        first=self.tracker.db.execute('SELECT state FROM sources').fetchone()[0]
+        self.tracker.sync()
+        self.assertEqual(first,self.tracker.db.execute('SELECT state FROM sources').fetchone()[0])
+        self.assertEqual(1,len([r for r in self.tracker.snapshot()['records'] if r['kind']=='usage_fallback']))
 
     def cumulative(self, turn, n):
         self.append_record('event_msg',{'type':'token_count','turn_id':turn,'info':{

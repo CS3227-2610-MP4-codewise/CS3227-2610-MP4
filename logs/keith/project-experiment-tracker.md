@@ -206,3 +206,33 @@ Verify run-only annotation leakage and repair conflicting filter behavior.
 - Reuse completed validation: 86 Python cases; Node 24.21.0 `npm run check` passing 14 strict changes, type/lint, 398 Vitest cases, four deployment cases and build. Staged diff/whitespace reviewed before commit. No implementation changes since those checks.
 - [Boundary/structural evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#boundary-warning-and-structural-record-verification--2026-11-09); [annotation evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#run-scoped-annotation-verification--2026-11-09). Recording remains off, usage unavailable; no independent review.
 - Commit/push authorized by this request; publication result is verified from Git/PR metadata after execution. Task 5.4 remains pending; next owner Keith for PR review and separately opted-in live verification. No merge or deployment.
+
+
+<!-- experiment-checkpoint:project-experiment-tracker:zero-filter-locking-repair-20261109 -->
+## Request
+
+Verify and fix zero cumulative deltas, run coordination leakage, cross-experiment task types and callback loss during source sync.
+
+## Results
+
+- Checkpoint: 2026-11-09T09:25:23.318031+00:00 (`zero-filter-locking-repair-20261109`); owner: Keith.
+- Changes and why: Keith-owned EXP-01/02/03/04/07/08/09 repair; main reproduced all four findings, implemented and self-reviewed without children or independent review. Preserve zero fallback deltas and recover old checkpoints; scope coordination checks by selected-run increments; link task types only by increment and explicit task identity; read/hash/parse sources outside the admission lock and atomically revalidate bounded write batches. Corrected a macOS resolved-path test wrapper before rerunning original-source failures. All 94 Python and 28 dashboard cases pass; full Node 24.21.0 npm run check passes 14 strict changes, type/lint, 404 Vitest cases, four deployment cases and build. Strict change validation, whitespace and private sync/report/integrity checks pass. Tasks 6.14–6.17 complete; overall 24/25 with live-client task 5.4 pending. Recording off, current usage unavailable, historical exports preserved. No commit/push/merge/deployment.
+- Contributor / agent responsibilities: see linked experiment annotations; no inferred agent activity.
+- Measured usage: input 4735839; cached input subset 4712448; output 35044; reasoning output subset 12098; total 4770883.
+- Coverage/status: observed-complete; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded totals are excluded. Totals are cumulative for this increment; do not add checkpoint totals together.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Verification](../../workflow/evidence/project-experiment-tracker/recording-revision.md#zero-measurements-experiment-filters-and-import-locking--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#zerofilterlocking-repair-continuation--2026-11-09).
+- Remaining limitations and next owner: Keith: review the repair and separately opt into live-client lifecycle verification..
+
+
+## Request
+
+2026-11-09: Commit and push the verified zero-measurement, experiment-filter and import-locking repairs.
+
+## Results
+
+- Human owner Keith; main publication/self-review only, no child agents. Confirmed open PR #23 targets this checkout’s `codex/project-experiment-tracker` branch at `9a26a47`.
+- Publish EXP-01/02/03/04/07/08/09 repairs with regression tests and the existing planning/evidence/handoff updates. Preserve measured zero fallback usage; scope coordination checks and task types; remove source I/O/hash/JSON parsing from the admission lock with bounded checkpoint-revalidated writes.
+- Reuse completed verification: 94 Python cases; full Node 24.21.0 project check passes 14 strict changes, type/lint, 404 Vitest cases, four deployment cases and build. Updated strict change validation, private sync/report/integrity and whitespace checks passed. No implementation changes since these checks.
+- [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#zero-measurements-experiment-filters-and-import-locking--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#zerofilterlocking-repair-continuation--2026-11-09). Recording remains off, request usage unavailable; no independent review.
+- User authorizes commit/push; verify resulting commit and remote PR head after execution. Overall 24/25 tasks complete; live-client task 5.4 remains pending. Next owner Keith for PR review and separately opted-in live verification. No merge or deployment.

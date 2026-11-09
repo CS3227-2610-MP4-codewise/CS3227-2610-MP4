@@ -40,7 +40,7 @@ Hooks gate before queue writes, under the same database transaction used by life
 
 ## Replay and interval isolation repairs — 2026-11-09
 
-Transcript replay deletes only bounded records and resets the affected session's source-derived admission terminal/abort flags in the same import transaction. Re-imported lifecycle records reconstruct terminal evidence. Explicit partial finalization of a turn without terminal evidence is retained, and other sessions are untouched. Run-level partial flags and paused/stopped recovery states are recomputed from rebuilt admissions; replay never activates recording. See settled-run reconciliation below for explicit-finalization provenance. Missing evidence remains visible through pending turns and coverage.
+Transcript replay deletes only bounded records and resets the affected session's source-derived admission terminal/abort flags in the first bounded replay batch transaction. Re-imported lifecycle records reconstruct terminal evidence. Explicit partial finalization of a turn without terminal evidence is retained, and other sessions are untouched. Run-level partial flags and paused/stopped recovery states are recomputed from rebuilt admissions; replay never activates recording. See settled-run reconciliation below for explicit-finalization provenance. Missing evidence remains visible through pending turns and coverage.
 
 Blocked interval pairing uses `(increment_id, session_id, agent, task, dependency)`. Unmatched annotations never cross experiment boundaries, including the all-increment report; valid same-increment intervals retain their existing durations and attribution.
 
@@ -49,7 +49,7 @@ Blocked interval pairing uses `(increment_id, session_id, agent, task, dependenc
 
 Validate SHA-256 over every byte before the saved offset in 1 MiB reads before trusting an incremental checkpoint. A changed or shortened prefix triggers the existing scoped replay and admission-terminal reset, even when the header, file size and final 256 bytes are unchanged. Hash new complete lines as they are imported; incomplete trailing lines are excluded from both offset and digest until completed. A prior checkpoint without `consumed_sha256` replays once to establish a trusted digest; no schema migration is required.
 
-This adds O(consumed bytes) read/hash work on each sync under the existing import transaction, with bounded hashing memory. Parsing and metadata persistence remain incremental for unchanged prefixes. Persist only the digest, never source contents. The prefix check detects persistent rewrites; it is not an atomic filesystem snapshot against a concurrent writer rewriting already-validated bytes during the same sync. A later sync revalidates those bytes.
+This adds O(consumed bytes) read/hash work on each sync outside the admission write transaction, with bounded hashing memory. Parsing and metadata persistence remain incremental for unchanged prefixes. Persist only the digest, never source contents. The prefix check detects persistent rewrites; it is not an atomic filesystem snapshot against a concurrent writer rewriting already-validated bytes during the same sync. A later sync revalidates those bytes.
 
 
 ## Missing measurements and structural validation — 2026-11-09
@@ -92,3 +92,14 @@ Reject non-string timestamps before updating turn state. Handle AttributeError a
 ## Run-filtered annotations — 2026-11-09
 
 Annotations carry increment/session identity but no run ID. When a run filter is active, intersect annotation increments with the increments of the runs surviving all increment/group/run/session filters. Conflicting filters leave that set empty and therefore show no annotations. Preserve the existing session/task filters and workspace view on reset. State the increment-level attribution limit beside the decisions/context table; do not claim precise allocation between runs sharing an increment.
+
+
+## Zero deltas, experiment scope and import locking — 2026-11-09
+
+Persist every usable fallback delta, including measured zeros; keep unknown counters null and ambiguous boundary samples excluded. Source adapter revision 2 replays older checkpoints once so previously dropped zero measurements can be recovered from admitted records. Preserve legacy rows, admission identities and explicit finalization through the existing replay rules.
+
+Apply surviving selected-run increment scope to coordination checks as well as decisions/context. Checks lack run IDs; disclose their increment-level attribution. Match task types through `(increment_id, task)` for explicit task IDs. Untasked experiment annotations match their own type directly; an absent task never links context/reviews or other experiment annotations.
+
+Read the header, hash the consumed prefix and parse JSON outside the SQLite admission lock. Apply batches of at most 64 records, stopping after at least 1 MiB of complete source lines (one record may exceed that threshold within the existing 16 MiB line limit). Before each batch write, acquire the lock and compare registered source identity, offset, prefix, serialized parser state and registered roots against the preparation snapshot. If another sync/start/resume changes the checkpoint, discard the prepared batch and leave fresh processing for the next sync. Admissions and child membership are consulted from current SQLite state, never copied from the preparation snapshot, so pause/stop freezes new admissions during I/O or between batches. Hash/offset/warnings and derived lifecycle changes commit with each batch. Interrupted replay exposes honest pending/missing coverage and resumes from its last committed checkpoint; the whole source is no longer one write transaction.
+
+Bounded writes remove transcript I/O and parsing from the competing lock; SQLite/database contention can still fail independently. Full-prefix hashing remains O(consumed bytes), and filesystem rewrites during a read are detected on a later sync rather than through an atomic filesystem snapshot. Transient batches are memory-only; only allowlisted metadata enters SQLite. Concurrent hooks/child linkage, pause boundaries, parsing and competing sync checkpoints use synthetic regression tests, not live-client callback claims.
