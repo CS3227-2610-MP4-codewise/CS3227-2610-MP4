@@ -95,6 +95,17 @@ python3 workflow/experiment-tracker/tracker.py agent-role \
 
 Provide a child's observed runtime identity, not an invented path. Role assignments are annotated metadata, never an authorization grant. Changes append history; an existing identity cannot be changed by a role command. Display labels and real session/runtime IDs remain available together.
 
+## Per-turn agent activity (EXP-11–13)
+
+The report's **Agent activity — per turn** table has one row per admitted turn: agent label/role, session, parent (parent agent, session and spawning turn), start, end, status, model(s), effort(s), output, reasoning output, output including spawned agents, spawned agents and a collapsed list of that turn's responses. These views show **output tokens only**. That is a display choice: every counter is still stored, and the resource summary, usage provenance, totals, exports and checkpoint usage lines are unchanged. Output shows how much an agent produced, not what it cost. For Claude Code, cost is mostly input and cache reads.
+
+- Status: `final` (terminal completion with measured responses), `provisional` (still running), `pending` (still running while its run drains) or `partial` (aborted, explicitly finalized partial, a response without usable usage, an ambiguous fallback boundary, or completed with no usage). Missing values are `unavailable`, never zero. Mixed models or efforts within a turn are all listed.
+- Spawned agents: a child is attributed to the turn that spawned it only through structural evidence. The tracker stores the validated parent turn when the child is linked. Children linked before this change, or without that evidence, appear below the table as "spawning turn unavailable" and are never assigned to an inferred turn. An unassigned Claude child is labelled with its observed `SubagentStart` agent type.
+- Output incl. spawned: own output plus every turn of each spawned session, recursively, with each turn counted once. A Codex child session can have several turns, and all of them count. The value is marked partial when any descendant is unmeasured or partial.
+- Filters: increment/group/run/session filters select rows. The model filter narrows response rows and sums but keeps each turn's real status. A session filter still includes descendants in the rollup.
+
+Each `checkpoint` also appends turn tables to the Keith log: the increment's admitted turns not shown at an earlier checkpoint, plus reconciliation rows for turns an earlier checkpoint showed as provisional, pending or partial whose status has since changed. Earlier rows are never rewritten, so a turn's output is never counted in two new-turn tables. Committed tables contain labels, roles, 8-character session prefixes, timestamps, models, efforts, statuses and output counters only. They never contain source paths, prompts or tool content. New logs use [`keith-prompt-experiment.md`](../templates/keith-prompt-experiment.md). Existing logs keep their historical header and entries, and new entries in them follow the new format.
+
 ## Claude Code adapter
 
 Claude Code transcripts have no header record, turn IDs or cumulative counters, so a separate adapter (EXP-10) maps their observed structure. The format is undocumented and was verified against Claude Code 2.1.309–2.1.319; unrecognised structure fails closed as a source warning or an unattachable source, never as invented data.

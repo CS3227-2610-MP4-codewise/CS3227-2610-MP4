@@ -201,7 +201,10 @@
       'model',
       data.records
         .filter((r) => r.kind.startsWith('usage'))
-        .map((r) => r.data.model),
+        .map((r) => r.data.model)
+        .concat(
+          (data.turns || []).flatMap((t) => t.responses.map((r) => r.model)),
+        ),
     );
     options(
       'group',
@@ -288,7 +291,9 @@
         output = sum('output_tokens'),
         reasoning = sum('reasoning_output_tokens');
       // Claude Code cache writes are supplemental; Codex has no equivalent counter.
-      const writes = usage.filter((r) => 'cache_creation_input_tokens' in r.data);
+      const writes = usage.filter(
+        (r) => 'cache_creation_input_tokens' in r.data,
+      );
       const cacheWrites =
         writes.length &&
         writes.every((r) => r.data.cache_creation_input_tokens != null)
@@ -332,7 +337,8 @@
         (!sid && runs.some((r) => r.partial));
       // Children spawned inside a window but not yet imported are still pending work.
       const waitingChildren = (data.spawned || []).filter(
-        (c) => runIds.has(c.run_id) && ids.has(c.session_id) && c.resolved == null,
+        (c) =>
+          runIds.has(c.run_id) && ids.has(c.session_id) && c.resolved == null,
       );
       const pending =
         admitted.some((t) => !t.terminal && !t.partial) ||
@@ -393,7 +399,9 @@
       const clientFamilies = new Set(
         sessions
           .filter((s) => typeof s.client === 'string')
-          .map((s) => (s.client.startsWith('claude-code') ? 'claude' : 'codex')),
+          .map((s) =>
+            s.client.startsWith('claude-code') ? 'claude' : 'codex',
+          ),
       );
       if (clientFamilies.size > 1)
         coverage.push(
@@ -498,6 +506,118 @@
           r.data.method,
         ]),
       )}</details></section>`;
+      // EXP-11/12: one row per admitted turn; output counters only (display, not collection).
+      const allTurns = (data.turns || []).filter((t) => runIds.has(t.run_id));
+      const shownResponses = (t) =>
+        t.responses.filter((r) => !model || r.model === model);
+      const outputOf = (t) => {
+        const rs = shownResponses(t);
+        return rs.length && rs.some((r) => r.output != null)
+          ? rs.reduce((n, r) => n + (r.output ?? 0), 0)
+          : null;
+      };
+      const reasoningOf = (t) => {
+        const rs = shownResponses(t).filter((r) => r.reasoning_output != null);
+        return rs.length
+          ? rs.reduce((n, r) => n + r.reasoning_output, 0)
+          : null;
+      };
+      const turnKeyOf = (t) =>
+        JSON.stringify([t.run_id, t.session_id, t.turn_id]);
+      // Including spawned: own output plus every turn of each spawned session, each turn once.
+      const rollup = (turn) => {
+        const seen = new Set();
+        const stack = [turn];
+        let total = 0,
+          measured = false,
+          partialRollup = false;
+        while (stack.length) {
+          const t = stack.pop();
+          if (seen.has(turnKeyOf(t))) continue;
+          seen.add(turnKeyOf(t));
+          const o = outputOf(t);
+          if (o == null || t.status === 'partial') partialRollup = true;
+          if (o != null) {
+            total += o;
+            measured = true;
+          }
+          for (const child of t.children) {
+            const desc = allTurns.filter(
+              (d) => d.run_id === t.run_id && d.session_id === child,
+            );
+            if (!desc.length) partialRollup = true;
+            stack.push(...desc);
+          }
+        }
+        return measured
+          ? fmt(total) + (partialRollup ? ' (partial)' : '')
+          : 'unavailable';
+      };
+      const agentOf = (run, session) =>
+        allTurns.find((t) => t.run_id === run && t.session_id === session)
+          ?.label ?? session;
+      const turnRows = allTurns.filter(
+        (t) => ids.has(t.session_id) && (!model || shownResponses(t).length),
+      );
+      const cell = (v) => `<td>${esc(v)}</td>`;
+      const responseTable = (t) => {
+        const rs = shownResponses(t);
+        if (!rs.length) return 'none observed';
+        return `<details><summary>${rs.length} response${rs.length === 1 ? '' : 's'}</summary><table><thead><tr>${['Time', 'Model', 'Effort', 'Output', 'Reasoning output', 'Response'].map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rs.map((r) => `<tr>${[r.ts, r.model, r.effort, fmt(r.output), fmt(r.reasoning_output), r.response].map(cell).join('')}</tr>`).join('')}</tbody></table></details>`;
+      };
+      const activityHeads = [
+        'Agent / role',
+        'Session',
+        'Parent',
+        'Start',
+        'End',
+        'Status',
+        'Model',
+        'Effort',
+        'Output',
+        'Reasoning output',
+        'Output incl. spawned',
+        'Spawned agents',
+        'Responses',
+      ];
+      const unattributed = (data.unattributed_children || []).filter(
+        (c) =>
+          runIds.has(c.run_id) &&
+          (ids.has(c.session_id) || ids.has(c.parent_session)),
+      );
+      out += `<section><h2>Agent activity — per turn, measured</h2><p>Output tokens show how much each agent produced, not what it cost; input, cached input and cache writes appear in the resource summary and usage provenance. Output incl. spawned adds each turn of every spawned session once and is marked partial when a descendant is unmeasured. The model filter narrows responses and sums; status is unchanged.</p><div class="scroll"><table id="activity"><thead><tr>${activityHeads.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${
+        turnRows.length
+          ? turnRows
+              .map(
+                (t) =>
+                  `<tr>${[
+                    `${t.label} / ${t.role}`,
+                    t.session_id,
+                    t.parent_session
+                      ? `${agentOf(t.run_id, t.parent_session)} (${t.parent_session}) / ${t.parent_turn ?? 'spawning turn unavailable'}`
+                      : 'root',
+                    t.start,
+                    t.end ?? 'open',
+                    t.status,
+                    t.models.join(', ') || 'unavailable',
+                    t.efforts.join(', ') || 'unavailable',
+                    fmt(outputOf(t)),
+                    fmt(reasoningOf(t)),
+                    rollup(t),
+                    t.children
+                      .map((c) => `${agentOf(t.run_id, c)} (${c})`)
+                      .join('; ') || 'none',
+                  ]
+                    .map(cell)
+                    .join('')}<td>${responseTable(t)}</td></tr>`,
+              )
+              .join('')
+          : `<tr><td colspan="${activityHeads.length}">No observed records</td></tr>`
+      }</tbody></table></div>${
+        unattributed.length
+          ? `<p>Spawned agents with spawning turn unavailable (no structural turn evidence): ${unattributed.map((c) => esc(`${agentOf(c.run_id, c.session_id)} (${c.session_id}) under ${c.parent_session}`)).join('; ')}.</p>`
+          : ''
+      }</section>`;
       const lifecycle = records.filter(
         (r) =>
           r.kind === 'lifecycle' ||

@@ -27,6 +27,7 @@ At substantial-request checkpoints:
 
 1. Run `sync`, `report` and inspect coverage/state. Attachment alone never opts in. Current-turn totals stay provisional; later sync can reconcile admitted late usage after stop.
 2. Append `checkpoint INCREMENT UNIQUE-ID --request SUMMARY --results ACTUAL-OUTCOMES --evidence LINKS --next-action ...`. Reuse the log, not the checkpoint ID; replay is idempotent. Include actual checks, responsibilities (or no children), blockers and next owner. Routine questions need no entry. Do not add cumulative checkpoint totals together.
+   The checkpoint generates the entry from `workflow/templates/keith-prompt-experiment.md` sections (EXP-13): Agents spawned, a Turn activity table with only turns not shown at an earlier checkpoint, and Reconciliation rows for earlier provisional/pending/partial turns. Tables show output tokens only, because output is production volume, not cost. Do not hand-edit generated tables; append a correction instead. Pre-existing logs keep their original header.
 3. Keep v1 pilot logs/exports as legacy/unbounded and excluded from bounded comparisons. Append corrections instead of rewriting history. Report unavailable counters and ambiguous cumulative boundary samples honestly.
 4. Export author-redacted evidence only within the user's authorized evidence scope. Never export raw sessions. A current-turn snapshot excludes the later final response until the next reconciliation.
 

@@ -232,12 +232,13 @@ class Tracker(Recording):
         with (self.state / 'log.lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             if not path.exists():
-                template = self.root / "workflow/templates/member-log.md"
+                # New logs use Keith's prompt-experiment template (EXP-13); existing logs keep their header.
+                template = self.root / "workflow/templates/keith-prompt-experiment.md"
                 if not template.exists():
-                    raise ValueError("Keith member-log template missing")
+                    raise ValueError("Keith prompt-experiment template missing")
                 body = template.read_text().replace("# Increment title", "# " + item['title'], 1)
-                body = body.replace("Name the human owner, bounded objective, OpenSpec change/requirement IDs, and branch/PR if known.",
-                                    f"Keith — {item['title']}. Requirements: {item['requirements'] or 'unavailable'}. Increment: `{increment}`.", 1)
+                body = body.replace("Increment and requirements: see the first checkpoint entry.",
+                                    f"Increment: `{increment}`. Requirements: {item['requirements'] or 'unavailable'}.", 1)
                 write_atomic(path, body)
         return path
 
@@ -558,9 +559,12 @@ class Tracker(Recording):
                           'method': 'response_id'})
                 if response in unmeasured:
                     unmeasured.remove(response)
+                state.setdefault('unmeasured_turns', {}).pop(response, None)
             elif response not in unmeasured and not self.db.execute(
                     'SELECT 1 FROM records WHERE id=?', (entry['run_id'] + ':' + key,)).fetchone():
                 unmeasured.append(response)  # Cleared only by valid usage for this response ID.
+                # Turn attribution of the gap, so only that turn shows partial (EXP-11).
+                state.setdefault('unmeasured_turns', {})[response] = turn
             content = message.get('content')
             for block in content if isinstance(content, list) else ():
                 if isinstance(block, dict) and block.get('type') == 'tool_use' and isinstance(block.get('id'), str):
@@ -686,7 +690,9 @@ class Tracker(Recording):
             for k in ('cwd', 'transcript_path', 'agent_transcript_path', 'event_id'):
                 d.pop(k, None)
             safe_records.append({k: v for k, v in {**r, 'data': d}.items() if k != 'source'})
+        turns, unattributed = self.turn_activity(runs, members, admitted, records, sessions)
         return {'version': VERSION, 'generated': now(), 'classification': 'private metadata and redacted annotations',
+                'turns': turns, 'unattributed_children': unattributed,
                 'increments': [dict(r) for r in self.db.execute('SELECT * FROM increments')
                                if increment is None or r['id'] == increment],
                 'sessions': [{k: v for k, v in s.items() if k != 'cwd'} for s in sessions],
@@ -702,6 +708,78 @@ class Tracker(Recording):
                 'coverage': gaps, 'tracker_overhead': json.loads(self.db.execute("SELECT value FROM settings WHERE key='last_sync'").fetchone()[0])
                 if self.db.execute("SELECT 1 FROM settings WHERE key='last_sync'").fetchone() else None}
 
+    def turn_activity(self, runs, members, admitted, records, sessions):
+        """One row per admitted turn from stored metadata only (EXP-11/12); no content is read."""
+        increments = {r['id']: r['increment_id'] for r in runs}
+        draining = {r['id'] for r in runs if r['state'].startswith('draining-')}
+        roles = {}
+        for r in self.db.execute('SELECT * FROM roles ORDER BY id'):
+            roles[(r['run_id'], r['session_id'])] = {'role': r['role'], 'label': r['label']}
+        # Spawn type observed by a SubagentStart hook labels an otherwise unassigned child.
+        spawn_types = {r['data'].get('agent_id'): r['data'].get('agent_type') for r in records
+                       if r['kind'] == 'hook' and r['data'].get('hook_event_name') == 'SubagentStart'
+                       and r['data'].get('agent_type')}
+        gaps = set()
+        for row in self.db.execute('SELECT session_id,state FROM sources'):
+            state = json.loads(row['state'] or '{}')
+            for turn in list((state.get('unmeasured_turns') or {}).values()) + list(state.get('boundary_turns') or []):
+                gaps.add((row['session_id'], turn))
+        clients = {s['id']: s['client'] for s in sessions}
+        by_turn = {}
+        for r in records:
+            if r['turn_id']:
+                by_turn.setdefault((r['run_id'], r['session_id'], r['turn_id']), []).append(r)
+        turns = []
+        for a in sorted(admitted, key=lambda a: (a['admitted_at'], a['session_id'], a['turn_id'])):
+            run, sid, turn = a['run_id'], a['session_id'], a['turn_id']
+            own = by_turn.get((run, sid, turn), [])
+            events = [r for r in own if r['kind'] == 'lifecycle']
+            started = next((r['ts'] for r in events if r['data']['event'] == 'task_started'), a['admitted_at'])
+            ended = next((r['ts'] for r in reversed(events) if r['data']['event'] != 'task_started'), None)
+            responses = []
+            for r in sorted((r for r in own if r['kind'] in ('usage', 'usage_fallback')), key=lambda r: (r['ts'], r['id'])):
+                responses.append({'ts': r['ts'], 'model': r['data'].get('model', 'unavailable'),
+                                  'effort': r['data'].get('effort', 'unavailable'),
+                                  'output': r['data'].get('output_tokens'),
+                                  'reasoning_output': r['data'].get('reasoning_output_tokens'),
+                                  'method': r['data'].get('method'),
+                                  'response': hashlib.sha256(r['id'].encode()).hexdigest()[:12]})
+            outputs = [x['output'] for x in responses]
+            reasoning = [x['reasoning_output'] for x in responses if x['reasoning_output'] is not None]
+            unmeasured = (not responses and a['terminal'] == 'task_complete') or None in outputs or (sid, turn) in gaps
+            if a['partial'] or a['finalized_partial'] or a['terminal'] == 'turn_aborted' or unmeasured:
+                status = 'partial'
+            elif a['terminal'] is None:
+                status = 'pending' if run in draining else 'provisional'
+            else:
+                status = 'final'
+            member = next((m for m in members if m['run_id'] == run and m['session_id'] == sid), {})
+            assigned = roles.get((run, sid))
+            turns.append({
+                'run_id': run, 'increment_id': increments.get(run), 'session_id': sid, 'turn_id': turn,
+                'client': clients.get(sid), 'parent_session': member.get('parent'),
+                'parent_turn': member.get('parent_turn'),
+                'role': assigned['role'] if assigned else spawn_types.get(sid) or 'unassigned',
+                'label': assigned['label'] if assigned else spawn_types.get(sid) or 'Unassigned agent',
+                'start': started, 'end': ended, 'terminal': a['terminal'], 'status': status,
+                'models': sorted({x['model'] for x in responses}), 'efforts': sorted({x['effort'] for x in responses}),
+                'output': sum(x for x in outputs if x is not None) if responses else None,
+                'reasoning_output': sum(reasoning) if reasoning else None,
+                'responses': responses, 'children': []})
+        index = {(t['run_id'], t['session_id'], t['turn_id']): t for t in turns}
+        unattributed = []
+        for m in members:
+            if not m['parent']:
+                continue
+            parent = index.get((m['run_id'], m['parent'], m.get('parent_turn')))
+            if parent:
+                parent['children'].append(m['session_id'])
+            else:
+                unattributed.append({'run_id': m['run_id'], 'parent_session': m['parent'], 'session_id': m['session_id']})
+        for t in turns:
+            t['output_including_spawned'], t['rollup_partial'] = rollup(t, turns)
+        return turns, unattributed
+
     def checkpoint(self, increment, checkpoint, request, results, evidence="", next_action=""):
         slug(checkpoint)
         path = self.ensure_log(increment)
@@ -711,25 +789,152 @@ class Tracker(Recording):
         with (self.state / 'log.lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             body = path.read_text()
-            if marker in body:
-                return path
             s = self.snapshot(increment)
+            # Rebuild reported-turn state from the log's hashed keys if the database lost it.
+            self.restore_reported_turns(increment, body, s['turns'])
+            if marker in body:
+                self.db.commit()
+                return path
             value = lambda k: str(s['totals'][k]) if s['totals'][k] is not None else 'unavailable'
-            addition = (f"\n\n{marker}\n## Request\n\n{safe_text(request)}\n\n## Results\n\n"
-                        f"- Checkpoint: {now()} (`{checkpoint}`); owner: Keith.\n"
+            turns = [t for t in s['turns'] if t['increment_id'] == increment]
+            reported = {}
+            for r in self.db.execute('SELECT session_id,turn_id,status FROM checkpoint_turns WHERE increment_id=? ORDER BY rowid',
+                                     (increment,)):
+                reported[(r['session_id'], r['turn_id'])] = r['status']
+            fresh = [t for t in turns if (t['session_id'], t['turn_id']) not in reported]
+            changed = [t for t in turns if reported.get((t['session_id'], t['turn_id'])) not in (None, 'final')
+                       and reported[(t['session_id'], t['turn_id'])] != t['status']]
+            shown = fresh + changed
+            keys = ','.join(turn_hash(t['session_id'], t['turn_id'], t['status']) for t in shown)
+            addition = (f"\n\n{marker}\n<!-- experiment-turns:{checkpoint}:{keys} -->\n"
+                        f"## Checkpoint `{checkpoint}` — {now()}\n\n"
+                        f"### Request\n\n{safe_text(request)}\n\n### Results\n\n"
+                        f"- Owner: Keith.\n"
                         f"- Changes and why: {safe_text(results)}\n"
-                        f"- Contributor / agent responsibilities: see linked experiment annotations; no inferred agent activity.\n"
-                        f"- Measured usage: input {value('input_tokens')}; cached input subset {value('cached_input_tokens')}; "
-                        f"output {value('output_tokens')}; reasoning output subset {value('reasoning_output_tokens')}; total {value('total_tokens')}.\n"
-                        f"- Coverage/status: {s['status']}; {len(s['sessions'])} linked sessions, {len(s['runs'])} bounded runs. "
-                        "Only admitted turns count; legacy unbounded totals are excluded. Totals are cumulative for this increment; do not add checkpoint totals together.\n"
                         f"- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.\n"
                         f"- Evidence or handoff links: {safe_text(evidence) or 'unavailable'}.\n"
-                        f"- Remaining limitations and next owner: {safe_text(next_action) or 'Keith; inspect report coverage before acceptance'}.\n")
+                        f"- Remaining limitations and next owner: {safe_text(next_action) or 'Keith; inspect report coverage before acceptance'}.\n\n"
+                        f"### Agents spawned\n\n{spawn_lines(fresh, turns, s['unattributed_children'])}\n\n"
+                        f"### Turn activity\n\n{turn_table(fresh, turns)}\n\n"
+                        f"### Reconciliation\n\n{reconcile_table(changed, turns, reported)}\n\n"
+                        f"### Coverage\n\n"
+                        f"- Turn tables show output tokens only; output is production volume, not cost.\n"
+                        f"- Measured usage (cumulative for this increment; do not add checkpoint totals together): input {value('input_tokens')}; "
+                        f"cached input subset {value('cached_input_tokens')}; output {value('output_tokens')}; "
+                        f"reasoning output subset {value('reasoning_output_tokens')}; total {value('total_tokens')}.\n"
+                        f"- Coverage/status: {s['status']}; {len(s['sessions'])} linked sessions, {len(s['runs'])} bounded runs. "
+                        "Only admitted turns count; legacy unbounded records are excluded.\n")
             write_atomic(path, body + addition)
+            self.db.executemany('INSERT OR IGNORE INTO checkpoint_turns VALUES (?,?,?,?,?)',
+                                [(increment, checkpoint, t['session_id'], t['turn_id'], t['status']) for t in shown])
             self.db.execute('INSERT OR IGNORE INTO checkpoints VALUES (?,?,?)', (increment, checkpoint, now()))
             self.db.commit()
         return path
+
+    def restore_reported_turns(self, increment, body, turns):
+        """Recover checkpoint_turns from hashed log keys; unmatched hashes are ignored."""
+        candidates = {}
+        for t in turns:
+            for status in TURN_STATUSES:
+                candidates[turn_hash(t['session_id'], t['turn_id'], status)] = (t['session_id'], t['turn_id'], status)
+        for checkpoint, keys in re.findall(r'<!-- experiment-turns:([a-z0-9-]+):([0-9a-f,]*) -->', body):
+            for key in filter(None, keys.split(',')):
+                if key in candidates:
+                    self.db.execute('INSERT OR IGNORE INTO checkpoint_turns VALUES (?,?,?,?,?)',
+                                    (increment, checkpoint, *candidates[key]))
+
+
+TURN_STATUSES = ('final', 'provisional', 'pending', 'partial')
+
+
+def turn_hash(session, turn, status):
+    return hashlib.sha256(f'{session}:{turn}:{status}'.encode()).hexdigest()[:16]
+
+
+def log_cell(value):
+    """Committed log cells: bounded metadata, Markdown table syntax neutralised."""
+    text = 'unavailable' if value is None or value == '' else str(value)
+    return text.replace('\x00', '').replace('|', '/').replace('\n', ' ')[:200]
+
+
+def log_agent(turns, t):
+    return f"{t['label']} / {t['role']}"
+
+
+def log_parent(turns, t):
+    if not t['parent_session']:
+        return 'root'
+    parent = next((p for p in turns if p['run_id'] == t['run_id'] and p['session_id'] == t['parent_session']), None)
+    name = parent['label'] if parent else 'agent'
+    return f"{name} ({t['parent_session'][:8]}) / {t['parent_turn'][:8] if t['parent_turn'] else 'spawning turn unavailable'}"
+
+
+def log_rollup(t):
+    if t['output_including_spawned'] is None:
+        return 'unavailable'
+    return str(t['output_including_spawned']) + (' (partial)' if t['rollup_partial'] else '')
+
+
+def turn_table(shown, turns):
+    if not shown:
+        return 'No new turns recorded since the previous checkpoint.' if turns else \
+            'Turn metrics unavailable: no admitted bounded turns for this increment (recording off or legacy only).'
+    head = ('| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |\n'
+            '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
+    return head + '\n'.join('| ' + ' | '.join(log_cell(v) for v in (
+        log_agent(turns, t), t['session_id'][:8], log_parent(turns, t), t['start'], t['end'] or 'open', t['status'],
+        ', '.join(t['models']), ', '.join(t['efforts']), t['output'], t['reasoning_output'], log_rollup(t))) + ' |'
+        for t in shown)
+
+
+def reconcile_table(changed, turns, reported):
+    if not changed:
+        return 'No earlier provisional, pending or partial turns changed status.'
+    head = ('| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |\n'
+            '| --- | --- | --- | --- | --- | --- | --- | --- |\n')
+    return head + '\n'.join('| ' + ' | '.join(log_cell(v) for v in (
+        log_agent(turns, t), t['session_id'][:8], t['start'], reported[(t['session_id'], t['turn_id'])], t['status'],
+        t['output'], t['reasoning_output'], log_rollup(t))) + ' |' for t in changed)
+
+
+def spawn_lines(shown, turns, unattributed):
+    lines = []
+    for t in shown:
+        for child in t['children']:
+            agent = next((c for c in turns if c['run_id'] == t['run_id'] and c['session_id'] == child), None)
+            name = f"{agent['label']} / {agent['role']}" if agent else 'agent without admitted turn'
+            lines.append(f"- {log_cell(t['label'])} turn started {log_cell(t['start'])} spawned "
+                         f"{log_cell(name)} ({child[:8]}).")
+    shown_sessions = {t['session_id'] for t in shown}
+    for c in unattributed:
+        if c['session_id'] in shown_sessions:
+            lines.append(f"- {c['session_id'][:8]} under parent {c['parent_session'][:8]}: spawning turn unavailable.")
+    return '\n'.join(lines) if lines else 'None.'
+
+
+def rollup(turn, turns):
+    """Own output plus every turn of each spawned session, recursively, each turn once (EXP-12)."""
+    by_session = {}
+    for t in turns:
+        by_session.setdefault((t['run_id'], t['session_id']), []).append(t)
+    seen, total, partial, measured = set(), 0, False, False
+    stack = [turn]
+    while stack:
+        t = stack.pop()
+        key = (t['run_id'], t['session_id'], t['turn_id'])
+        if key in seen:
+            continue
+        seen.add(key)
+        if t['output'] is None or t['status'] == 'partial':
+            partial = True
+        if t['output'] is not None:
+            total += t['output'];measured = True
+        for child in t['children']:
+            descendants = by_session.get((t['run_id'], child), [])
+            if not descendants:
+                partial = True  # Linked child without an admitted, measured turn.
+            stack.extend(descendants)
+    return (total if measured else None), partial
 
 
 def enqueue(root, raw, client='codex'):

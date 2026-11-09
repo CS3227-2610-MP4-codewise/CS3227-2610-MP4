@@ -3,7 +3,7 @@
 - Darryl's work: [darryl/](darryl/).
 - Keith's work: [keith/](keith/).
 - Darryl: [prompt-experiment template](../workflow/templates/darryl-prompt-experiment.md).
-- Keith: [existing member-summary template](../workflow/templates/member-log.md).
+- Keith: [prompt-experiment checkpoint template](../workflow/templates/keith-prompt-experiment.md) for new logs. Earlier logs used the [member-summary template](../workflow/templates/member-log.md).
 
 ## Darryl only — prompt experiments
 
@@ -30,9 +30,9 @@ The three dated setup summaries were moved into Darryl's folder because they ori
 
 For Darryl, before every final response confirm that the current prompt has its own `### Agents spawned` and `### Token count` sections in the member log, even when no agent was spawned or usage is unavailable. A summary table covering several prompts does not satisfy this structure. Reconcile the preceding prompt at the next checkpoint. These instructions apply to future logs after this branch is adopted; do not claim an unmerged PR has changed main.
 
-## Keith — existing summary policy retained
+## Keith — substantial-request checkpoint policy
 
-Keith keeps one member-summary file per PR-sized increment in logs/keith/, using workflow/templates/member-log.md. Append Request/Results entries for substantial requests; routine questions need no entry under this policy. Darryl's every-prompt agent/token tables and prompt-experiment requirements do not apply to Keith. No Keith contribution, prompt, usage or reviewer activity is invented.
+Keith keeps one log per PR-sized increment in logs/keith/. New logs use workflow/templates/keith-prompt-experiment.md (experiment-turn-activity, EXP-13), and earlier logs keep their member-log.md header and history. Append a checkpoint entry for each substantial request; routine questions need no entry under this policy. When recording is on, each checkpoint adds tracker-generated Agents spawned, Turn activity (output tokens only) and Reconciliation sections. Darryl's every-prompt agent/token tables and prompt-experiment requirements do not apply to Keith. No Keith contribution, prompt, usage or reviewer activity is invented.
 
 ### Optional Keith experiment tooling
 

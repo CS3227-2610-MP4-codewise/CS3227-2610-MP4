@@ -1,0 +1,34 @@
+# Handoff: experiment-turn-activity
+
+- Human owner: Keith.
+- Agent role / model / configuration: Claude Code main agent (claude-opus-5-5); no subagents spawned. Experiment recording was off.
+- Requirement IDs and OpenSpec change: EXP-11, EXP-12, EXP-13 in `openspec/changes/experiment-turn-activity/`.
+- Input commit/artifact versions: main `f62b238`; branch `keith/experiment-turn-activity` (pull request open).
+- Owned files (exclusive write ownership):
+  - Keith: `workflow/experiment-tracker/` (tracker.py, recording.py, report.html, README.md and tests), `workflow/templates/keith-prompt-experiment.md`, both `project-experiment` skill copies, and `workflow/evidence/experiment-turn-activity/`.
+  - Shared wording edits: AGENTS.md, logs/README.md and workflow/README.md (Keith policy lines only).
+- Relevant context supplied / retrieved: Keith's decisions in chat:
+  - no request/result summaries
+  - per-turn rows that expand to responses
+  - output tokens displayed only (collection unchanged)
+  - a separate Keith prompt-experiment template
+- Changes and decisions:
+  - Added `snapshot.turns` and `unattributed_children`.
+  - Added the `members.parent_turn` and `checkpoint_turns` additive migration.
+  - Added a per-unmeasured-response turn map in the Claude adapter.
+  - Added the report "Agent activity — per turn" table.
+  - Checkpoints now generate Agents spawned, Turn activity and Reconciliation sections.
+  - New logs use the new template, and existing logs keep their headers.
+  - Rationale is in `design.md` D1–D7.
+- Verification commands and actual results: see [verification](../evidence/experiment-turn-activity/verification.md). Results: 138 Python tests passed, 34 report tests passed, strict OpenSpec validation passed, `npm run check` passed, and the synthetic end-to-end report and log agreed.
+- Security findings / unresolved defects:
+  - No new content persistence. Committed tables have no paths and use shortened IDs.
+  - Session prefixes can collide when IDs share 8 characters.
+  - Children linked before this change have no spawning turn.
+- Resource measurements (or unavailable): unavailable, because recording was not started for this work.
+- Blockers and next action:
+  - **Darryl must review the AGENTS.md / logs/README.md / workflow/README.md wording.** It replaces "Keith retains member-log.md" and leaves Darryl's policy text unchanged.
+  - Keith reviews and commits the branch. A later opted-in session should confirm real per-turn rows and Claude spawn attribution.
+  - Archive `project-experiment-tracker` before this change.
+- Next owner: Keith (review/commit/PR); Darryl (shared-wording review).
+- Independent review outcome (accept / return with findings): pending.
