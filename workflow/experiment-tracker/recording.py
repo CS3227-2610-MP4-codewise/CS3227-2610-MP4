@@ -192,6 +192,10 @@ class Recording:
                 '''CREATE TABLE IF NOT EXISTS admitted(session_id TEXT NOT NULL,turn_id TEXT NOT NULL,
                    run_id TEXT NOT NULL,window_id TEXT NOT NULL,admitted_at TEXT NOT NULL,
                    terminal TEXT,partial INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(session_id,turn_id))''',
+                # A Claude child spawned inside an open window stays eligible after it closes.
+                '''CREATE TABLE IF NOT EXISTS spawned(run_id TEXT NOT NULL,session_id TEXT NOT NULL,
+                   parent TEXT NOT NULL,parent_turn TEXT NOT NULL,window_id TEXT NOT NULL,spawned_at TEXT NOT NULL,
+                   resolved TEXT CHECK(resolved IN ('admitted','finalized')),PRIMARY KEY(run_id,session_id))''',
                 '''CREATE TABLE IF NOT EXISTS roles(id INTEGER PRIMARY KEY,run_id TEXT NOT NULL,
                    session_id TEXT NOT NULL,runtime_id TEXT NOT NULL,role TEXT NOT NULL,label TEXT NOT NULL,ts TEXT NOT NULL)''',
             ]
@@ -350,6 +354,7 @@ class Recording:
                 if not run['state'].startswith('draining-'):
                     raise ValueError('Partial finalization requires draining state')
                 self.db.execute('UPDATE admitted SET finalized_partial=1 WHERE run_id=? AND terminal IS NULL',(run['id'],))
+                self.db.execute("UPDATE spawned SET resolved='finalized' WHERE run_id=? AND resolved IS NULL",(run['id'],))
                 self.db.execute("UPDATE runs SET state='stopped' WHERE id=?",(run['id'],))
                 self.reconcile_run(run['id'])
             else:
@@ -367,8 +372,11 @@ class Recording:
         self.db.execute("""UPDATE admitted SET partial=CASE
             WHEN finalized_partial=1 OR terminal='turn_aborted' THEN 1 ELSE 0 END
             WHERE run_id=?""",(run_id,))
-        partial=self.db.execute('SELECT 1 FROM admitted WHERE run_id=? AND partial=1',(run_id,)).fetchone() is not None
-        pending=self.db.execute('SELECT 1 FROM admitted WHERE run_id=? AND terminal IS NULL AND partial=0',(run_id,)).fetchone() is not None
+        partial=self.db.execute('''SELECT 1 FROM admitted WHERE run_id=? AND partial=1 UNION ALL
+            SELECT 1 FROM spawned WHERE run_id=? AND resolved='finalized' ''',(run_id,run_id)).fetchone() is not None
+        # A spawned child without an admitted turn is still running work of this run.
+        pending=self.db.execute('''SELECT 1 FROM admitted WHERE run_id=? AND terminal IS NULL AND partial=0 UNION ALL
+            SELECT 1 FROM spawned WHERE run_id=? AND resolved IS NULL''',(run_id,run_id)).fetchone() is not None
         state=run['state']
         if state in ('stopped','draining-to-stop'):
             state='draining-to-stop' if pending else 'stopped'
@@ -387,6 +395,15 @@ class Recording:
         entry=self.admission(sid,turn)
         if entry:
             return entry
+        spawn=self.db.execute('SELECT * FROM spawned WHERE session_id=? AND resolved IS NULL',(sid,)).fetchone()
+        if spawn:
+            # The in-window spawn is the admission evidence for the child's first turn,
+            # even if pause/stop closed the window before its transcript was imported.
+            self.db.execute('INSERT INTO admitted(session_id,turn_id,run_id,window_id,admitted_at) VALUES (?,?,?,?,?)',
+                            (sid,turn,spawn['run_id'],spawn['window_id'],at))
+            self.db.execute("UPDATE spawned SET resolved='admitted' WHERE run_id=? AND session_id=?",(spawn['run_id'],sid))
+            self.reconcile_run(spawn['run_id'])
+            return self.admission(sid,turn)
         run=self.run_for(sid)
         if not run or run['state']!='recording':
             return None
@@ -395,7 +412,7 @@ class Recording:
             return None
         return self.admit(run,sid,turn,at)
 
-    def link_child(self, parent, parent_turn, child):
+    def link_child(self, parent, parent_turn, child, spawn=False):
         entry=self.admission(parent,parent_turn)
         run=self.run_for(parent)
         if not entry or not run or run['state']!='recording' or entry['run_id']!=run['id']:
@@ -405,6 +422,9 @@ class Recording:
             return False
         self.session(child,parent=parent)
         self.db.execute('INSERT OR IGNORE INTO members VALUES (?,?,?)',(run['id'],child,parent))
+        if spawn and not self.db.execute('SELECT 1 FROM admitted WHERE session_id=?',(child,)).fetchone():
+            self.db.execute('INSERT OR IGNORE INTO spawned VALUES (?,?,?,?,?,?,NULL)',
+                            (run['id'],child,parent,parent_turn,entry['window_id'],stamp()))
         return True
 
     def recording_status(self, sid, run_id=None):
@@ -417,4 +437,6 @@ class Recording:
             return {'session':sid,'state':'off','pending_turns':[]}
         return {**dict(run),'pending_turns':[dict(r) for r in self.db.execute(
             'SELECT session_id,turn_id,partial FROM admitted WHERE run_id=? AND terminal IS NULL',(run['id'],))],
+            'pending_children':[dict(r) for r in self.db.execute(
+            'SELECT session_id,parent,parent_turn FROM spawned WHERE run_id=? AND resolved IS NULL',(run['id'],))],
             'windows':[dict(r) for r in self.db.execute('SELECT * FROM windows WHERE run_id=? ORDER BY opened',(run['id'],))]}

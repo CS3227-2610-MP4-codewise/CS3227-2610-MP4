@@ -169,3 +169,15 @@ The tracker SHALL import opted-in Claude Code sessions with the same admission, 
 #### Scenario: Mixed-client comparison
 - **WHEN** a report or snapshot selects both Codex and Claude Code sessions
 - **THEN** coverage states that counters are not directly comparable across clients.
+
+#### Scenario: Claude Code child spawned before pause or stop
+- **WHEN** a Claude Code child is spawned while recording and pause or stop is requested before its transcript is imported
+- **THEN** the run stays draining and reports provisional coverage until the child's first turn is admitted from its spawn evidence and completes, its usage is counted, no new children or turns are admitted, and explicit partial finalization can resolve a child whose transcript never arrives.
+
+#### Scenario: Claude Code response without usage
+- **WHEN** an admitted turn contains a distinct response whose records omit or malform usage while another response is measured
+- **THEN** a partial-coverage warning identifies the unmeasured responses until a record with the same response ID supplies valid usage.
+
+#### Scenario: Claude Code response metadata
+- **WHEN** a later distinct response omits model or effort
+- **THEN** its usage reports them as unavailable rather than inheriting the previous response's values, while split records of one response share them.

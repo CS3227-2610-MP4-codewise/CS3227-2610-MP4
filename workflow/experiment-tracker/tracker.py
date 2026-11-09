@@ -25,6 +25,7 @@ SOURCE_ADAPTER_VERSION = 2
 OWNER = "Codewise experiment tracker"
 BOUNDARY_WARNING = "Boundary cumulative sample excluded: exact delta unavailable; coverage partial"
 SIDECHAIN_WARNING = "Inline sidechain records excluded; attach subagent transcripts separately; coverage partial"
+RESPONSE_WARNING = "Claude Code response(s) without usable usage; totals undercount; coverage partial"
 MIXED_CLIENT_GAP = ("Mixed clients selected: Codex and Claude Code define, cache and tokenize counters differently; "
                     "compare totals within one client.")
 EVENTS = ("SessionStart", "SessionEnd", "SubagentStart", "SubagentStop", "Stop",
@@ -377,7 +378,7 @@ class Tracker(Recording):
             if meta['client'] == 'claude':
                 state.update(raw_session=meta['session_id'], child=bool(meta['parent']))
             state.setdefault('boundary_turns', [])
-            warnings = set(state.get('warnings', [])) - {BOUNDARY_WARNING}
+            warnings = set(state.get('warnings', [])) - {BOUNDARY_WARNING, RESPONSE_WARNING}
             done = False
             while not done:
                 batch = []
@@ -424,7 +425,8 @@ class Tracker(Recording):
                         warnings.add(SIDECHAIN_WARNING)
                     state.pop('tail', None)
                     state['consumed_sha256'] = consumed.hexdigest()
-                    state['warnings'] = sorted(warnings | ({BOUNDARY_WARNING} if state['boundary_turns'] else set()))
+                    state['warnings'] = sorted(warnings | ({BOUNDARY_WARNING} if state['boundary_turns'] else set())
+                                               | ({RESPONSE_WARNING} if state.get('unmeasured_responses') else set()))
                     encoded = json.dumps(state)
                     self.db.execute("UPDATE sources SET offset=?,prefix=?,state=?,warning=?,last_sync=? WHERE path=?",
                                     (offset, digest, encoded, '; '.join(state['warnings']) or None, now(), str(path)))
@@ -528,19 +530,37 @@ class Tracker(Recording):
             model = message.get('model')
             if model == '<synthetic>':
                 return  # Client-generated notices, not model requests.
+            response = message.get('id') or record.get('requestId')
+            if not isinstance(response, str):
+                if entry:
+                    raise ValueError('Assistant response without an ID')
+                return
+            identifier(response)
+            # Split records of one response share metadata; a new response never
+            # inherits another response's model or effort.
+            current = state.get('response') or {}
+            if current.get('id') != response:
+                current = {'id': response, 'model': 'unavailable', 'effort': 'unavailable'}
             if isinstance(model, str):
-                state['model'] = safe_text(model, 150)
+                current['model'] = safe_text(model, 150)
             if isinstance(record.get('effort'), str):
-                state['effort'] = safe_text(record['effort'], 100)
+                current['effort'] = safe_text(record['effort'], 100)
+            state['response'] = current
             if not entry:
                 return
             usage = claude_counts(message.get('usage'))
-            response = message.get('id') or record.get('requestId')
-            if usage and usage[0] and isinstance(response, str):
+            key = f"{sid}:response:{response}"
+            unmeasured = state.setdefault('unmeasured_responses', [])
+            if usage and usage[0]:
                 # One response is split across records that repeat identical usage.
-                self.put(f"{sid}:response:{identifier(response)}", source, sid, turn, ts, 'usage',
-                         {**usage[0], **usage[1], 'model': state.get('model', 'unavailable'),
-                          'effort': state.get('effort', 'unavailable'), 'method': 'response_id'})
+                self.put(key, source, sid, turn, ts, 'usage',
+                         {**usage[0], **usage[1], 'model': current['model'], 'effort': current['effort'],
+                          'method': 'response_id'})
+                if response in unmeasured:
+                    unmeasured.remove(response)
+            elif response not in unmeasured and not self.db.execute(
+                    'SELECT 1 FROM records WHERE id=?', (entry['run_id'] + ':' + key,)).fetchone():
+                unmeasured.append(response)  # Cleared only by valid usage for this response ID.
             content = message.get('content')
             for block in content if isinstance(content, list) else ():
                 if isinstance(block, dict) and block.get('type') == 'tool_use' and isinstance(block.get('id'), str):
@@ -580,7 +600,10 @@ class Tracker(Recording):
         unmeasured = [r for r in admitted if r['terminal'] == 'task_complete' and
                       (r['run_id'], r['session_id'], r['turn_id']) not in measured_turns]
         unavailable_counters = [k for k in COUNTERS if usage and totals[k] is None]
-        provisional = any((r['session_id'], r['turn_id']) not in complete for r in usage) or any(r['terminal'] is None and not r['partial'] for r in admitted)
+        spawned = [dict(r) for r in self.db.execute('SELECT * FROM spawned') if r['run_id'] in run_ids]
+        waiting_children = [r for r in spawned if r['resolved'] is None]
+        provisional = (any((r['session_id'], r['turn_id']) not in complete for r in usage)
+                       or any(r['terminal'] is None and not r['partial'] for r in admitted) or bool(waiting_children))
         # Hook-only completion is advisory, not proof the final response usage was imported.
         gaps = ['Active/idle time and unnecessary retries require annotations; silence is not evidence.',
                 'Client hook coverage is observational, not guaranteed; unknown fields are unavailable.',
@@ -593,6 +616,8 @@ class Tracker(Recording):
         missing = ids - {s['session_id'] for s in sources}
         if missing:
             gaps.append(f'{len(missing)} session(s) have no registered transcript; token coverage incomplete.')
+        if waiting_children:
+            gaps.append(f'{len(waiting_children)} spawned child session(s) not yet imported; totals provisional until their transcripts arrive or partial finalization.')
         if any(s['warning'] for s in sources):
             gaps.append('Source warnings: token coverage partial; totals represent observed records only.')
         if unmeasured:
@@ -666,7 +691,7 @@ class Tracker(Recording):
                                if increment is None or r['id'] == increment],
                 'sessions': [{k: v for k, v in s.items() if k != 'cwd'} for s in sessions],
                 'runs':runs,'windows':[dict(r) for r in self.db.execute('SELECT * FROM windows') if r['run_id'] in run_ids],
-                'members':members,'admitted_turns':admitted,
+                'members':members,'admitted_turns':admitted,'spawned':spawned,
                 'roles':[dict(r) for r in self.db.execute('SELECT * FROM roles ORDER BY id') if r['run_id'] in run_ids],
                 'legacy':{'classification':'legacy/unbounded','excluded_records':legacy_count},
                 'sources': sources, 'totals': totals, 'supplemental_totals': supplemental, 'status': 'partial' if partial else 'provisional' if provisional else 'observed-complete' if usage else 'unavailable',
@@ -766,7 +791,17 @@ def enqueue_claude(gate, raw, started):
     path=str(Path(path).expanduser().resolve())
     if not path.endswith('.jsonl'):return False
     meta,turn,opened=claude_source_turn(path)
-    if meta['id']!=sid or not gate.scoped(meta.get('cwd')) or not turn:return False
+    if meta['id']!=sid or not gate.scoped(meta.get('cwd')):return False
+    agent=raw.get('agent_id')
+    if not turn and event=='SubagentStop' and isinstance(agent,str):
+        # A background child can finish after its parent's turn; attribute its stop
+        # (and transcript path) to the admitted parent turn that spawned it.
+        db.execute('BEGIN IMMEDIATE')
+        spawn=db.execute('SELECT parent_turn FROM spawned WHERE session_id=? AND parent=? AND resolved IS NULL',
+                         (agent,sid)).fetchone()
+        entry=gate.admission(sid,spawn[0]) if spawn else None
+        return persist_event(gate,raw,event,sid,spawn[0],cwd,entry,started) if entry else False
+    if not turn:return False
     identifier(turn)
     db.execute('BEGIN IMMEDIATE')
     entry=gate.admission(sid,turn)
@@ -779,10 +814,10 @@ def enqueue_claude(gate, raw, started):
         # Same rule as import: only a turn that began inside the open window is admitted.
         entry=gate.admit_started(sid,turn,opened)
     if not entry:return False
-    return persist_event(gate,raw,event,sid,turn,cwd,entry,started)
+    return persist_event(gate,raw,event,sid,turn,cwd,entry,started,spawn=True)
 
 
-def persist_event(gate, raw, event, sid, turn, cwd, entry, started):
+def persist_event(gate, raw, event, sid, turn, cwd, entry, started, spawn=False):
     """Write allowlisted callback fields while the caller holds the admission lock."""
     db=gate.db;state=gate.state
     safe={'hook_event_name':event,'session_id':sid,'turn_id':turn,'cwd':str(Path(cwd).resolve()),
@@ -791,7 +826,7 @@ def persist_event(gate, raw, event, sid, turn, cwd, entry, started):
         value=raw.get(key)
         if isinstance(value,str) and SAFE.fullmatch(value):safe[key]=value
     if event=='SubagentStart' and safe.get('agent_id'):
-        gate.link_child(sid,turn,safe['agent_id'])
+        gate.link_child(sid,turn,safe['agent_id'],spawn)
     for key in ('transcript_path','agent_transcript_path'):
         value=raw.get(key)
         if isinstance(value,str) and len(value)<4096:safe[key]=str(Path(value).expanduser().resolve())

@@ -260,3 +260,25 @@ Verify and fix zero cumulative deltas, run coordination leakage, cross-experimen
 - Human owner Keith; main publication in Claude Code, no child agents. Confirmed open PR #23 head `86367f6` matches this checkout's `codex/project-experiment-tracker` branch.
 - Publish EXP-10 Claude Code support with its tests, skill copy, ignore rule and existing OpenSpec/evidence/handoff/log updates. Reuse completed verification (113 Python, 29 dashboard, full `npm run check` with 405+4 cases on Node 22.19.0, strict change and skill validation); no implementation changes since those checks.
 - User chose PR #23 over a separate follow-up PR. Tasks 7.4 and 5.4 (live client verification) remain pending. Recording off; usage unavailable. No merge or deployment.
+
+
+## Request
+
+2026-11-09: Verify and fix three Claude adapter defects: spawned children dropped after pause/stop, responses missing usage hidden by measured responses, and model/effort inherited across responses.
+
+## Results
+
+- Human owner Keith; main reproduction, repair and self-review in Claude Code, no child agents or independent review. All three reproduced with failing regressions against `b8295cc`.
+- Repairs (EXP-02/04/07/08/10, task 7.5): spawn eligibility lets an in-window child's first turn drain after the window closes, with pending children in status and provisional/partial coverage until import or explicit partial finalization; per-response-ID usage coverage warning; per-response model/effort. Review also closed an `observed-complete` window while a child was unimported.
+- Checks: 118 Python and 30 dashboard cases; full `npm run check` on Node 22.19.0 (14 strict changes, type/lint, 406 Vitest cases, four deployment cases, build); strict change validation; private tracker validate/sync after the additive upgrade. [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#claude-child-drain-response-coverage-and-metadata-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#claude-child-drainresponse-coverage-continuation--2026-11-09).
+- Recording off; usage unavailable. Tasks 7.4/5.4 pending. Next owner Keith: review and push to PR #23 if accepted. No commit/push/merge/deployment.
+
+
+## Request
+
+2026-11-09: Commit the verified Claude child drain, response coverage and metadata repairs and push them to PR #23.
+
+## Results
+
+- Human owner Keith; main publication in Claude Code, no child agents. Confirmed open PR #23 head `b8295cc` matches this checkout.
+- Publish task 7.5 repairs with regressions and existing OpenSpec/evidence/handoff/log updates. Reuse completed verification (118 Python, 30 dashboard, full `npm run check` with 406+4 cases on Node 22.19.0, strict change validation, private validate/sync); no implementation changes since. Tasks 7.4/5.4 pending; recording off. No merge or deployment.

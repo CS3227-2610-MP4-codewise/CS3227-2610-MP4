@@ -209,3 +209,25 @@ Verification:
 - Claude Code listed the new `.claude/skills/project-experiment` copy during the session.
 
 Limitations: the Claude transcript format is undocumented, so these field names are pinned to observed versions and unknown structure becomes warnings. Live hook callbacks (`install-hooks --client claude`, restart, observed events) and a real opted-in lifecycle remain task 7.4, alongside Codex task 5.4. Rate-limit/context state, cumulative fallback, crash-versus-interrupt distinction and cost are unavailable for Claude Code; mixed-client totals are flagged as not comparable. Recording remained off; request usage unavailable. No commit, push, merge or deployment.
+
+
+## Claude child drain, response coverage and metadata verification — 2026-11-09
+
+Input `b8295cc` (PR #23); Keith-owned EXP-02/04/07/08/10 repair, task 7.5. Main reproduction, implementation and self-review in Claude Code; no child agents or independent review.
+
+Confirmed all three reports with new synthetic regressions that failed against `b8295cc`:
+
+- A child linked by `SubagentStart` and stopped before transcript import was refused by `admit_started` once draining; the root settled `stopped` and the snapshot was `observed-complete` without child usage (also failed: background child stop after the parent turn and explicit partial finalization of a never-imported child).
+- A tool-use response without usage followed by a measured final response reported `observed-complete` at 160 instead of a partial gap.
+- A second response omitting model/effort reported the first response's `claude-opus-5-5`/`medium`.
+
+Repair: additive `spawned` eligibility rows for in-window Claude spawns, used to admit the child's first turn under its spawn window, keep the run draining (`pending_children` in status) and keep snapshots/dashboards provisional with a named gap; background `SubagentStop` attributed to the spawning parent turn; partial finalization resolves unimported spawns as partial. Per-response-ID usage coverage warning cleared only by later valid usage for that ID; admitted records without response IDs are malformed. Model/effort tracked per response ID. Review also found the unimported-child window could report `observed-complete`; snapshot and dashboard status now include unresolved spawns (status becomes partial while the child source is also missing).
+
+Verification:
+
+- `python3 -m unittest discover -s workflow/experiment-tracker`: 118 passed (five new reproductions plus 113 existing).
+- `npx vitest run workflow/experiment-tracker/report.test.ts`: 30 passed (one new pending-child status case).
+- `npm run check` on Node 22.19.0: 14 strict changes, typecheck, lint, 406 Vitest cases in 36 files, four deployment cases and build passed. Strict change validation and `git diff --check` passed.
+- Private tracker `validate` and `sync` passed after the additive table upgrade (queued 0); no recording activation, start/resume or export.
+
+Codex child linkage is unchanged; its children still join only through callbacks during recording. Live Claude callbacks remain task 7.4. Recording off; request usage unavailable. No commit, push, merge or deployment.

@@ -233,6 +233,88 @@ class ClaudeAdapterTest(unittest.TestCase):
         self.assertEqual('observed-complete', snapshot['status'])
         self.assertNotIn('Inline sidechain', json.dumps(snapshot['sources']))
 
+    def child_transcript(self, agent='a1234'):
+        child = self.root / SID / 'subagents' / f'agent-{agent}.jsonl'
+        child.parent.mkdir(parents=True, exist_ok=True)
+        self.write(self.base('user', agentId=agent, isSidechain=True, promptId='child-prompt'),
+                   self.reply('msg-' + agent, 'end_turn', agentId=agent, isSidechain=True), path=child)
+        return child
+
+    def test_child_spawned_in_window_drains_after_stop(self):
+        self.start()
+        self.assertTrue(self.hook(event='SubagentStart', agent_id='a1234'))
+        self.assertEqual('draining-to-stop', self.tracker.control(SID, 'stop')['state'])
+        child = self.child_transcript()
+        self.assertTrue(self.hook(event='SubagentStop', agent_id='a1234', agent_transcript_path=str(child)))
+        self.write(self.reply('msg-a', 'end_turn'), self.done())
+        self.tracker.sync()
+        self.assertEqual('task_complete', self.tracker.admission('a1234', 'child-prompt')['terminal'])
+        self.assertEqual('stopped', self.tracker.recording_status(SID)['state'])
+        snapshot = self.tracker.snapshot()
+        self.assertEqual((320, 'observed-complete'), (snapshot['totals']['total_tokens'], snapshot['status']))
+
+    def test_background_child_stop_after_parent_turn_still_attaches(self):
+        self.start()
+        self.assertTrue(self.hook(event='SubagentStart', agent_id='a1234'))
+        self.tracker.control(SID, 'stop')
+        self.write(self.reply('msg-a', 'end_turn'), self.done())
+        self.tracker.sync()
+        status = self.tracker.recording_status(SID)
+        self.assertEqual('draining-to-stop', status['state'])  # The spawned child is still running.
+        self.assertEqual(['a1234'], [c['session_id'] for c in status['pending_children']])
+        snapshot = self.tracker.snapshot()
+        self.assertNotEqual('observed-complete', snapshot['status'])  # Child usage is still missing.
+        self.assertIn('1 spawned child session(s) not yet imported', ' '.join(snapshot['coverage']))
+        child = self.child_transcript()
+        self.assertTrue(self.hook(event='SubagentStop', agent_id='a1234', agent_transcript_path=str(child)))
+        self.tracker.sync()
+        self.assertEqual('stopped', self.tracker.recording_status(SID)['state'])
+        self.assertEqual(320, self.tracker.snapshot()['totals']['total_tokens'])
+
+    def test_missing_child_transcript_needs_explicit_partial_finalization(self):
+        self.start()
+        self.hook(event='SubagentStart', agent_id='a1234')
+        self.tracker.control(SID, 'stop')
+        self.write(self.reply('msg-a', 'end_turn'), self.done())
+        self.tracker.sync()
+        self.assertEqual('draining-to-stop', self.tracker.recording_status(SID)['state'])
+        self.assertFalse(self.hook(event='SubagentStart', agent_id='late-child'))  # No spawns while draining.
+        status = self.tracker.control(SID, 'finalize')
+        self.assertEqual(('stopped', 1), (status['state'], status['partial']))
+        child = self.child_transcript()
+        self.tracker.attach(child)
+        self.tracker.sync()
+        self.assertIsNone(self.tracker.admission('a1234', 'child-prompt'))
+        self.assertEqual('partial', self.tracker.snapshot()['status'])
+
+    def test_response_without_usage_is_a_coverage_gap_until_measured(self):
+        self.start()
+        unmeasured = self.reply('msg-a', tool='toolu_a')
+        del unmeasured['message']['usage']
+        self.write(unmeasured, self.reply('msg-b', 'end_turn'), self.done())
+        self.tracker.sync()
+        snapshot = self.tracker.snapshot()
+        self.assertEqual((160, 'partial'), (snapshot['totals']['total_tokens'], snapshot['status']))
+        self.assertIn('without usable usage', snapshot['sources'][0]['warning'])
+        self.write(self.reply('msg-a', tool='toolu_a'))  # A later split record supplies the usage.
+        self.tracker.sync()
+        snapshot = self.tracker.snapshot()
+        self.assertEqual((320, 'observed-complete'), (snapshot['totals']['total_tokens'], snapshot['status']))
+        self.assertIsNone(snapshot['sources'][0]['warning'])
+
+    def test_model_and_effort_are_not_inherited_across_responses(self):
+        self.start()
+        later = self.reply('msg-b', 'end_turn')
+        del later['message']['model'], later['effort']
+        split = self.reply('msg-a')
+        split_tail = self.reply('msg-a')
+        del split_tail['message']['model'], split_tail['effort']
+        self.write(split, split_tail, later, self.done())
+        self.tracker.sync()
+        usage = {r['id'].rsplit(':', 1)[1]: r['data'] for r in self.tracker.snapshot()['records'] if r['kind'] == 'usage'}
+        self.assertEqual(('claude-opus-5-5', 'medium'), (usage['msg-a']['model'], usage['msg-a']['effort']))
+        self.assertEqual(('unavailable', 'unavailable'), (usage['msg-b']['model'], usage['msg-b']['effort']))
+
     def test_unlinked_subagent_is_not_admitted(self):
         self.start()
         child = self.root / SID / 'subagents' / 'agent-b999.jsonl'

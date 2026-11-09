@@ -625,3 +625,18 @@ it('shows Claude Code cache writes and flags mixed clients only within the selec
   select('session', 'bad');
   expect(card('Cache writes (Claude Code, supplemental)')).toBe('unavailable');
 });
+
+it('keeps a run provisional while a spawned child has not been imported', () => {
+  const data = fixture() as ReturnType<typeof fixture> & { spawned: object[] };
+  data.spawned = [
+    { run_id: 'good-run', session_id: 'good', parent: 'root', parent_turn: 't', resolved: null },
+  ];
+  load(data);
+  select('session', 'good');
+  expect(selectedStatus()).toContain('provisional');
+  expect(coverageText()).toContain('1 spawned child session(s) not yet imported');
+  data.spawned = [{ ...data.spawned[0], resolved: 'admitted' }];
+  load(data);
+  select('session', 'good');
+  expect(selectedStatus()).toContain('observed-complete');
+});

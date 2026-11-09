@@ -330,7 +330,13 @@
         missingCounters.length ||
         admitted.some((t) => t.partial) ||
         (!sid && runs.some((r) => r.partial));
-      const pending = admitted.some((t) => !t.terminal && !t.partial);
+      // Children spawned inside a window but not yet imported are still pending work.
+      const waitingChildren = (data.spawned || []).filter(
+        (c) => runIds.has(c.run_id) && ids.has(c.session_id) && c.resolved == null,
+      );
+      const pending =
+        admitted.some((t) => !t.terminal && !t.partial) ||
+        waitingChildren.length > 0;
       const completed = new Set(
         admitted.filter((t) => t.terminal === 'task_complete').map(turnKey),
       );
@@ -359,6 +365,10 @@
       if (pending && runs.some((r) => r.state.startsWith('draining-')))
         coverage.push(
           'Draining: pending turns require source terminal evidence or explicit partial finalization.',
+        );
+      if (waitingChildren.length)
+        coverage.push(
+          `${waitingChildren.length} spawned child session(s) not yet imported; totals provisional until their transcripts arrive or partial finalization.`,
         );
       if (missingSources.length)
         coverage.push(
