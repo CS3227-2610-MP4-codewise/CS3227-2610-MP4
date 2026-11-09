@@ -192,3 +192,20 @@ Verification:
 - Updated change strict validation, `git diff --check`, private sync/report and database integrity/aggregation validation passed. Existing source replay succeeded with queued=0; historical shared exports preserved. No start/resume or new shared export.
 
 Progress 24/25; live-client task 5.4 remains pending. Source hashing remains O(consumed bytes) and filesystem rewrites during an import are revalidated on a later sync. SQLite contention independent of transcript I/O is still possible; no universal callback delivery guarantee or live-client observation is claimed. Annotations/checks remain increment-attributed, not allocated between runs sharing an increment. Recording remains off and request usage unavailable. Next owner Keith: review the uncommitted repair and separately opt into live lifecycle verification. No commit/push/merge/deployment authorized or performed by this repair request.
+
+
+## Claude Code adapter verification — 2026-11-09
+
+Input `9a26a47` plus later PR #23 commits on `codex/project-experiment-tracker`; Keith-owned EXP-10 with EXP-01/02/04/05/06/07/08/09 touch points, tasks 7.1–7.3. Main implementation and self-review in Claude Code (`claude-opus-5-5`); no child agents or independent review.
+
+Format survey (field names and counts only, no message bodies): 40 local Claude Code 2.1.309–2.1.319 transcripts. Every file starts with a `mode` record; `turn_duration` closed 245 turns; queued prompts reused a `turnIndex` 6 times; 1,419 repeated assistant records carried identical usage for their message ID (0 differed); thinking tokens never exceeded output tokens; subagent transcripts are `<session>/subagents/agent-<agentId>.jsonl` with the parent `sessionId`; root transcripts contained no inline sidechain records. `CLAUDE_CODE_SESSION_ID` matched the current transcript name.
+
+Verification:
+
+- `python3 -m unittest discover -s workflow/experiment-tracker`: 113 passed (94 existing unchanged plus 19 new synthetic Claude cases in `test_claude_adapter.py`).
+- `npx vitest run workflow/experiment-tracker/report.test.ts`: 29 passed (one new cache-write/mixed-client filter case).
+- `npm run check` on Node 22.19.0 (earlier entries used 24.21.0): 14 strict changes, typecheck, lint, 405 Vitest cases in 36 files, four deployment cases and build passed. `openspec validate project-experiment-tracker --strict`, `git diff --check` and `quick_validate.py` for both skill copies passed.
+- Scratch reconciliation outside project state: a temporary tracker with a copy of the current Claude transcript (2.0 MB) attached by identity, admitted only the initiating turn, imported usage/tool/lifecycle metadata without source warnings (status provisional because the turn was open) and derived a hook turn in about 5 ms. The copy and scratch database were deleted. A real subagent transcript from another local project proved its parent identity. No project tracker state, recording or export was changed.
+- Claude Code listed the new `.claude/skills/project-experiment` copy during the session.
+
+Limitations: the Claude transcript format is undocumented, so these field names are pinned to observed versions and unknown structure becomes warnings. Live hook callbacks (`install-hooks --client claude`, restart, observed events) and a real opted-in lifecycle remain task 7.4, alongside Codex task 5.4. Rate-limit/context state, cumulative fallback, crash-versus-interrupt distinction and cost are unavailable for Claude Code; mixed-client totals are flagged as not comparable. Recording remained off; request usage unavailable. No commit, push, merge or deployment.

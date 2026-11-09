@@ -146,3 +146,26 @@ The tracker SHALL preserve actual runtime identities separately from assigned ro
 #### Scenario: Coordinator label
 - **WHEN** the root is assigned Coordinator
 - **THEN** its actual identity remains unchanged and measured records retain the same attribution.
+
+### Requirement: EXP-10 Claude Code sessions
+The tracker SHALL import opted-in Claude Code sessions with the same admission, privacy, lifecycle and coverage rules as Codex, using only structural transcript evidence, and SHALL keep client counter differences visible.
+
+#### Scenario: Claude Code transcript identity
+- **WHEN** a Claude Code transcript or subagent transcript is attached
+- **THEN** its session, agent and parent identity come from its own consistent records and file name, out-of-scope or inconsistent sources are refused, and foreign records are skipped with a partial-coverage warning.
+
+#### Scenario: Claude Code turn lifecycle
+- **WHEN** recording starts inside a Claude Code turn and later turns complete, abort, queue prompts or remain unterminated
+- **THEN** only the initiating and later in-window turns are admitted, `turn_duration` completes and interruption aborts a turn, queued prompts stay in the open turn, and an unterminated turn remains pending until explicit partial finalization.
+
+#### Scenario: Claude Code usage mapping
+- **WHEN** a response's usage appears on several records or lacks a counter
+- **THEN** it is counted once by message ID, input includes cache reads and writes, cache writes are supplemental, missing counters stay unavailable, synthetic notices and inline sidechain usage are not counted, and no prompt, tool or thinking body is persisted.
+
+#### Scenario: Claude Code callbacks
+- **WHEN** a Claude Code hook without a turn ID arrives
+- **THEN** sessions without a run are discarded without reading transcripts, otherwise the open turn is derived from the exact transcript outside the write lock, only turns started inside an open window are admitted, and invalid input exits successfully without output.
+
+#### Scenario: Mixed-client comparison
+- **WHEN** a report or snapshot selects both Codex and Claude Code sessions
+- **THEN** coverage states that counters are not directly comparable across clients.

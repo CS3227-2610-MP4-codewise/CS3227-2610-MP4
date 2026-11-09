@@ -236,3 +236,27 @@ Verify and fix zero cumulative deltas, run coordination leakage, cross-experimen
 - Reuse completed verification: 94 Python cases; full Node 24.21.0 project check passes 14 strict changes, type/lint, 404 Vitest cases, four deployment cases and build. Updated strict change validation, private sync/report/integrity and whitespace checks passed. No implementation changes since these checks.
 - [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#zero-measurements-experiment-filters-and-import-locking--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#zerofilterlocking-repair-continuation--2026-11-09). Recording remains off, request usage unavailable; no independent review.
 - User authorizes commit/push; verify resulting commit and remote PR head after execution. Overall 24/25 tasks complete; live-client task 5.4 remains pending. Next owner Keith for PR review and separately opted-in live verification. No merge or deployment.
+
+
+## Request
+
+2026-11-09: Plan and implement Claude Code support for the experiment tracker so Keith's Claude Code sessions on this project can be recorded, explaining what differs and which metrics are unavailable.
+
+## Results
+
+- Human owner Keith; main implementation and self-review in Claude Code, no child agents or independent review. Plan reviewed in conversation before implementation.
+- Added EXP-10: shared source-identity parser; Claude Code adapter for root and subagent transcripts; message-ID usage mapping (input includes cache reads/writes, cache writes supplemental, thinking as reasoning subset); turn derivation for Claude hooks outside the write lock; `install-hooks --client claude` into ignored `.claude/settings.local.json`; `attach --claude-session`; mixed-client caveat and cache-write card; client-neutral skill with a parity-tested Claude Code copy. Codex paths unchanged.
+- Unavailable for Claude Code: rate-limit/context state, cumulative fallback, certain crash-versus-interrupt distinction and cost. Cross-client totals are flagged as not comparable.
+- Checks: 113 Python and 29 dashboard cases; full `npm run check` on Node 22.19.0 (14 strict changes, type/lint, 405 Vitest cases, four deployment cases, build); strict change validation; both skill copies validated; scratch real-transcript reconciliation without touching project tracker state. [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#claude-code-adapter-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#claude-code-adapter-continuation--2026-11-09).
+- Recording off; request usage unavailable. Tasks 7.1–7.3 complete; 7.4 live Claude verification and 5.4 pending. Next owner Keith: review, then install Claude hooks, restart and explicitly opt in for live verification. No commit/push/merge/deployment.
+
+
+## Request
+
+2026-11-09: Commit the verified Claude Code tracker integration and push it to PR #23.
+
+## Results
+
+- Human owner Keith; main publication in Claude Code, no child agents. Confirmed open PR #23 head `86367f6` matches this checkout's `codex/project-experiment-tracker` branch.
+- Publish EXP-10 Claude Code support with its tests, skill copy, ignore rule and existing OpenSpec/evidence/handoff/log updates. Reuse completed verification (113 Python, 29 dashboard, full `npm run check` with 405+4 cases on Node 22.19.0, strict change and skill validation); no implementation changes since those checks.
+- User chose PR #23 over a separate follow-up PR. Tasks 7.4 and 5.4 (live client verification) remain pending. Recording off; usage unavailable. No merge or deployment.

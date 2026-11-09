@@ -14,3 +14,6 @@ wrangler.deploy.json
 .experiment-tracker/
 .codex/hooks.json
 __pycache__/
+
+# Local Claude Code hook installation
+.claude/settings.local.json

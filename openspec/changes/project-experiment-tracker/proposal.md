@@ -28,3 +28,7 @@ Keith is sole writer for workflow/experiment-tracker/, .agents/skills/project-ex
 ## Approved revision
 
 Explicit opt-in and bounded runs replace whole-session attribution. Include the initiating turn; pause/stop drain admitted active turns and exclude future work. Add runtime-ID-preserving agent roles, legacy exclusion, lifecycle status and turn-safe reconciliation. Requirements EXP-07–09 extend the same capability. User approved implementation after selecting all lifecycle defaults.
+
+## Claude Code client revision — 2026-11-09
+
+Keith also develops this project in Claude Code, whose sessions the Codex-only tracker refused. Add a second source adapter, local Claude hook installation, exact-ID transcript attachment and a Claude Code skill copy under EXP-10, keeping recording opt-in and the existing Codex behaviour unchanged. Claude hooks go only into ignored `.claude/settings.local.json`; committed shared settings are untouched, so Darryl's sessions are never collected. User requested implementation of the reviewed plan on 2026-11-09.

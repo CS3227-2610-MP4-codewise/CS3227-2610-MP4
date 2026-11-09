@@ -2,6 +2,7 @@
 import contextlib
 import json
 from pathlib import Path
+import re
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -25,6 +26,142 @@ def session_metadata(header):
     if not isinstance(meta, dict):
         raise ValueError('Session metadata payload must be an object')
     return meta
+
+
+TURN_ID = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,199}$')
+IDENTITY_LINES = 256
+# Lines that can carry Claude Code root turn evidence; others skip JSON parsing.
+CLAUDE_ROOT_MARKERS = (b'turnPosition', b'turn_duration', b'interruptedMessageId')
+
+
+def claude_identity(path, f):
+    """Identify a Claude Code transcript from its own records; never guess from contents elsewhere.
+
+    Root transcripts are named <sessionId>.jsonl. Subagent transcripts are named
+    agent-<agentId>.jsonl and carry the parent sessionId, which proves parentage.
+    """
+    f.seek(0)
+    session = agent = cwd = version = None
+    for index in range(IDENTITY_LINES):
+        line = f.readline(2 * 1024 * 1024)
+        if not line or not line.endswith(b'\n'):
+            break
+        try:
+            record = json.loads(line)
+        except (ValueError, UnicodeError):
+            record = None
+        if not isinstance(record, dict):
+            if index == 0:
+                raise ValueError('Unrecognized transcript header')
+            continue
+        for key in ('sessionId', 'agentId'):
+            value = record.get(key)
+            if value is None:
+                continue
+            current = session if key == 'sessionId' else agent
+            if not isinstance(value, str) or not TURN_ID.fullmatch(value) or (current and value != current):
+                raise ValueError('Inconsistent Claude Code transcript identity')
+            if key == 'sessionId':
+                session = value
+            else:
+                agent = value
+        if cwd is None and isinstance(record.get('cwd'), str):
+            cwd = record['cwd']
+        if version is None and isinstance(record.get('version'), str):
+            version = record['version'][:60]
+        if session and cwd:
+            break
+    if not session or not cwd:
+        raise ValueError('Unrecognized transcript header')
+    expected = 'agent-' + agent if agent else session
+    if Path(path).stem != expected:
+        raise ValueError('Transcript file name does not match its session identity')
+    return {'client': 'claude', 'id': agent or session, 'session_id': session, 'cwd': cwd,
+            'cli_version': version, 'parent': session if agent else None}
+
+
+def source_identity(path, f):
+    """Return (first line, identity) for a supported Codex or Claude Code JSONL source."""
+    f.seek(0)
+    header = f.readline(2 * 1024 * 1024)
+    try:
+        record = json.loads(header)
+    except (ValueError, UnicodeError):
+        raise ValueError('Missing valid session metadata') from None
+    if isinstance(record, dict) and record.get('type') == 'session_meta':
+        meta = session_metadata(record)
+        identity = {'client': 'codex', 'id': meta.get('id') or meta.get('session_id'), 'cwd': meta.get('cwd'),
+                    'cli_version': meta.get('cli_version'), 'parent': None}
+    elif isinstance(record, dict) and 'sessionId' in record:
+        identity = claude_identity(path, f)
+    else:
+        raise ValueError('First record must be session_meta or Claude Code session metadata')
+    f.seek(len(header))
+    return header, identity
+
+
+def claude_marker(record, child):
+    """Structural Claude Code lifecycle evidence for one record, or None."""
+    if not isinstance(record, dict):
+        return None
+    kind = record.get('type')
+    if kind == 'user':
+        if isinstance(record.get('interruptedMessageId'), str):
+            return ('aborted',)
+        turn = record.get('promptId') or record.get('uuid')
+        if not isinstance(turn, str) or not TURN_ID.fullmatch(turn):
+            return None
+        if child:
+            if record.get('toolUseResult') is None and not record.get('isMeta'):
+                return ('start', turn, record.get('timestamp'), None)
+            return None
+        position = record.get('turnPosition')
+        index = position.get('turnIndex') if isinstance(position, dict) else None
+        if isinstance(index, int) and not isinstance(index, bool) and not record.get('isSidechain'):
+            return ('start', turn, record.get('timestamp'), index)
+    elif kind == 'system' and not child and record.get('subtype') == 'turn_duration':
+        return ('complete',)
+    elif kind == 'assistant' and child:
+        message = record.get('message')
+        if isinstance(message, dict) and message.get('stop_reason') == 'end_turn':
+            return ('complete',)
+    return None
+
+
+def claude_turn_step(record, state, child):
+    """Advance Claude Code turn state. Queued prompts in an open turn share its turnIndex."""
+    marker = claude_marker(record, child)
+    if not marker:
+        return None
+    if marker[0] == 'start':
+        if child and state.get('turn'):
+            return None  # One subagent transcript is one delegated turn.
+        if state.get('open') and state.get('turn_index') == marker[3]:
+            return None
+        state.update(turn=marker[1], turn_index=marker[3], open=True)
+        return marker
+    if not state.get('open'):
+        return None
+    state['open'] = False
+    return marker
+
+
+def claude_active_turn(f, child):
+    """Latest open Claude Code turn and its start timestamp, read from complete lines."""
+    f.seek(0)
+    state, started = {}, None
+    for line in f:
+        if not line.endswith(b'\n'):
+            break
+        if not child and not any(marker in line for marker in CLAUDE_ROOT_MARKERS):
+            continue
+        try:
+            step = claude_turn_step(json.loads(line), state, child)
+        except (ValueError, UnicodeError):
+            continue
+        if step and step[0] == 'start':
+            started = step[2]
+    return (state['turn'], started) if state.get('open') else (None, None)
 
 
 class Recording:
@@ -109,11 +246,12 @@ class Recording:
             raise ValueError('Attach the exact session JSONL source before start/resume')
         active = None
         with Path(source['path']).open('rb') as f:
-            header = json.loads(f.readline(2*1024*1024))
-            meta = session_metadata(header)
-            if (meta.get('id') or meta.get('session_id')) != sid or not self.scoped(meta.get('cwd')):
+            _, meta = source_identity(source['path'], f)
+            if meta['id'] != sid or not self.scoped(meta.get('cwd')):
                 raise ValueError('Source identity or scope changed')
-            for line in f:
+            if meta['client'] == 'claude':
+                active = claude_active_turn(f, bool(meta['parent']))[0]
+            for line in f if meta['client'] == 'codex' else ():
                 if not line.endswith(b'\n'):
                     break
                 try:

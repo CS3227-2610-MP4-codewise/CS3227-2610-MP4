@@ -601,3 +601,27 @@ it('matches untasked experiment types directly without linking unrelated null ta
   expect(annotationText()).not.toContain('Untasked editor');
   expect(annotationText()).not.toContain('Unlinked context');
 });
+
+function card(label: string) {
+  const element = [...document.querySelectorAll('.card')].find(
+    (item) => item.firstElementChild?.textContent === label,
+  );
+  return element?.querySelector('.value')?.textContent;
+}
+
+it('shows Claude Code cache writes and flags mixed clients only within the selection', () => {
+  const data = fixture();
+  data.sessions = [
+    { id: 'good', parent: null, client: 'claude-code 2.1.319' },
+    { id: 'bad', parent: null, client: '0.99.0' },
+    { id: 'unadmitted-child', parent: 'bad' },
+  ] as typeof data.sessions;
+  Object.assign(data.records[0].data, { cache_creation_input_tokens: 7 });
+  load(data);
+  expect(card('Cache writes (Claude Code, supplemental)')).toBe('7');
+  expect(coverageText()).toContain('Mixed clients selected');
+  select('session', 'good');
+  expect(coverageText()).not.toContain('Mixed clients selected');
+  select('session', 'bad');
+  expect(card('Cache writes (Claude Code, supplemental)')).toBe('unavailable');
+});

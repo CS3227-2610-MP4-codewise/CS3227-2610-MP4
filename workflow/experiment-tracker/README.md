@@ -1,6 +1,6 @@
 # Keith's project experiment tracker
 
-Independent Python 3.10+ tooling on macOS/Linux for EXP-01–09 and DEV-02/04. No TurnUp integration, model calls, cloud service, application changes or new runtime dependencies. Private state lives in ignored `.experiment-tracker/`; substantial-request summaries stay in `logs/keith/`.
+Independent Python 3.10+ tooling on macOS/Linux for Codex and Claude Code sessions (EXP-01–10 and DEV-02/04). No TurnUp integration, model calls, cloud service, application changes or new runtime dependencies. Private state lives in ignored `.experiment-tracker/`; substantial-request summaries stay in `logs/keith/`.
 
 ## Recording is off until you explicitly start it
 
@@ -12,10 +12,11 @@ One increment can span multiple bounded runs and sessions, with one member log. 
 
 ```sh
 python3 workflow/experiment-tracker/tracker.py doctor
-python3 workflow/experiment-tracker/tracker.py install-hooks
+python3 workflow/experiment-tracker/tracker.py install-hooks                  # Codex
+python3 workflow/experiment-tracker/tracker.py install-hooks --client claude  # Claude Code
 ```
 
-Restart Codex and review `/hooks` if required. Only ignored project `.codex/hooks.json` is changed; global/unrelated handlers remain. Installed is not observed: `doctor` distinguishes actual callbacks. Hooks return empty JSON and never request continuation or block project work.
+Restart the client and review `/hooks` if required. Codex changes only ignored project `.codex/hooks.json`; Claude Code changes only ignored `.claude/settings.local.json`, never the committed `.claude/settings.json` (shared hooks would also run in Darryl's sessions). Global/unrelated handlers and other settings remain. `uninstall-hooks --client claude` removes only the tracker's own handlers. Installed is not observed: `doctor` distinguishes actual callbacks. Hooks return empty JSON and never request continuation or block project work.
 
 For another Git worktree, run `register-worktree /absolute/worktree` against the original tracker, then `install-hooks --worktree /absolute/worktree` to centralize state. All commands accept `--root /original/project` before the command. Worktree registration verifies the common Git directory. Do not combine Darryl's sessions into Keith's local tracker.
 
@@ -37,7 +38,15 @@ python3 workflow/experiment-tracker/tracker.py start student-drafts \
 python3 workflow/experiment-tracker/tracker.py status --session "$CODEX_THREAD_ID"
 ```
 
-The skill identifies the real current session/source, never inventing IDs or scanning unrelated conversation contents. `CODEX_THREAD_ID` is normally available in Codex subprocesses; in an ordinary terminal replace it with the actual root session ID shown by doctor/report rather than assuming the variable is set. `attach` validates the exact source's metadata and registers it without importing usage. Start/resume require a source `task_started` with no matching terminal record; no reliable current turn means activation is refused, with instructions to attach the source or invoke from an active agent turn. Start includes that whole initiating turn, including work before the command, but excludes every earlier turn. New recording turns require observed structural admission; unknown IDs remain excluded.
+In Claude Code, attach by exact session ID instead of a path; only `~/.claude/projects/*/ID.jsonl` (or `$CLAUDE_CONFIG_DIR/projects`) with that file name is opened:
+
+```sh
+python3 workflow/experiment-tracker/tracker.py attach --claude-session "$CLAUDE_CODE_SESSION_ID"
+python3 workflow/experiment-tracker/tracker.py start student-drafts --title 'Student drafts' \
+  --session "$CLAUDE_CODE_SESSION_ID" --role coordinator --label Coordinator
+```
+
+Use `$CLAUDE_CODE_SESSION_ID` wherever the Codex examples below use `$CODEX_THREAD_ID`. The skill identifies the real current session/source, never inventing IDs or scanning unrelated conversation contents. `CODEX_THREAD_ID` is normally available in Codex subprocesses; in an ordinary terminal replace it with the actual root session ID shown by doctor/report rather than assuming the variable is set. `attach` validates the exact source's metadata and registers it without importing usage. Start/resume require a source `task_started` with no matching terminal record; no reliable current turn means activation is refused, with instructions to attach the source or invoke from an active agent turn. Start includes that whole initiating turn, including work before the command, but excludes every earlier turn. New recording turns require observed structural admission; unknown IDs remain excluded.
 
 `start` creates/reuses the existing template-based increment log. For an already-recording run, use `status` and continue; do not start again. Stopped runs cannot resume; `start` in a new turn creates a new run for the same increment/log. A paused run uses `resume`.
 
@@ -86,6 +95,22 @@ python3 workflow/experiment-tracker/tracker.py agent-role \
 
 Provide a child's observed runtime identity, not an invented path. Role assignments are annotated metadata, never an authorization grant. Changes append history; an existing identity cannot be changed by a role command. Display labels and real session/runtime IDs remain available together.
 
+## Claude Code adapter
+
+Claude Code transcripts have no header record, turn IDs or cumulative counters, so a separate adapter (EXP-10) maps their observed structure. The format is undocumented and was verified against Claude Code 2.1.309–2.1.319; unrecognised structure fails closed as a source warning or an unattachable source, never as invented data.
+
+| Concept | Codex | Claude Code |
+|---|---|---|
+| Identity | `session_meta` header | Consistent `sessionId`/`cwd` in early records, and file name `<sessionId>.jsonl`; subagents are `agent-<agentId>.jsonl` whose `sessionId` proves the parent |
+| Turn start / ID | `task_started.turn_id` | User record with `turnPosition`; a new `turnIndex` starts a turn identified by its `promptId`. Queued prompts in an open turn share it |
+| Completion / abort | `task_complete` / `turn_aborted` | `system` `turn_duration` / user record with `interruptedMessageId`. A subagent's single turn completes at its `end_turn` response |
+| Usage | `token_usage_record`, cumulative fallback | `message.usage`, deduplicated by message ID (one response spans several records with identical usage). No fallback |
+| Hook turn | Payload `turn_id` | Derived from the exact registered transcript outside the write lock; only turns that began inside an open window are admitted |
+
+Counter mapping: input = `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`; cached input subset = cache reads; reasoning output subset = `output_tokens_details.thinking_tokens` (already inside output); total = input + output. Cache writes are reported separately as supplemental `cache_creation_input_tokens` because Codex has no equivalent. Model and effort come from each response record. Client-generated `<synthetic>` notices are not model requests and are skipped. Inline sidechain records in a root transcript are excluded with a partial-coverage warning; attach subagent transcripts instead (`SubagentStop` supplies their path).
+
+Not available for Claude Code: rate-limit and context-window state, a cumulative usage fallback (a missing response record leaves that turn unmeasured and partial), a certain distinction between crash and interruption (an unterminated turn stays pending until explicit partial finalization), and per-request cost (not inferred for any client). Compaction (`compact_boundary`) is recorded, but later turns run on summarised context; treat it as a confounder. Codex and Claude Code counters are not directly comparable: a mixed-client selection shows a coverage caveat, so compare within one client. Subagent `agent_id` linkage and `CLAUDE_CODE_SESSION_ID` were observed locally, but live hook callbacks still need verification in the actual client after installation.
+
 ## Annotations and Keith logs
 
 Use redacted summaries only. No raw prompts, tool bodies, learner code, credentials or hidden reasoning. Annotation kinds: `experiment`, `assignment`, `context`, `blocked`, `unblocked`, `idle`, `active`, `handoff`, `review`, `conflict`, `decision`, `retry`, `rework`, `verification`, `acceptance`, `overhead`.
@@ -130,4 +155,4 @@ npx vitest run workflow/experiment-tracker/report.test.ts
 npm run check
 ```
 
-Tests use synthetic sources only. Capability references: [Codex hooks](https://learn.chatgpt.com/docs/hooks), [telemetry configuration](https://learn.chatgpt.com/docs/config-file/config-advanced). Installed callbacks must be verified in the actual client; configuration alone is not evidence of collection.
+Tests use synthetic sources only. Capability references: [Codex hooks](https://learn.chatgpt.com/docs/hooks), [telemetry configuration](https://learn.chatgpt.com/docs/config-file/config-advanced); Claude Code hook settings are reviewed in its `/hooks` view. Installed callbacks must be verified in the actual client; configuration alone is not evidence of collection.

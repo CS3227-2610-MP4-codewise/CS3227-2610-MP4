@@ -56,3 +56,10 @@
 - [x] 6.15 Scope coordination checks to surviving selected-run increments and clear conflicting selections; verify reset and document increment-level attribution (EXP-03/04/09).
 - [x] 6.16 Associate task types by increment and non-null task identity; retain only matching experiment annotations when task is absent and verify reused/null task filtering (EXP-03/04/09).
 - [x] 6.17 Move transcript reads/hashing/parsing outside the admission write lock, apply bounded batches with atomic checkpoint/lifecycle revalidation, and verify concurrent hooks/child linkage, pause isolation and competing imports (EXP-01/02/07/08/09).
+
+## 7. Claude Code client support — 2026-11-09
+
+- [x] 7.1 Add the shared source-identity parser and Claude Code adapter for root/subagent identity, turn lifecycle, deduplicated usage mapping, tool names and compaction; verify identity refusals, excluded earlier turns, queued prompts, interrupts, draining, sidechain/synthetic exclusion and unavailable counters (EXP-01/02/06/07/08/10).
+- [x] 7.2 Add Claude hook gating, local `.claude/settings.local.json` installation and exact-ID attach; verify derived turns, window admission, privacy, unrecorded sessions, subagent linkage, silent nonblocking CLI and preserved settings (EXP-01/06/07/09/10).
+- [x] 7.3 Show supplemental cache writes and mixed-client caveats in snapshots/dashboard, copy the client-neutral skill for Claude Code and document mapping and unavailable metrics; verify DOM filtering and skill parity (EXP-04/05/10).
+- [ ] 7.4 Install Claude hooks, restart Claude Code and verify observed callbacks plus a real opted-in start/pause/resume/stop sequence (EXP-07–10, DEV-02/04). Pending: requires explicit opt-in and a client restart.

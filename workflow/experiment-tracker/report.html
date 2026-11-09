@@ -287,6 +287,13 @@
         cached = sum('cached_input_tokens'),
         output = sum('output_tokens'),
         reasoning = sum('reasoning_output_tokens');
+      // Claude Code cache writes are supplemental; Codex has no equivalent counter.
+      const writes = usage.filter((r) => 'cache_creation_input_tokens' in r.data);
+      const cacheWrites =
+        writes.length &&
+        writes.every((r) => r.data.cache_creation_input_tokens != null)
+          ? writes.reduce((n, r) => n + r.data.cache_creation_input_tokens, 0)
+          : null;
       // Coverage describes selected runs/sessions across all models. Model
       // filtering narrows totals only; a hidden model is not lost telemetry.
       const admitted = data.admitted_turns.filter(
@@ -373,6 +380,15 @@
         coverage.push(
           'Cumulative fallback: request-level attribution unavailable.',
         );
+      const clientFamilies = new Set(
+        sessions
+          .filter((s) => typeof s.client === 'string')
+          .map((s) => (s.client.startsWith('claude-code') ? 'claude' : 'codex')),
+      );
+      if (clientFamilies.size > 1)
+        coverage.push(
+          'Mixed clients selected: Codex and Claude Code define, cache and tokenize counters differently; compare totals within one client.',
+        );
       // Annotations have increment/session provenance, not run attribution.
       // Do not assign an increment's unmatched wait to a particular run.
       const blocked = new Set();
@@ -399,6 +415,7 @@
         ['Cached input (subset)', fmt(cached)],
         ['Output', fmt(output)],
         ['Reasoning output (subset)', fmt(reasoning)],
+        ['Cache writes (Claude Code, supplemental)', fmt(cacheWrites)],
         ['Linked sessions', sessions.length],
         [
           'Cached input / input',

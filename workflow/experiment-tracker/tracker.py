@@ -18,15 +18,22 @@ import uuid
 from datetime import datetime, timezone
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from recording import Recording, session_metadata
+from recording import Recording, claude_active_turn, claude_turn_step, source_identity
 
 VERSION = 2
 SOURCE_ADAPTER_VERSION = 2
 OWNER = "Codewise experiment tracker"
 BOUNDARY_WARNING = "Boundary cumulative sample excluded: exact delta unavailable; coverage partial"
+SIDECHAIN_WARNING = "Inline sidechain records excluded; attach subagent transcripts separately; coverage partial"
+MIXED_CLIENT_GAP = ("Mixed clients selected: Codex and Claude Code define, cache and tokenize counters differently; "
+                    "compare totals within one client.")
 EVENTS = ("SessionStart", "SessionEnd", "SubagentStart", "SubagentStop", "Stop",
           "Interrupt", "PreToolUse", "PostToolUse", "PreCompact", "PostCompact",
           "UserPromptSubmit", "PreModelRequest", "PostModelRequest")
+CLAUDE_EVENTS = ("SessionStart", "SessionEnd", "UserPromptSubmit", "PreToolUse", "PostToolUse",
+                 "Stop", "SubagentStart", "SubagentStop", "PreCompact")
+HOOK_FILES = {'codex': '.codex/hooks.json', 'claude': '.claude/settings.local.json'}
+LIFECYCLE = {'start': 'task_started', 'complete': 'task_complete', 'aborted': 'turn_aborted'}
 COUNTERS = ("input_tokens", "cached_input_tokens", "output_tokens",
             "reasoning_output_tokens", "total_tokens")
 ANNOTATIONS = ("experiment", "assignment", "context", "blocked", "unblocked", "idle",
@@ -87,6 +94,39 @@ def counts(raw):
         if result[subset] is not None and result[full] is not None and result[subset] > result[full]:
             raise ValueError("Usage subset exceeds parent counter")
     return result
+
+
+def claude_counts(raw):
+    """Map Anthropic usage onto tracker counters; returns (counters, supplemental) or None.
+
+    Anthropic input_tokens exclude cache reads and writes, so tracker input is their sum
+    and cache reads are its cached subset. Thinking tokens are already in output_tokens.
+    """
+    if not isinstance(raw, dict):
+        return None
+    number = lambda v: v if isinstance(v, int) and not isinstance(v, bool) and v >= 0 else None
+    base, read, write, output = (number(raw.get(k)) for k in (
+        'input_tokens', 'cache_read_input_tokens', 'cache_creation_input_tokens', 'output_tokens'))
+    if all(v is None for v in (base, read, write, output)):
+        return None
+    details = raw.get('output_tokens_details')
+    thinking = number(details.get('thinking_tokens')) if isinstance(details, dict) else None
+    total_input = base + read + write if None not in (base, read, write) else None
+    mapped = counts({'input_tokens': total_input, 'cached_input_tokens': read, 'output_tokens': output,
+                     'reasoning_output_tokens': thinking,
+                     'total_tokens': total_input + output if None not in (total_input, output) else None})
+    return mapped, {'cache_creation_input_tokens': write}
+
+
+def client_family(client):
+    if not isinstance(client, str):
+        return None
+    return 'claude' if client.startswith('claude-code') else 'codex'
+
+
+def claude_projects():
+    base = os.environ.get('CLAUDE_CONFIG_DIR')
+    return (Path(base).expanduser() if base else Path.home() / '.claude') / 'projects'
 
 
 class Tracker(Recording):
@@ -205,17 +245,19 @@ class Tracker(Recording):
         if path.suffix != ".jsonl":
             raise ValueError("Only uncompressed JSONL transcripts are supported")
         with path.open('rb') as f:
-            first = f.readline(2 * 1024 * 1024)
-        try:
-            record = json.loads(first)
-        except (ValueError, UnicodeError):
-            raise ValueError("Missing valid session metadata") from None
-        meta = session_metadata(record)
+            _, meta = source_identity(path, f)
         if not self.scoped(meta.get("cwd")):
             raise ValueError("Transcript cwd is outside registered project roots")
-        sid = identifier(meta.get("id") or meta.get("session_id"))
+        sid = identifier(meta["id"])
+        if meta['parent']:
+            # A Claude Code subagent transcript proves its parent through its own records.
+            if parent and parent != meta['parent']:
+                raise ValueError("Subagent transcript parent does not match --parent")
+            parent = meta['parent']
         self.session(sid, meta["cwd"], parent)
         client = meta.get('cli_version')
+        if meta['client'] == 'claude':
+            client = 'claude-code ' + client if isinstance(client, str) else 'claude-code'
         if isinstance(client, str):
             self.db.execute("UPDATE sessions SET client=? WHERE id=?", (safe_text(client, 100), sid))
         existing = self.db.execute("SELECT path FROM sources WHERE session_id=?", (sid,)).fetchone()
@@ -224,6 +266,15 @@ class Tracker(Recording):
         self.db.execute("INSERT OR IGNORE INTO sources(path,session_id) VALUES (?,?)", (str(path), sid))
         self.db.commit()
         return sid
+
+    def attach_claude(self, session_id):
+        """Attach the exact Claude Code transcript named by its session ID; no content scan."""
+        if not isinstance(session_id, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,127}', session_id):
+            raise ValueError('Invalid Claude Code session ID')
+        matches = sorted(claude_projects().glob('*/' + session_id + '.jsonl'))
+        if len(matches) != 1:
+            raise ValueError('Expected exactly one Claude Code transcript for this session ID; attach its path explicitly')
+        return self.attach(matches[0])
 
     def annotate(self, increment, kind, data, agent="main", session=None, task=None, dependency=None, aid=None, ts=None):
         if kind not in ANNOTATIONS:
@@ -297,10 +348,10 @@ class Tracker(Recording):
         # Read, hash and parse outside the hook/lifecycle write lock. Only bounded
         # metadata batches enter a transaction, with fresh checkpoint/admission checks.
         with path.open('rb') as f:
-            header = f.readline(2 * 1024 * 1024)
-            meta = session_metadata(json.loads(header))
-            if not self.scoped(meta.get('cwd')) or (meta.get('id') or meta.get('session_id')) != sid:
+            header, meta = source_identity(path, f)
+            if not self.scoped(meta.get('cwd')) or meta['id'] != sid:
                 raise ValueError("Source identity/scope changed")
+            importer = self.import_claude_record if meta['client'] == 'claude' else self.import_record
             digest = hashlib.sha256(header).hexdigest()
             offset = source['offset']
             state = json.loads(source['state'])
@@ -322,6 +373,9 @@ class Tracker(Recording):
                 consumed = hashlib.sha256()
             f.seek(offset)
             state['adapter_version'] = SOURCE_ADAPTER_VERSION
+            state['client'] = meta['client']
+            if meta['client'] == 'claude':
+                state.update(raw_session=meta['session_id'], child=bool(meta['parent']))
             state.setdefault('boundary_turns', [])
             warnings = set(state.get('warnings', [])) - {BOUNDARY_WARNING}
             done = False
@@ -363,9 +417,11 @@ class Tracker(Recording):
                         try:
                             # import_record consults current admissions/windows while
                             # holding the same short lock as pause/stop and enqueue.
-                            self.import_record(sid, str(path), position, record, state)
+                            importer(sid, str(path), position, record, state)
                         except (ValueError, TypeError, KeyError, AttributeError):
                             warnings.add('Malformed/unsupported records skipped; coverage partial')
+                    if state.get('sidechain_skipped'):
+                        warnings.add(SIDECHAIN_WARNING)
                     state.pop('tail', None)
                     state['consumed_sha256'] = consumed.hexdigest()
                     state['warnings'] = sorted(warnings | ({BOUNDARY_WARNING} if state['boundary_turns'] else set()))
@@ -441,6 +497,58 @@ class Tracker(Recording):
                          {'name':safe_text(p.get('name') or 'unavailable',200),'call_id':call})
         # All message/tool bodies and excluded-turn usage are discarded, not stored.
 
+    def import_claude_record(self, sid, source, position, record, state):
+        """Claude Code adapter: allowlisted lifecycle, usage, tool-name and compaction metadata only."""
+        if not isinstance(record, dict):
+            raise ValueError('Invalid metadata record')
+        ts = record.get('timestamp') or now()
+        safe_text(ts, 150)
+        if record.get('sessionId') not in (None, state['raw_session']) or \
+                state['child'] and record.get('agentId') not in (None, sid):
+            raise ValueError('Record identity differs from its transcript')
+        step = claude_turn_step(record, state, state['child'])
+        turn = state.get('turn')
+        if step and step[0] == 'start':
+            self.admit_started(sid, turn, step[2] or ts)
+        entry = self.admission(sid, turn)
+        kind = record.get('type')
+        rid = f"{sid}:{position}:{kind}"
+        if step and entry:
+            event = LIFECYCLE[step[0]]
+            self.put(rid + ':lifecycle', source, sid, turn, ts, 'lifecycle', {'event': event})
+            if event != 'task_started':
+                self.terminal(sid, turn, event)
+        if kind == 'assistant':
+            message = record.get('message')
+            if not isinstance(message, dict):
+                raise ValueError('Invalid assistant metadata')
+            if record.get('isSidechain') and not state['child']:
+                state['sidechain_skipped'] = True  # Never double count or misattribute subagent work.
+                return
+            model = message.get('model')
+            if model == '<synthetic>':
+                return  # Client-generated notices, not model requests.
+            if isinstance(model, str):
+                state['model'] = safe_text(model, 150)
+            if isinstance(record.get('effort'), str):
+                state['effort'] = safe_text(record['effort'], 100)
+            if not entry:
+                return
+            usage = claude_counts(message.get('usage'))
+            response = message.get('id') or record.get('requestId')
+            if usage and usage[0] and isinstance(response, str):
+                # One response is split across records that repeat identical usage.
+                self.put(f"{sid}:response:{identifier(response)}", source, sid, turn, ts, 'usage',
+                         {**usage[0], **usage[1], 'model': state.get('model', 'unavailable'),
+                          'effort': state.get('effort', 'unavailable'), 'method': 'response_id'})
+            content = message.get('content')
+            for block in content if isinstance(content, list) else ():
+                if isinstance(block, dict) and block.get('type') == 'tool_use' and isinstance(block.get('id'), str):
+                    self.put(f"{sid}:call:{identifier(block['id'])}", source, sid, turn, ts, 'tool',
+                             {'name': safe_text(block.get('name') or 'unavailable', 200), 'call_id': block['id']})
+        elif entry and kind == 'system' and record.get('subtype') == 'compact_boundary':
+            self.put(rid, source, sid, turn, ts, 'compaction', {})
+
     def snapshot(self, increment=None):
         runs=[dict(r) for r in self.db.execute('SELECT * FROM runs ORDER BY created')
               if increment is None or r['increment_id']==increment]
@@ -494,6 +602,11 @@ class Tracker(Recording):
         partial = bool(missing or unmeasured or unavailable_counters or any(s['warning'] for s in sources) or any(r['partial'] for r in runs))
         if any(r['kind'] == 'usage_fallback' for r in usage):
             gaps.append('Cumulative fallback: request-level attribution unavailable.')
+        if len({client_family(s['client']) for s in sessions} - {None}) > 1:
+            gaps.append(MIXED_CLIENT_GAP)
+        # Claude Code reports cache writes; Codex has no equivalent, so it is supplemental only.
+        writes = [r['data']['cache_creation_input_tokens'] for r in usage if 'cache_creation_input_tokens' in r['data']]
+        supplemental = {'cache_creation_input_tokens': sum(writes) if writes and None not in writes else None}
         blocked = {}
         waits = []
         for a in annotations:
@@ -556,7 +669,7 @@ class Tracker(Recording):
                 'members':members,'admitted_turns':admitted,
                 'roles':[dict(r) for r in self.db.execute('SELECT * FROM roles ORDER BY id') if r['run_id'] in run_ids],
                 'legacy':{'classification':'legacy/unbounded','excluded_records':legacy_count},
-                'sources': sources, 'totals': totals, 'status': 'partial' if partial else 'provisional' if provisional else 'observed-complete' if usage else 'unavailable',
+                'sources': sources, 'totals': totals, 'supplemental_totals': supplemental, 'status': 'partial' if partial else 'provisional' if provisional else 'observed-complete' if usage else 'unavailable',
                 'cache_ratio': totals['cached_input_tokens'] / totals['input_tokens'] if totals['input_tokens'] and totals['cached_input_tokens'] is not None else None,
                 'reasoning_output_ratio': totals['reasoning_output_tokens'] / totals['output_tokens'] if totals['output_tokens'] and totals['reasoning_output_tokens'] is not None else None,
                 'records': safe_records, 'annotations': annotations, 'blocked_intervals': waits,
@@ -594,7 +707,7 @@ class Tracker(Recording):
         return path
 
 
-def enqueue(root, raw):
+def enqueue(root, raw, client='codex'):
     """Gate admission before persistence, serialized with lifecycle commands."""
     started=time.monotonic()
     if not isinstance(raw,dict):return False
@@ -605,6 +718,7 @@ def enqueue(root, raw):
         version=db.execute("SELECT value FROM settings WHERE key='version'").fetchone()
         if not version or version[0]!='2':return False
         gate=object.__new__(Tracker);gate.root=root;gate.state=state;gate.db=db
+        if client=='claude':return enqueue_claude(gate,raw,started)
         cwd=raw.get('cwd');event=raw.get('hook_event_name');sid=raw.get('session_id');turn=raw.get('turn_id')
         if not gate.scoped(cwd) or event not in EVENTS or not isinstance(sid,str) or not isinstance(turn,str):return False
         identifier(sid);identifier(turn)
@@ -618,9 +732,8 @@ def enqueue(root, raw):
             if path and isinstance(path,str):
                 path=Path(path).expanduser().resolve()
                 if path.suffix!='.jsonl':return False
-                with path.open('rb') as f:header=json.loads(f.readline(2*1024*1024))
-                meta=session_metadata(header)
-                if (meta.get('id') or meta.get('session_id'))!=sid or not gate.scoped(meta.get('cwd')):return False
+                with path.open('rb') as f:_,meta=source_identity(path,f)
+                if meta['client']!='codex' or meta['id']!=sid or not gate.scoped(meta.get('cwd')):return False
                 existing=db.execute('SELECT path FROM sources WHERE session_id=?',(sid,)).fetchone()
                 if existing and existing[0]!=str(path):return False
                 db.execute('INSERT OR IGNORE INTO sources(path,session_id) VALUES (?,?)',(str(path),sid))
@@ -629,80 +742,152 @@ def enqueue(root, raw):
             if event not in ('UserPromptSubmit','PreModelRequest'):return False
             entry=gate.admit(run,sid,turn,now())
         if not entry:return False
-        safe={'hook_event_name':event,'session_id':sid,'turn_id':turn,'cwd':str(Path(cwd).resolve()),
-              'timestamp':now(),'run_id':entry['run_id'],'window_id':entry['window_id']}
-        for key in ('tool_use_id','agent_id','agent_type','model'):
-            value=raw.get(key)
-            if isinstance(value,str) and SAFE.fullmatch(value):safe[key]=value
-        if event=='SubagentStart' and safe.get('agent_id'):
-            gate.link_child(sid,turn,safe['agent_id'])
-        for key in ('transcript_path','agent_transcript_path'):
-            value=raw.get(key)
-            if isinstance(value,str) and len(value)<4096:safe[key]=str(Path(value).expanduser().resolve())
-        if isinstance(raw.get('tool_name'),str):safe['tool_name']=safe_text(raw['tool_name'],200)
-        if raw.get('status') in ('completed','failed','cancelled'):safe['status']=raw['status']
-        response=raw.get('tool_response')
-        if isinstance(response,dict):
-            if isinstance(response.get('exit_code'),int):safe['exit_code']=response['exit_code']
-            if isinstance(response.get('isError'),bool):safe['is_error']=response['isError']
-        identity=[sid,event,turn,safe.get('tool_use_id'),safe.get('agent_id')]
-        safe['event_id']=hashlib.sha256(json.dumps(identity).encode()).hexdigest() if safe.get('tool_use_id') else uuid.uuid4().hex
-        safe['enqueue_ms']=round((time.monotonic()-started)*1000,2)
-        # Persist while holding the admission lock: pause/stop cannot cross this write.
-        queue=state/'queue';queue.mkdir(mode=0o700,exist_ok=True)
-        write_atomic(queue/(safe['event_id']+'.json'),json.dumps(safe))
-        db.commit()
-        return True
+        return persist_event(gate,raw,event,sid,turn,cwd,entry,started)
 
 
-def hook_config(root, install=True, target=None):
-    path = Path(target or root) / '.codex/hooks.json'
+def claude_source_turn(path):
+    """Active Claude Code turn of an exact transcript, read outside the admission lock."""
+    with Path(path).open('rb') as f:
+        _,meta=source_identity(path,f)
+        if meta['client']!='claude':return meta,None,None
+        return (meta,*claude_active_turn(f,bool(meta['parent'])))
+
+
+def enqueue_claude(gate, raw, started):
+    """Claude Code callbacks carry no turn ID: derive it from the session's exact transcript."""
+    db=gate.db
+    cwd=raw.get('cwd');event=raw.get('hook_event_name');sid=raw.get('session_id')
+    if not gate.scoped(cwd) or event not in CLAUDE_EVENTS or not isinstance(sid,str):return False
+    identifier(sid)
+    if not gate.run_for(sid):return False  # Unrecorded sessions cost no transcript reads.
+    registered=db.execute('SELECT path FROM sources WHERE session_id=?',(sid,)).fetchone()
+    path=registered[0] if registered else raw.get('transcript_path')
+    if not isinstance(path,str) or len(path)>=4096:return False
+    path=str(Path(path).expanduser().resolve())
+    if not path.endswith('.jsonl'):return False
+    meta,turn,opened=claude_source_turn(path)
+    if meta['id']!=sid or not gate.scoped(meta.get('cwd')) or not turn:return False
+    identifier(turn)
+    db.execute('BEGIN IMMEDIATE')
+    entry=gate.admission(sid,turn)
+    if not entry:
+        run=gate.run_for(sid)
+        if not run or run['state']!='recording' or not opened:return False
+        existing=db.execute('SELECT path FROM sources WHERE session_id=?',(sid,)).fetchone()
+        if existing and existing[0]!=path:return False
+        db.execute('INSERT OR IGNORE INTO sources(path,session_id) VALUES (?,?)',(path,sid))
+        # Same rule as import: only a turn that began inside the open window is admitted.
+        entry=gate.admit_started(sid,turn,opened)
+    if not entry:return False
+    return persist_event(gate,raw,event,sid,turn,cwd,entry,started)
+
+
+def persist_event(gate, raw, event, sid, turn, cwd, entry, started):
+    """Write allowlisted callback fields while the caller holds the admission lock."""
+    db=gate.db;state=gate.state
+    safe={'hook_event_name':event,'session_id':sid,'turn_id':turn,'cwd':str(Path(cwd).resolve()),
+          'timestamp':now(),'run_id':entry['run_id'],'window_id':entry['window_id']}
+    for key in ('tool_use_id','agent_id','agent_type','model'):
+        value=raw.get(key)
+        if isinstance(value,str) and SAFE.fullmatch(value):safe[key]=value
+    if event=='SubagentStart' and safe.get('agent_id'):
+        gate.link_child(sid,turn,safe['agent_id'])
+    for key in ('transcript_path','agent_transcript_path'):
+        value=raw.get(key)
+        if isinstance(value,str) and len(value)<4096:safe[key]=str(Path(value).expanduser().resolve())
+    if isinstance(raw.get('tool_name'),str):safe['tool_name']=safe_text(raw['tool_name'],200)
+    if raw.get('status') in ('completed','failed','cancelled'):safe['status']=raw['status']
+    response=raw.get('tool_response')
+    if isinstance(response,dict):
+        if isinstance(response.get('exit_code'),int):safe['exit_code']=response['exit_code']
+        if isinstance(response.get('isError'),bool):safe['is_error']=response['isError']
+    identity=[sid,event,turn,safe.get('tool_use_id'),safe.get('agent_id')]
+    safe['event_id']=hashlib.sha256(json.dumps(identity).encode()).hexdigest() if safe.get('tool_use_id') else uuid.uuid4().hex
+    safe['enqueue_ms']=round((time.monotonic()-started)*1000,2)
+    # Persist while holding the admission lock: pause/stop cannot cross this write.
+    queue=state/'queue';queue.mkdir(mode=0o700,exist_ok=True)
+    write_atomic(queue/(safe['event_id']+'.json'),json.dumps(safe))
+    db.commit()
+    return True
+
+
+def owned_hook(handler, client):
+    """Codex handlers carry the owner status message; Claude settings get no extra keys."""
+    command = handler.get('command', '') if isinstance(handler, dict) else ''
+    if 'workflow/experiment-tracker/tracker.py' not in command:
+        return False
+    if client == 'claude':
+        return command.endswith(' hook --client claude')
+    return handler.get('statusMessage') == OWNER
+
+
+def hook_config(root, install=True, target=None, client='codex'):
+    """Merge only owned project-local handlers: ignored .codex/hooks.json or .claude/settings.local.json."""
+    path = Path(target or root) / HOOK_FILES[client]
     if path.is_symlink():
         raise ValueError('Refuse symlink hook configuration')
     config = json.loads(path.read_text()) if path.exists() else {}
     if not install and not path.exists():
         return path
+    if not isinstance(config, dict):
+        raise ValueError('Unsupported hook configuration')
     hooks = config.setdefault('hooks', {})
     if not isinstance(hooks, dict):
         raise ValueError('Unsupported hook configuration')
     command = (shlex.quote(sys.executable) + ' ' + shlex.quote(str(Path(root) / 'workflow/experiment-tracker/tracker.py'))
-               + ' --root ' + shlex.quote(str(Path(root))) + ' hook')
-    for event in EVENTS:
+               + ' --root ' + shlex.quote(str(Path(root))) + ' hook' + (' --client claude' if client == 'claude' else ''))
+    handler = {'type': 'command', 'command': command, 'timeout': 3}
+    if client == 'codex':
+        handler['statusMessage'] = OWNER
+    for event in CLAUDE_EVENTS if client == 'claude' else EVENTS:
         groups = hooks.get(event, [])
         if not isinstance(groups, list):
             raise ValueError('Unsupported hook groups')
         kept = []
         for group in groups:
-            remaining = [h for h in group.get('hooks', []) if not
-                         (h.get('statusMessage') == OWNER and 'workflow/experiment-tracker/tracker.py' in h.get('command', ''))]
+            remaining = [h for h in group.get('hooks', []) if not owned_hook(h, client)]
             if remaining or remaining == group.get('hooks', []):
                 kept.append({**group, 'hooks': remaining})
         if install:
-            kept.append({'hooks': [{'type': 'command', 'command': command, 'timeout': 3, 'statusMessage': OWNER}]})
+            kept.append({'hooks': [dict(handler)]})
         if kept:
             hooks[event] = kept
         else:
             hooks.pop(event, None)
+    if not hooks:
+        config.pop('hooks')
     write_atomic(path, json.dumps(config, indent=2) + '\n')
     return path
 
 
-def doctor(tracker):
-    path = tracker.root / '.codex/hooks.json'
+def client_status(tracker, client):
+    path = tracker.root / HOOK_FILES[client]
     installed = False
     if path.exists():
         data = json.loads(path.read_text())
-        installed = any(h.get('statusMessage') == OWNER for groups in data.get('hooks', {}).values()
-                        for g in groups for h in g.get('hooks', []))
+        installed = isinstance(data, dict) and any(
+            owned_hook(h, client) for groups in data.get('hooks', {}).values()
+            for g in groups for h in g.get('hooks', []))
     try:
-        client = subprocess.run(['codex', '--version'], capture_output=True, text=True, timeout=3).stdout.strip() or 'unavailable'
+        version = subprocess.run([client, '--version'], capture_output=True, text=True, timeout=3).stdout.strip() or 'unavailable'
     except (OSError, subprocess.TimeoutExpired):
-        client = 'unavailable'
+        version = 'unavailable'
+    return {'version': version, 'project_hooks_installed': installed, 'hook_file': HOOK_FILES[client]}
+
+
+def doctor(tracker):
+    clients = {name: client_status(tracker, name) for name in HOOK_FILES}
     observed = sorted({json.loads(r[0]).get('hook_event_name') for r in tracker.db.execute("SELECT data FROM records WHERE kind='hook'")})
-    return {'python': sys.version.split()[0], 'sqlite': sqlite3.sqlite_version, 'client': client,
-            'project_hooks_installed': installed, 'observed_hook_events': observed,
-            'hook_support': 'observed only for listed events; restart and review /hooks after installation',
-            'source_adapter': 'session_meta JSONL; response token_usage_record or cumulative token_count fallback',
+    families = {}
+    for row in tracker.db.execute('SELECT client FROM sessions'):
+        family = client_family(row[0]) or 'unknown'
+        families[family] = families.get(family, 0) + 1
+    return {'python': sys.version.split()[0], 'sqlite': sqlite3.sqlite_version, 'client': clients['codex']['version'],
+            'project_hooks_installed': clients['codex']['project_hooks_installed'], 'clients': clients,
+            'sessions_by_client': families, 'observed_hook_events': observed,
+            'hook_support': 'observed only for listed events; restart the client and review /hooks after installation',
+            'source_adapter': ('Codex session_meta JSONL (token_usage_record or cumulative token_count fallback); '
+                               'Claude Code session/subagent JSONL (turnPosition, turn_duration, message usage by message ID)'),
             'registered_sources': tracker.db.execute('SELECT count(*) FROM sources').fetchone()[0],
             'pending_queue': len(list((tracker.state / 'queue').glob('*.json'))),
             'recording_default':'off; explicit start/resume required',
@@ -749,15 +934,18 @@ def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[2])
     sub = p.add_subparsers(dest='command', required=True)
-    for name in ('doctor','sync','validate','hook'):
+    for name in ('doctor','sync','validate'):
         sub.add_parser(name)
+    sub.add_parser('hook').add_argument('--client', choices=tuple(HOOK_FILES), default='codex')
     for name in ('install-hooks', 'uninstall-hooks'):
-        sub.add_parser(name).add_argument('--worktree', type=Path)
+        hooks = sub.add_parser(name); hooks.add_argument('--worktree', type=Path)
+        hooks.add_argument('--client', choices=tuple(HOOK_FILES), default='codex')
     start = sub.add_parser('start')
     start.add_argument('increment'); start.add_argument('--title', required=True)
     for field in ('requirements','hypothesis','group','session'):
         start.add_argument('--'+field, default=None if field == 'session' else '')
-    attach = sub.add_parser('attach'); attach.add_argument('transcript', type=Path); attach.add_argument('--parent')
+    attach = sub.add_parser('attach'); attach.add_argument('transcript', type=Path, nargs='?'); attach.add_argument('--parent')
+    attach.add_argument('--claude-session', help='Attach ~/.claude/projects/*/ID.jsonl by exact session ID')
     roots = sub.add_parser('register-worktree'); roots.add_argument('path',type=Path)
     ann = sub.add_parser('annotate'); ann.add_argument('increment'); ann.add_argument('kind', choices=ANNOTATIONS)
     ann.add_argument('--data', required=True, help='JSON object of redacted annotation fields')
@@ -784,11 +972,12 @@ def main(argv=None):
         try:
             raw = sys.stdin.buffer.read(8 * 1024 * 1024 + 1)
             if len(raw) <= 8 * 1024 * 1024:
-                enqueue(args.root, json.loads(raw))
+                enqueue(args.root, json.loads(raw), args.client)
         except (ValueError, OSError, sqlite3.Error):
             # No sensitive exception text and no blocking/continuation output.
             pass
-        print('{}')
+        if args.client == 'codex':
+            print('{}')  # Claude Code treats empty output with exit 0 as a no-op.
         return 0
     try:
         tracker = Tracker(args.root)
@@ -798,7 +987,7 @@ def main(argv=None):
             target = args.worktree.resolve() if args.worktree else tracker.root
             if target not in tracker.roots():
                 raise ValueError('Register the worktree before installing its hooks')
-            print(hook_config(tracker.root, args.command == 'install-hooks', target))
+            print(hook_config(tracker.root, args.command == 'install-hooks', target, args.client))
         elif args.command == 'start':
             tracker.start(args.increment,args.title,args.requirements,args.hypothesis,args.group,args.session,args.role,args.label)
             print(tracker.ensure_log(args.increment))
@@ -810,7 +999,11 @@ def main(argv=None):
         elif args.command == 'agent-role':
             tracker.agent_role(args.session,args.agent,args.role,args.label,args.runtime_id)
         elif args.command == 'attach':
-            print(tracker.attach(args.transcript,args.parent))
+            if bool(args.transcript) == bool(args.claude_session):
+                raise ValueError('Provide either a transcript path or --claude-session')
+            if args.claude_session and args.parent:
+                raise ValueError('Claude Code subagent parents are proven by the transcript; attach its path instead')
+            print(tracker.attach_claude(args.claude_session) if args.claude_session else tracker.attach(args.transcript,args.parent))
         elif args.command == 'register-worktree':
             path = args.path.resolve()
             def common(root):

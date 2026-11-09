@@ -9,7 +9,10 @@ Recording is **off by default**. A substantial project task, directory context, 
 
 When explicitly asked to start:
 
-- Reuse the agreed increment ID/log across sessions. Run `doctor` and `status --session ACTUAL_ID`. Use the real `CODEX_THREAD_ID` and exact current transcript; do not invent IDs or scan unrelated session contents. Attach that scoped source if needed.
+- Reuse the agreed increment ID/log across sessions. Run `doctor` and `status --session ACTUAL_ID`. Use the real session ID and exact current transcript; do not invent IDs or scan unrelated session contents. Attach that scoped source if needed:
+  - Codex: `$CODEX_THREAD_ID`; attach the exact session JSONL path.
+  - Claude Code: `$CLAUDE_CODE_SESSION_ID`; run `attach --claude-session "$CLAUDE_CODE_SESSION_ID"`, which opens only the transcript with that exact file name. Claude hooks come from `install-hooks --client claude` (ignored `.claude/settings.local.json`).
+- Compare usage within one client. Claude Code input totals include cache reads and writes; cache writes are supplemental; Codex-only rate-limit context and cumulative fallback do not exist for Claude Code.
 - Run `start INCREMENT --title ... --requirements ... --session ID --role coordinator --label Coordinator`. It must identify the active initiating turn. That whole turn is included, earlier turns excluded. If identity is unavailable, report activation refused and continue authorized work without telemetry.
 - An already-recording run needs no restart. A paused run uses explicit `resume`; a stopped run needs `start` in a new turn. State `draining-*` must settle before resume. Never infer opt-in from an old log or prior stopped run.
 - Record redacted experiment hypothesis, comparison group, task type, context strategy, instruction revision and confounders. No agents are spawned by this skill; delegation still requires its actual authorization.
