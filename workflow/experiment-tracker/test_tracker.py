@@ -1,6 +1,7 @@
 """Synthetic integration/security cases for EXP-01–06; no real transcripts."""
 import concurrent.futures
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import sqlite3
@@ -100,6 +101,76 @@ class TrackerTest(unittest.TestCase):
         self.rows += [self.usage()];self.attach();self.tracker.sync()
         self.rows[-1]=self.usage(amount=200);self.write();self.tracker.sync()
         self.assertEqual(220,self.tracker.snapshot()['totals']['total_tokens'])
+
+    def rewrite_before_unchanged_tail(self, before, after):
+        # Span more than one hashing chunk while keeping a stable final tail.
+        self.append_record('event_msg',{'type':'diagnostic','padding':'x'*(1024*1024+512)})
+        self.tracker.sync()
+        original=self.source.read_bytes()
+        rewritten=original.replace(before,after)
+        self.assertNotEqual(original,rewritten)
+        self.assertEqual(len(original),len(rewritten))
+        self.assertEqual(original.splitlines()[0],rewritten.splitlines()[0])
+        self.assertEqual(original[-256:],rewritten[-256:])
+        self.source.write_bytes(rewritten)
+        self.tracker.sync()
+
+    def test_middle_rewrite_invalidates_terminal_with_unchanged_checkpoint_tail(self):
+        self.attach();self.end('turn-a')
+        self.rewrite_before_unchanged_tail(b'task_complete',b'other_message')
+        self.assertIsNone(self.tracker.admission('session-a','turn-a')['terminal'])
+        self.assertEqual('draining-to-stop',self.tracker.control('session-a','stop')['state'])
+        self.end('turn-a');self.tracker.sync()
+        self.assertEqual('stopped',self.tracker.recording_status('session-a')['state'])
+
+    def test_middle_rewrite_replaces_usage_with_unchanged_checkpoint_tail(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload'])
+        self.rewrite_before_unchanged_tail(json.dumps(self.usage()['payload']).encode(),
+                                           json.dumps(self.usage(amount=200)['payload']).encode())
+        self.assertEqual(200,self.tracker.snapshot()['totals']['input_tokens'])
+        self.assertEqual(220,self.tracker.snapshot()['totals']['total_tokens'])
+        self.tracker.sync()
+        self.assertEqual(200,self.tracker.snapshot()['totals']['input_tokens'])
+
+    def test_prefix_checkpoint_covers_only_complete_lines_and_advances_on_append(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload'])
+        self.tracker.sync()
+        def checkpoint():
+            row=self.tracker.db.execute('SELECT * FROM sources WHERE session_id=?',('session-a',)).fetchone()
+            state=json.loads(row['state'])
+            self.assertEqual(hashlib.sha256(self.source.read_bytes()[:row['offset']]).hexdigest(),
+                             state['consumed_sha256'])
+            return row['offset'],state['consumed_sha256']
+        first=checkpoint()
+        line=json.dumps({'type':'token_usage_record','payload':self.usage('second')['payload']})
+        with self.source.open('a') as f:f.write(line[:40])
+        self.tracker.sync()
+        self.assertEqual(first,checkpoint())
+        self.assertEqual(120,self.tracker.snapshot()['totals']['total_tokens'])
+        with self.source.open('a') as f:f.write(line[40:]+'\n')
+        self.tracker.sync()
+        second=checkpoint()
+        self.assertGreater(second[0],first[0]);self.assertNotEqual(second[1],first[1])
+        self.assertEqual(240,self.tracker.snapshot()['totals']['total_tokens'])
+        self.tracker.sync();self.assertEqual(second,checkpoint())
+        self.assertEqual(240,self.tracker.snapshot()['totals']['total_tokens'])
+
+    def test_legacy_tail_checkpoint_replays_before_trusting_existing_evidence(self):
+        self.attach();self.end('turn-a')
+        self.append_record('event_msg',{'type':'diagnostic','padding':'x'*1024})
+        self.tracker.sync()
+        row=self.tracker.db.execute('SELECT * FROM sources WHERE session_id=?',('session-a',)).fetchone()
+        state=json.loads(row['state']);state.pop('consumed_sha256')
+        original=self.source.read_bytes()
+        state['tail']=hashlib.sha256(original[row['offset']-256:row['offset']]).hexdigest()
+        self.tracker.db.execute('UPDATE sources SET state=? WHERE session_id=?',(json.dumps(state),'session-a'))
+        self.tracker.db.commit()
+        self.source.write_bytes(original.replace(b'task_complete',b'other_message'))
+        self.tracker.sync()
+        self.assertIsNone(self.tracker.admission('session-a','turn-a')['terminal'])
+        upgraded=json.loads(self.tracker.db.execute('SELECT state FROM sources').fetchone()[0])
+        self.assertNotIn('tail',upgraded)
+        self.assertEqual(hashlib.sha256(self.source.read_bytes()).hexdigest(),upgraded['consumed_sha256'])
 
     def assert_replay_requires_terminal(self, rewrite, action):
         self.attach();self.end('turn-a');self.tracker.sync()

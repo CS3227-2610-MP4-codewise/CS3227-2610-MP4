@@ -67,3 +67,18 @@ Verification:
 - Existing tracker sync/report completed without opt-in or new exports. This request has no recorded usage; no live callback, browser UI change, independent reviewer, savings, migration or deployment claim.
 
 Next: review the repair commit in PR #23, then perform separately opted-in live lifecycle verification. Historical pilot summaries remain unchanged.
+
+
+## Complete-prefix rewrite verification — 2026-11-09
+
+Input: `c7130ec`, PR #23. The user supplied a valid additional case: changing an earlier consumed record while preserving the source header, byte length and final 256 bytes defeats the tail checkpoint. Earlier rewrite regressions changed bytes inside the tail and did not establish middle-of-file detection. Main reproduced and repaired this case; no child agents or independent reviewer.
+
+- Before repair, two new tests failed: removed terminal evidence remained `task_complete`, and rewritten input usage stayed at 100 rather than 200. Fixtures explicitly assert identical header, byte length and tail.
+- Replace tail-only validation with SHA-256 over the complete consumed prefix, read in chunks of at most 1 MiB. Extend the digest with newly consumed complete lines. Incomplete trailing lines change neither checkpoint offset nor hash. A mismatch, truncation or legacy checkpoint missing the stronger digest triggers scoped replay and the existing terminal-state reset. No new database schema or raw source persistence.
+- After repair, all 61 Python tracker tests pass. Four added tests cover terminal/usage rewrites before an unchanged tail (with padding spanning multiple hashing chunks), append/partial-line checkpoint behaviour and legacy checkpoint upgrade. Repeated sync does not duplicate measurements; restored completion settles stop.
+- Full `npm run check` with Node 24.21.0 and local listener permissions passes: 14 strict OpenSpec changes, typecheck, lint, 376 Vitest cases in 35 files, four deployment cases and Vite build. `git diff --check` passes.
+- OpenSpec task 6.3 is complete; overall 10/11 tasks, with live-client lifecycle task 5.4 still open. Existing private tracker sync/report succeeds without activating recording; current-request usage is unavailable and historical shared exports are unchanged.
+
+Tradeoff: every sync reads/hashes O(consumed bytes) under the existing import transaction; hashing memory is bounded and unchanged records are not reparsed. This is not an atomic filesystem snapshot against concurrent in-place mutation during the same sync; subsequent sync revalidates the prefix. No live callback, UI acceptance, independent review, merge or deployment is claimed.
+
+Next owner: Keith reviews the additional repair in PR #23 and later performs separately opted-in live-client verification.

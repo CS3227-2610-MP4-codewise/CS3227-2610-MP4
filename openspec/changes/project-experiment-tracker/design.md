@@ -43,3 +43,10 @@ Hooks gate before queue writes, under the same database transaction used by life
 Transcript replay deletes only bounded records and resets the affected session's source-derived admission terminal/abort flags in the same import transaction. Re-imported lifecycle records reconstruct terminal evidence. Explicit partial finalization of a turn without terminal evidence is retained, and other sessions are untouched. Run-level partial warnings remain conservative; replay does not activate recording or reopen closed runs. Missing evidence remains visible through pending turns and provisional coverage.
 
 Blocked interval pairing uses `(increment_id, session_id, agent, task, dependency)`. Unmatched annotations never cross experiment boundaries, including the all-increment report; valid same-increment intervals retain their existing durations and attribution.
+
+
+## Complete consumed-prefix verification — 2026-11-09
+
+Validate SHA-256 over every byte before the saved offset in 1 MiB reads before trusting an incremental checkpoint. A changed or shortened prefix triggers the existing scoped replay and admission-terminal reset, even when the header, file size and final 256 bytes are unchanged. Hash new complete lines as they are imported; incomplete trailing lines are excluded from both offset and digest until completed. A prior checkpoint without `consumed_sha256` replays once to establish a trusted digest; no schema migration is required.
+
+This adds O(consumed bytes) read/hash work on each sync under the existing import transaction, with bounded hashing memory. Parsing and metadata persistence remain incremental for unchanged prefixes. Persist only the digest, never source contents. The prefix check detects persistent rewrites; it is not an atomic filesystem snapshot against a concurrent writer rewriting already-validated bytes during the same sync. A later sync revalidates those bytes.

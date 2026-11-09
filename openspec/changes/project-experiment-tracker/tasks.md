@@ -33,3 +33,5 @@
 
 - [x] 6.1 Reset source-derived admission terminal state during transcript replay and rebuild it from current evidence; preserve explicit partial finalization and unrelated sessions, and verify pause/stop draining after truncation or rewrite (EXP-02/08).
 - [x] 6.2 Scope blocked/unblocked pairing to the increment as well as session/agent/task/dependency; verify all-increment and filtered reports cannot fabricate cross-increment waits (EXP-03/04/09).
+
+- [x] 6.3 Detect rewrites anywhere in the complete consumed prefix with a bounded-memory checkpoint hash; verify unchanged header/size/tail terminal and usage rewrites, append-only and partial-line behaviour, and legacy checkpoint upgrade (EXP-02/08).

@@ -33,3 +33,8 @@ Existing admitted records were reconciled without activating recording for this 
 ## PR review repair continuation — 2026-11-09
 
 Both user-reported defects are repaired against `a794d01` for PR #23: replay now rebuilds source-derived terminal state, and blocked intervals pair only within their increment. [Repair verification](../evidence/project-experiment-tracker/recording-revision.md#pr-review-repairs--2026-11-09) records failing-before/passing-after regressions, 57 passing tracker tests and the passing full project check (376+4 cases). Tasks 6.1–6.2 complete; task 5.4 remains open. Main implementation/self-review only, no children or recording activation. Next owner: Keith reviews the PR repair and later explicitly opts into real live-client lifecycle verification.
+
+
+## Complete-prefix repair continuation — 2026-11-09
+
+Against `c7130ec`, confirmed that same-size middle-of-file rewrites escape the tail-only check. Complete consumed-prefix SHA-256 validation now detects them and replays terminal/usage evidence; old checkpoints replay once. [Verification and hashing tradeoff](../evidence/project-experiment-tracker/recording-revision.md#complete-prefix-rewrite-verification--2026-11-09): two failing-before cases, all 61 tracker tests and full project check (376+4) pass. Task 6.3 complete; task 5.4 remains open. Main-only repair; recording remains off for this request. Next owner: Keith reviews the PR #23 update and later explicitly opts into live-client verification.

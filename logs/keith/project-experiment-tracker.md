@@ -95,3 +95,16 @@ Implement explicit recording windows, graceful lifecycle controls, root roles an
 - [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#pr-review-repairs--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#pr-review-repair-continuation--2026-11-09). Tasks 6.1–6.2 complete; overall 9/10, with live-client task 5.4 still open.
 - Existing admitted tracker data synced and private report refreshed without activating recording; this request's measured usage is unavailable. Historical exports are unchanged.
 - Publish the repair as a follow-up commit to PR #23. No merge, deployment or live-client verification. Next owner: Keith for repair review and separately opted-in live lifecycle verification.
+
+
+## Request
+
+2026-11-09: Verify the reported same-size rewrite outside the checkpoint tail and repair it if valid.
+
+## Results
+
+- Human owner: Keith. User supplied the additional finding; main reproduced and repaired it without children or independent review. Requirements EXP-02/08; task 6.3 complete, overall 10/11 with live-client task 5.4 still pending.
+- Confirmed the previous tests only covered tail changes. Two new unchanged-header/size/tail regressions failed before repair for stale completion and stale usage. Hash the full consumed prefix in bounded chunks, extend only for complete lines, and replay legacy checkpoints once. Document O(consumed bytes) sync hashing cost and concurrent-file mutation limits.
+- All 61 tracker tests pass; full Node 24.21.0 project check passes (14 strict changes, type/lint, 376 Vitest cases, four deployment cases and build); diff whitespace checks pass.
+- [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#complete-prefix-rewrite-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#complete-prefix-repair-continuation--2026-11-09). Historical evidence is preserved and corrected by this additional checkpoint.
+- Existing private tracker sync/report succeeded without starting/resuming recording. This request's measured usage is unavailable; no shared pilot exports changed. Publish the follow-up repair to PR #23; no merge or deployment. Next owner: Keith for PR review and separately opted-in live-client verification.

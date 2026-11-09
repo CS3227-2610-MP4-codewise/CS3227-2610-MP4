@@ -22,6 +22,10 @@ The tracker SHALL deduplicate usage by source identity, preserve subset counters
 - **WHEN** overlapping usage records or the same source are imported again
 - **THEN** totals count each measurement once and ongoing turns remain provisional.
 
+#### Scenario: Rewrite outside the checkpoint tail
+- **WHEN** a consumed record changes while the source header, size and final 256 bytes stay unchanged
+- **THEN** verification of the complete consumed prefix detects the rewrite, rebuilds affected usage and lifecycle evidence, and does not trust a legacy tail-only checkpoint without replay.
+
 ### Requirement: EXP-03 Experiment annotations
 The tracker SHALL associate increments and sessions explicitly and record hypotheses, coordination, context, verification, review and recovery annotations without inferring intent from tool calls.
 

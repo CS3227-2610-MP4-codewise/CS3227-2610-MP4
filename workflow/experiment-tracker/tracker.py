@@ -304,14 +304,19 @@ class Tracker(Recording):
             digest = hashlib.sha256(header).hexdigest()
             offset = source['offset']
             state = json.loads(source['state'])
-            # A tail checkpoint detects same-header rewrite as well as truncation.
-            tail = state.get('tail')
-            if offset:
-                f.seek(max(0, offset - 256))
-                observed_tail = hashlib.sha256(f.read(min(offset, 256))).hexdigest()
-            else:
-                observed_tail = None
-            if source['prefix'] != digest or path.stat().st_size < offset or (tail and tail != observed_tail):
+            # Validate every previously consumed byte, not just the tail:
+            # an earlier record can change without changing size/header/tail.
+            consumed = hashlib.sha256()
+            remaining = offset
+            f.seek(0)
+            while remaining:
+                chunk = f.read(min(1024 * 1024, remaining))
+                if not chunk:
+                    break
+                consumed.update(chunk)
+                remaining -= len(chunk)
+            if (source['prefix'] != digest or remaining or
+                    offset and state.get('consumed_sha256') != consumed.hexdigest()):
                 # Source replay must never erase the preserved v1/unbounded archive.
                 self.db.execute("DELETE FROM records WHERE source=? AND run_id IS NOT NULL", (str(path),))
                 # Terminal/abort flags are derived from this session's source.
@@ -321,6 +326,7 @@ class Tracker(Recording):
                     partial=CASE WHEN terminal IS NULL THEN partial ELSE 0 END,
                     terminal=NULL WHERE session_id=?""", (sid,))
                 offset, state = 0, {}
+                consumed = hashlib.sha256()
             f.seek(offset)
             warnings = set(state.get('warnings', []))
             while True:
@@ -333,13 +339,14 @@ class Tracker(Recording):
                         raise ValueError("Oversized source record")
                     break  # A writer may still be appending this record.
                 offset = f.tell()
+                consumed.update(line)
                 try:
                     record = json.loads(line)
                     self.import_record(sid, str(path), position, record, state)
                 except (ValueError, TypeError, KeyError):
                     warnings.add('Malformed/unsupported records skipped; coverage partial')
-            f.seek(max(0, offset-256))
-            state['tail'] = hashlib.sha256(f.read(min(offset, 256))).hexdigest()
+            state.pop('tail', None)  # Upgrade legacy tail-only checkpoints on replay.
+            state['consumed_sha256'] = consumed.hexdigest()
             warnings.update(state.get('warnings',[]))
             state['warnings'] = sorted(warnings)
             self.db.execute("UPDATE sources SET offset=?,prefix=?,state=?,warning=?,last_sync=? WHERE path=?",
