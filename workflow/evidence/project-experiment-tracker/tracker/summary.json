@@ -1,0 +1,425 @@
+{
+  "version": 1,
+  "generated": "2026-11-08T11:19:36.827215+00:00",
+  "classification": "private metadata and redacted annotations",
+  "increments": [
+    {
+      "id": "project-experiment-tracker",
+      "title": "Project experiment tracker",
+      "requirements": "EXP-01\u201306; DEV-02/04",
+      "hypothesis": "Measure coordination/context/resource evidence without manual token arithmetic",
+      "comparison_group": "tracker-pilot",
+      "created": "2026-11-08T11:14:41.768571+00:00"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "increment_id": "project-experiment-tracker",
+      "parent": null,
+      "client": "0.167.0",
+      "created": "2026-11-08T11:14:41.766993+00:00"
+    }
+  ],
+  "sources": [
+    {
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "warning": null,
+      "last_sync": "2026-11-08T11:17:39.357671+00:00"
+    }
+  ],
+  "totals": {
+    "input_tokens": 4833700,
+    "cached_input_tokens": 4589056,
+    "output_tokens": 37734,
+    "reasoning_output_tokens": 4728,
+    "total_tokens": 4871434
+  },
+  "status": "provisional",
+  "cache_ratio": 0.949387839543207,
+  "reasoning_output_ratio": 0.12529813960884084,
+  "annotations": [
+    {
+      "id": "tracker-pilot-experiment",
+      "increment_id": "project-experiment-tracker",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "agent": "main",
+      "task": null,
+      "dependency": null,
+      "kind": "experiment",
+      "ts": "2026-11-08T11:14:41.771468+00:00",
+      "data": {
+        "summary": "Build independent project instrumentation and Keith log support",
+        "task_type": "development-tooling",
+        "context_strategy": "Targeted repository and official hook documentation retrieval",
+        "instruction_version": "project-experiment skill v1",
+        "confounders": "Single implementation run; no multi-agent benefit baseline"
+      }
+    },
+    {
+      "id": "tracker-pilot-assignment",
+      "increment_id": "project-experiment-tracker",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "agent": "main",
+      "task": null,
+      "dependency": null,
+      "kind": "assignment",
+      "ts": "2026-11-08T11:14:41.771573+00:00",
+      "data": {
+        "summary": "Main agent implements and self-reviews; no children spawned",
+        "rationale": "One coherent tooling increment; delegation not requested",
+        "files": "workflow/experiment-tracker/,logs/keith/project-experiment-tracker.md"
+      }
+    },
+    {
+      "id": "final-verification",
+      "increment_id": "project-experiment-tracker",
+      "session_id": null,
+      "agent": "main",
+      "task": null,
+      "dependency": null,
+      "kind": "verification",
+      "ts": "2026-11-08T11:19:36.448019+00:00",
+      "data": {
+        "summary": "29 tracker cases, 352 application cases and 4 deployment cases passed; skill validation and browser/pilot checks passed",
+        "outcome": "pass",
+        "evidence": "workflow/evidence/project-experiment-tracker/verification.md",
+        "confounders": "Live callbacks not observed until client reload; no independent reviewer"
+      }
+    }
+  ],
+  "blocked_intervals": [],
+  "coordination_checks": [
+    {
+      "rule": "Exclusive ownership (annotated window)",
+      "file": "workflow/experiment-tracker/",
+      "increment_id": "project-experiment-tracker",
+      "window": "increment",
+      "result": "pass"
+    },
+    {
+      "rule": "Exclusive ownership (annotated window)",
+      "file": "logs/keith/project-experiment-tracker.md",
+      "increment_id": "project-experiment-tracker",
+      "window": "increment",
+      "result": "pass"
+    },
+    {
+      "rule": "verification evidence/outcome recorded",
+      "annotation": "final-verification",
+      "increment_id": "project-experiment-tracker",
+      "result": "pass"
+    }
+  ],
+  "repeated_tool_candidates": {
+    "exec": 42,
+    "request_user_input": 2
+  },
+  "coverage": [
+    "Active/idle time and unnecessary retries require annotations; silence is not evidence.",
+    "Client hook coverage is observational, not guaranteed; unknown fields are unavailable.",
+    "Full explicitly attached sessions are included, including earlier turns; use fresh sessions for isolated trials.",
+    "No causal savings or monetary cost inferred. Comparisons require equivalent scope and quality."
+  ],
+  "tracker_overhead": {
+    "timestamp": "2026-11-08T11:17:39.359658+00:00",
+    "duration_ms": 5.66,
+    "queued": 0
+  },
+  "measurement_groups": [
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aed9636b4d487d0b7779bd7df4105da",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b012-bf3b-7c02-8d75-e84f049aa803",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aed963eca4487d0946a9d82e3b38fbd",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b012-bf3b-7c02-8d75-e84f049aa803",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aed964461b887d0a186ac955f2035ae",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b012-bf3b-7c02-8d75-e84f049aa803",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aed9649f1d087d0b581a82682cc890c",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b012-bf3b-7c02-8d75-e84f049aa803",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aed96501bbc87d0aa7276089d30c31f",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b012-bf3b-7c02-8d75-e84f049aa803",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aed9b6953f087d08fab2b38be18862b",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b027-10ac-7391-baf5-5a717d91282d",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9b04e1c087d0bbed1443da2392a4",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9b0a320887d0a01bc5b6f96ca9b0",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9b12d34487d0a42140dcad6e4ca0",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9b1ad6f487d0b58e5755c3d94462",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9b22f1b087d0a50a2767682268b7",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9f86171487d0a1bb8d53b572c00d",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9ff6c6a887d086a03b38df6feb71",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aee9ffb55d087d0ab7939e18ee03be3",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b40d-84b6-7700-ba97-aa777cbc2c6e",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016aeea0e616ec87d09d2efd2961247e10",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1b424-8090-7fe1-a9aa-11eea9d366f9",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05130747087d0ab0b40874f577072",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1babd-18b7-7a10-b59a-2e8e5de1a413",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05731707487d080325986dc940fa3",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af057369c6c87d091ed9a6767ad8f07",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0573c9f6887d091011def80c476f6",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05740fa2c87d09974dac58a4caa2a",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0574c6d3487d0a05f39eacf47dd7b",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05755b94c87d0aebb408b62d8d61b",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05761dbf487d084d7040637ae9692",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05765e3c487d0821ad161a8e219cd",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05771fb1087d0872a56b90c85975d",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af057757da487d0838a1baff96d6f07",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0578706d887d0bab48d0c197bcd82",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0578eedf487d0ab3eb0e524a7be4f",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05798423487d09784d2a40729c0d5",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0579ed26487d0aecc912c86affea7",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af057c95c0c87d09227613df828bc00",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af058945e5087d082179f59137507a1",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af058cd3c9887d0bea6e655b2d2a4e0",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05911cac887d0b471c6eccb9766aa",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0592078b087d0809a2e5b29573705",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0594c4c2887d082402e27a809c482",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05967431c87d0a9258e1bee6d0a23",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0597f7e0487d09e5a331b693237fa",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0598b4d2487d0bd8986c1866ae54e",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af059a2885c87d0a811f257db040a4c",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af059b4404487d09dd26e95ac68b898",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af059c70b8c87d0af0895b923ff5a6c",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af059cd34b487d0b04633292d11059a",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af059d3942c87d09ae7383914f07c91",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af059f188f487d0b4ee83b2b21fded6",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af059f6912487d090f21aee9c55e724",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05a02bce487d092a57df5fa269f56",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05a05a83487d0ae05e98c8730acbd",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af05a3972bc87d097899d2be8270d51",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bad4-94b9-76a3-b35a-7f4b30ec22a1",
+      "method": "response_id"
+    }
+  ]
+}

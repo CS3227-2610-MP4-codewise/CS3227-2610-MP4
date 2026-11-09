@@ -9,3 +9,8 @@ coverage/
 wrangler.deploy.json
 *.log
 .DS_Store
+
+# Private project experiment metadata and local hook installation
+.experiment-tracker/
+.codex/hooks.json
+__pycache__/

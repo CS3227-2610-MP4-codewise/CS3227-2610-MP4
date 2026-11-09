@@ -1,0 +1,38 @@
+# Design
+
+## Context
+
+See proposal.md. Keith's log policy uses one member summary per increment. Python 3 is available; no runtime dependencies are needed. Codex documents project hooks but transcript JSONL is an unstable interface. Observed local records expose response-level token_usage_record entries as well as cumulative token_count events; counting both would duplicate usage.
+
+## Goals / Non-Goals
+
+Collect attributable metadata and annotation evidence with low overhead. Preserve one log across sessions and expose gaps. Exclude raw conversation persistence, production services, global configuration changes, TurnUp access and automatic agent spawning.
+
+## Decisions
+
+- Use Python standard library, private SQLite with transactional writes, per-event queue files and a static HTML report. This avoids an always-running server and new application dependencies.
+- Hook handlers only enqueue allowlisted fields. Stop hooks return an empty JSON object and never request continuation. A background sync is not assumed: the skill runs sync/report at checkpoints and later sessions reconcile prior turns.
+- Use explicit increment/session associations, a session-source registry and registered worktree roots. Import only hook-registered or explicitly attached transcripts after validating session metadata cwd. No broad content scan or identity guessing. Child links must be explicit.
+- Incremental importer checkpoints complete newline-delimited records; truncation/rotation rebuilds that source's records. Prefer response IDs for usage; fall back to cumulative deltas only when response records are absent. Never sum both. Store provenance and partial coverage.
+- Coordination annotations carry task/agent/dependency, rationale, ownership and review outcomes. Timing requires explicit blocked/unblocked pairs. Facts, annotations, derived values and unavailable data have distinct report labels. Repeated tools are candidates, never automatic waste findings.
+- Generate logs from the existing Keith template, then append uniquely identified checkpoints with human/agent-written Request/Results and deterministic metric summaries. Routine questions do not create entries. Explicit export writes sanitized summaries, not raw session data.
+- Local install/uninstall merges exact owned handlers, never global hooks. Hook observation is tested separately from client capability; doctor cannot assert callbacks fired until evidence exists.
+
+## Risks / Trade-offs
+
+- Unstable source format → versioned parser, synthetic fixtures, source errors and no invented counters.
+- Hook gaps or ongoing turns → coverage warnings and provisional totals; manual attach/sync fallback.
+- Sensitive annotations → users/skill supply redacted summaries; reports are private until explicit export.
+- Non-comparable tasks → named comparison groups and confounders; no causal savings claim by default.
+
+## Migration Plan
+
+Run doctor, install project-only hooks, restart/review hooks in Codex, start an increment and attach its session. Uninstall removes owned handlers only; private data remains available for deliberate deletion. No application migration or deployment.
+
+## Approved recording revision
+
+User chose explicit opt-in only, include the initiating turn, graceful draining of already-running turns, and preserved/excluded legacy data. Schema v2 introduces runs, windows, members, admitted turns and role history. Existing records without a run remain legacy/unbounded and are excluded by default. Back up v1 SQLite before transactional migration; retain old logs/exports and append corrections.
+
+Admission requires a proven session/turn identity. Start/resume inspect the registered source's latest active task_started/current turn and open a window for it; earlier turns never enter. Future turns can enter only while recording. Pause/stop first reconcile known sources, then freeze admissions; admitted active turns drain through source task_complete. Stop callbacks alone do not prove final counters have been flushed. Missing terminal records remain draining until explicit partial finalization. No semantic project-question classifier or automatic activation.
+
+Hooks gate before queue writes, under the same database transaction used by lifecycle controls; importers independently validate run/window/turn membership. Hook attachment never activates. Child membership requires actual parent evidence within an admitted parent turn and an open recording window; no descendants join during drain. Cumulative fallback must observe baselines across excluded intervals without persisting excluded usage; ambiguous deltas are unavailable. Records retain run/window provenance and real session/turn IDs, with role labels separately historized.

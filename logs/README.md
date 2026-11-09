@@ -33,3 +33,15 @@ For Darryl, before every final response confirm that the current prompt has its 
 ## Keith — existing summary policy retained
 
 Keith keeps one member-summary file per PR-sized increment in logs/keith/, using workflow/templates/member-log.md. Append Request/Results entries for substantial requests; routine questions need no entry under this policy. Darryl's every-prompt agent/token tables and prompt-experiment requirements do not apply to Keith. No Keith contribution, prompt, usage or reviewer activity is invented.
+
+### Optional Keith experiment tooling
+
+Recording is off unless Keith explicitly requests start/resume. Pause/stop drain admitted turns and reject new work; attachment and ordinary project requests do not activate collection. Legacy whole-session pilot totals stay preserved but excluded from bounded comparisons.
+
+The [independent project tracker](../workflow/experiment-tracker/README.md) and
+repository `project-experiment` skill can create a template-based log when an
+increment starts and append idempotent substantial-request checkpoints. Reuse the
+same increment/log across sessions. Measurements are cumulative snapshots with
+coverage/provisional labels, not independently additive prompt totals. Routine
+questions remain exempt. Private runtime data stays ignored; export redacted
+summaries explicitly to shared evidence. This does not alter Darryl's policy.

@@ -1,0 +1,30 @@
+# Project experiment tracker verification
+
+Owner: Keith. Requirements: EXP-01–06, DEV-02/DEV-04. Branch: `codex/project-experiment-tracker`; input main `d7f2f34`. This increment changes development tooling only. No application route, migration, shared contract, global recorder or deployment is changed.
+
+## Executed checks — 2026-11-08
+
+| Check                         | Actual outcome                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Tracker synthetic suite       | PASS: 29 Python unittest cases; no personal session fixtures. Usage deduplication/cumulative fallback/subsets, incomplete records, malformed records, source replacement/scope, child linkage/nested attribution, concurrent queue writers, annotation waits/dependencies/ownership windows, log append/replay, symlink refusal, hook preservation/nonblocking output and report/export privacy. |
+| `npm run check`               | PASS with approved local-listener permissions: 11 strict OpenSpec changes, TypeScript, ESLint, 352 Vitest cases across 31 files, 4 Node deployment cases, Vite build. Initial sandbox attempt failed on Miniflare `listen EPERM`; that attempt is not reported as an application defect.                                                                                                         |
+| Skill validator               | PASS with the bundled `quick_validate.py`, using a temporary Python environment containing PyYAML. No Python runtime dependency was added to the repository.                                                                                                                                                                                                                                     |
+| Browser report check          | PASS using local installed headless Chromium/Playwright: six report section headings, eight metric cards, increment/task filter changes and reset, no page errors, mobile viewport 375px screenshot inspected. Local browser startup required sandbox escalation. Initial Chrome-channel attempt found no Chrome installation; installed Chromium was used.                                      |
+| Real local usage pilot        | PASS: explicitly attached this known current session only. 39 unique response IDs at the first checkpoint reconciled exactly against exposed source counters; immediate repeated sync preserved totals. Current turn stays provisional. No other session contents scanned; no historical backfill. Full attached-session scope includes earlier turns and is disclosed in report coverage.       |
+| SQLite/aggregation validation | PASS via `tracker.py validate`.                                                                                                                                                                                                                                                                                                                                                                  |
+| Project hook installation     | Installed in this checkout's ignored `.codex/hooks.json`; existing global hooks untouched. `doctor` reports Codex CLI 0.166.0, one registered source and no observed callbacks yet. Installation is not proof of live callback execution.                                                                                                                                                        |
+
+## Repairs and review
+
+Main-agent self-review only; no subagents spawned and no independent-review claim. Browser preparation exposed a formatter-sensitive embedded-data marker; replacement now tolerates formatting and requires exactly one marker. Ownership checks now use explicit windows. Session ancestry rejects cycles/conflicting parent links; late assignment includes nested descendants. Logs reject symlink destinations and use a shared file lock for creation/checkpoint writes. Tests exercise those boundaries.
+
+Reports distinguish measured events, annotated decisions and derived ratios. Tool-name repetition is not classified as unnecessary work. No idle time, monetary cost, per-task token allocation or efficiency improvement is inferred. Source IDs in explicit exports permit reconciliation without committing raw transcripts or local paths.
+
+## Limits and next checks
+
+- Restart/review project hooks in Codex, then run `sync` and `doctor` to verify actual callbacks. Current process did not load newly installed hooks. Unknown/unsupported source fields remain unavailable.
+- At the next session, sync completed prior usage and append a new reconciliation checkpoint; never add cumulative checkpoint totals together.
+- A later matched single-agent/multi-agent or context comparison is required to assess net benefit. This implementation session is not such an experiment.
+- No actual multi-agent coordination occurred in this increment. Annotation-based adherence checks are evidence checks, not proof of unobserved behavior. No independent security or accessibility audit is claimed.
+- The collector supports uncompressed JSONL only; transcript schema changes require adapter verification. Failed queue items/source warnings remain visible through doctor/report.
+- Detailed telemetry and the HTML dashboard remain ignored locally. Exported summaries are metadata plus author-redacted annotations; review redaction before sharing.
