@@ -15,6 +15,10 @@ The tracker SHALL collect only registered project sessions and linked children, 
 - **WHEN** project hooks are installed and uninstalled
 - **THEN** unrelated handlers survive and tracker hooks never block the agent.
 
+#### Scenario: Malformed transcript header in a hook
+- **WHEN** a source-bearing callback references JSON whose header or session metadata payload is not an object
+- **THEN** the hook returns its empty successful response without traceback, source registration or turn admission, while other transcript entry points reject the same structure safely.
+
 ### Requirement: EXP-02 Attributable usage
 The tracker SHALL deduplicate usage by source identity, preserve subset counters, and distinguish provisional, unavailable and measured values.
 
@@ -25,6 +29,10 @@ The tracker SHALL deduplicate usage by source identity, preserve subset counters
 #### Scenario: Rewrite outside the checkpoint tail
 - **WHEN** a consumed record changes while the source header, size and final 256 bytes stay unchanged
 - **THEN** verification of the complete consumed prefix detects the rewrite, rebuilds affected usage and lifecycle evidence, and does not trust a legacy tail-only checkpoint without replay.
+
+#### Scenario: Completed turn without measurements
+- **WHEN** an admitted completed turn has no usable total-token measurement or requested counters are unavailable
+- **THEN** reports and exports mark coverage partial, identify the gap, retain only observed totals without substituting zero, and reevaluate coverage if late measurements arrive.
 
 ### Requirement: EXP-03 Experiment annotations
 The tracker SHALL associate increments and sessions explicitly and record hypotheses, coordination, context, verification, review and recovery annotations without inferring intent from tool calls.

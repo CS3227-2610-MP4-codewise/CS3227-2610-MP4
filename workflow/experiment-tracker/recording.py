@@ -18,6 +18,15 @@ def timestamp(value):
     return d.astimezone(timezone.utc).isoformat()
 
 
+def session_metadata(header):
+    if not isinstance(header, dict) or header.get('type') != 'session_meta':
+        raise ValueError('First record must be session_meta')
+    meta = header.get('payload')
+    if not isinstance(meta, dict):
+        raise ValueError('Session metadata payload must be an object')
+    return meta
+
+
 class Recording:
     def migrate_recording(self):
         row = self.db.execute("SELECT value FROM settings WHERE key='version'").fetchone()
@@ -89,8 +98,8 @@ class Recording:
         active = None
         with Path(source['path']).open('rb') as f:
             header = json.loads(f.readline(2*1024*1024))
-            meta = header.get('payload',{})
-            if header.get('type') != 'session_meta' or (meta.get('id') or meta.get('session_id')) != sid or not self.scoped(meta.get('cwd')):
+            meta = session_metadata(header)
+            if (meta.get('id') or meta.get('session_id')) != sid or not self.scoped(meta.get('cwd')):
                 raise ValueError('Source identity or scope changed')
             for line in f:
                 if not line.endswith(b'\n'):

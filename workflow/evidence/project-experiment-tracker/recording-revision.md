@@ -82,3 +82,20 @@ Input: `c7130ec`, PR #23. The user supplied a valid additional case: changing an
 Tradeoff: every sync reads/hashes O(consumed bytes) under the existing import transaction; hashing memory is bounded and unchanged records are not reparsed. This is not an atomic filesystem snapshot against concurrent in-place mutation during the same sync; subsequent sync revalidates the prefix. No live callback, UI acceptance, independent review, merge or deployment is claimed.
 
 Next owner: Keith reviews the additional repair in PR #23 and later performs separately opted-in live-client verification.
+
+
+## Usage coverage and malformed-header verification — 2026-11-09
+
+Input: `09ccb87`, PR #23. Both user findings are valid and were reproduced before repair. Main implementation and self-review only; no child agents or independent reviewer. Requirements EXP-01/02/04/06/07/09, tasks 6.4–6.5 complete; overall 12/13, live-client task 5.4 still open.
+
+- Missing usage: one completed measured turn plus a completed unmeasured turn incorrectly produced `observed-complete` with only the first turn's total. Compare each completed admitted turn within the selected runs against usable total-token records. Missing turns and unavailable counter fields mark coverage partial with explicit gaps. Preserve known observed sums and null unknowns, accept measured zeros, and reevaluate on late usage. Exports carry the same status and gap information. This does not prove response-level completeness within a turn that has some measurements.
+- Malformed header: a linked child's source-bearing callback could parse `[]` then raise AttributeError, yielding traceback/nonzero exit. A shared header parser now requires a session_meta object and object payload before dereferencing fields in attach, import, current-turn lookup and hook admission. Existing ValueError handling returns `{}` with exit zero and empty stderr, without admitting the child turn or registering/persisting its invalid source. No broad programming-error catch was introduced.
+
+Verification:
+
+- Before repair, regressions reproduced incorrect coverage classification and malformed-header failures across callback/attachment/import paths. The mixed measured/unmeasured case returned `observed-complete`; malformed child callbacks exited nonzero. New measured-zero control passed before and after.
+- After repair, all 69 Python tracker cases pass (eight added). Coverage tests include late usage recovery, no usable counters, partial counters, measured zeros, increment isolation and exported status. Header tests exercise arrays, null, numeric/string roots and array/null payloads, verifying CLI exit/stdout/stderr and no source registration/admission/queue additions; registered-source import/current-turn and attachment reject safely.
+- Full `npm run check` with Node 24.21.0 and local listener permissions passes: 14 strict OpenSpec changes, typecheck, lint, 376 Vitest cases in 35 files, four deployment cases and Vite build. `git diff --check` passes.
+- Existing private tracker sync/report succeeds without recording activation. Current-request measured usage is unavailable; historical shared exports are unchanged. No live callback evidence or deployment is claimed.
+
+Next owner: Keith reviews the follow-up repair in PR #23 and later explicitly opts into live-client lifecycle verification.

@@ -18,7 +18,7 @@ import uuid
 from datetime import datetime, timezone
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from recording import Recording
+from recording import Recording, session_metadata
 
 VERSION = 2
 OWNER = "Codewise experiment tracker"
@@ -208,9 +208,7 @@ class Tracker(Recording):
             record = json.loads(first)
         except (ValueError, UnicodeError):
             raise ValueError("Missing valid session metadata") from None
-        meta = record.get("payload", {})
-        if record.get("type") != "session_meta" or not isinstance(meta, dict):
-            raise ValueError("First record must be session_meta")
+        meta = session_metadata(record)
         if not self.scoped(meta.get("cwd")):
             raise ValueError("Transcript cwd is outside registered project roots")
         sid = identifier(meta.get("id") or meta.get("session_id"))
@@ -298,7 +296,7 @@ class Tracker(Recording):
         # Revalidate scope even for previously registered files (including replacement/symlinks).
         with path.open('rb') as f:
             header = f.readline(2 * 1024 * 1024)
-            meta = json.loads(header).get('payload', {})
+            meta = session_metadata(json.loads(header))
             if not self.scoped(meta.get('cwd')) or (meta.get('id') or meta.get('session_id')) != sid:
                 raise ValueError("Source identity/scope changed")
             digest = hashlib.sha256(header).hexdigest()
@@ -438,7 +436,13 @@ class Tracker(Recording):
                   if usage and all(r['data'].get(k) is not None for r in usage) else None for k in COUNTERS}
         complete = {(r['session_id'], r['turn_id']) for r in records
                     if r['kind'] == 'lifecycle' and r['data']['event'] == 'task_complete'}
-        provisional = any((r['session_id'], r['turn_id']) not in complete for r in usage) or any(r['terminal'] is None and not r['partial'] for r in self.db.execute('SELECT * FROM admitted') if r['run_id'] in run_ids)
+        admitted = [dict(r) for r in self.db.execute('SELECT * FROM admitted') if r['run_id'] in run_ids]
+        measured_turns = {(r['run_id'], r['session_id'], r['turn_id']) for r in usage
+                          if r['data'].get('total_tokens') is not None}
+        unmeasured = [r for r in admitted if r['terminal'] == 'task_complete' and
+                      (r['run_id'], r['session_id'], r['turn_id']) not in measured_turns]
+        unavailable_counters = [k for k in COUNTERS if usage and totals[k] is None]
+        provisional = any((r['session_id'], r['turn_id']) not in complete for r in usage) or any(r['terminal'] is None and not r['partial'] for r in admitted)
         # Hook-only completion is advisory, not proof the final response usage was imported.
         gaps = ['Active/idle time and unnecessary retries require annotations; silence is not evidence.',
                 'Client hook coverage is observational, not guaranteed; unknown fields are unavailable.',
@@ -453,7 +457,11 @@ class Tracker(Recording):
             gaps.append(f'{len(missing)} session(s) have no registered transcript; token coverage incomplete.')
         if any(s['warning'] for s in sources):
             gaps.append('Source warnings: token coverage partial; totals represent observed records only.')
-        partial = bool(missing or any(s['warning'] for s in sources) or any(r['partial'] for r in runs))
+        if unmeasured:
+            gaps.append(f'{len(unmeasured)} completed admitted turn(s) have no usable token usage; totals cover observed records only.')
+        if unavailable_counters:
+            gaps.append('Usage counters unavailable: '+', '.join(unavailable_counters)+'. Coverage partial; no missing values are treated as zero.')
+        partial = bool(missing or unmeasured or unavailable_counters or any(s['warning'] for s in sources) or any(r['partial'] for r in runs))
         if any(r['kind'] == 'usage_fallback' for r in usage):
             gaps.append('Cumulative fallback: request-level attribution unavailable.')
         blocked = {}
@@ -515,7 +523,7 @@ class Tracker(Recording):
                                if increment is None or r['id'] == increment],
                 'sessions': [{k: v for k, v in s.items() if k != 'cwd'} for s in sessions],
                 'runs':runs,'windows':[dict(r) for r in self.db.execute('SELECT * FROM windows') if r['run_id'] in run_ids],
-                'admitted_turns':[dict(r) for r in self.db.execute('SELECT * FROM admitted') if r['run_id'] in run_ids],
+                'admitted_turns':admitted,
                 'roles':[dict(r) for r in self.db.execute('SELECT * FROM roles ORDER BY id') if r['run_id'] in run_ids],
                 'legacy':{'classification':'legacy/unbounded','excluded_records':legacy_count},
                 'sources': sources, 'totals': totals, 'status': 'partial' if partial else 'provisional' if provisional else 'observed-complete' if usage else 'unavailable',
@@ -581,8 +589,8 @@ def enqueue(root, raw):
                 path=Path(path).expanduser().resolve()
                 if path.suffix!='.jsonl':return False
                 with path.open('rb') as f:header=json.loads(f.readline(2*1024*1024))
-                meta=header.get('payload',{})
-                if header.get('type')!='session_meta' or (meta.get('id') or meta.get('session_id'))!=sid or not gate.scoped(meta.get('cwd')):return False
+                meta=session_metadata(header)
+                if (meta.get('id') or meta.get('session_id'))!=sid or not gate.scoped(meta.get('cwd')):return False
                 existing=db.execute('SELECT path FROM sources WHERE session_id=?',(sid,)).fetchone()
                 if existing and existing[0]!=str(path):return False
                 db.execute('INSERT OR IGNORE INTO sources(path,session_id) VALUES (?,?)',(str(path),sid))

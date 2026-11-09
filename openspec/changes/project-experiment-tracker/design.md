@@ -50,3 +50,10 @@ Blocked interval pairing uses `(increment_id, session_id, agent, task, dependenc
 Validate SHA-256 over every byte before the saved offset in 1 MiB reads before trusting an incremental checkpoint. A changed or shortened prefix triggers the existing scoped replay and admission-terminal reset, even when the header, file size and final 256 bytes are unchanged. Hash new complete lines as they are imported; incomplete trailing lines are excluded from both offset and digest until completed. A prior checkpoint without `consumed_sha256` replays once to establish a trusted digest; no schema migration is required.
 
 This adds O(consumed bytes) read/hash work on each sync under the existing import transaction, with bounded hashing memory. Parsing and metadata persistence remain incremental for unchanged prefixes. Persist only the digest, never source contents. The prefix check detects persistent rewrites; it is not an atomic filesystem snapshot against a concurrent writer rewriting already-validated bytes during the same sync. A later sync revalidates those bytes.
+
+
+## Missing measurements and structural validation — 2026-11-09
+
+Evaluate usage coverage against every completed admitted turn within the selected runs. A turn without a non-null total-token measurement makes the snapshot partial and adds an explicit coverage gap; absent counter fields also make coverage partial. Observed sums remain available with their incomplete label, missing values remain null, and real zero measurements remain valid. Compute coverage afresh so late usage repairs completeness without a sticky loss flag. This detects whole missing-turn measurements, not unobservable missing responses within a partially measured turn.
+
+Use one shared session-header parser for attach, import, current-turn lookup and source-bearing hook admission. Require a `session_meta` object with an object payload before field access. Structural failures become safe ValueErrors handled by the existing nonblocking hook path; no blanket suppression of programming errors is added. Invalid headers cannot register sources or admit child turns.

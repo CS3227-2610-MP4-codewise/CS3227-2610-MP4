@@ -38,3 +38,8 @@ Both user-reported defects are repaired against `a794d01` for PR #23: replay now
 ## Complete-prefix repair continuation — 2026-11-09
 
 Against `c7130ec`, confirmed that same-size middle-of-file rewrites escape the tail-only check. Complete consumed-prefix SHA-256 validation now detects them and replays terminal/usage evidence; old checkpoints replay once. [Verification and hashing tradeoff](../evidence/project-experiment-tracker/recording-revision.md#complete-prefix-rewrite-verification--2026-11-09): two failing-before cases, all 61 tracker tests and full project check (376+4) pass. Task 6.3 complete; task 5.4 remains open. Main-only repair; recording remains off for this request. Next owner: Keith reviews the PR #23 update and later explicitly opts into live-client verification.
+
+
+## Usage coverage and header repair continuation — 2026-11-09
+
+Against `09ccb87`, both findings reproduced and repaired: completed turns missing usable usage and absent counters now produce explicit partial coverage; malformed transcript headers/payloads are validated consistently and child hooks retain empty successful responses without invalid admission/persistence. [Verification](../evidence/project-experiment-tracker/recording-revision.md#usage-coverage-and-malformed-header-verification--2026-11-09): all 69 tracker cases and full project checks (376+4) pass. Tasks 6.4–6.5 complete, overall 12/13; task 5.4 remains pending. Main-only work; no recording opt-in or independent review. Next owner: Keith reviews PR #23 and separately opts into live-client verification.

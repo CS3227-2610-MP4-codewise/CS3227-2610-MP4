@@ -108,3 +108,16 @@ Implement explicit recording windows, graceful lifecycle controls, root roles an
 - All 61 tracker tests pass; full Node 24.21.0 project check passes (14 strict changes, type/lint, 376 Vitest cases, four deployment cases and build); diff whitespace checks pass.
 - [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#complete-prefix-rewrite-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#complete-prefix-repair-continuation--2026-11-09). Historical evidence is preserved and corrected by this additional checkpoint.
 - Existing private tracker sync/report succeeded without starting/resuming recording. This request's measured usage is unavailable; no shared pilot exports changed. Publish the follow-up repair to PR #23; no merge or deployment. Next owner: Keith for PR review and separately opted-in live-client verification.
+
+
+## Request
+
+2026-11-09: Verify reported missing-usage coverage and malformed transcript-header bugs.
+
+## Results
+
+- Human owner: Keith. User supplied both findings; main reproduced, repaired and self-reviewed without children or independent review. Requirements EXP-01/02/04/06/07/09; tasks 6.4–6.5 complete, overall 12/13. Live-client task 5.4 remains open.
+- Completed admitted turns without usable total-token records, and absent requested counters, now mark coverage partial with explicit gaps; known totals remain observed-only. Late usage is reevaluated and measured zeros remain valid. A shared structural session-header validator prevents .get calls on non-objects across callback, attachment, import and current-turn paths.
+- Both original bugs reproduced before repair. All 69 tracker cases now pass, including eight new cases with malformed callback CLI checks, coverage/export/increment isolation and late-usage recovery. Full Node 24.21.0 project check passes (14 strict changes, type/lint, 376 Vitest cases, four deployment cases and build); whitespace checks pass.
+- [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#usage-coverage-and-malformed-header-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#usage-coverage-and-header-repair-continuation--2026-11-09).
+- Existing private tracker sync/report succeeded without starting/resuming recording. Current-request usage unavailable; historical exports unchanged. Publish the follow-up to PR #23. No merge, deployment or live-client callback verification. Next owner: Keith for PR review and separately opted-in live verification.

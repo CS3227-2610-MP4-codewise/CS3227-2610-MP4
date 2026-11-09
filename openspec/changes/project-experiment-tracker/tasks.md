@@ -35,3 +35,6 @@
 - [x] 6.2 Scope blocked/unblocked pairing to the increment as well as session/agent/task/dependency; verify all-increment and filtered reports cannot fabricate cross-increment waits (EXP-03/04/09).
 
 - [x] 6.3 Detect rewrites anywhere in the complete consumed prefix with a bounded-memory checkpoint hash; verify unchanged header/size/tail terminal and usage rewrites, append-only and partial-line behaviour, and legacy checkpoint upgrade (EXP-02/08).
+
+- [x] 6.4 Mark completed admitted turns without usable usage and missing counters as incomplete coverage; verify late usage recovery, zero counters, filtered snapshots and exports (EXP-02/04/09).
+- [x] 6.5 Validate transcript header/payload structure consistently before dereferencing it; verify malformed linked-child hook callbacks return empty success without admitting/persisting invalid sources, and attach/import/current-turn paths fail safely (EXP-01/06/07).

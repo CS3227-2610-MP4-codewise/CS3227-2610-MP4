@@ -70,6 +70,59 @@ class TrackerTest(unittest.TestCase):
         self.tracker.sync()
         self.assertEqual('provisional',self.tracker.snapshot()['status'])
 
+    def test_completed_turn_missing_usage_marks_coverage_partial_until_late_usage(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.end('turn-a')
+        self.begin('turn-b');self.end('turn-b');self.tracker.sync()
+        for increment in (None,'test-increment'):
+            snapshot=self.tracker.snapshot(increment)
+            self.assertEqual('partial',snapshot['status'])
+            self.assertEqual(120,snapshot['totals']['total_tokens'])
+            self.assertIn('1 completed admitted turn(s) have no usable token usage',' '.join(snapshot['coverage']))
+        exported=mod.export_summary(self.tracker,'test-increment',self.root/'export')
+        self.assertEqual('partial',json.loads((exported/'summary.json').read_text())['status'])
+        self.append_record('token_usage_record',self.usage('response-b','turn-b')['payload'])
+        self.tracker.sync()
+        snapshot=self.tracker.snapshot()
+        self.assertEqual('observed-complete',snapshot['status'])
+        self.assertEqual(240,snapshot['totals']['total_tokens'])
+        self.assertNotIn('no usable token usage',' '.join(snapshot['coverage']))
+
+    def test_completed_turn_without_usable_usage_is_not_complete(self):
+        self.attach()
+        self.append_record('token_usage_record',{'turn_id':'turn-a','response_id':'unsupported','usage':{'unknown_counter':100}})
+        self.end('turn-a');self.tracker.sync()
+        snapshot=self.tracker.snapshot()
+        self.assertEqual('partial',snapshot['status'])
+        self.assertIsNone(snapshot['totals']['total_tokens'])
+        self.assertIn('no usable token usage',' '.join(snapshot['coverage']))
+
+    def test_completed_usage_with_missing_counters_is_partial(self):
+        self.attach()
+        self.append_record('token_usage_record',{'turn_id':'turn-a','response_id':'partial','usage':{'input_tokens':10}})
+        self.end('turn-a');self.tracker.sync()
+        snapshot=self.tracker.snapshot()
+        self.assertEqual('partial',snapshot['status'])
+        self.assertEqual(10,snapshot['totals']['input_tokens'])
+        self.assertIsNone(snapshot['totals']['total_tokens'])
+        self.assertIn('Usage counters unavailable',' '.join(snapshot['coverage']))
+
+    def test_missing_turn_usage_is_scoped_to_its_increment(self):
+        self.attach();self.append_record('token_usage_record',self.usage()['payload']);self.end('turn-a')
+        self.tracker.control('session-a','stop')
+        self.begin('second-turn');self.tracker.start('second','Second',session='session-a')
+        self.end('second-turn');self.tracker.sync()
+        self.assertEqual('observed-complete',self.tracker.snapshot('test-increment')['status'])
+        self.assertEqual('partial',self.tracker.snapshot('second')['status'])
+        self.assertEqual('partial',self.tracker.snapshot()['status'])
+        self.assertNotIn('no usable token usage',' '.join(self.tracker.snapshot('test-increment')['coverage']))
+
+    def test_completed_turn_with_measured_zero_usage_is_complete(self):
+        self.attach()
+        self.append_record('token_usage_record',{'turn_id':'turn-a','response_id':'zero','usage':{k:0 for k in mod.COUNTERS}})
+        self.end('turn-a');self.tracker.sync()
+        self.assertEqual('observed-complete',self.tracker.snapshot()['status'])
+        self.assertEqual(0,self.tracker.snapshot()['totals']['total_tokens'])
+
     def test_fallback_cumulative_deltas_and_response_precedence(self):
         def fallback(total):
             return self.record('event_msg',{'type':'token_count','info':{'total_token_usage':{
@@ -380,6 +433,44 @@ class TrackerTest(unittest.TestCase):
         self.assertEqual(0,result.returncode);self.assertEqual('{}',result.stdout.strip())
         self.assertNotIn('secret',result.stderr)
 
+
+    def malformed_headers(self):
+        return ([],None,42,'invalid',{'type':'session_meta','payload':[]},
+                {'type':'session_meta','payload':None})
+
+    def test_child_hook_with_malformed_header_is_nonblocking(self):
+        self.attach()
+        mod.enqueue(self.root,{'cwd':str(self.root),'session_id':'session-a','turn_id':'turn-a',
+            'hook_event_name':'SubagentStart','agent_id':'child'})
+        child=self.root/'malformed-child.jsonl'
+        queued=len(list((self.tracker.state/'queue').glob('*.json')))
+        for header in self.malformed_headers():
+            with self.subTest(header=header):
+                child.write_text(json.dumps(header)+'\n')
+                result=subprocess.run([sys.executable,str(Path(mod.__file__)),'--root',str(self.root),'hook'],
+                    input=json.dumps({'cwd':str(self.root),'session_id':'child','turn_id':'child-turn',
+                        'hook_event_name':'PreModelRequest','transcript_path':str(child)}),capture_output=True,text=True)
+                self.assertEqual(0,result.returncode)
+                self.assertEqual('{}',result.stdout.strip());self.assertEqual('',result.stderr)
+                self.assertIsNone(self.tracker.admission('child','child-turn'))
+                self.assertIsNone(self.tracker.db.execute('SELECT path FROM sources WHERE session_id=?',('child',)).fetchone())
+                self.assertEqual(queued,len(list((self.tracker.state/'queue').glob('*.json'))))
+
+    def test_attach_rejects_malformed_header_structure(self):
+        for header in self.malformed_headers():
+            with self.subTest(header=header):
+                self.source.write_text(json.dumps(header)+'\n')
+                with self.assertRaises(ValueError):self.tracker.attach(self.source)
+        self.assertEqual(0,self.tracker.db.execute('SELECT count(*) FROM sources').fetchone()[0])
+
+    def test_registered_source_malformed_header_is_safe_for_import_and_current_turn(self):
+        self.attach();self.tracker.sync()
+        for header in self.malformed_headers():
+            with self.subTest(header=header):
+                self.source.write_text(json.dumps(header)+'\n')
+                self.tracker.sync()
+                self.assertIn('unsupported',self.tracker.snapshot()['sources'][0]['warning'])
+                with self.assertRaises(ValueError):self.tracker.current_turn('session-a')
 
     def test_nested_children_require_actual_links_during_recording(self):
         self.attach()
