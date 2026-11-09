@@ -75,3 +75,8 @@ Treat run lifecycle/partial flags as derived aggregates. Reconcile affected runs
 Store durable `admitted.finalized_partial` separately from source-derived abort state. `admitted.partial` is true for either explicit finalization or surviving abort evidence; `runs.partial` is the OR across its rebuilt admissions. Normal completion after a removed abort clears derived partial flags, while explicit finalization survives late completion and later source replay. Back up existing v1/v2 SQLite before the additive column upgrade; backfill identifiable old partial rows with no terminal evidence. Previously erased provenance cannot be reconstructed. Private backup/schema changes do not affect application D1 or historical shared exports.
 
 A historical stop recovery can coexist with a newer live run. Retain uniqueness for recording/paused/draining-to-pause ownership while allowing historical draining-to-stop rows. The transactional start guard still refuses a new run while any unresolved run exists. Default status selects an open run before the last settled run; explicit status/finalize `--run ID` addresses historical recovery without changing a newer run. Finalization remains root-owned, draining-only and explicitly partial. Old paused/stopped windows remain closed.
+
+
+## Filtered repeated-tool counts — 2026-11-09
+
+Build repeated tool-name candidates from the selected `kind=tool` records on every dashboard render. Count names using a Map and retain only counts above one. The observed-call header and candidates share the same record set; do not render the snapshot's whole-workspace aggregate in a filtered view. These remain descriptive name repetitions, not inferred waste or repeated analysis.

@@ -60,6 +60,10 @@ The tracker SHALL provide offline filters, agent timelines, resource and compari
 - **WHEN** report filters select increments, groups, runs or sessions whose coverage differs from the full snapshot
 - **THEN** coverage and status are recomputed for that selection, unrelated telemetry gaps are omitted, and reset restores global coverage without fabricating complete coverage for an empty selection.
 
+#### Scenario: Filtered repeated tools
+- **WHEN** report filters narrow tool-call records to selected increments, groups, runs or sessions
+- **THEN** repeated-name candidates and counts are derived only from those tool records, names occurring once in that selection are omitted, and reset restores unfiltered counts.
+
 ### Requirement: EXP-05 Keith increment logs
 The tracker SHALL create one template-based Keith log per increment and append idempotent substantial Request/Results checkpoints with evidence links, preserving previous entries.
 

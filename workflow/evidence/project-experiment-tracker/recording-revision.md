@@ -135,3 +135,10 @@ Verification:
 - Existing private tracker sync/report and database integrity validation pass; the existing metadata upgrade was backed up. Recording was not started/resumed; current-request usage is unavailable and historical shared pilot exports are unchanged.
 
 Next owner: Keith reviews the follow-up in PR #23 and later explicitly opts into live-client lifecycle verification. No application D1 migration, provider operation, merge, deployment or live callback/manual acceptance is claimed.
+
+
+## Filtered repeated-tool verification — 2026-11-09
+
+Input: `bfdbec8`, PR #23. Confirmed the report scoped its tool records/call header but rendered the snapshot's global repeated-name aggregate. Recompute name counts from selected tool records with a Map, retain counts above one, and render that derived object. No collector/snapshot or application runtime change. Requirements EXP-04/09; task 6.10 complete, overall 17/18; live-client task 5.4 remains open. Main implementation/self-review only, no children or independent reviewer.
+
+Five new DOM regressions failed before repair and pass afterward: increment/group/run/session selections show local counts, exclude names repeated elsewhere or used only once locally, and empty selections/reset clear/restore counts consistently with the observed-call header. All 17 dashboard tests and 81 Python tracker cases pass. Full Node 24.21.0 `npm run check` passes: 14 strict OpenSpec changes, typecheck, lint, 393 Vitest cases in 36 files (including 17 dashboard cases), four deployment cases and build. `git diff --check` passes. Existing private sync/report succeeds without recording activation; usage for this request is unavailable and shared historical exports stay unchanged. Repeated names remain descriptive candidates, not inferred waste. Next owner: Keith reviews PR #23; no merge, deployment or live-client verification.

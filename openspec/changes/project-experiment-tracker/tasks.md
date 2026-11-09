@@ -44,3 +44,5 @@
 
 - [x] 6.8 Recompute settled lifecycle state after replay removes terminal evidence, retaining stop/pause intent without reactivating recording; verify restored evidence, explicit recovery and later-run isolation (EXP-07/08/09).
 - [x] 6.9 Recompute run partial flags from rebuilt admissions, preserving explicit partial-finalization provenance across replay and late completion; verify snapshots, exports and existing metadata upgrade (EXP-02/08/09).
+
+- [x] 6.10 Recompute repeated tool-name candidates and counts from selected report tool records; verify increment/group/run/session filtering, locally single-use names, empty selections and reset (EXP-04/09).

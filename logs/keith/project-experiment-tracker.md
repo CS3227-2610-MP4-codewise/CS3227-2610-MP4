@@ -147,3 +147,15 @@ Implement explicit recording windows, graceful lifecycle controls, root roles an
 - All 81 Python tracker cases pass (11 new), including temporary-database recovery/CLI/upgrade cases. Full Node 24.21.0 project check passes (14 strict changes, type/lint, 388 Vitest cases including 12 dashboard cases, four deployment cases and build). Skill validation, whitespace and actual private sync/report/integrity checks pass. Current local metadata upgrade is backed up; no real finalize/start/resume command was issued.
 - [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#settled-lifecycle-and-partial-provenance-verification--2026-11-09); [handoff](../../workflow/handoffs/project-experiment-tracker.md#settled-lifecyclepartial-reconciliation-continuation--2026-11-09).
 - Recording remains off for this request; measured usage unavailable. Historical shared exports preserved. Publish repair to PR #23; no merge, application migration, provider action, deployment or live-client verification. Next owner: Keith for PR review and separately opted-in live verification.
+
+
+## Request
+
+2026-11-09: Verify global repeated-tool candidates leaking into filtered resource views.
+
+## Results
+
+- Human owner: Keith. User supplied the finding; main confirmed and repaired it without child agents or independent review. EXP-04/09, task 6.10 complete; overall 17/18 with live-client task 5.4 still open.
+- Derive repeated-name counts from the selected tool records; exclude names occurring once locally and clear/restore results for empty filters/reset. Five new dashboard regressions failed before repair and pass afterward.
+- All 17 dashboard tests, 81 Python cases and full Node 24.21.0 project checks pass (14 strict changes, type/lint, 393 Vitest cases in 36 files, four deployment cases and build); whitespace checks pass. [Evidence](../../workflow/evidence/project-experiment-tracker/recording-revision.md#filtered-repeated-tool-verification--2026-11-09).
+- Existing private sync/report succeeded without recording activation; current usage unavailable, historical exports unchanged. Publish follow-up in PR #23; no merge, deployment or live-client acceptance. Next owner: Keith for PR review and separately opted-in live verification.

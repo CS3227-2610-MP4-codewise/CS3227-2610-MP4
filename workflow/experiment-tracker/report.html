@@ -500,6 +500,14 @@
           .map((w) => [w.agent, w.task, w.seconds]),
       )}<p>Lifecycle spans are not active work. Silence is not idle time.</p></section>`;
       const tools = records.filter((r) => r.kind === 'tool');
+      const toolCounts = new Map();
+      for (const tool of tools) {
+        const name = tool.data.name;
+        toolCounts.set(name, (toolCounts.get(name) ?? 0) + 1);
+      }
+      const repeatedTools = Object.fromEntries(
+        [...toolCounts].filter(([, count]) => count > 1),
+      );
       const posts = records.filter(
         (r) => r.kind === 'hook' && r.data.hook_event_name === 'PostToolUse',
       );
@@ -536,7 +544,7 @@
               r.data.hook_event_name === 'PostModelRequest',
           )
           .map((r) => [r.session_id, r.data.model, r.data.status]),
-      )}<details><summary>Repeated tool-name candidates (${tools.length} observed calls)</summary><pre>${esc(JSON.stringify(data.repeated_tool_candidates, null, 2))}</pre></details><p>Repeated names do not prove repeated analysis or unnecessary work.</p></section>`;
+      )}<details><summary>Repeated tool-name candidates (${tools.length} observed calls)</summary><pre>${esc(JSON.stringify(repeatedTools, null, 2))}</pre></details><p>Repeated names do not prove repeated analysis or unnecessary work.</p></section>`;
       out += `<section><h2>Coordination checks — annotated evidence</h2>${table(
         ['Rule', 'Agent / file / annotation', 'Result'],
         data.coordination_checks

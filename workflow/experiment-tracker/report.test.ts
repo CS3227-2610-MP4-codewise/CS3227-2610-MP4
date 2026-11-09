@@ -97,7 +97,7 @@ function fixture() {
   };
 }
 
-function load(data = fixture()) {
+function load(data: object = fixture()) {
   const html = template.replace(/\/\*DATA\*\/\s*null/, () =>
     JSON.stringify(data).replaceAll('<', '\\u003c'),
   );
@@ -288,4 +288,78 @@ it('does not apply another session partial flag to a complete session', () => {
   select('session', 'good');
   expect(selectedStatus()).toContain('observed-complete');
   expect(coverageText()).not.toContain('Explicit partial finalization');
+});
+
+function toolFixture() {
+  const data = fixture();
+  const calls = (run_id: string, session_id: string, names: string[]) =>
+    names.map((name, index) => ({
+      run_id,
+      session_id,
+      turn_id: `${session_id}-turn`,
+      kind: 'tool',
+      data: { name, call_id: `${session_id}-call-${index}` },
+    }));
+  return {
+    ...data,
+    records: [
+      ...data.records,
+      ...calls('good-run', 'good', ['Shell', 'Shell', 'SharedOnce']),
+      ...calls('bad-run', 'bad', [
+        'Shell',
+        'Shell',
+        'Shell',
+        'Other',
+        'Other',
+        'SharedOnce',
+      ]),
+    ],
+    repeated_tool_candidates: { Shell: 5, Other: 2, SharedOnce: 2 },
+  };
+}
+
+function repeatedTools() {
+  const section = [...document.querySelectorAll('details')].find((element) =>
+    element
+      .querySelector('summary')
+      ?.textContent?.startsWith('Repeated tool-name candidates'),
+  );
+  return {
+    summary: section?.querySelector('summary')?.textContent,
+    candidates: JSON.parse(
+      section?.querySelector('pre')?.textContent ?? 'null',
+    ),
+  };
+}
+
+it.each([
+  ['increment', 'complete'],
+  ['group', 'clean'],
+  ['run', 'good-run'],
+  ['session', 'good'],
+])('recomputes repeated tool counts for the selected %s', (id, value) => {
+  load(toolFixture());
+  expect(repeatedTools().candidates).toEqual({
+    Shell: 5,
+    Other: 2,
+    SharedOnce: 2,
+  });
+  select(id, value);
+  expect(repeatedTools().summary).toContain('3 observed calls');
+  expect(repeatedTools().candidates).toEqual({ Shell: 2 });
+});
+
+it('clears candidates for empty selections and restores counts on reset', () => {
+  load(toolFixture());
+  select('increment', 'complete');
+  select('session', 'bad');
+  expect(repeatedTools().summary).toContain('0 observed calls');
+  expect(repeatedTools().candidates).toEqual({});
+  document.getElementById('reset')?.click();
+  expect(repeatedTools().summary).toContain('9 observed calls');
+  expect(repeatedTools().candidates).toEqual({
+    Shell: 5,
+    Other: 2,
+    SharedOnce: 2,
+  });
 });
