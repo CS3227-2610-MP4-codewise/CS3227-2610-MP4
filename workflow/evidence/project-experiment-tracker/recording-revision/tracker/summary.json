@@ -1,0 +1,351 @@
+{
+  "version": 2,
+  "generated": "2026-11-08T13:09:59.620116+00:00",
+  "classification": "private metadata and redacted annotations",
+  "increments": [
+    {
+      "id": "project-experiment-tracker",
+      "title": "Project experiment tracker",
+      "requirements": "EXP-01\u201306; DEV-02/04",
+      "hypothesis": "Measure coordination/context/resource evidence without manual token arithmetic",
+      "comparison_group": "tracker-pilot",
+      "created": "2026-11-08T11:14:41.768571+00:00"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "increment_id": "project-experiment-tracker",
+      "parent": null,
+      "client": "0.167.0",
+      "created": "2026-11-08T11:14:41.766993+00:00"
+    }
+  ],
+  "runs": [
+    {
+      "id": "a10b1e7f518c498d804611aaf214c38a",
+      "increment_id": "project-experiment-tracker",
+      "root": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "state": "draining-to-stop",
+      "created": "2026-11-08T13:06:47.298273+00:00",
+      "partial": 0
+    }
+  ],
+  "windows": [
+    {
+      "id": "466e786f8f5f4b33b8b41f8eca586356",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "opened": "2026-11-08T13:06:47.298620+00:00",
+      "closed": "2026-11-08T13:09:59.467611+00:00"
+    }
+  ],
+  "admitted_turns": [
+    {
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "admitted_at": "2026-11-08T13:06:47.298655+00:00",
+      "terminal": null,
+      "partial": 0
+    }
+  ],
+  "roles": [
+    {
+      "id": 1,
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "runtime_id": "/root",
+      "role": "coordinator",
+      "label": "Coordinator",
+      "ts": "2026-11-08T13:06:47.298711+00:00"
+    }
+  ],
+  "legacy": {
+    "classification": "legacy/unbounded",
+    "excluded_records": 104
+  },
+  "sources": [
+    {
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "warning": null,
+      "last_sync": "2026-11-08T13:09:59.467271+00:00"
+    }
+  ],
+  "totals": {
+    "input_tokens": 4489508,
+    "cached_input_tokens": 4466816,
+    "output_tokens": 34549,
+    "reasoning_output_tokens": 11739,
+    "total_tokens": 4524057
+  },
+  "status": "provisional",
+  "cache_ratio": 0.9949455485990892,
+  "reasoning_output_ratio": 0.3397782859127616,
+  "annotations": [
+    {
+      "id": "tracker-pilot-experiment",
+      "increment_id": "project-experiment-tracker",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "agent": "main",
+      "task": null,
+      "dependency": null,
+      "kind": "experiment",
+      "ts": "2026-11-08T11:14:41.771468+00:00",
+      "data": {
+        "summary": "Build independent project instrumentation and Keith log support",
+        "task_type": "development-tooling",
+        "context_strategy": "Targeted repository and official hook documentation retrieval",
+        "instruction_version": "project-experiment skill v1",
+        "confounders": "Single implementation run; no multi-agent benefit baseline"
+      }
+    },
+    {
+      "id": "tracker-pilot-assignment",
+      "increment_id": "project-experiment-tracker",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "agent": "main",
+      "task": null,
+      "dependency": null,
+      "kind": "assignment",
+      "ts": "2026-11-08T11:14:41.771573+00:00",
+      "data": {
+        "summary": "Main agent implements and self-reviews; no children spawned",
+        "rationale": "One coherent tooling increment; delegation not requested",
+        "files": "workflow/experiment-tracker/,logs/keith/project-experiment-tracker.md"
+      }
+    },
+    {
+      "id": "final-verification",
+      "increment_id": "project-experiment-tracker",
+      "session_id": null,
+      "agent": "main",
+      "task": null,
+      "dependency": null,
+      "kind": "verification",
+      "ts": "2026-11-08T11:19:36.448019+00:00",
+      "data": {
+        "summary": "29 tracker cases, 352 application cases and 4 deployment cases passed; skill validation and browser/pilot checks passed",
+        "outcome": "pass",
+        "evidence": "workflow/evidence/project-experiment-tracker/verification.md",
+        "confounders": "Live callbacks not observed until client reload; no independent reviewer"
+      }
+    },
+    {
+      "id": "v2-pilot",
+      "increment_id": "project-experiment-tracker",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "agent": "main",
+      "task": null,
+      "dependency": null,
+      "kind": "experiment",
+      "ts": "2026-11-08T13:06:47.612135+00:00",
+      "data": {
+        "summary": "Explicit current-turn-only implementation pilot, no automatic opt-in",
+        "task_type": "development-tooling",
+        "confounders": "No genuine paused/resumed user turns yet; multi-turn lifecycle exercised synthetically"
+      }
+    }
+  ],
+  "blocked_intervals": [],
+  "coordination_checks": [
+    {
+      "rule": "Exclusive ownership (annotated window)",
+      "file": "workflow/experiment-tracker/",
+      "increment_id": "project-experiment-tracker",
+      "window": "increment",
+      "result": "pass"
+    },
+    {
+      "rule": "Exclusive ownership (annotated window)",
+      "file": "logs/keith/project-experiment-tracker.md",
+      "increment_id": "project-experiment-tracker",
+      "window": "increment",
+      "result": "pass"
+    },
+    {
+      "rule": "verification evidence/outcome recorded",
+      "annotation": "final-verification",
+      "increment_id": "project-experiment-tracker",
+      "result": "pass"
+    }
+  ],
+  "repeated_tool_candidates": {
+    "exec": 20
+  },
+  "coverage": [
+    "Active/idle time and unnecessary retries require annotations; silence is not evidence.",
+    "Client hook coverage is observational, not guaranteed; unknown fields are unavailable.",
+    "Only admitted turns count; excluded conversation may still appear as context in later project requests.",
+    "No causal savings or monetary cost inferred. Comparisons require equivalent scope and quality.",
+    "104 legacy/unbounded records retained but excluded from totals.",
+    "Draining: pending turns require source terminal evidence or explicit partial finalization."
+  ],
+  "tracker_overhead": {
+    "timestamp": "2026-11-08T13:09:59.467467+00:00",
+    "duration_ms": 5.44,
+    "queued": 0
+  },
+  "measurement_groups": [
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af071b07fd887d0a78b2e1005b3a94b",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af071b576a087d0a768d4560f6d57ed",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af071bf541887d0b7dffec4087f0e48",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af071e1183c87d0839870ccf1b211f3",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af07230e22487d097e254914fc962a4",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af07282966c87d09d29ecbb8c4d6db4",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af072a805f487d0967923b98e6813df",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af072c1877887d0baaa8094ac58213e",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0730274ec87d0b0bda04fc12f045b",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af073518c2087d0869cff41dd0abe55",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0737820c887d0b60147c72b2c2527",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0739b76b487d0b5e40ea4eaf6d27c",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af073a7b17087d0813e57d951f2c178",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af073d113d087d0b56d1340b491d512",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af073e84db887d0bec730677251681e",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af073f7ffd087d0925d7953326a8531",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af0741fd2d887d08a713f4a245137a4",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af07448edc487d097537307010b596e",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af07481cf8c87d0adfc4c940b2b9a0f",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    },
+    {
+      "source_record_id": "a10b1e7f518c498d804611aaf214c38a:01a1b012-1bbd-7200-9375-8fd9a8873409:response:resp_0516c70cadabc589016af074872d6887d0bd96db45a04984c4",
+      "session_id": "01a1b012-1bbd-7200-9375-8fd9a8873409",
+      "turn_id": "01a1bb3c-15e6-7e01-82fb-cd60e4fc73c7",
+      "run_id": "a10b1e7f518c498d804611aaf214c38a",
+      "window_id": "466e786f8f5f4b33b8b41f8eca586356",
+      "method": "response_id"
+    }
+  ]
+}

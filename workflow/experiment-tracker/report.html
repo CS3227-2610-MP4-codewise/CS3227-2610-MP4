@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Keith’s project experiments</title>
+  <style>
+    :root {
+      font:
+        100%/1.55 system-ui,
+        sans-serif;
+      color: #302c26;
+      background: #fbf8f1;
+    }
+    body {
+      max-width: 90rem;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1,
+    h2 {
+      font-weight: 600;
+    }
+    label {
+      display: inline-block;
+      margin: 0 1rem 1rem 0;
+    }
+    select,
+    input,
+    button {
+      font: inherit;
+      padding: 0.4rem;
+      border: 1px solid #776e60;
+      border-radius: 0.3rem;
+      background: #fffdf8;
+      color: inherit;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1rem 0;
+    }
+    th,
+    td {
+      text-align: left;
+      padding: 0.55rem;
+      border-bottom: 1px solid #b8ae9d;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      background: #eee7da;
+    }
+    section {
+      margin: 2rem 0;
+    }
+    .scroll {
+      overflow: auto;
+    }
+    .scroll table {
+      min-width: 42rem;
+    }
+    small,
+    .muted {
+      color: #61594d;
+    }
+    .cards {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .card {
+      padding: 1rem;
+      border: 1px solid #b8ae9d;
+      border-radius: 0.4rem;
+      min-width: 9rem;
+    }
+    .value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    code {
+      overflow-wrap: anywhere;
+    }
+    summary {
+      cursor: pointer;
+    }
+    a {
+      color: #365d86;
+    }
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #365d86;
+      outline-offset: 2px;
+    }
+    .bar {
+      display: inline-block;
+      background: #597a72;
+      height: 0.7rem;
+      min-width: 2px;
+    }
+    pre {
+      white-space: pre-wrap;
+    }
+    @media (max-width: 40rem) {
+      body {
+        padding: 1rem;
+      }
+      th,
+      td {
+        padding: 0.3rem;
+      }
+    }
+  </style>
+  <h1>Keith’s project experiments</h1>
+  <p>
+    Private offline report. Measured events, annotated decisions and derived
+    summaries are distinct. Missing measurements are
+    <strong>unavailable</strong>.
+  </p>
+  <p id="generated"></p>
+  <label
+    >Increment
+    <select id="increment">
+      <option value="">All bounded increments</option>
+    </select></label
+  >
+  <label
+    >Session
+    <select id="session">
+      <option value="">All</option>
+    </select></label
+  >
+  <label
+    >Model
+    <select id="model">
+      <option value="">All</option>
+    </select></label
+  >
+  <label
+    >Comparison group
+    <select id="group">
+      <option value="">All</option>
+    </select></label
+  >
+  <label
+    >Task type
+    <select id="task">
+      <option value="">All</option>
+    </select></label
+  >
+  <label
+    >Recording run
+    <select id="run">
+      <option value="">All runs</option>
+    </select></label
+  >
+  <button id="reset">Reset filters</button>
+  <main id="report"></main>
+  <script>
+    'use strict';
+    const data = /*DATA*/ null;
+    const $ = (id) => document.getElementById(id);
+    const esc = (value) =>
+      String(value ?? 'unavailable').replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+          })[c],
+      );
+    const fmt = (value) =>
+      value == null ? 'unavailable' : Number(value).toLocaleString();
+    const table = (heads, rows) =>
+      `<div class="scroll"><table><thead><tr>${heads.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.map((row) => `<tr>${row.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${heads.length}">No observed records</td></tr>`}</tbody></table></div>`;
+    const options = (id, values) =>
+      [...new Set(values.filter(Boolean))].sort().forEach((value) => {
+        const o = document.createElement('option');
+        o.value = value;
+        o.textContent = value;
+        $(id).append(o);
+      });
+    options(
+      'run',
+      data.runs.map((r) => r.id),
+    );
+    options(
+      'increment',
+      data.increments.map((i) => i.id),
+    );
+    options(
+      'session',
+      data.sessions.map((s) => s.id),
+    );
+    options(
+      'model',
+      data.records
+        .filter((r) => r.kind.startsWith('usage'))
+        .map((r) => r.data.model),
+    );
+    options(
+      'group',
+      data.increments.map((i) => i.comparison_group),
+    );
+    options(
+      'task',
+      data.annotations
+        .filter((a) => a.kind === 'experiment')
+        .map((a) => a.data.task_type),
+    );
+    function render() {
+      const inc = $('increment').value,
+        sid = $('session').value,
+        model = $('model').value,
+        group = $('group').value,
+        task = $('task').value,
+        runFilter = $('run').value;
+      const increments = data.increments.filter(
+        (i) =>
+          (!inc || i.id === inc) && (!group || i.comparison_group === group),
+      );
+      const incs = new Set(increments.map((i) => i.id));
+      const runs = data.runs.filter(
+        (r) =>
+          incs.has(r.increment_id) &&
+          (!runFilter || r.id === runFilter) &&
+          (!sid ||
+            data.members.some(
+              (m) => m.run_id === r.id && m.session_id === sid,
+            )),
+      );
+      const runIds = new Set(runs.map((r) => r.id));
+      const members = new Set(
+        data.members
+          .filter((m) => runIds.has(m.run_id))
+          .map((m) => m.session_id),
+      );
+      const sessions = data.sessions.filter(
+        (s) => members.has(s.id) && (!sid || s.id === sid),
+      );
+      const ids = new Set(sessions.map((s) => s.id));
+      let records = data.records.filter(
+        (r) => ids.has(r.session_id) && runIds.has(r.run_id),
+      );
+      const roleLabel = (session, run) => {
+        const rows = data.roles.filter(
+          (r) => r.session_id === session && (!run || r.run_id === run),
+        );
+        const r = rows.at(-1);
+        return r ? `${r.label} (${r.runtime_id}; ${session})` : session;
+      };
+      // Annotations have increment/session identity, but no individual-run identity.
+      const runIncrements = new Set(runs.map((r) => r.increment_id));
+      let annotations = data.annotations.filter(
+        (a) =>
+          ((!inc && !group) || incs.has(a.increment_id)) &&
+          (!runFilter || runIncrements.has(a.increment_id)) &&
+          (!sid || a.session_id === sid),
+      );
+      if (task) {
+        const matchesType = (a) =>
+          a.kind === 'experiment' && a.data.task_type === task;
+        const taskKey = (a) => JSON.stringify([a.increment_id, a.task]);
+        const allowed = new Set(
+          annotations
+            .filter((a) => a.task != null && matchesType(a))
+            .map(taskKey),
+        );
+        annotations = annotations.filter((a) =>
+          a.task == null ? matchesType(a) : allowed.has(taskKey(a)),
+        );
+      }
+      const usage = records.filter(
+        (r) => r.kind.startsWith('usage') && (!model || r.data.model === model),
+      );
+      const sum = (k) =>
+        usage.length && usage.every((r) => r.data[k] != null)
+          ? usage.reduce((n, r) => n + r.data[k], 0)
+          : null;
+      const total = sum('total_tokens'),
+        input = sum('input_tokens'),
+        cached = sum('cached_input_tokens'),
+        output = sum('output_tokens'),
+        reasoning = sum('reasoning_output_tokens');
+      // Claude Code cache writes are supplemental; Codex has no equivalent counter.
+      const writes = usage.filter((r) => 'cache_creation_input_tokens' in r.data);
+      const cacheWrites =
+        writes.length &&
+        writes.every((r) => r.data.cache_creation_input_tokens != null)
+          ? writes.reduce((n, r) => n + r.data.cache_creation_input_tokens, 0)
+          : null;
+      // Coverage describes selected runs/sessions across all models. Model
+      // filtering narrows totals only; a hidden model is not lost telemetry.
+      const admitted = data.admitted_turns.filter(
+        (t) => runIds.has(t.run_id) && ids.has(t.session_id),
+      );
+      const sourceRows = sessions.map((s) => ({
+        session_id: s.id,
+        source: data.sources.find((source) => source.session_id === s.id),
+      }));
+      const coverageUsage = records.filter((r) => r.kind.startsWith('usage'));
+      const turnKey = (r) =>
+        JSON.stringify([r.run_id, r.session_id, r.turn_id]);
+      const measured = new Set(
+        coverageUsage.filter((r) => r.data.total_tokens != null).map(turnKey),
+      );
+      const unmeasured = admitted.filter(
+        (t) => t.terminal === 'task_complete' && !measured.has(turnKey(t)),
+      );
+      const missingSources = sourceRows.filter((s) => !s.source);
+      const sourceWarnings = sourceRows.some((s) => s.source?.warning);
+      const missingCounters = [
+        'input_tokens',
+        'cached_input_tokens',
+        'output_tokens',
+        'reasoning_output_tokens',
+        'total_tokens',
+      ].filter((key) => coverageUsage.some((r) => r.data[key] == null));
+      // Run.partial is a whole-run flag; in a session view use that session's
+      // turn evidence. Whole-run flags remain visible in the run table.
+      const partial =
+        missingSources.length ||
+        sourceWarnings ||
+        unmeasured.length ||
+        missingCounters.length ||
+        admitted.some((t) => t.partial) ||
+        (!sid && runs.some((r) => r.partial));
+      // Children spawned inside a window but not yet imported are still pending work.
+      const waitingChildren = (data.spawned || []).filter(
+        (c) => runIds.has(c.run_id) && ids.has(c.session_id) && c.resolved == null,
+      );
+      const pending =
+        admitted.some((t) => !t.terminal && !t.partial) ||
+        waitingChildren.length > 0;
+      const completed = new Set(
+        admitted.filter((t) => t.terminal === 'task_complete').map(turnKey),
+      );
+      const provisional =
+        pending || coverageUsage.some((r) => !completed.has(turnKey(r)));
+      const status = partial
+        ? 'partial'
+        : provisional
+          ? 'provisional'
+          : coverageUsage.length
+            ? 'observed-complete'
+            : 'unavailable';
+      const coverage = [
+        'Active/idle time and unnecessary retries require annotations; silence is not evidence.',
+        'Client hook coverage is observational, not guaranteed; unknown fields are unavailable.',
+        'Only admitted turns count; excluded conversation may still appear as context in later project requests.',
+        'No causal savings or monetary cost inferred. Comparisons require equivalent scope and quality.',
+      ];
+      if (
+        (!sid && runs.some((r) => r.partial)) ||
+        admitted.some((t) => t.partial)
+      )
+        coverage.push(
+          'Explicit partial finalization or aborted turn: coverage incomplete.',
+        );
+      if (pending && runs.some((r) => r.state.startsWith('draining-')))
+        coverage.push(
+          'Draining: pending turns require source terminal evidence or explicit partial finalization.',
+        );
+      if (waitingChildren.length)
+        coverage.push(
+          `${waitingChildren.length} spawned child session(s) not yet imported; totals provisional until their transcripts arrive or partial finalization.`,
+        );
+      if (missingSources.length)
+        coverage.push(
+          `${missingSources.length} session(s) have no registered transcript; token coverage incomplete.`,
+        );
+      if (sourceWarnings)
+        coverage.push(
+          'Source warnings for selected sessions are source-wide, not turn-specific; token coverage partial and totals represent observed records only.',
+        );
+      if (unmeasured.length)
+        coverage.push(
+          `${unmeasured.length} completed admitted turn(s) have no usable token usage; totals cover observed records only.`,
+        );
+      if (missingCounters.length)
+        coverage.push(
+          `Usage counters unavailable: ${missingCounters.join(', ')}. Coverage partial; no missing values are treated as zero.`,
+        );
+      if (coverageUsage.some((r) => r.kind === 'usage_fallback'))
+        coverage.push(
+          'Cumulative fallback: request-level attribution unavailable.',
+        );
+      const clientFamilies = new Set(
+        sessions
+          .filter((s) => typeof s.client === 'string')
+          .map((s) => (s.client.startsWith('claude-code') ? 'claude' : 'codex')),
+      );
+      if (clientFamilies.size > 1)
+        coverage.push(
+          'Mixed clients selected: Codex and Claude Code define, cache and tokenize counters differently; compare totals within one client.',
+        );
+      // Annotations have increment/session provenance, not run attribution.
+      // Do not assign an increment's unmatched wait to a particular run.
+      const blocked = new Set();
+      for (const a of runFilter || !sessions.length ? [] : annotations) {
+        const key = JSON.stringify([
+          a.increment_id,
+          a.session_id,
+          a.agent,
+          a.task,
+          a.dependency,
+        ]);
+        if (a.kind === 'blocked') blocked.add(key);
+        else if (a.kind === 'unblocked') blocked.delete(key);
+      }
+      if (blocked.size)
+        coverage.push(
+          'Open blocked intervals: duration unavailable until an unblocked annotation.',
+        );
+      $('generated').textContent =
+        `Generated ${data.generated}; selected coverage: ${status}. Re-run sync and report to refresh.`;
+      const cards = [
+        ['Observed total tokens', fmt(total)],
+        ['Input', fmt(input)],
+        ['Cached input (subset)', fmt(cached)],
+        ['Output', fmt(output)],
+        ['Reasoning output (subset)', fmt(reasoning)],
+        ['Cache writes (Claude Code, supplemental)', fmt(cacheWrites)],
+        ['Linked sessions', sessions.length],
+        [
+          'Cached input / input',
+          input && cached != null
+            ? ((cached / input) * 100).toFixed(1) + '%'
+            : 'unavailable',
+        ],
+        [
+          'Reasoning / output',
+          output && reasoning != null
+            ? ((reasoning / output) * 100).toFixed(1) + '%'
+            : 'unavailable',
+        ],
+      ];
+      let out = `<section aria-label="Resource summary"><div class="cards">${cards.map(([k, v]) => `<div class="card"><div>${esc(k)}</div><div class="value">${esc(v)}</div></div>`).join('')}</div><p>Tokens are measured; ratios are derived. Totals are observed coverage, not proof of complete accounting. Coverage uses selected runs/sessions across all models; the model filter narrows token totals only. Task-type filtering applies to annotations; task-level token allocation is unavailable. Run-specific coverage omits annotation gaps without run attribution.</p></section>`;
+      out += `<section><h2>Recording runs and boundaries</h2><p>Default off. Workspace legacy/unbounded records excluded: ${esc(data.legacy.excluded_records)}. Role labels are annotations; runtime identities are preserved.</p>${table(
+        ['Run', 'Increment', 'State', 'Pending turns', 'Partial'],
+        runs.map((r) => [
+          r.id,
+          r.increment_id,
+          r.state,
+          data.admitted_turns
+            .filter(
+              (t) =>
+                t.run_id === r.id &&
+                ids.has(t.session_id) &&
+                !t.terminal &&
+                !t.partial,
+            )
+            .map((t) => `${t.session_id}/${t.turn_id}`)
+            .join('; ') || 'none',
+          r.partial ? 'yes' : 'no',
+        ]),
+      )}${table(
+        ['Window', 'Run', 'Opened', 'Admissions closed'],
+        data.windows
+          .filter((w) => runIds.has(w.run_id))
+          .map((w) => [w.id, w.run_id, w.opened, w.closed ?? 'open']),
+      )}
+      ${table(
+        ['Agent', 'Runtime identity', 'Role / label', 'Assigned'],
+        data.roles
+          .filter((r) => runIds.has(r.run_id) && ids.has(r.session_id))
+          .map((r) => [
+            r.session_id,
+            r.runtime_id,
+            `${r.role} / ${r.label}`,
+            r.ts,
+          ]),
+      )}</section>`;
+      out += `<section><h2>Coverage and tracker overhead</h2><ul>${coverage.map((g) => `<li>${esc(g)}</li>`).join('')}</ul><p>Workspace last sync overhead (measured): ${esc(data.tracker_overhead?.duration_ms)} ms. Annotation effort requires an overhead annotation.</p>${table(
+        ['Session', 'Source warning', 'Last sync'],
+        sourceRows.map((s) => [
+          s.session_id,
+          s.source
+            ? (s.source.warning ??
+              'No parser warning; completeness not guaranteed')
+            : 'No registered transcript; token coverage incomplete',
+          s.source?.last_sync ?? 'unavailable',
+        ]),
+      )}</section>`;
+      out += `<section><details><summary>Usage provenance and model configuration — measured</summary>${table(
+        ['Session', 'Turn', 'Model', 'Effort', 'Total tokens', 'Method'],
+        usage.map((r) => [
+          r.session_id,
+          r.turn_id,
+          r.data.model,
+          r.data.effort,
+          fmt(r.data.total_tokens),
+          r.data.method,
+        ]),
+      )}</details></section>`;
+      const lifecycle = records.filter(
+        (r) =>
+          r.kind === 'lifecycle' ||
+          r.kind === 'compaction' ||
+          (r.kind === 'hook' &&
+            [
+              'SessionStart',
+              'SessionEnd',
+              'SubagentStart',
+              'SubagentStop',
+              'Stop',
+              'Interrupt',
+              'PreCompact',
+              'PostCompact',
+            ].includes(r.data.hook_event_name)),
+      );
+      out += `<section><h2>Agent timeline — measured lifecycle and annotated waits</h2>${table(
+        ['Session / parent', 'Timestamp', 'Event'],
+        lifecycle.map((r) => [
+          roleLabel(r.session_id, r.run_id) +
+            ' / ' +
+            (sessions.find((s) => s.id === r.session_id)?.parent ??
+              'main/unknown'),
+          r.ts,
+          r.data.event ?? r.data.hook_event_name ?? r.kind,
+        ]),
+      )}${table(
+        ['Agent', 'Task', 'Explicit blocked seconds'],
+        data.blocked_intervals
+          .filter(
+            (w) =>
+              ((!inc && !group) || incs.has(w.increment_id)) &&
+              (!sid || w.session_id === sid),
+          )
+          .map((w) => [w.agent, w.task, w.seconds]),
+      )}<p>Lifecycle spans are not active work. Silence is not idle time.</p></section>`;
+      const tools = records.filter((r) => r.kind === 'tool');
+      const toolCounts = new Map();
+      for (const tool of tools) {
+        const name = tool.data.name;
+        toolCounts.set(name, (toolCounts.get(name) ?? 0) + 1);
+      }
+      const repeatedTools = Object.fromEntries(
+        [...toolCounts].filter(([, count]) => count > 1),
+      );
+      const posts = records.filter(
+        (r) => r.kind === 'hook' && r.data.hook_event_name === 'PostToolUse',
+      );
+      const pres = records.filter(
+        (r) => r.kind === 'hook' && r.data.hook_event_name === 'PreToolUse',
+      );
+      out += `<section><h2>Tools and request attempts — measured</h2>${table(
+        ['Session', 'Tool', 'Outcome', 'Duration ms'],
+        posts.map((r) => {
+          const pre = pres.find(
+            (p) =>
+              p.session_id === r.session_id &&
+              p.data.tool_use_id === r.data.tool_use_id,
+          );
+          return [
+            r.session_id,
+            r.data.tool_name,
+            r.data.exit_code != null
+              ? 'exit ' + r.data.exit_code
+              : r.data.is_error === true
+                ? 'failed'
+                : (r.data.status ?? 'unavailable'),
+            pre
+              ? Math.max(0, Date.parse(r.ts) - Date.parse(pre.ts))
+              : 'unavailable',
+          ];
+        }),
+      )}${table(
+        ['Session', 'Model', 'Request status'],
+        records
+          .filter(
+            (r) =>
+              r.kind === 'hook' &&
+              r.data.hook_event_name === 'PostModelRequest',
+          )
+          .map((r) => [r.session_id, r.data.model, r.data.status]),
+      )}<details><summary>Repeated tool-name candidates (${tools.length} observed calls)</summary><pre>${esc(JSON.stringify(repeatedTools, null, 2))}</pre></details><p>Repeated names do not prove repeated analysis or unnecessary work.</p></section>`;
+      out += `<section><h2>Coordination checks — annotated evidence</h2><p>Checks have increment-level attribution; selecting a run shows checks from its increment.</p>${table(
+        ['Rule', 'Agent / file / annotation', 'Result'],
+        data.coordination_checks
+          .filter(
+            (c) =>
+              ((!inc && !group) || incs.has(c.increment_id)) &&
+              (!runFilter || runIncrements.has(c.increment_id)),
+          )
+          .map((c) => [c.rule, c.agent ?? c.file ?? c.annotation, c.result]),
+      )}</section>`;
+      out += `<section><h2>Experiment comparison — descriptive, no causal savings claim</h2>${table(
+        [
+          'Increment',
+          'Group',
+          'Hypothesis',
+          'Observed tokens',
+          'Acceptance / confounders',
+        ],
+        increments.map((i) => {
+          const iruns = new Set(
+            runs.filter((r) => r.increment_id === i.id).map((r) => r.id),
+          );
+          const u = usage.filter((r) => iruns.has(r.run_id));
+          const tok =
+            u.length && u.every((r) => r.data.total_tokens != null)
+              ? u.reduce((n, r) => n + r.data.total_tokens, 0)
+              : null;
+          return [
+            i.id,
+            i.comparison_group || 'unassigned',
+            i.hypothesis,
+            fmt(tok),
+            data.annotations
+              .filter(
+                (a) =>
+                  a.increment_id === i.id &&
+                  ['acceptance', 'experiment'].includes(a.kind),
+              )
+              .map((a) => a.data.outcome ?? a.data.confounders ?? 'unavailable')
+              .join('; ') || 'unavailable',
+          ];
+        }),
+      )}</section>`;
+      out += `<section><h2>Decisions, context, reviews and handoffs — annotated</h2><p>Annotations have increment and session attribution. Selecting a run shows its increment’s annotations; individual-run attribution is unavailable.</p>${table(
+        ['Time', 'Kind / task', 'Agent', 'Redacted summary / evidence'],
+        annotations.map((a) => [
+          a.ts,
+          a.kind + ' / ' + (a.task ?? 'unassigned'),
+          a.agent,
+          JSON.stringify(a.data),
+        ]),
+      )}</section>`;
+      $('report').innerHTML = out;
+    }
+    for (const id of ['increment', 'session', 'model', 'group', 'task', 'run'])
+      $(id).addEventListener('change', render);
+    $('reset').addEventListener('click', () => {
+      for (const id of [
+        'increment',
+        'session',
+        'model',
+        'group',
+        'task',
+        'run',
+      ])
+        $(id).value = '';
+      render();
+    });
+    render();
+  </script>
+</html>

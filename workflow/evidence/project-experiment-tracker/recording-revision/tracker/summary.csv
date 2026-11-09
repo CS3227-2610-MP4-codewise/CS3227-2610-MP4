@@ -1,0 +1,2 @@
+increment,classification,status,input_tokens,cached_input_tokens,output_tokens,reasoning_output_tokens,total_tokens,cache_ratio,reasoning_output_ratio
+project-experiment-tracker,measured; ratios derived,provisional,4489508,4466816,34549,11739,4524057,0.9949455485990892,0.3397782859127616

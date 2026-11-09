@@ -1,5 +1,9 @@
 # Handoff: course-onboarding planning
 
+## Keith decision confirmation — 2026-11-09
+
+Keith directly confirmed the C-ID ownership/authorization boundary, onboarding invariants, documented dashboard-context contract and K1–K6 decisions. See the [authoritative decision record](../IntegrationContracts.md#current-decision-status--keith-confirmation-2026-11-09). This supersedes historical pending policy-agreement statements below. It does not establish exact-revision source review, student consumer implementation, executed integration checks, complete UI acceptance or hosted/live-provider verification. Dashboard producer reference remains `8f93f51c1f6a36dd64908bd550e90b68e9957af1`, to be compared with the selected integration source; Keith's consumer revision is not yet available. Task 4.3 and verification gates remain open. Next owner: Keith for producer review and student dashboard integration; Darryl retains shared producer ownership.
+
 ## Authorized dashboard contexts checkpoint — 2026-11-08
 
 Review: [draft PR #17](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/17), branch `codex/authorized-dashboard-contexts`. Draft status records pending manual UI acceptance and Keith consumer review.
