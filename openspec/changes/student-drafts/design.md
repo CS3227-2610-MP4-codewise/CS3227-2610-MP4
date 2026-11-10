@@ -115,7 +115,7 @@ Instructor authority still comes from Darryl's workflow identity wrapper. Compos
 
 ### 8. Workbook UI (warm-workbook-v1)
 
-- **Route:** `/student/assignments/:pub/work/:position`. The overview's Open action leads here for the latest publication; older versions stay read-only.
+- **Route:** `/student/assignments/:pub/work/:position`, where `:position` is 1-based ("Question n of N"); the API's 0-based `position` is not exposed in URLs, and an out-of-range position shows not found. The overview's Open action leads here for the latest publication. A draft on an older version stays editable and keeps saving (SW-02), with the newer-version notice and the explicit move; submit always targets the latest publication, so an older version cannot be submitted. (Reviewer ruling, 2026-11-10, replacing "older versions stay read-only", which contradicted SW-02.)
 - **Layout:** question text in proportional type above or beside the editor. On narrow screens (UI-07) the question stacks above the editor and stays reachable.
 - **Answer views (UI-04):** Working copy and Submitted attempt, using native tabs or the accessible tab pattern.
 - **Navigation (UI-05):** Previous/Next. Previous is disabled on the first question, and Next becomes **Review assignment** on the last. Review lists every question with its acknowledged revision, any unsaved or failed state, and missing answers. Submit is a separate confirmation that lists the revisions it will snapshot.

@@ -51,3 +51,108 @@ No earlier provisional, pending or partial turns changed status.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 2747224; cached input subset 2638837; output 35366; reasoning output subset 7679; total 2782590.
 - Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-drafts:domain-2026-11-10 -->
+<!-- experiment-turns:domain-2026-11-10:48b471f8f20f0cbd,634660e009a94572,784bc29b803d2205,eb63676c300aad2f,600f8e0195841f36,92da76eb0d79fb01,03b95abe2035af93,9c77280ee6f41b22,9adb18f9a4a9164f,713df5ba1ef7d9fe,fa3ac52e1203b38a,3a28d247b90d798c,0bc2d91121b47639,dec5960eb6ebb60f -->
+## Checkpoint `domain-2026-11-10` — 2026-11-10T05:22:00.577846+00:00
+
+### Request
+
+Apply student-drafts (Darryl approved all shared decisions); root as Coordinator spawning a Sonnet 5.5 domain Implementer and an Opus 5.5 Reviewer, then three UI Implementers
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Coordinator revised task 4.1/design §9 for three worktree workbook variants; recorded writer window (Ownership) and C-SUB gate acceptance (IntegrationContracts) on Keith's report; cited Cloudflare Free allowances. Domain Implementer delivered 2.1-2.3, 3.1-3.4, 6.1 and the 1.4 measurement; Reviewer found 0 high, 2 medium, 8 low, then N1 low after repair; all fixed except per-user rate limit (deferred to Keith as new scope). Coordinator re-ran npm run check: exit 0, 45 files / 527 tests. Committed defbd63. Tasks 1.1, 1.2, 1.4, 2.x, 3.x, 6.1 ticked after Coordinator verification.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [save cadence](../../workflow/evidence/student-drafts/save-cadence.md), [submit batch](../../workflow/evidence/student-drafts/submit-batch.md).
+- Remaining limitations and next owner: Coordinator: launch three UI Implementer worktree variants (4.1, 5.1-5.3).
+
+### Agents spawned
+
+- Coordinator turn started 2026-11-10T04:47:21.064Z spawned Domain Implementer / implementer (a93df894).
+- Coordinator turn started 2026-11-10T05:07:43.804Z spawned Reviewer / reviewer (a941df52).
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a7cfb9e4 | root | 2026-11-10T04:33:53.004Z | 2026-11-10T04:34:05.157Z | final | claude-opus-5-5 | medium | 1037 | 283 | 1037 |
+| Coordinator / coordinator | a7cfb9e4 | root | 2026-11-10T04:36:54.726Z | 2026-11-10T04:37:34.988Z | final | claude-opus-5-5 | medium | 2706 | 254 | 2706 |
+| Coordinator / coordinator | a7cfb9e4 | root | 2026-11-10T04:38:50.018Z | 2026-11-10T04:38:58.902Z | final | claude-opus-5-5 | medium | 568 | 0 | 568 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T04:40:41.979Z | 2026-11-10T04:41:02.891Z | final | claude-opus-5-5 | medium | 1581 | 123 | 1581 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T04:43:58.458Z | 2026-11-10T04:44:15.556Z | partial | claude-opus-5-5 | medium | 513 | 0 | 513 (partial) |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T04:47:21.064Z | 2026-11-10T04:52:46.717Z | final | claude-opus-5-5 | medium | 17781 | 3432 | 135435 |
+| Domain Implementer / implementer | a93df894 | Coordinator (970664a8) / c14147bb | 2026-11-10T04:52:23.872Z | open | provisional | claude-sonnet-5-5 | medium | 117654 | 34987 | 117654 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:07:43.804Z | 2026-11-10T05:08:05.391Z | final | claude-opus-5-5 | medium | 2157 | 41 | 43201 |
+| Reviewer / reviewer | a941df52 | Coordinator (970664a8) / 4011bd9c | 2026-11-10T05:08:00.118Z | open | provisional | claude-opus-5-5 | medium | 41044 | 21044 | 41044 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:14:43.460Z | 2026-11-10T05:15:33.719Z | final | claude-opus-5-5 | medium | 4826 | 1043 | 4826 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:17:43.358Z | 2026-11-10T05:19:22.760Z | final | claude-opus-5-5 | medium | 1394 | 126 | 1394 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:19:26.227Z | 2026-11-10T05:19:33.286Z | final | claude-opus-5-5 | medium | 593 | 40 | 593 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:20:39.989Z | open | provisional | claude-opus-5-5 | medium | 2339 | 449 | 2339 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a7cfb9e4 | 2026-11-10T04:27:21.090Z | provisional | final | 25235 | 3596 | 25235 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 24695818; cached input subset 23856514; output 231194; reasoning output subset unavailable; total 24927012.
+- Coverage/status: partial; 4 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-drafts:ui-variants-2026-11-10 -->
+<!-- experiment-turns:ui-variants-2026-11-10:133995202c517892,5f19ff6fb18d9c30,9929b84a68e377cd,eb691bb1f1bd6cd0,456860fc6f0c2096,549c309bd7419567,b2889895fd1a2f46,af74c586bf60f77f,a781c7430710e11e,05afcc924eec6e80,66b2eaa03b7a9808,0cd19ae8ec561155,d9de97b916454005,0673c6c21065d184 -->
+## Checkpoint `ui-variants-2026-11-10` — 2026-11-10T06:20:12.496285+00:00
+
+### Request
+
+Build three student-draft UI variants with separate UI Implementer agents after the domain work, review them, and propose how Keith can run and compare them locally
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Three Sonnet 5.5 UI Implementers built full 5.1-5.3 workbooks in isolated worktrees off defbd63: A CodeMirror 6 (9e89d94), B textarea+prismjs (31ab727), C Monaco (3ec770b). Opus 5.5 Reviewer: A 2 low; B 1 low-medium, 1 low; C 1 high (Worker CSP style-src self breaks Monaco), 3 medium, 1 low; one repair round each, all fixed except C's CSP blocker. Coordinator re-ran npm run check per worktree: A 591, B 597, C 585 tests, all exit 0; no server/shared/migration/openspec edits on variant branches. Design §8 reworded per Reviewer ruling (older versions editable; 1-based URLs). Task 4.1 ticked; 5.x not ticked because no variant is merged. No real sign-in or live API was exercised by any agent.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [editor-gate comparison](../../workflow/evidence/student-drafts/editor-gate/comparison.md).
+- Remaining limitations and next owner: Keith: run and compare the three variants, choose one and approve its dependencies (4.2); decide C's CSP question and the rate-limit question.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| UI Implementer A (CodeMirror 6) / implementer | ac08cb72 | Coordinator (970664a8) / ec62087c | 2026-11-10T05:23:15.650Z | open | provisional | claude-sonnet-5-5 | medium | 191076 | 62421 | 191076 |
+| UI Implementer B (textarea+prismjs) / implementer | ab0c9394 | Coordinator (970664a8) / ec62087c | 2026-11-10T05:23:15.657Z | open | provisional | claude-sonnet-5-5 | medium | 153818 | 47569 | 153818 |
+| UI Implementer C (Monaco) / implementer | a8259647 | Coordinator (970664a8) / ec62087c | 2026-11-10T05:23:15.720Z | open | provisional | claude-sonnet-5-5 | medium | 164161 | 42563 | 164161 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:45:33.084Z | 2026-11-10T05:45:40.745Z | final | claude-opus-5-5 | medium | 532 | 166 | 532 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:50:48.558Z | 2026-11-10T05:50:50.273Z | final | claude-opus-5-5 | medium | 52 | 0 | 52 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T05:50:50.283Z | 2026-11-10T05:50:51.663Z | final | claude-opus-5-5 | medium | 12 | 0 | 12 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:03:21.878Z | 2026-11-10T06:05:58.758Z | final | claude-opus-5-5 | medium | 3445 | 378 | 3445 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:09:43.765Z | 2026-11-10T06:10:16.235Z | final | claude-opus-5-5 | medium | 3360 | 248 | 3360 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:11:34.843Z | 2026-11-10T06:11:36.277Z | final | claude-opus-5-5 | medium | 31 | 0 | 31 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:11:36.293Z | 2026-11-10T06:11:37.670Z | final | claude-opus-5-5 | medium | 11 | 0 | 11 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:12:49.902Z | 2026-11-10T06:12:51.651Z | final | claude-opus-5-5 | medium | 48 | 0 | 48 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:12:51.668Z | 2026-11-10T06:12:53.166Z | final | claude-opus-5-5 | medium | 11 | 0 | 11 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:17:02.506Z | open | provisional | claude-opus-5-5 | medium | 4982 | 933 | 4982 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | 2026-11-10T05:20:39.989Z | provisional | final | 12412 | 1250 | 521467 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 112339119; cached input subset 109390145; output 781594; reasoning output subset unavailable; total 113120713.
+- Coverage/status: partial; 7 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+> Correction (Coordinator, 2026-11-10): checkpoint `ui-variants-2026-11-10` shows "Agents spawned: None" because the Coordinator turn that spawned UI Implementers A, B and C (`ec62087c`) had already been shown at checkpoint `domain-2026-11-10`. The three UI Implementers were spawned in that turn; their rows above carry parent `ec62087c`.
