@@ -19,6 +19,8 @@ import {
   type AssessmentGatewayFactory,
 } from './instructor/assessments/workflow';
 import { AssessmentRepository } from './instructor/assessments/repository';
+import { StudentAssignments } from './student/repository';
+import { studentHandler } from './student/http';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
 
 const securityHeaders = {
@@ -91,7 +93,8 @@ export function createApplication(ports: DevelopmentPorts = {}) {
         pathname.startsWith('/api/auth/') ||
         pathname === '/api/courses' ||
         pathname.startsWith('/api/courses/') ||
-        pathname.startsWith('/api/instructor/')
+        pathname.startsWith('/api/instructor/') ||
+        pathname.startsWith('/api/student/')
       ) {
         const config = firebaseConfig(env);
         const store = new ManagedStore(env.DB),
@@ -171,6 +174,8 @@ export function createApplication(ports: DevelopmentPorts = {}) {
           );
         };
         if (pathname.startsWith('/api/auth/')) return auth.fetch(request);
+        if (pathname.startsWith('/api/student/'))
+          return studentHandler(request, auth, new StudentAssignments(env.DB));
         if (pathname === '/api/courses' || pathname.startsWith('/api/courses/'))
           return courseHandler(
             request,
@@ -226,7 +231,9 @@ export function createApplication(ports: DevelopmentPorts = {}) {
           '/auth/forgot',
           '/workspace',
         ].includes(pathname) ||
-        pathname.startsWith('/instructor/')
+        pathname.startsWith('/instructor/') ||
+        pathname === '/student' ||
+        pathname.startsWith('/student/')
       ) {
         headers.set('Cache-Control', 'no-store');
         headers.set('Referrer-Policy', 'no-referrer');

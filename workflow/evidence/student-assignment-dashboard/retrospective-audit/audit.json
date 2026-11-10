@@ -1,0 +1,222 @@
+{
+  "audit_id": "retrospective-task52-2026-11-10",
+  "classification": "retrospective; excluded from bounded experiment totals",
+  "increment": "student-assignment-dashboard",
+  "source_session_prefix": "01a1c1a1",
+  "source_group_id": "codex-01a1c1a1-completed-prefix",
+  "provenance": {
+    "format": "Codex JSONL",
+    "usage_method": "token_usage_record.usage, deduplicated by response_id, attributed by explicit turn_id",
+    "prefix_bytes": 11211568,
+    "prefix_sha256": "cd1659e07efc4937d20dfd044bd76148801850aa9e67382ed8708f05d66627e1",
+    "cutoff_utc": "2026-11-09T19:26:16.581Z",
+    "cutoff_singapore": "2026-11-10T03:26:16.581+08:00",
+    "raw_source_exported": false,
+    "absolute_source_path_exported": false
+  },
+  "coverage": {
+    "completed_turns": 2,
+    "unique_response_records": 199,
+    "recording_state_checked": "off",
+    "bounded_turns_admitted_by_this_audit": 0,
+    "active_audit_turn": "excluded; ongoing, final usage unavailable at publication",
+    "human_approval_replies": "occurred within the computer-use turn; no separate task_started records, so not separately token-attributed",
+    "cached_input_is_subset": true,
+    "reasoning_output_is_subset": true,
+    "cost_estimated": false,
+    "active_idle_time_inferred": false,
+    "phase_token_allocation_inferred": false
+  },
+  "completed_turns": [
+    {
+      "turn_prefix": "01a1c1a2",
+      "label": "Task 5.2 computer-use review",
+      "status": "completed; exact recorded response usage",
+      "start_utc": "2026-11-09T18:47:02.133Z",
+      "end_utc": "2026-11-09T19:24:49.447Z",
+      "start_singapore": "2026-11-10T02:47:02.133+08:00",
+      "end_singapore": "2026-11-10T03:24:49.447+08:00",
+      "wall_seconds": 2267.314,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "unique_response_records": 196,
+      "top_level_tool_calls": {
+        "exec": 41,
+        "js": 150,
+        "request_user_input_async": 2
+      },
+      "spawned_agents": 0,
+      "usage": {
+        "input_tokens": 26251241,
+        "cached_input_tokens": 26056832,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 43759,
+        "reasoning_output_tokens": 11633,
+        "total_tokens": 26295000
+      },
+      "cumulative_cross_check": "exact match"
+    },
+    {
+      "turn_prefix": "01a1c1c6",
+      "label": "Question about retrospective feasibility",
+      "status": "completed; exact recorded response usage",
+      "start_utc": "2026-11-09T19:25:46.894Z",
+      "end_utc": "2026-11-09T19:26:16.581Z",
+      "start_singapore": "2026-11-10T03:25:46.894+08:00",
+      "end_singapore": "2026-11-10T03:26:16.581+08:00",
+      "wall_seconds": 29.687,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "unique_response_records": 3,
+      "top_level_tool_calls": {
+        "exec": 2
+      },
+      "spawned_agents": 0,
+      "usage": {
+        "input_tokens": 648787,
+        "cached_input_tokens": 644608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1043,
+        "reasoning_output_tokens": 505,
+        "total_tokens": 649830
+      },
+      "cumulative_cross_check": "exact match"
+    }
+  ],
+  "completed_scope_usage": {
+    "input_tokens": 26900028,
+    "cached_input_tokens": 26701440,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 44802,
+    "reasoning_output_tokens": 12138,
+    "total_tokens": 26944830
+  },
+  "timeline": [
+    {
+      "timestamp_utc": "2026-11-09T18:47:11.106Z",
+      "event": "Inspect task, specs and browser availability",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T02:47:11.106+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:47:50.677Z",
+      "event": "Open Student courses and inspect heading focus",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T02:47:50.677+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:48:32.455Z",
+      "event": "Set up responsive-device checks",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T02:48:32.455+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:49:34.136Z",
+      "timestamp_singapore": "2026-11-10T02:49:34.136+08:00",
+      "event": "Request explicit local-fixture creation preference",
+      "basis": "observed metadata timestamp; author-redacted event label, outcome separately documented"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:50:41.273Z",
+      "timestamp_singapore": "2026-11-10T02:50:41.273+08:00",
+      "event": "User approves local synthetic content creation",
+      "basis": "observed metadata timestamp; author-redacted event label, outcome separately documented"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:51:14.745Z",
+      "event": "Create approved local synthetic draft",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T02:51:14.745+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:52:17.776Z",
+      "event": "Attempt local publication; automatic approval rejects action",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T02:52:17.776+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:52:25.863Z",
+      "timestamp_singapore": "2026-11-10T02:52:25.863+08:00",
+      "event": "Request explicit approval for local publication",
+      "basis": "observed metadata timestamp; author-redacted event label, outcome separately documented"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:53:00.139Z",
+      "timestamp_singapore": "2026-11-10T02:53:00.139+08:00",
+      "event": "User explicitly approves local publication",
+      "basis": "observed metadata timestamp; author-redacted event label, outcome separately documented"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:53:37.475Z",
+      "event": "Publish after explicit user approval",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T02:53:37.475+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T18:55:26.667Z",
+      "event": "Check overview source keyboard focus and scrolling",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T02:55:26.667+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:01:15.846Z",
+      "event": "Enable and verify reduced-motion emulation",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T03:01:15.846+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:10:57.603Z",
+      "event": "Exercise API-only network failure",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T03:10:57.603+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:12:17.319Z",
+      "event": "Verify browser-reported 200% zoom",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T03:12:17.319+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:14:28.482Z",
+      "timestamp_singapore": "2026-11-10T03:14:28.482+08:00",
+      "event": "Deactivate 105 temporary synthetic memberships; subsequent read-back zero",
+      "basis": "observed metadata timestamp; author-redacted event label, outcome separately documented"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:16:04.356Z",
+      "event": "Sign out in second tab and return to overview",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T03:16:04.356+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:16:40.220Z",
+      "event": "Inspect cross-tab recovery and reload",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T03:16:40.220+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:17:40.808Z",
+      "timestamp_singapore": "2026-11-10T03:17:40.808+08:00",
+      "event": "Start full repository check in sandbox; localhost EPERM prevents integration tests",
+      "basis": "observed metadata timestamp; author-redacted event label, outcome separately documented"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:19:10.858Z",
+      "timestamp_singapore": "2026-11-10T03:19:10.858+08:00",
+      "event": "Rerun full repository check with localhost allowed; eventual exit 0",
+      "basis": "observed metadata timestamp; author-redacted event label, outcome separately documented"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:20:21.642Z",
+      "event": "Restore motion setting and close test tools",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T03:20:21.642+08:00"
+    },
+    {
+      "timestamp_utc": "2026-11-09T19:24:27.519Z",
+      "event": "Write checklist, evidence and narrative checkpoint",
+      "basis": "timestamp of observed tool-call attempt; outcome separately documented",
+      "timestamp_singapore": "2026-11-10T03:24:27.519+08:00"
+    }
+  ]
+}

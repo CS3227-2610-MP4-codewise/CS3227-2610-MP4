@@ -242,3 +242,15 @@ Instructor People listing projects active same-course memberships and current pe
 ## C-AI gateway candidate — 2026-11-08
 
 Darryl's `secure-ai-gateway` candidate supplies `SecureAIGateway` implementing the existing `AIGatewayPort`, fixed-origin transport, separate server-only instructor/student credentials and one shared D1 quota policy. Consumers must inject current course/object/evidence authorization and action-domain validation on every resolution; the assessment resolver uses `validateAssessmentDraft`, while Keith owns progress evidence selection and validation. The reusable [progress consumer checks](contracts/progress-gateway-consumer.ts) and [handoff](handoffs/secure-ai-gateway.md) are candidate interfaces: Keith has not executed or accepted them. No production route or live provider is enabled, and no actual model, token bound, quota, cross-environment coordination or hosted connectivity has been verified. Unknown calls retain shared concurrency debt rather than assuming provider cancellation. Fixed-window admission is not evidence of compliance with an unverified rolling provider quota.
+
+### Student assignment listing — design §2–§4 reported agreed 2026-11-09
+
+Keith reported that Darryl agreed the student-assignment-dashboard design §2–§4 as written:
+
+- **Listing:** `GET /api/student/courses/:courseId/assignments?cursor=` returns `{ schemaVersion: 1, course: {id,name}, items: [{assignmentId, assignmentVersionId, title, publishedAt, deadlineAt}], nextCursor }`. It returns the latest publication per assignment, ordered by `(deadlineAt, assignmentId)`, at most 50 per page, with an opaque cursor of at most 512 characters.
+- **Overview:** `GET /api/student/publications/:assignmentVersionId` returns the existing C-PUB Publication.
+- **Authority:** both reads require explicit current Student membership at disclosure. A course where the account is only an instructor gets a non-enumerating unavailable response.
+
+Keith accepted the 1.1 producer review at HEAD `3a7e5e4` (dashboard producer `8f93f51`; later SH-AUTH `5e0ed6b`). See `workflow/evidence/student-assignment-dashboard/apply-gates.md`. Composed consumer acceptance is still pending.
+
+Update 2026-11-09: Keith reported that Darryl approved the student listing and overview producer additions in draft PR #25 (`2b2da64`). This is treated as Darryl's approval at Keith's instruction; GitHub shows no submitted review. Composed consumer acceptance (task 5.1) is still pending.

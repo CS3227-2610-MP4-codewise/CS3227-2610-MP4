@@ -1,0 +1,350 @@
+{
+  "reviewDate": "2026-11-10",
+  "sourceHead": "8a7951f5452c643172ef1945f53a9ecbedcda111",
+  "builtJavaScript": "index-Coew5NIR.js",
+  "files": [
+    {
+      "file": "assignments-1024-light.png",
+      "width": 1024,
+      "height": 900,
+      "sha256": "f84fa412de15343acdffc8bd79b7c064e242c5edf81f368481107ec48b262b05",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "a626cffacf4ed04ea001c7dd31614c995a2294dedd986f328ebae372135b916b"
+    },
+    {
+      "file": "assignments-1280-zoom200-light.png",
+      "width": 2560,
+      "height": 1610,
+      "sha256": "e68b6ab8cdcfce01b7d56fcfd9527c6245e53e1f08213aa2695c7c8d33e1792e",
+      "captureMethod": "normal 1280px viewport at 100%, browser zoom 200%; device toolbar off; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "49b24301848c3c9eea0344a467cbd8c6e61660af5749221d8f43b6af0a306cc5"
+    },
+    {
+      "file": "assignments-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "ce6d25fe89b1561ea43cae9408a63f4061223421e24c41cbe0d35f4421b6d883",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "7f5668be3bdf5c09e5d101168c3765d9d8a838b09893e0a025aa7ea3dbfbc240"
+    },
+    {
+      "file": "assignments-320-light.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "65b54dbe04f9a431bff0d46b6fdb83cb3de9ca8f5314bdab5d5ef7599398e3cb",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "3d2bb89971660f759300d24c138bfcfda84265f833ee7e3278724e4363a1af80"
+    },
+    {
+      "file": "assignments-768-light.png",
+      "width": 1152,
+      "height": 1350,
+      "sha256": "817b5c9bc106ffea0951f2ada7be587db2ee2f12365710d7ae43ef08bd39fb6c",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "9a8fb4a223b070287802d6696e812b58fa9b7ff94d518dbe003a4f572214742d"
+    },
+    {
+      "file": "courses-1024-light.png",
+      "width": 1024,
+      "height": 900,
+      "sha256": "e1fc45096411cd6255c9b88e767d57a4dfe082d36b9953882178eaccf02cfb54",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "c8d1e2c9991ebbb472ccdab2b1df23a507bd9b8c91a21dce44d5d230d76f0fc8"
+    },
+    {
+      "file": "courses-1280-zoom200-light.png",
+      "width": 2560,
+      "height": 1610,
+      "sha256": "f71890e7795665512b4ff99f1804a058639c2e11a774b436cd0ba8a37451b340",
+      "captureMethod": "normal 1280px viewport at 100%, browser zoom 200%; device toolbar off; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "728983c4602828e76a2ca1ed7245d6dcab58296ea399f7a9ed8abdb52e6d8d58"
+    },
+    {
+      "file": "courses-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "2ea4cc6990620f19f9b06e9407ad70c8375747a9006e7f046d62bbbfa55c33b2",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "da711f3b24b9e452ffc67223fe83349b8e6a00430ce7f8e23af4db6e8e5e5f4d"
+    },
+    {
+      "file": "courses-320-light.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "285ea7214247f5efdea5f4b54e4c9763202dee337dea779778dccd037082ee94",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "154dd6401a3048267e44ab56de37feb7f3f56b92ef5a2d6fe2aee6e71c174817"
+    },
+    {
+      "file": "courses-768-light.png",
+      "width": 1152,
+      "height": 1350,
+      "sha256": "0b429122e0296b83e620804a502d23d1a3ae38794704e565b45f61e6c391efb2",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "194d4e2ebcc33816da5ba7ebfeb202f4e3cd9aa8629162ed7e165ad7f53eb6e3"
+    },
+    {
+      "file": "courses-page1-pager-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "537b764fdf3acd7153976fd8937e837bcbd1c414d4ccafd7a197187e791dbd8d",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "7cb6408d0a189e2343d65318a4a969c3db9e840fb1af9539a581ad86ae92de8f"
+    },
+    {
+      "file": "courses-page2-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "9d96abc6e632b09289d77b940ce3c2b2a3cf1fd18528486ade3691aed1d91670",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "ff8f63f4a9572bba5b4f8765d12b9ac72798ec86034f14785425ac014660ffc6"
+    },
+    {
+      "file": "courses-page2-320-light.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "416c16ea9427365db9630009fde0cc90bbfbad19e4d2ecdedbac196f31203ecf",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "26b5d961a534de5de4404b712d35ce7feb1f265a369bcee9bce740ea8b43e815"
+    },
+    {
+      "file": "empty-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "112093d6b93cc3589b52e959d13b478c4fea216125ba6bb72f880df771ca60fd",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "060507f25211136872557bada2bc6198ae91a65f09887f849087d17d2a46e5eb"
+    },
+    {
+      "file": "empty-320-light.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "934afa1a77d77ffc6690ad49a46d339785f8ed26f630c51979a8b419386a904a",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "0bbde92d578caa455f23fd068ff1426ba1bfe7c41d481f5f53932ab26f43b0eb"
+    },
+    {
+      "file": "invalid-link-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "6998fd9f66228ebc36cbf90e64641f35571c31027b27ed0b0d76d5c27782b6d0",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "64f4dbb197ceeb76b61d68aec83ac9f99da35dc391d640eb02ddecc858452d32"
+    },
+    {
+      "file": "loading-1440-dark.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "35692a0291dec1019dc474be127f84046246dead2514f7b0b663ef19062ae621",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "5e7d7271bc4542f4a54026e7fa842a27fbad602edb48a15705d0961bf163c3db"
+    },
+    {
+      "file": "network-failure-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "a413af683f6937369fd607140e199e9c4c0344e69feab038a4aad5f5adb36a92",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "4a7b0562ed6e5c554f1471664449e40b0bdabc627ada6285035e2e36da76b937"
+    },
+    {
+      "file": "offline-navigation-browser-error.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "3c0500f458d94e96470bbd1ac9f252ceb11b94c2d1af099d78fb7ae78027f518",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "390904ebfb62b55fbff842ba9770fb222945501f1b913b9216bd8adbe0066151"
+    },
+    {
+      "file": "overview-1024-light.png",
+      "width": 1024,
+      "height": 900,
+      "sha256": "a3d1015ced10120ad30bc8bb7ea9e6e443d5162cad0bf7f69a2c593860effb29",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "4d564c42c47b793eaa80749fed8af50444f0a2e52519318035a38d394f0961c4"
+    },
+    {
+      "file": "overview-1280-zoom200-light.png",
+      "width": 2560,
+      "height": 1610,
+      "sha256": "ac54cf2dfe7666084c86528dcedbb144cc1ec1fe63976003cdba6429011506b6",
+      "captureMethod": "normal 1280px viewport at 100%, browser zoom 200%; device toolbar off; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "aed65e7c4ba9d4d491c6f2fc795641e1efaba9ed2ac15694cbfec9f5f98b9bc4"
+    },
+    {
+      "file": "overview-1440-dark.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "1d23e2edf318111440f6640584d03267ee3537c6c3a0df8dcede1f083255b7d6",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "50c6f05a8dd7917762dc2213faf4c23570738f26fc4189a963d247dbd17828c1"
+    },
+    {
+      "file": "overview-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "bd4f58a4129818beb08d44b557e624ec38eec0a958fe494fce2e833862858656",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "632511e21307ee83ac8cfafe0b14bbd4e958b174066c6344bfe84125ffa2be96"
+    },
+    {
+      "file": "overview-320-dark.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "131699f8bed0e3a9bf7291bda96cf7dcf797dd579ece5a8ac4bb2e263daa7ca7",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "d38b7c7d76a4814a9f1bed866e01599cd7ff2fa899547a0549f470c185775cc1"
+    },
+    {
+      "file": "overview-320-light.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "70e9e67d861562ad5df9a52a8698f20a4489c00b94c2416166c429e161f8f6cf",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "1abfa20074fcd874dec48c96bbcb5bd9ff956aa97d5f59ec02181674ec96aed7"
+    },
+    {
+      "file": "overview-768-light.png",
+      "width": 1152,
+      "height": 1350,
+      "sha256": "7392a9b76de11e3c3a5b25152fb55e2245ad00e91be759ba778335bd991d82f7",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "17dfdd480c22719ef54d1c48f40ad50ed93829dc28e8e690135f327524a28a10"
+    },
+    {
+      "file": "overview-code-1280-zoom200-light.png",
+      "width": 2560,
+      "height": 1610,
+      "sha256": "e0523f432a2c483f39c2084e9ae02b506ec40f1c38df7538f622170305e0fd26",
+      "captureMethod": "normal 1280px viewport at 100%, browser zoom 200%; device toolbar off; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "a45ef0d46cf8706c31c59153927567971852e8eeb32102f35faa718399273821"
+    },
+    {
+      "file": "overview-code-1440-dark.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "32accdf8ede7e2028694c0a532f14ec03402ee3899d4f7cd58c6be0de6142ec5",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "70138f93f509526dc02de6792466d4729dfd97db83bfb17a267c6d8ab880fc83"
+    },
+    {
+      "file": "overview-code-320-dark.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "f14731d1f9b5a93ebeee23a52131cbaab3243f373ea8bf4b3be8a1443580a1ea",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "5dd650abe153e5b767095af634e713afc16e8968d608db19326f362d777c85a6"
+    },
+    {
+      "file": "overview-code-scrolled-320-dark.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "c2fd7910ea41a87e00cebd428c5ec08014244e5f94cd29f341b633d20366b870",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "5258d30a117aa103a70ce0d720701edd70caf5503e1c435a59505f0c765b2da8"
+    },
+    {
+      "file": "session-cross-tab-320-light.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "2f350d1c24ac8b6c73562616afce8e3e6f12daa4f21d322d31d9bacec3077ced",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "a46fe322395e279281bfde0fb88d4eda1cb31e5b798b66837911bf1965f10b00"
+    },
+    {
+      "file": "session-expired-1440-dark.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "52c5d5c153159da0297c193841f22c04c68644d77ea9277bb8bf636602e98836",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "f308effc4da812555ba50f7c39e95a24e11d436376d31c868d7187ac5402a8eb"
+    },
+    {
+      "file": "session-expired-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "7cec3a63190c54ae6b01c2d83a882b6eade183d0887e907a5d40cd8944d64b66",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "cd235b94263c29d51af09909e64303078427c4b84423167ee11e2eba70da09cf"
+    },
+    {
+      "file": "session-expired-320-light.png",
+      "width": 480,
+      "height": 1350,
+      "sha256": "aca045bedbe344f01b7225dc9d97ce89d742f3028fe83fff55b051db069acc6f",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "f740cde6169673268da0998f0a83e44a7edcaf1a22dddbe65fbf2edea85c0e85"
+    },
+    {
+      "file": "unavailable-1440-light.png",
+      "width": 1300,
+      "height": 816,
+      "sha256": "6fb067a00e0c3d60834c6d02d290488773f63dd7207472b24a5bf050ea01b713",
+      "captureMethod": "native screenshot cropped to device page; no resizing; then PNG palette quantization (sharp, quality 90), dimensions unchanged",
+      "originalSha256": "2aa4c0610fb38aec407155e1866d2b6472463bb5c25cdf11f03b03007342d1be"
+    }
+  ],
+  "inspectorReadings": [
+    {
+      "file": "../inspector-readings/inspector-course-target.png",
+      "width": 1280,
+      "height": 1280,
+      "sha256": "1cf10b1bb2aa3d3db501108d1b0bc3af6afbf4d1b7da70b08aca74e8d148fce8"
+    },
+    {
+      "file": "../inspector-readings/inspector-deadline-color.png",
+      "width": 1522,
+      "height": 1608,
+      "sha256": "65beb0b5627291d395436551a3584b5e40a93fdc0db736df5cf135055f8fb214"
+    },
+    {
+      "file": "../inspector-readings/inspector-link-size.png",
+      "width": 1280,
+      "height": 1280,
+      "sha256": "e3828f15db42816526a5876342b029df3ed9ebe6cd4964a302c4843da247d27a"
+    },
+    {
+      "file": "../inspector-readings/inspector-open-target.png",
+      "width": 1522,
+      "height": 1608,
+      "sha256": "8868028d36ac8b5dc41771209ad9c57e6440ad0b39bf505f3c69ef9bba2ce480"
+    },
+    {
+      "file": "../inspector-readings/inspector-primary-colors.png",
+      "width": 1522,
+      "height": 1608,
+      "sha256": "cde0ce073f0f15a73acd0b8f19689fae132acaf0bffaf9fba736a8d84b2eb2de"
+    },
+    {
+      "file": "../inspector-readings/inspector-refresh-target.png",
+      "width": 1522,
+      "height": 1608,
+      "sha256": "7e4fd5193edbb7ae71b75e2fff17d228c4b37479dc295c637c110b9f2f5a5662"
+    },
+    {
+      "file": "../inspector-readings/inspector-signin-dark.png",
+      "width": 1522,
+      "height": 1608,
+      "sha256": "8ba78400ae52d80b910a5280d27c518bd288d999413ea083c228711027f9d936"
+    },
+    {
+      "file": "../inspector-readings/inspector-signin-light.png",
+      "width": 1522,
+      "height": 1608,
+      "sha256": "5ebe714deb1364cb3e907cf9189983d8dfd765718ef05fbdc741c9854465c3f0"
+    },
+    {
+      "file": "../inspector-readings/normal-window-1280-before-zoom.png",
+      "width": 2560,
+      "height": 1610,
+      "sha256": "20ea7ee01f4415be47516d8811a2b7d89234ee0e0a6bc59d45aee80582a99d45"
+    }
+  ],
+  "compression": {
+    "date": "2026-11-10",
+    "method": "sharp PNG palette quantization, quality 90, effort 10, compressionLevel 9; no resize, crop or content edits",
+    "totalBytesBefore": 15656492,
+    "totalBytesAfter": 5501442,
+    "note": "Palette quantization can shift rendered colours slightly; contrast evidence relies on the RGB values recorded as text in DevTools captures and task-5.2-recheck.md, not on screenshot pixels. originalSha256 is the pre-compression hash."
+  }
+}

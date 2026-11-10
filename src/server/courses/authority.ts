@@ -8,6 +8,28 @@ import { creatorEligibilitySql } from './creation';
 
 type CourseAction = Parameters<IdentityCoursePort['requireCourse']>[2];
 
+/**
+ * SD-01/04, AUTH-02: explicit current Student membership for student-dashboard reads.
+ * The generic `student-read` action accepts either course role and is unchanged.
+ * `courseColumn` is a trusted SQL column reference; bind studentGuardBindings as ?1–?4.
+ */
+export function currentStudentGuard(courseColumn: string) {
+  return `EXISTS (SELECT 1 FROM course_memberships sm
+    JOIN courses sc ON sc.id=sm.course_id AND sc.active=1
+    JOIN auth_accounts sa ON sa.id=sm.user_id AND sa.active=1
+    JOIN auth_sessions ss ON ss.user_id=sa.id AND ss.id=?1 AND ss.revoked_at IS NULL
+      AND ss.expires_at>?2 AND ss.last_seen>?3
+    WHERE sm.course_id=${courseColumn} AND sm.user_id=?4 AND sm.role='student' AND sm.active=1)`;
+}
+export function studentGuardBindings(principal: TrustedPrincipal, now: number) {
+  return [
+    principal.sessionHandle,
+    now,
+    now - 30 * 60_000,
+    principal.userId,
+  ] as const;
+}
+
 /** Current course authority, derived exclusively from the same D1 store as sessions. */
 export class CourseAuthority {
   constructor(

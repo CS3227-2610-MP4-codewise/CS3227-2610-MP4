@@ -5,6 +5,9 @@ import './styles.css';
 import { AuthApp } from './auth/App';
 import { ReviewWorkspace } from './instructor/assessments/ReviewWorkspace';
 import { InstructorWorkspace } from './instructor/Workspace';
+import { StudentWorkspace } from './student/StudentWorkspace';
+import { WorkspaceEntry } from './student/WorkspaceEntry';
+import { parseStudentRoute } from './student/model';
 
 function App() {
   return (
@@ -38,9 +41,17 @@ createRoot(document.getElementById('root')!).render(
       window.location.pathname,
     ) ? (
       <ReviewWorkspace />
-    ) : ['/workspace', '/instructor/assignments'].includes(
-        window.location.pathname,
-      ) ||
+    ) : window.location.pathname === '/workspace' ? (
+      <WorkspaceEntry />
+    ) : window.location.pathname === '/student' ||
+      window.location.pathname.startsWith('/student/') ? (
+      <StudentWorkspace
+        route={parseStudentRoute(
+          window.location.pathname,
+          window.location.search,
+        )}
+      />
+    ) : window.location.pathname === '/instructor/assignments' ||
       /^\/instructor\/assignments\/[A-Za-z0-9_-]{1,128}$/.test(
         window.location.pathname,
       ) ? (
