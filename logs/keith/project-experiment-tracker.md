@@ -282,3 +282,20 @@ Verify and fix zero cumulative deltas, run coordination leakage, cross-experimen
 
 - Human owner Keith; main publication in Claude Code, no child agents. Confirmed open PR #23 head `b8295cc` matches this checkout.
 - Publish task 7.5 repairs with regressions and existing OpenSpec/evidence/handoff/log updates. Reuse completed verification (118 Python, 30 dashboard, full `npm run check` with 406+4 cases on Node 22.19.0, strict change validation, private validate/sync); no implementation changes since. Tasks 7.4/5.4 pending; recording off. No merge or deployment.
+
+
+<!-- experiment-checkpoint:project-experiment-tracker:dashboard-planning-boundary-20261109 -->
+## Request
+
+Keith approved the student-assignment-dashboard planning artifacts and the prospective tracker transition.
+
+## Results
+
+- Checkpoint: 2026-11-09T11:55:31.056341+00:00 (`dashboard-planning-boundary-20261109`); owner: Keith.
+- Changes and why: Main /root remains Coordinator; no child agents. Created the separate dashboard plan, SD-01–06 spec, 14 unchecked tasks and Keith log/evidence/handoff. Strict validation and npm run check pass with listener access: 15 changes, type/lint, 406 Vitest cases, four deployment checks and build. Earlier sandbox attempt failed at localhost setup. Existing run is draining-to-stop for this admitted turn; no new dashboard run, historical reassignment, application implementation or dashboard-only usage allocation.
+- Contributor / agent responsibilities: see linked experiment annotations; no inferred agent activity.
+- Measured usage: input 7334622; cached input subset 7174784; output 49705; reasoning output subset 13440; total 7384327.
+- Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded totals are excluded. Totals are cumulative for this increment; do not add checkpoint totals together.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Dashboard log](student-assignment-dashboard.md); [verification](../../workflow/evidence/student-assignment-dashboard/planning-verification.md); [handoff](../../workflow/handoffs/student-assignment-dashboard.md).
+- Remaining limitations and next owner: Keith: review the plan and request implementation separately; reconcile terminal source evidence before a later explicitly authorized dashboard run. Darryl: shared producer/window agreement remains pending..
