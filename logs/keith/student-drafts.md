@@ -1,6 +1,6 @@
 # Student drafts
 
-Owner: Keith. Increment: `student-drafts`. Requirements: SW-01–SW-10 (SUB-02–SUB-04, C-SUB). Branch/PR: `keith/student-drafts`, draft PR (see below).
+Owner: Keith. Increment: `student-drafts`. Requirements: SW-01–SW-10 (SUB-02–SUB-04, C-SUB). Branch/PR: `keith/student-drafts`, draft PR #26.
 
 ## How entries work
 
