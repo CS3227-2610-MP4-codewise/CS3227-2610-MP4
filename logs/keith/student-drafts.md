@@ -156,3 +156,49 @@ None.
 - Coverage/status: partial; 7 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
 
 > Correction (Coordinator, 2026-11-10): checkpoint `ui-variants-2026-11-10` shows "Agents spawned: None" because the Coordinator turn that spawned UI Implementers A, B and C (`ec62087c`) had already been shown at checkpoint `domain-2026-11-10`. The three UI Implementers were spawned in that turn; their rows above carry parent `ec62087c`.
+
+
+<!-- experiment-checkpoint:student-drafts:editor-choice-2026-11-10 -->
+<!-- experiment-turns:editor-choice-2026-11-10:33c191adec8e4a6b,8f2aa359ab90404c,baf78c9ed348c5f4,cccd409c35bce115,96aaa2d58bb21250,8d16005cc43ec138,b393d24f2a7db101,115961e64648785e,7038fd993199732a -->
+## Checkpoint `editor-choice-2026-11-10` — 2026-11-10T07:07:18.068132+00:00
+
+### Request
+
+Keith compared the three variants locally and chose B
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Keith ran A, B, C on ports 8791-8793 against the real student API (Coordinator seeded his local accounts in B and C). Choice recorded in proposal decision 10, design §9 and comparison.md. Merged keith/student-drafts-ui-b (31ab727) as c347460; A and C unmerged. Coordinator npm run check on merged branch: exit 0, 47 files / 597 tests; package.json and lockfile unchanged. Tasks 4.2, 5.1-5.3 ticked; 17/21 complete.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [editor-gate comparison](../../workflow/evidence/student-drafts/editor-gate/comparison.md).
+- Remaining limitations and next owner: Keith: decide rate limit; then 5.4 UI review + manual acceptance, 6.2 handoff/composition with Darryl, 7.1 composed acceptance, 7.2 final checks.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:26:36.047Z | 2026-11-10T06:26:40.913Z | final | claude-opus-5-5 | medium | 417 | 98 | 417 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:31:35.589Z | 2026-11-10T06:31:48.081Z | final | claude-opus-5-5 | medium | 1107 | 358 | 1107 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:35:59.062Z | 2026-11-10T06:36:04.409Z | final | claude-opus-5-5 | medium | 432 | 136 | 432 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:37:20.114Z | 2026-11-10T06:37:23.910Z | final | claude-opus-5-5 | medium | 339 | 0 | 339 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:45:17.665Z | 2026-11-10T06:45:32.585Z | final | claude-opus-5-5 | medium | 1007 | 298 | 1007 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:48:42.473Z | 2026-11-10T06:48:53.321Z | final | claude-opus-5-5 | medium | 513 | 36 | 513 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T06:56:54.973Z | 2026-11-10T06:57:08.614Z | final | claude-opus-5-5 | medium | 734 | 50 | 734 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T07:06:00.273Z | open | provisional | claude-opus-5-5 | medium | 3485 | 519 | 3485 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | 2026-11-10T06:17:02.506Z | provisional | final | 7998 | 1387 | 7998 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 116313555; cached input subset 113352491; output 792644; reasoning output subset unavailable; total 117106199.
+- Coverage/status: partial; 7 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
