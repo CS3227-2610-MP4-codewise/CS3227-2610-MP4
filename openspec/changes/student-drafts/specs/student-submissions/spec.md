@@ -123,7 +123,7 @@ A student SHALL be able to list their own attempts for an assignment, newest fir
 - **THEN** the history shows an honest empty state without invented status.
 
 ### Requirement: SW-09 C-SUB producer for assessment
-The system SHALL supply attempts to authorized instructors through the C-SUB contract only. It SHALL return complete attempts that pass validation by ID, and list, per publication, each student's latest committed attempt as the attempt to assess. Drafts SHALL NOT be returned, and stored data that fails the contract SHALL be reported as unavailable. [C-SUB, SUB-03/04, AUTH-02]
+The system SHALL supply attempts to authorized instructors through the C-SUB contract only. It SHALL return complete attempts that pass validation by ID, and list, per publication, each student whose latest committed attempt for the assignment is on that publication, with that attempt as the attempt to assess. Drafts SHALL NOT be returned, and stored data that fails the contract SHALL be reported as unavailable. [C-SUB, SUB-03/04, AUTH-02]
 
 #### Scenario: Instructor lists attempts to assess
 - **WHEN** a course instructor lists attempts for a publication where a student submitted twice

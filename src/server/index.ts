@@ -21,6 +21,7 @@ import {
 import { AssessmentRepository } from './instructor/assessments/repository';
 import { StudentAssignments } from './student/repository';
 import { studentHandler } from './student/http';
+import { StudentWork } from './student/work';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
 
 const securityHeaders = {
@@ -175,7 +176,12 @@ export function createApplication(ports: DevelopmentPorts = {}) {
         };
         if (pathname.startsWith('/api/auth/')) return auth.fetch(request);
         if (pathname.startsWith('/api/student/'))
-          return studentHandler(request, auth, new StudentAssignments(env.DB));
+          return studentHandler(
+            request,
+            auth,
+            new StudentAssignments(env.DB),
+            new StudentWork(env.DB),
+          );
         if (pathname === '/api/courses' || pathname.startsWith('/api/courses/'))
           return courseHandler(
             request,

@@ -30,6 +30,23 @@ export function studentGuardBindings(principal: TrustedPrincipal, now: number) {
   ] as const;
 }
 
+/**
+ * SW-01/05, AUTH-02/03: a D1 batch guard for student writes. The returned statement inserts a
+ * `course_write_guards` row whose `allowed` is computed in SQL, so a failed condition aborts the
+ * whole batch (CHECK course_authorization_guard). It uses a scalar EXISTS rather than a
+ * FROM-driven insert, so a missing target yields allowed=0 instead of silently inserting nothing.
+ * `guardId` and `where` are trusted SQL fragments over numbered parameters; bind
+ * studentGuardBindings as ?1–?4. Delete the guard row at the end of the batch.
+ */
+export function currentStudentWriteGuard(
+  guardId: string,
+  target: { from: string; courseColumn: string; where: string },
+) {
+  return `INSERT INTO course_write_guards(id,allowed) SELECT ${guardId}, CASE WHEN EXISTS (
+    SELECT 1 FROM ${target.from} WHERE (${target.where}) AND ${currentStudentGuard(target.courseColumn)}
+  ) THEN 1 ELSE 0 END`;
+}
+
 /** Current course authority, derived exclusively from the same D1 store as sessions. */
 export class CourseAuthority {
   constructor(

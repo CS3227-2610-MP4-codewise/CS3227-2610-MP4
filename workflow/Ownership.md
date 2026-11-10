@@ -131,3 +131,17 @@ Darryl is the sole shared schema/API writer for `src/server/ai/`, additive migra
 Keith reported on 2026-11-09 that Darryl agreed that Keith is the sole writer, with Darryl reviewing, for the student-assignment-dashboard change: student route wiring in `src/server/index.ts` and `src/web/main.tsx`, new `src/shared/student-assignments.ts`, the bounded latest-publication list read, the explicit current-Student authority addition in `src/server/courses/authority.ts`, and extraction of the neutral shared instruction renderer. Also in Keith's window: `src/server/student/`, `src/web/student/` and this change's artifacts, evidence, handoff and Keith log. This record carries Keith's report; Darryl's direct review is not claimed here. The reads use the existing D1 identity, course and publication tables: no migration, no new store, no dependency, and no change to SessionView, the `student-read` action or instructor semantics. The window does not include SH-AUTH return-destination changes, commits, pushes or deployments.
 
 Update 2026-11-09: Keith reported that Darryl reviewed and approved draft PR #25 (`2b2da64`), including the shared-file edits above. Keith asked for this to be treated as Darryl's approval. GitHub shows no submitted review on the PR at this time, so this record rests on Keith's report. Keith dropped the SH-AUTH student return-destination request on 2026-11-09, so no Darryl change is needed.
+
+## Student drafts writer window — reported agreed 2026-11-10
+
+Keith reported on 2026-11-10 that Darryl approved all shared decisions for the student-drafts change (SW-01–SW-10, C-SUB), including this writer window. One writer per file, Darryl reviewing:
+
+| File | Writer |
+|------|--------|
+| `src/server/db/migrations/0015_student_submissions.sql` (number rechecked at creation) | Keith (domain Implementer agent on `keith/student-drafts`) |
+| `src/shared/student-work.ts` | Keith (domain Implementer agent) |
+| `currentStudentWriteGuard` addition in `src/server/courses/authority.ts` | Keith (domain Implementer agent) |
+| Student route wiring in `src/server/index.ts` | Keith (domain Implementer agent) |
+| Student workbook route wiring in `src/web/main.tsx` | Keith (one UI Implementer agent per variant branch `keith/student-drafts-ui-{a,b,c}`; only the variant Keith chooses at task 4.2 merges) |
+
+Also in Keith's window: `src/server/student/`, `src/web/student/`, the change's artifacts, evidence, handoff and Keith log. `SubmissionCatalog` composition in place of the loopback samples (task 6.2) is not opened by this record. This record carries Keith's report; Darryl's direct review is not claimed. No push or deployment is authorized by it.

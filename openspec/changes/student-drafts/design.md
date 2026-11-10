@@ -50,7 +50,7 @@ student_attempt_answers(id PK, attempt_id, question_version_id, rubric_version_i
 ```text
 GET  /api/student/publications/:pub/work             → drafts per question (or starter@0), latest-publication pointer, attempt count
 PUT  /api/student/drafts/:questionVersionId          {baseRevision, source} → {revision, sourceHash, savedAt} | 409 {revision, source, sourceHash}
-POST /api/student/publications/:pub/drafts/move      {questionVersionId(old), targetQuestionVersionId} → new revision on target
+POST /api/student/publications/:pub/drafts/move      {questionVersionId(old), targetQuestionVersionId, targetBaseRevision} → new revision on target | 409 current target
 POST /api/student/publications/:pub/attempts         {idempotencyKey, answers:[{questionVersionId, draftRevision, sourceHash}]}
 GET  /api/student/publications/:pub/attempts         → own attempts, newest first (bounded page of 50)
 GET  /api/student/attempts/:attemptId                → own attempt (attempt contract projection)
@@ -74,15 +74,16 @@ GET  /api/student/attempts/:attemptId                → own attempt (attempt co
 - **First save (base 0):** uses `INSERT … ON CONFLICT DO NOTHING`.
 - **Zero rows changed:** the handler returns 409 with the current row so the client can reconcile.
 - **Source handling:** source is normalised once with the existing K4 `canonicalizeSource` and `sourceHash` primitives, and the hash is computed on the server.
-- **Unchanged source:** a save whose source matches the stored hash returns the current revision without writing.
+- **Unchanged source:** a save whose source matches the stored hash returns the current revision without writing. Exception: a base-0 save always inserts revision 1, even when the text equals the starter, because the attempt contract requires `draftRevision ≥ 1`. The client saves untouched questions before submit.
+- **Applied refinement (2026-11-10, reviewed):** a draft save is one statement with the current-Student guard in its `WHERE` clause rather than a guard-row batch, so a save writes one row. A revoked member changes no row and receives 404. Move and submit keep the guard-row batch; move also compare-and-swaps the target with `targetBaseRevision`, so it never overwrites newer work there.
 
 ### 5. Atomic submit and idempotency
 
 The submit is one D1 batch, in this order:
-1. The guard row (membership, latest publication, deadline, and complete question coverage computed from the publication's question count).
-2. A per-question guard that each stored draft revision and hash equal the confirmed pair.
-3. `INSERT student_attempts`.
-4. `INSERT … SELECT` of the answers from `student_drafts`, so the request body's source is never used.
+1. One guard statement (membership, latest publication, deadline, complete question and rubric coverage computed from the publication, and, through `json_each` over the confirmed pairs, that each stored draft revision and hash equal the confirmed pair).
+2. `INSERT student_attempts`.
+3. `INSERT … SELECT` of the answers from `student_drafts`, so the request body's source is never used.
+4. Cleanup of the guard row.
 
 Rules:
 - **Replay first.** Before the batch, a lookup on `(user, assignment, key)` handles replay. The same fingerprint returns the stored attempt; a different fingerprint returns 409. This lookup runs only after a current-membership read check, so a revoked member gets no replay data.
@@ -97,7 +98,7 @@ Rules:
 `D1SubmissionCatalog` in `src/server/student/` implements `SubmissionCatalog` with `sampleMode=false`:
 - **`getAuthorized`:** returns the attempt in the closed shape and checks it with `validateAttempt` against the pinned publication.
 - **`scope`:** maps attempt to course.
-- **`list`:** returns one row per student, their latest attempt, labelled with an opaque per-course student label. No email address is used unless Darryl's existing label policy says otherwise.
+- **`list`:** for a publication, returns one row per student whose latest committed attempt for the whole assignment is on that publication (ordered by `submitted_at`, then insert sequence), labelled with an opaque per-course student label. A student whose latest attempt is on a newer publication appears only under that publication. More than 1,000 rows fails closed as unavailable rather than truncating. No email address is used unless Darryl's existing label policy says otherwise.
 
 Instructor authority still comes from Darryl's workflow identity wrapper. Composition in `index.ts` uses the real catalog in place of the loopback samples outside loopback development. Checks use Darryl's `workflow/contracts/instructor-contracts.ts` factory suites with the real catalog.
 
@@ -128,7 +129,7 @@ Instructor authority still comes from Darryl's workflow identity wrapper. Compos
 - **Alternatives:**
   - Textarea with a `prismjs` overlay: no new dependency, but layered overlays are fragile for selection, IME input and screen readers.
   - Monaco: a large bundle and weak on mobile.
-- **The gate.** Prototypes are compared against SW-04 and UI-01/04/07: keyboard, screen reader, 320 px, 200% zoom, light and dark, and bundle size. Keith then approves the dependency with exact pinned versions, and the editor sits behind a small `CodeEditor` wrapper so it can be swapped. Running the prototypes as several agents is optional and needs its own authorization when the work is applied.
+- **The gate.** Keith decided on 2026-11-10 that the gate compares three full workbook variants rather than thin prototypes: A (CodeMirror 6), B (textarea + `prismjs`) and C (Monaco, falling back to CodeMirror 6 with an alternative layout if Monaco is measured as unworkable). Each variant implements tasks 5.1–5.3 on its own worktree branch (`keith/student-drafts-ui-{a,b,c}`) off the reviewed domain commit, built by a separate, authorized UI Implementer agent. Candidate packages stay on variant branches. The variants are compared against SW-04 and UI-01/04/07: keyboard, screen reader, 320 px, 200% zoom, light and dark, and bundle size. Keith then chooses one, approves its dependency with exact pinned versions, and only that variant is merged; the editor sits behind a small `CodeEditor` wrapper so it can be swapped.
 
 ## Authorization, data boundaries, isolation and resource limits
 
@@ -136,7 +137,7 @@ Instructor authority still comes from Darryl's workflow identity wrapper. Compos
 - **What each role sees:** drafts are owner-only and never reach instructor, catalog or AI paths. Attempts reach instructors only through `SubmissionCatalog`. No private reference column is selected anywhere.
 - **No execution:** source is stored and rendered as text only, with no `eval` and no execution path.
 - **Isolation:** local development uses synthetic fixtures. The staging and production D1 databases are separate, and migration 0015 reaches them only through the reviewed release workflow. Real learner data is blocked by SW-10.
-- **Size limits:** 32 KiB per source and at most 20 questions per assignment (from the attempt schema), so an attempt is at most about 640 KiB. History pages hold at most 50 attempts. The JSON request body is limited to 64 KiB for a save and the attempt bound for a submit.
+- **Size limits:** 32 KiB per source and at most 20 questions per assignment (from the attempt schema), so an attempt is at most about 640 KiB. History pages hold at most 50 attempts. The JSON request body for a save is bounded to cover a 32 KiB source at worst-case JSON escaping (6×, `\u00XX`) plus envelope; a submit carries only revisions and hashes. A per-user save/submit rate limit is not part of this change; it is an open decision for Keith (reviewer finding, 2026-11-10).
 - **Request and write quota:** each acknowledged save is one D1 write and one Worker request. The current Workers Free and D1 daily allowances are not assumed here; task 1.4 measures a synthetic session's save rate against the published figures before the save timing is fixed. If needed, the 10 s maximum interval is lengthened, without weakening the save on blur, navigation and submit. Unchanged-hash saves skip writing.
 
 ## Risks / Trade-offs

@@ -38,6 +38,8 @@ Students can now find a published assignment and read its overview (student-assi
 - The editor library and the dependency approval (decision 10).
 - The current D1 and Workers Free daily write/request allowances must be checked and measured against the save cadence. Neither figure is assumed here.
 
+Update 2026-11-10: Keith reported that Darryl approved all shared decisions (the writer window and decisions 1–4, 6, 7 and the `SubmissionCatalog.list` semantics). See `workflow/Ownership.md` and the C-SUB producer gates in `workflow/IntegrationContracts.md`. The editor gate now compares three full workbook variants (design §9, task 4.1); the editor choice and dependency approval remain open.
+
 ## Capabilities
 
 ### New Capabilities

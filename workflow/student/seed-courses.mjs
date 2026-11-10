@@ -11,7 +11,7 @@ try {
   plan = seedPlan(process.argv.slice(2));
 } catch {
   console.error(
-    'Usage: node workflow/student/seed-courses.mjs seed|remove <count 1-300> <account-id> <issuer> <subject>\n' +
+    'Usage: node workflow/student/seed-courses.mjs seed|remove|seed-work <count 1-300> <account-id> <issuer> <subject>\n' +
       'Find the account with: npm run auth:local -- accounts',
   );
   process.exit(1);
