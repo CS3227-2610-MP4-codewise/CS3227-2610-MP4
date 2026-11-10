@@ -27,7 +27,7 @@ Students can now find a published assignment and read its overview (student-assi
 | 7 | Retention: all of a student's attempts and drafts, and the feedback linked to them, are kept until course archive + 90 days. Backup retention windows must be disclosed. The course-archive event is a Darryl SH-ID dependency. |
 | 8 | Drafts are pinned to their publication. Moving a draft to a newer publication is an explicit copy. |
 | 9 | Conflict recovery uses the local-versus-server window described above. Unsaved text is backed up in per-tab `sessionStorage`, scoped to user, publication and question, and cleared on acknowledged save, sign-out and session loss. Saves run 1.5 s after typing stops, at least every 10 s while typing continues, on blur, and before navigation, review or submit. |
-| 10 | The proposed editor is CodeMirror 6, decided at the editor gate after a prototype comparison. Adding the dependency needs explicit approval at that gate. |
+| 10 | The proposed editor was CodeMirror 6, decided at the editor gate after a prototype comparison. **Decided 2026-11-10: variant B (textarea + `prismjs` overlay), no new dependency** (see update below). |
 | 11 | Migration `0015` is the next after current main `0014`; the number is rechecked when the file is created. |
 | 12 | Keith supplies the D1 `SubmissionCatalog` at a reviewed revision, checked with Darryl's existing contract suites. Darryl, or Keith in a granted window, composes it in `src/server/index.ts` in place of the loopback samples. |
 
@@ -39,6 +39,8 @@ Students can now find a published assignment and read its overview (student-assi
 - The current D1 and Workers Free daily write/request allowances must be checked and measured against the save cadence. Neither figure is assumed here.
 
 Update 2026-11-10: Keith reported that Darryl approved all shared decisions (the writer window and decisions 1–4, 6, 7 and the `SubmissionCatalog.list` semantics). See `workflow/Ownership.md` and the C-SUB producer gates in `workflow/IntegrationContracts.md`. The editor gate now compares three full workbook variants (design §9, task 4.1); the editor choice and dependency approval remain open.
+
+Update 2026-11-10 (editor gate, decision 10): after running all three variants locally against the real student API, Keith chose **variant B, a native textarea with a `prismjs` highlighting overlay**, for its overall look and because it needs no new dependency (`prismjs` 1.30.0 is already used by the instructor UI). This replaces the proposed CodeMirror 6. No dependency approval was needed; `package.json` and the lockfile are unchanged. Only `keith/student-drafts-ui-b` was merged; variants A (CodeMirror 6) and C (Monaco) stay unmerged, and C's Worker CSP question is moot. See `workflow/evidence/student-drafts/editor-gate/comparison.md`.
 
 ## Capabilities
 

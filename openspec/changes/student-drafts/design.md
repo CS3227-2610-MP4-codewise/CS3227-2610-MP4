@@ -125,7 +125,8 @@ Instructor authority still comes from Darryl's workflow identity wrapper. Compos
 
 ### 9. Editor component (gate)
 
-- **Leading option: CodeMirror 6.** It has a Python language mode and line-number gutter, accessible keyboard focus with Esc to leave so Tab isn't trapped, and touch support, at a modest bundle size.
+- **Decision (Keith, 2026-11-10): variant B, a native textarea with a `prismjs` overlay and line-number gutter**, chosen after a hands-on comparison of all three variants, for its look and because it adds no dependency. Its overlay risks (selection, IME, scroll sync) are mitigated by keeping the textarea as the real input with the overlay and gutter `aria-hidden`; real IME and screen-reader checks remain for task 5.4. The original analysis follows.
+- **Leading option (pre-gate): CodeMirror 6.** It has a Python language mode and line-number gutter, accessible keyboard focus with Esc to leave so Tab isn't trapped, and touch support, at a modest bundle size.
 - **Alternatives:**
   - Textarea with a `prismjs` overlay: no new dependency, but layered overlays are fragile for selection, IME input and screen readers.
   - Monaco: a large bundle and weak on mobile.

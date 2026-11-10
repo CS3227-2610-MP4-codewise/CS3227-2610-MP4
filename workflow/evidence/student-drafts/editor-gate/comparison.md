@@ -1,6 +1,6 @@
 # Editor gate: three workbook variants (task 4.1, SW-04, SUB-02, UI-01/04/07)
 
-Written by the Coordinator on 2026-11-10 from measured data only. Design revision: `warm-workbook-v1`. Keith's choice and dependency approval (task 4.2) are still pending. No variant or candidate dependency is merged into `keith/student-drafts`.
+Written by the Coordinator on 2026-11-10 from measured data only. Design revision: `warm-workbook-v1`. **Outcome (2026-11-10):** after running all three variants locally against the real student API with a real sign-in, Keith chose **variant B** for its overall look and because it adds no dependency. Only `keith/student-drafts-ui-b` (`31ab727`) is merged into `keith/student-drafts`; A and C stay unmerged.
 
 Each variant implements tasks 5.1–5.3 in full, on its own branch based on the reviewed domain commit `defbd63`. A separate Sonnet 5.5 UI Implementer agent built each one. An Opus 5.5 Reviewer agent, read-only, reviewed all three, and each variant then had one repair round. The per-variant notes, run guides and screenshots are on each variant branch under `workflow/evidence/student-drafts/editor-gate/<a|b|c>/`.
 
