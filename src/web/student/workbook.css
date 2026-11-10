@@ -1,0 +1,398 @@
+/* warm-workbook-v1 workbook (UI-04/05/07): shared tokens only, ruled surfaces, no cards. */
+.cw-wb {
+  max-width: 78rem;
+}
+.cw-wb-head {
+  margin: 8px 0 16px;
+  display: grid;
+  gap: 4px;
+}
+.cw-wb-head h1 {
+  font: 1.75rem/1.25 var(--cw-font-editorial);
+  font-weight: 400;
+}
+.cw-student-meta-line {
+  color: var(--cw-secondary);
+  font-size: 0.9375rem;
+}
+.cw-wb-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  border-top: 1px solid var(--cw-rule);
+  padding-top: 24px;
+  margin-bottom: 24px;
+}
+/* Side by side only when both panes stay readable; stacked around 720px (UI-07). */
+@media (min-width: 45rem) {
+  .cw-wb-panes {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 0;
+  }
+  .cw-wb-question {
+    padding-right: 24px;
+    border-right: 1px solid var(--cw-rule);
+  }
+  .cw-wb-work {
+    padding-left: 24px;
+  }
+}
+.cw-wb-question h2 {
+  font: 1.4rem/1.4 var(--cw-font-editorial);
+  font-weight: 400;
+  margin: 0 0 12px;
+}
+.cw-wb-question h2:focus {
+  outline: 2px solid var(--cw-accent);
+  outline-offset: 4px;
+}
+.cw-wb summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+.cw-wb-work,
+.cw-wb-question {
+  min-width: 0;
+}
+
+/* Answer views: equal targets with an active underline. */
+.cw-wb-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--cw-rule);
+  margin-bottom: 16px;
+}
+.cw-wb-tabs [role='tab'] {
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 12px;
+  color: var(--cw-secondary);
+  font-size: 0.9375rem;
+}
+.cw-wb-tabs [role='tab'][aria-selected='true'] {
+  color: var(--cw-ink);
+  border-bottom-color: var(--cw-accent);
+  font-weight: 600;
+}
+
+/* Save state: symbol + text + rule, never colour alone. */
+.cw-wb-savebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 8px;
+  min-height: 44px;
+}
+.cw-wb-save {
+  font-size: 0.875rem;
+  padding-left: 10px;
+  border-left: 3px solid var(--cw-secondary);
+  color: var(--cw-ink);
+}
+.cw-wb-save[data-status='saved'] {
+  border-left-color: var(--cw-success);
+}
+.cw-wb-save[data-status='failed'],
+.cw-wb-save[data-status='conflict'] {
+  border-left-color: var(--cw-accent);
+  font-weight: 600;
+}
+.cw-wb-save[data-status='unsaved'],
+.cw-wb-save[data-status='saving'] {
+  border-left-style: dashed;
+}
+.cw-wb-hint {
+  font-size: 0.8125rem;
+  color: var(--cw-secondary);
+  margin-top: 8px;
+}
+.cw-wb-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+.cw-wb-confirm {
+  border-top: 2px solid var(--cw-ink);
+  padding-top: 12px;
+  margin-top: 16px;
+}
+.cw-wb-newer {
+  border-top: 1px solid var(--cw-rule);
+  border-bottom: 1px solid var(--cw-rule);
+  padding: 12px 0;
+  margin: 16px 0;
+}
+
+/* ---- Editor: textarea over an aria-hidden Prism layer, with a line-number gutter. */
+.cw-editor {
+  --cw-editor-pad: 12px;
+  position: relative;
+  min-width: 0;
+}
+.cw-editor-frame {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  height: clamp(14rem, 50vh, 30rem);
+  background: var(--cw-page);
+  border: 1px solid var(--cw-ink);
+  font: 14px/1.9 var(--cw-font-code);
+  overflow: hidden;
+}
+.cw-editor-frame:focus-within {
+  outline: 3px solid var(--cw-accent);
+  outline-offset: 2px;
+}
+.cw-editor-gutter {
+  overflow: hidden;
+  white-space: pre;
+  text-align: right;
+  padding: var(--cw-editor-pad) 8px var(--cw-editor-pad) 12px;
+  /* Extra bottom room equals the textarea's horizontal scrollbar so the last line aligns. */
+  padding-bottom: calc(var(--cw-editor-pad) + 20px);
+  color: var(--cw-secondary);
+  border-right: 1px solid var(--cw-rule);
+  background: var(--cw-canvas);
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+  line-height: calc(14px * 1.9);
+}
+.cw-editor-surface {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+.cw-editor-layer,
+.cw-editor-input {
+  grid-area: 1 / 1;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: var(--cw-editor-pad);
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+  font-variant-ligatures: none;
+  tab-size: 4;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.cw-editor-layer {
+  overflow: hidden;
+  pointer-events: none;
+  /* Room so the layer can scroll as far as the textarea with its scrollbars. */
+  padding-bottom: calc(var(--cw-editor-pad) + 20px);
+  padding-right: calc(var(--cw-editor-pad) + 20px);
+}
+.cw-editor-layer code {
+  font: inherit;
+  letter-spacing: inherit;
+  font-variant-ligatures: inherit;
+}
+.cw-editor-input {
+  resize: none;
+  overflow: auto;
+  background: transparent;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: var(--cw-ink);
+  outline: none;
+}
+.cw-editor-input::selection {
+  background: color-mix(in srgb, var(--cw-accent) 35%, transparent);
+  -webkit-text-fill-color: transparent;
+}
+.cw-editor-input[readonly] {
+  cursor: default;
+}
+.cw-editor-exit {
+  /* Visually hidden but focusable (display:none could not receive focus). */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.cw-editor-exit:focus {
+  position: static;
+  display: block;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  white-space: normal;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  padding: 8px 12px;
+  border-left: 3px solid var(--cw-accent);
+  outline: none;
+}
+/* Forced colours: transparent text would vanish, so show the real text and drop the layer. */
+@media (forced-colors: active) {
+  .cw-editor-layer {
+    visibility: hidden;
+  }
+  .cw-editor-input {
+    color: CanvasText;
+    -webkit-text-fill-color: currentColor;
+    forced-color-adjust: auto;
+  }
+  .cw-editor-input::selection {
+    background: Highlight;
+  }
+}
+.cw-wb .token.comment {
+  color: light-dark(#376339, #9fc78c);
+}
+.cw-wb .token.keyword,
+.cw-wb .token.boolean {
+  color: light-dark(#8a3c7c, #d7a5dc);
+}
+.cw-wb .token.string {
+  color: light-dark(#925229, #e1ad80);
+}
+.cw-wb .token.number {
+  color: light-dark(#63579a, #c7b5ee);
+}
+.cw-wb .token.function,
+.cw-wb .token.builtin,
+.cw-wb .token.callable {
+  color: light-dark(#245d83, #96c7ec);
+}
+.cw-wb .token.call-receiver {
+  color: light-dark(#6a4f8e, #c1a5dd);
+}
+
+/* ---- Conflict window */
+.cw-wb-conflict h3 {
+  font: 1.2rem/1.4 var(--cw-font-editorial);
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+.cw-wb-diff-scroll {
+  overflow: auto;
+  max-height: 24rem;
+  border: 1px solid var(--cw-rule);
+  margin: 12px 0;
+}
+.cw-wb-diff {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 36rem;
+  font-size: 0.8125rem;
+  table-layout: fixed;
+}
+.cw-wb-diff th {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 2px solid var(--cw-ink);
+  background: var(--cw-canvas);
+  font-weight: 600;
+}
+.cw-wb-diff td {
+  vertical-align: top;
+  padding: 2px 8px;
+  white-space: pre;
+  font-family: var(--cw-font-code);
+  line-height: 1.7;
+  border-bottom: 1px solid var(--cw-rule);
+}
+.cw-wb-diff td + td {
+  border-left: 1px solid var(--cw-rule);
+}
+.cw-wb-diff tr:not([data-kind='same']) td:not([data-empty]) {
+  background: var(--cw-annotation);
+  border-left: 4px solid var(--cw-accent);
+}
+.cw-wb-diff td[data-empty] {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    var(--cw-rule) 6px 7px
+  );
+}
+.cw-wb-ln {
+  display: inline-block;
+  min-width: 2.5ch;
+  margin-right: 8px;
+  color: var(--cw-secondary);
+  text-align: right;
+}
+.cw-wb-mark {
+  display: inline-block;
+  width: 2ch;
+  font-weight: 700;
+  color: var(--cw-accent);
+}
+.cw-wb-legend {
+  font-size: 0.8125rem;
+  color: var(--cw-secondary);
+}
+.cw-wb-fallback textarea {
+  width: 100%;
+  font: 14px/1.7 var(--cw-font-code);
+  background: var(--cw-page);
+  color: var(--cw-ink);
+  border: 1px solid var(--cw-ink);
+  padding: 8px;
+}
+
+/* ---- Review, attempts */
+.cw-wb-review h2:focus,
+.cw-wb-attempt h3:focus {
+  outline: 2px solid var(--cw-accent);
+  outline-offset: 4px;
+}
+.cw-wb-review-list,
+.cw-wb-attempt-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  border-top: 1px solid var(--cw-rule);
+}
+.cw-wb-review-list > li,
+.cw-wb-attempt-list > li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--cw-rule);
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.cw-wb-review-list > li[data-state='failed'],
+.cw-wb-review-list > li[data-state='conflict'] {
+  border-left: 4px solid var(--cw-accent);
+  padding-left: 12px;
+}
+.cw-wb-review-list h3 {
+  font-size: 1rem;
+}
+.cw-wb-attempt-source {
+  max-height: 24rem;
+}
+
+@media (max-width: 30rem) {
+  .cw-wb-actions .cw-action {
+    flex: 1 1 100%;
+  }
+  .cw-question-navigation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cw-wb * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

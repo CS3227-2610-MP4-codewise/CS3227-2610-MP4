@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixed-width frame for narrow-viewport evidence</title>
+    <style>
+      body {
+        margin: 0;
+        background: #888;
+      }
+      iframe {
+        display: block;
+        border: 0;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Headless browsers enforce a minimum window width, so a true 320 CSS px viewport is an iframe.
+      const p = new URLSearchParams(location.search);
+      const f = document.createElement('iframe');
+      f.width = p.get('w') || '320';
+      f.height = p.get('h') || '1500';
+      f.src = '/index.html?' + (p.get('q') || '');
+      document.body.appendChild(f);
+    </script>
+  </body>
+</html>

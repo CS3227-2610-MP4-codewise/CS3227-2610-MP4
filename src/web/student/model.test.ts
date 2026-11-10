@@ -347,15 +347,19 @@ describe('student rendering', () => {
     }
   });
 
-  it('never persists protected student data in browser storage', async () => {
+  it('never persists protected student data in durable browser storage', async () => {
+    // SW-04: the only storage allowed is the per-tab sessionStorage draft backup, and only
+    // in work-model.ts (cleared on acknowledged save, sign-out, 401 and account change).
     const files = (await readdir('src/web/student')).filter(
       (name) => /\.tsx?$/.test(name) && !name.endsWith('.test.ts'),
     );
     for (const name of files) {
       const source = await readFile('src/web/student/' + name, 'utf8');
       expect(source, name).not.toMatch(
-        /localStorage|sessionStorage|indexedDB|caches\.|serviceWorker/,
+        /localStorage|indexedDB|caches\.|serviceWorker/,
       );
+      if (name !== 'work-model.ts')
+        expect(source, name).not.toMatch(/sessionStorage/);
     }
   });
 });
