@@ -138,3 +138,155 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 17041088; cached input subset 16833152; output 105426; reasoning output subset 20777; total 17146514.
 - Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+## Computer-use UI checkpoint — 2026-11-10
+
+- Request: run task 5.2 with native computer use, fill the keyboard/screen-reader/responsive/display/state checklist and save redacted screenshots. Keith explicitly approved creation and then publication of local synthetic test content.
+- Main `/root` performed the local Edge self-review; no application source edits. Requirements SD-05/06, UI-01/02/03/04/07/08, design `warm-workbook-v1`; source `8a7951f` plus pre-existing working-tree repair/tests.
+- Outcomes: [UI review](../../workflow/evidence/student-assignment-dashboard/ui-review.md), [filled checklist / 35 screenshots](../../workflow/evidence/student-assignment-dashboard/manual-ui-checklist.md), [verification](../../workflow/evidence/student-assignment-dashboard/task-5.2-verification.md). Header/links/pager/heading/source keyboard sequences, requested sizes, reported 200% zoom, dark appearance, long content and requested state categories observed. VoiceOver speech and exhaustive rendered contrast/target measurements remain unverified.
+- Findings/rework: retry loses visible focus; cross-tab session loss hides heading/Sign in until reload; Offline full-document Refresh reaches browser error; native role radios differ from documented switch semantics. No fixes silently applied. Early incorrect-width captures were replaced after explicit AX width verification; menu selections were rechecked before relying on them.
+- Verification: first sandbox `npm run check` failed with localhost EPERM; permitted-localhost rerun exits 0 (16 strict spec validations, 455 Vitest + 4 deployment tests, typecheck/lint/build). Existing bundle-size warning remains.
+- Fixture cleanup: 105 temporary synthetic memberships deactivated and zero active count verified. Approved synthetic publication remains locally; signed out, zoom/network/motion/theme test overrides reset or disabled, DevTools closed. No remote mutation or deployment.
+- Next: Keith repairs/rechecks F1/F2, completes remaining manual combinations and accepts; Darryl reviews shared shell/control semantics. Task 5.2 remains unchecked; 5.3 final privacy/security/team review is separate.
+
+### Agents spawned
+
+None. This request authorized computer-use verification, not delegation; one agent controlled the shared browser.
+
+### Recording and usage
+
+No start/resume request was made and recording was not activated. This narrative checkpoint adds no generated tracker rows and changes no prior measurements. Current-turn token measurements/source-group linkage are unavailable; no historical telemetry or rationale is invented.
+
+
+<!-- retrospective-audit:retrospective-task52-2026-11-10 -->
+## Retrospective usage audit — 2026-11-10
+
+### Request and results
+
+Keith explicitly requested an audit of this session's retained usage and timeline, and updates to relevant logs/tracking files. The prior computer-use checkpoint's “usage unavailable” statement is superseded for the completed turns below: exact response metadata was recovered. This is an append-only correction; prior history and generated bounded-turn tables are preserved.
+
+- Evidence: [retrospective audit and timeline](../../workflow/evidence/student-assignment-dashboard/retrospective-audit/audit.md), [allowlisted counters](../../workflow/evidence/student-assignment-dashboard/retrospective-audit/audit.json), [tracker verification](../../workflow/evidence/student-assignment-dashboard/retrospective-audit/tracker-verification.json).
+- Source group: `codex-01a1c1a1-completed-prefix`; session `01a1c1a1`; Codex `gpt-6.1-sol`, medium effort, from source metadata. Scoped completed-prefix SHA-256 is recorded in the audit; no raw source, prompts, tool bodies, credentials, paths or reasoning text exported.
+- Tracker updated through its supported attach/annotate/report commands. Redacted annotation ID `retrospective-task52-2026-11-10`; state remains off, no turns admitted, no start/resume/backdated recording. Before/after digest of dashboard bounded records unchanged; tracker validation passes. Existing Claude bounded measurements stay separate.
+
+### Agents spawned
+
+None observed in either completed turn. Main `/root` performed the review and audit; there were no spawned/reused child identities. No child token rollup is added.
+
+### Retrospective activity (excluded from bounded Turn activity tables)
+
+| Turn / work | Singapore start | Singapore end | Wall seconds | Responses | Output | Reasoning subset | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `01a1c1a2` — computer-use task 5.2 | 2026-11-10 02:47:02.133 | 2026-11-10 03:24:49.447 | 2267.314 | 196 | 43,759 | 11,633 | completed; retrospectively measured |
+| `01a1c1c6` — feasibility question | 2026-11-10 03:25:46.894 | 2026-11-10 03:26:16.581 | 29.687 | 3 | 1,043 | 505 | completed; retrospectively measured |
+
+### Reconciliation and coverage
+
+- Computer-use turn: input **26,251,241**; cached-input subset **26,056,832**; output **43,759**; reasoning-output subset **11,633**; total input + output **26,295,000**. Elapsed wall time **37m 47.314s**. These are repeated model-request counters, not unique context size or monetary cost.
+- Completed scope (two turns, each counted once): input **26,900,028**; cached-input subset **26,701,440**; cache-write input **0** (explicit source counter); output **44,802**; reasoning-output subset **12,138**; total **26,944,830**. Do not add this combined line to the individual rows or historical increment totals.
+- Exact usage from **199 unique response IDs**, attributed by explicit turn IDs; both final cumulative snapshots independently match the summed response records. Cached input is already within input; reasoning output is already within output. No cumulative fallback, invented per-phase allocation, idle/waste classification or price estimate used.
+- Two approval replies during computer use are within its structural turn, with no separate task-start records; no invented separate prompt-level usage.
+- Cutoff: **2026-11-10 03:26:16.581 +08:00**. The current audit turn and its future final response are excluded and remain unmeasured in this snapshot; reconcile explicitly at a later checkpoint if requested.
+- UI outcomes remain unchanged: task 5.2 stays open for findings, remaining manual checks and Keith acceptance. Resource recovery is not runtime acceptance. No application/collector implementation changes or delegation.
+
+
+<!-- experiment-checkpoint:student-assignment-dashboard:task52-browser-recheck-2026-11-10 -->
+<!-- experiment-turns:task52-browser-recheck-2026-11-10:5ce75db134cdc672,ae026d6520a63761,34b81ae2a1657f8d,f2d8372dbb1374ec,ea4256d444ace425,2d8cb3503e0a315e,ac9cbfb0f6be9c06,c8e3de6758ef198d,9e67029da1995f3e,d50e0e899bcbe896,03ced9d8aebd6a0d,025b500d22f3c69e,453800d7335c907f,752bf83cd8318957,f529bd891da44302,05db8c43231d0b07,52abc157ba305cd5,e4d9e88f0645a26f,078f2192a3ae97cd,2177cfd97ed29022,34292fae80f06fc6,84feb122b7636c23,aa412103458ef38f,e885f0bf74f89b0e -->
+## Checkpoint `task52-browser-recheck-2026-11-10` — 2026-11-10T02:25:41.812298+00:00
+
+### Request
+
+Retake screenshot evidence and recheck normal-window zoom, keyboard retry, role keys, VoiceOver and rendered readings
+
+### Results
+
+- Owner: Keith.
+- Changes and why: 35 screenshots retaken under existing names; normal 1280px at 200% verified without device toolbar; blocked Tab/Space retry focuses heading; role radios preserve selection on Space/Enter, F4 open; VoiceOver audio unavailable; rendered target/color samples recorded, ratios calculated; full check 456+4 passes; temporary fixtures and settings cleaned; limited self-review sign-off, task 5.2 remains open; main only, no children
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Browser recheck](../../workflow/evidence/student-assignment-dashboard/task-5.2-recheck.md).
+- Remaining limitations and next owner: Keith: VoiceOver listening/manual acceptance; Darryl/team: shared role/session findings; retain task 5.2 and 5.3 open.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T15:11:31.809Z | 2026-11-09T15:11:50.363Z | final | claude-opus-5-5 | medium | 1394 | 350 | 1394 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T16:31:47.270Z | 2026-11-09T16:32:33.174Z | final | claude-opus-5-5 | medium | 3961 | 1297 | 3961 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T16:35:44.433Z | 2026-11-09T16:36:13.127Z | final | claude-opus-5-5 | medium | 2582 | 553 | 2582 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T16:44:53.973Z | 2026-11-09T16:44:57.369Z | final | claude-opus-5-5 | medium | 232 | 0 | 232 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T16:48:42.579Z | 2026-11-09T16:48:49.126Z | final | claude-opus-5-5 | medium | 490 | 84 | 490 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T16:50:56.429Z | 2026-11-09T16:51:06.719Z | final | claude-opus-5-5 | medium | 1177 | 17 | 1177 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T17:04:34.254Z | 2026-11-09T17:04:39.713Z | final | claude-opus-5-5 | medium | 437 | 0 | 437 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T17:15:41.499Z | 2026-11-09T17:15:51.142Z | final | claude-opus-5-5 | medium | 804 | 353 | 804 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T17:22:27.437Z | 2026-11-09T17:22:57.410Z | final | claude-opus-5-5 | medium | 2275 | 940 | 2275 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T17:25:07.945Z | 2026-11-09T17:25:24.317Z | final | claude-opus-5-5 | medium | 1294 | 338 | 1294 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T17:28:09.799Z | 2026-11-09T17:28:51.621Z | final | claude-opus-5-5 | medium | 3937 | 997 | 3937 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T17:32:13.695Z | 2026-11-09T17:32:40.459Z | final | claude-opus-5-5 | medium | 2171 | 684 | 2171 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T17:40:24.801Z | 2026-11-09T17:40:40.863Z | final | claude-opus-5-5 | medium | 1512 | 85 | 1512 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T18:13:49.505Z | 2026-11-09T18:14:29.622Z | final | claude-opus-5-5 | medium | 3652 | 617 | 3652 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T18:15:33.917Z | 2026-11-09T18:16:49.113Z | final | claude-opus-5-5 | medium | 6962 | 628 | 6962 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T18:23:15.223Z | 2026-11-09T18:24:13.304Z | final | claude-opus-5-5 | medium | 3870 | 617 | 3870 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T18:26:56.262Z | 2026-11-09T18:28:26.184Z | final | claude-opus-5-5 | medium | 1455 | 624 | 1455 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T18:31:04.576Z | 2026-11-09T18:31:13.850Z | final | claude-opus-5-5 | medium | 859 | 202 | 859 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T18:32:45.513Z | 2026-11-09T18:33:18.293Z | final | claude-opus-5-5 | medium | 2681 | 397 | 2681 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T18:34:03.106Z | 2026-11-09T18:34:19.690Z | final | claude-opus-5-5 | medium | 1517 | 276 | 1517 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T19:29:19.388Z | 2026-11-09T19:30:24.484Z | final | claude-opus-5-5 | medium | 5187 | 2319 | 5187 |
+| Implementer / implementer | c1aaaded | root | 2026-11-09T19:50:50.397Z | 2026-11-09T19:52:13.123Z | final | claude-opus-5-5 | medium | 5910 | 2079 | 5910 |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T01:41:13.908Z | 2026-11-10T01:41:29.527Z | final | claude-opus-5-5 | medium | 1024 | 283 | 1024 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | 2026-11-09T14:37:15.613Z | provisional | final | 29016 | 6376 | 29016 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 27661693; cached input subset 27129511; output 161699; reasoning output subset 34517; total 27823392.
+- Coverage/status: observed-complete; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+Checkpoint attribution clarification: recording remained off for this native-Edge recheck. The generated Turn activity/Reconciliation tables above reconcile previously admitted Claude-session turns in this increment; they are not measurements of the current Codex browser-review turn. Current-turn resource totals are unavailable in bounded tracking. Main `/root` performed this review without children; the review outcome is limited acceptance of F1 and ordinary-window zoom, with overall task 5.2 returned with findings.
+
+
+<!-- experiment-checkpoint:student-assignment-dashboard:acceptance-5x-2026-11-10 -->
+<!-- experiment-turns:acceptance-5x-2026-11-10:28d6a369e449bdc0,7dea763e7d8458e1 -->
+## Checkpoint `acceptance-5x-2026-11-10` — 2026-11-10T02:38:15.485358+00:00
+
+### Request
+
+Tasks 5.1-5.3: composed local acceptance with real sign-in, UI review recheck, Keith acceptance, final self-review
+
+### Results
+
+- Owner: Keith.
+- Changes and why: 5.1 pass (findings 1 open for Darryl, 2 repaired); 5.2 accepted by Keith incl. VoiceOver (reported); F1 repaired; F2/F4 handed to Darryl; F3 accepted limitation; evidence images compressed 15.7->5.5 MB; 5.3 self-review no findings; npm run check exit 0 (456+4 tests) on a tree with unrelated uncommitted package changes
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-assignment-dashboard/composed-acceptance.md, ui-review.md, final-review.md.
+- Remaining limitations and next owner: Push to PR #25 and confirm CI; Darryl GitHub review and shared-shell fixes; revert stray package changes with Keith's confirmation.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T02:31:58.612Z | open | provisional | unavailable | unavailable | unavailable | unavailable | unavailable |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T02:36:07.740Z | open | provisional | unavailable | unavailable | unavailable | unavailable | unavailable |
+
+### Reconciliation
+
+No earlier provisional, pending or partial turns changed status.
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 27661693; cached input subset 27129511; output 161699; reasoning output subset 34517; total 27823392.
+- Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

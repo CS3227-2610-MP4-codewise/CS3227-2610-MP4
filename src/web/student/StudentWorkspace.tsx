@@ -196,7 +196,11 @@ export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
           <FailureNotice
             failure={state.failure}
             route={route}
-            onRetry={() => load('retry')}
+            onRetry={() => {
+              // Retry unmounts the focused button; keep keyboard focus on the page heading (UI-07).
+              heading.current?.focus();
+              load('retry');
+            }}
           />
         )}
         {state.phase === 'ready' && state.loaded.kind === 'courses' && (

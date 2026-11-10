@@ -9,8 +9,9 @@
   outline: 2px solid var(--cw-accent);
   outline-offset: 4px;
 }
+/* Text links only: .cw-action links keep the shared filled-button colours (on-ink text). */
 .cw-student-back,
-.cw-student a {
+.cw-student a:not(.cw-action) {
   min-height: 44px;
   display: inline-flex;
   align-items: center;

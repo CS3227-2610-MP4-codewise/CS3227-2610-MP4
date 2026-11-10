@@ -324,6 +324,18 @@ describe('student rendering', () => {
     expect(html).toContain('Step 399.');
   });
 
+  it('keeps filled action links readable by not overriding their text colour', async () => {
+    // Regression: `.cw-student a { color: ink }` out-ranked `.cw-action`, so Next and
+    // Sign in rendered ink text on an ink fill (blank button) in both themes.
+    const css = await readFile('src/web/student/student.css', 'utf8');
+    for (const rule of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+      if (!/(^|[\s;])color\s*:/.test(rule[2])) continue;
+      for (const selector of rule[1].split(','))
+        if (/(^|\s)a(\s*$|[:.[]?)/.test(selector.trim().split(/\s+/).at(-1)!))
+          expect(selector, 'link colour rule').toContain(':not(.cw-action)');
+    }
+  });
+
   it('never persists protected student data in browser storage', async () => {
     const files = (await readdir('src/web/student')).filter(
       (name) => /\.tsx?$/.test(name) && !name.endsWith('.test.ts'),

@@ -39,11 +39,11 @@ Edited shared files (Keith window):
 
 ## Checks run
 
-| Command | Result |
-| --- | --- |
-| `npx vitest run workflow/student/dashboard.test.ts` | 11/11 pass |
-| `npx vitest run src/web/student` | 12/12 pass; 3 failed on the first run because ICU date formatting varied, fixed by locale-independent UTC formatting, then rerun |
-| `npm run check` (Node v22.19.0) | exit 0: 16 specs valid, typecheck, lint, 38 test files / 433 tests, deployment-script tests, build |
+| Command                                             | Result                                                                                                                           |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `npx vitest run workflow/student/dashboard.test.ts` | 11/11 pass                                                                                                                       |
+| `npx vitest run src/web/student`                    | 12/12 pass; 3 failed on the first run because ICU date formatting varied, fixed by locale-independent UTC formatting, then rerun |
+| `npm run check` (Node v22.19.0)                     | exit 0: 16 specs valid, typecheck, lint, 38 test files / 433 tests, deployment-script tests, build                               |
 
 The server tests use a synthetic Miniflare D1 with a fake session port. They cover:
 
@@ -77,11 +77,13 @@ The web tests cover:
 New tests: `src/web/student/StudentWorkspace.dom.test.ts` (jsdom and Testing Library, 17 tests), plus additions to the server and model tests.
 
 **Task 2.3**
+
 - The largest publication C-PUB accepts serializes to **1,048,564 bytes** and is served in 23 ms locally (Miniflare D1). The binding limit is the shared `inspectJson` cap of 1 MiB on strings plus keys, not the per-field maximums.
 - Question and rubric version IDs are pinned to the requested version (V1 versus V2).
 - **Repair:** stored content that fails the public contract now fails closed with 503 `UPSTREAM_UNAVAILABLE`, no content and no private data. Previously it returned 400, which the browser would have shown as "invalid link".
 
 **Task 3.1**
+
 - Dual-role accounts see the shared switch with Student checked; single-role accounts see no switch.
 - 100-course pages offer next and first-page links. Repeated cursors are rejected.
 - `chooseWorkspace` keeps the Instructor-first fallback, including a first-admin Instructor with zero courses. Forged role preferences grant nothing.
@@ -89,12 +91,14 @@ New tests: `src/web/student/StudentWorkspace.dom.test.ts` (jsdom and Testing Lib
 - Shell integration is at HEAD `3a7e5e4` plus this branch.
 
 **Task 3.2**
+
 - An empty course shows its empty state.
 - Refreshing the list shows a newly published assignment.
 - A response for a different course is rejected.
 - Rows carry no learner status. No browser storage writes (`Storage.setItem` spy).
 
 **Task 3.3**
+
 - A slower, superseded response is ignored.
 - Revocation detected on focus clears the rows.
 - Restoring a page from the back/forward cache re-authorizes it.
@@ -104,6 +108,7 @@ New tests: `src/web/student/StudentWorkspace.dom.test.ts` (jsdom and Testing Lib
 - **Repair:** failure messages are now announced once, using a visually hidden status, instead of being shown twice.
 
 **Task 4.1**
+
 - Reload keeps the exact version.
 - The back link points to the course.
 - Version substitution is rejected.
@@ -111,17 +116,20 @@ New tests: `src/web/student/StudentWorkspace.dom.test.ts` (jsdom and Testing Lib
 - No inputs, textareas, or Submit/Run/Save controls. The overview is a document; question-work editing stays with later UI-05/06 increments.
 
 **Task 4.2**
+
 - Long content is rendered without truncation; plain-text symbols are preserved.
 - The renderer is the same component and sanitizer schema the instructor preview used, extracted without behaviour change.
 - No dependency change: `package.json` and the lockfile are unchanged.
 
 **Checks**
+
 - `npm run check` exits 0: 16 specs, typecheck, lint, 39 files / 452 tests, 4/4 deployment-script tests, build.
 - Prettier check is clean on the new files.
 
 ## Not verified / remaining
 
 **5.1–5.3:**
+
 - No composed run against real SH-AUTH (Firebase) and the onboarding producers: invitations, dual roles, revocation, more than 100 real memberships.
 - No `ui-review.md` evidence: real keyboard, pointer/Space, 320/768/1024/1440px, 200% zoom, light/dark, reduced motion, contrast, screenshots.
 - No manual acceptance by Keith.

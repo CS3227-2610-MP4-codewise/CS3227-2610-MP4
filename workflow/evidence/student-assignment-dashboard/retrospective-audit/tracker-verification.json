@@ -1,0 +1,11 @@
+{
+  "audit_id": "retrospective-task52-2026-11-10",
+  "source_attached": true,
+  "redacted_tracker_annotation_id": "retrospective-task52-2026-11-10",
+  "dashboard_bounded_records_unchanged": true,
+  "dashboard_bounded_records_sha256": "c6afd9ebfac6e756c512fedf0a1d7b264deed74c1f7a325ff20f8f3449404acf",
+  "audited_session_admitted_turns": 0,
+  "report_regenerated": true,
+  "tracker_validation": "pass",
+  "recording_started_or_resumed": false
+}

@@ -257,6 +257,27 @@ describe('student assignment list', () => {
     expect(await screen.findByText('Assignment 0')).toBeTruthy();
   });
 
+  it('keeps keyboard focus on the heading when Try again fails or succeeds', async () => {
+    routes[path] = [
+      { status: 503, body: { error: {} } },
+      { status: 503, body: { error: {} } },
+      { status: 200, body: page(1) },
+    ];
+    show(route);
+    const heading = await screen.findByRole('heading', { level: 1 });
+    for (const outcome of ['failed', 'succeeded']) {
+      const retry = await screen.findByRole('button', { name: 'Try again' });
+      retry.focus();
+      fireEvent.click(retry);
+      expect(document.activeElement, outcome).toBe(heading);
+      if (outcome === 'succeeded')
+        expect(await screen.findByText('Assignment 0')).toBeTruthy();
+      else await screen.findByRole('button', { name: 'Try again' });
+      expect(document.activeElement, outcome).toBe(heading);
+      expect(document.activeElement).not.toBe(document.body);
+    }
+  });
+
   it('reflects a new publication when the list is refreshed', async () => {
     routes[path] = [{ status: 200, body: page(1) }];
     show(route);
