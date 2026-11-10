@@ -13,7 +13,8 @@ import {
 export type StudentRoute =
   | { kind: 'courses'; after: string }
   | { kind: 'assignments'; courseId: string; cursor: string | null }
-  | { kind: 'overview'; versionId: string; from: string | null };
+  | { kind: 'overview'; versionId: string; from: string | null }
+  | { kind: 'work'; versionId: string; position: number };
 
 const routeId = /^[A-Za-z0-9_-]{1,128}$/;
 const contextCursor = /^[A-Za-z0-9_-]{1,128}$/;
@@ -52,6 +53,15 @@ export function parseStudentRoute(
     if (!validCursor(cursor)) return null;
     return { kind: 'assignments', courseId: list[1], cursor };
   }
+  // SW-04, UI-04/05: workbook; `position` is the 1-based question number.
+  const work = /^\/student\/assignments\/([^/]+)\/work\/([1-9][0-9]?)$/.exec(
+    pathname,
+  );
+  if (work) {
+    const position = Number(work[2]);
+    if (!routeId.test(work[1]) || position > 20 || keys.length) return null;
+    return { kind: 'work', versionId: work[1], position };
+  }
   const overview = /^\/student\/assignments\/([^/]+)$/.exec(pathname);
   if (overview) {
     // `from` is only the assignment-list page to return to (SD-03); it never authorizes.
@@ -75,6 +85,11 @@ export const studentPaths = {
     '/student/assignments/' +
     encodeURIComponent(versionId) +
     (from ? '?from=' + encodeURIComponent(from) : ''),
+  work: (versionId: string, position = 1) =>
+    '/student/assignments/' +
+    encodeURIComponent(versionId) +
+    '/work/' +
+    position,
 };
 
 /** UTC is the explicit display timezone; no course timezone is invented. */

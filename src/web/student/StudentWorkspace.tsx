@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { authViewSchema, type AuthView } from '../../shared/auth';
 import { BoundaryError } from '../../shared/instructor-contracts/schema';
 import type { Publication } from '../../shared/instructor-contracts/publication';
@@ -33,11 +40,27 @@ type State =
   | { phase: 'ready'; loaded: Loaded }
   | { phase: 'failed'; failure: Failure };
 
+// SW-04: the workbook (and its editor) is a separate chunk that loads only on its route.
+const Workbook = lazy(() =>
+  import('./Workbook').then((m) => ({ default: m.Workbook })),
+);
+
 const api = studentApi();
 const failureTexts = new Set(Object.values(failureMessage));
 
-/** SD-01–06: read-only course → assignment → exact-version browsing for current Students. */
+/** SD-01–06 browsing plus the SW workbook route (`/student/assignments/:pub/work/:position`). */
 export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
+  if (route?.kind === 'work')
+    return (
+      <Suspense fallback={<p role="status">Loading your work…</p>}>
+        <Workbook route={route} />
+      </Suspense>
+    );
+  return <StudentBrowse route={route} />;
+}
+
+/** SD-01–06: read-only course → assignment → exact-version browsing for current Students. */
+function StudentBrowse({ route }: { route: StudentRoute | null }) {
   const [view, setView] = useState<AuthView | null>(null);
   const [state, setState] = useState<State>({ phase: 'loading' });
   const [announcement, setAnnouncement] = useState('');
@@ -419,6 +442,14 @@ export function Overview({ publication }: { publication: Publication }) {
       </dl>
       <p className="cw-student-readonly">
         This is a read-only view of this published version.
+      </p>
+      <p>
+        <a
+          className="cw-action cw-action--primary"
+          href={studentPaths.work(publication.assignmentVersionId, 1)}
+        >
+          Open my work <Icon name="arrow-right" />
+        </a>
       </p>
       <ol className="cw-student-questions">
         {publication.questions.map((question, index) => (
