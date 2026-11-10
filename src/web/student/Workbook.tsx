@@ -288,10 +288,26 @@ export function Workbook({ route }: { route: WorkRoute }) {
   );
 }
 
+type MovePlanItem = {
+  id: string;
+  position: number;
+  title: string;
+  fromQuestionVersionId: string;
+  targetQuestionVersionId: string;
+  /** Revision currently stored on the newer version; sent as targetBaseRevision. */
+  targetRevision: number;
+  targetSource: string;
+};
 type MoveState =
   | { phase: 'idle' }
   | { phase: 'confirm' }
   | { phase: 'pending' }
+  | {
+      phase: 'choose';
+      plan: MovePlanItem[];
+      unmatched: number;
+      note: string;
+    }
   | { phase: 'done'; moved: number; kept: number }
   | { phase: 'error'; message: string };
 
@@ -397,7 +413,8 @@ function Ready({
     }
   };
 
-  const moveWork = async () => {
+  /** Reads the newer version and decides what can move. Targets with work need an explicit choice. */
+  const moveWork = async (note = '') => {
     setMove({ phase: 'pending' });
     try {
       await ctl.flushAll();
@@ -423,44 +440,89 @@ function Ready({
         api.publication(latestId),
         api.work(latestId),
       ]);
-      let moved = 0;
-      let kept = 0;
-      for (const q of pub.questions) {
+      const plan: MovePlanItem[] = [];
+      let unmatched = 0;
+      pub.questions.forEach((q, index) => {
         const from = ctl.get(q.questionVersionId);
-        if (!from || from.baseRevision < 1) continue;
+        if (!from || from.baseRevision < 1) return;
         const target = latestPub.questions.find(
           (x) => x.questionId === q.questionId,
         );
         const targetWork = latestWork.questions.find(
           (x) => x.questionVersionId === target?.questionVersionId,
         );
-        // Work that already exists on the newer version is never overwritten.
-        if (!target || !targetWork || targetWork.revision > 0) {
+        if (!target || !targetWork) {
+          unmatched++;
+          return;
+        }
+        plan.push({
+          id: q.questionVersionId,
+          position: index + 1,
+          title: q.title,
+          fromQuestionVersionId: q.questionVersionId,
+          targetQuestionVersionId: target.questionVersionId,
+          targetRevision: targetWork.revision,
+          targetSource: targetWork.source,
+        });
+      });
+      if (plan.some((i) => i.targetRevision > 0)) {
+        setMove({ phase: 'choose', plan, unmatched, note });
+        return;
+      }
+      await runMove(plan, new Set(), unmatched);
+    } catch (error) {
+      failMove(error);
+    }
+  };
+  const failMove = (error: unknown) => {
+    if (error instanceof ApiError && error.kind === 'session') onSession();
+    setMove({
+      phase: 'error',
+      message:
+        error instanceof ApiError && error.kind === 'session'
+          ? 'Your session has ended. Nothing was moved.'
+          : 'The move could not be completed. Your work on this version is unchanged. Try again.',
+    });
+  };
+  /** Moves untouched targets and the explicitly chosen replacements, each on the revision just read. */
+  const runMove = async (
+    plan: MovePlanItem[],
+    replace: Set<string>,
+    unmatched: number,
+  ) => {
+    setMove({ phase: 'pending' });
+    try {
+      let moved = 0;
+      let kept = unmatched;
+      let again = false;
+      for (const item of plan) {
+        if (item.targetRevision > 0 && !replace.has(item.id)) {
           kept++;
           continue;
         }
         try {
-          await api.move(latestId, {
-            questionVersionId: q.questionVersionId,
-            targetQuestionVersionId: target.questionVersionId,
-            targetBaseRevision: targetWork.revision,
+          await api.move(work.latestAssignmentVersionId, {
+            questionVersionId: item.fromQuestionVersionId,
+            targetQuestionVersionId: item.targetQuestionVersionId,
+            targetBaseRevision: item.targetRevision,
           });
           moved++;
         } catch (error) {
-          if (error instanceof ApiError && error.kind === 'conflict') kept++;
+          if (error instanceof ApiError && error.kind === 'conflict')
+            again = true;
           else throw error;
         }
       }
+      if (again) {
+        // The newer version changed since it was read: ask again with what is there now.
+        await moveWork(
+          'The newer version changed while moving. Check the current text and confirm again.',
+        );
+        return;
+      }
       setMove({ phase: 'done', moved, kept });
     } catch (error) {
-      if (error instanceof ApiError && error.kind === 'session') onSession();
-      setMove({
-        phase: 'error',
-        message:
-          error instanceof ApiError && error.kind === 'session'
-            ? 'Your session has ended. Nothing was moved.'
-            : 'The move could not be completed. Your work on this version is unchanged. Try again.',
-      });
+      failMove(error);
     }
   };
 
@@ -491,7 +553,9 @@ function Ready({
             nothing on this version changes.
           </p>
           <div className="cw-wb-actions">
-            <Action onClick={moveWork}>Move my saved answers</Action>
+            <Action onClick={() => void moveWork()}>
+              Move my saved answers
+            </Action>
             <Action
               variant="secondary"
               onClick={() => setMove({ phase: 'idle' })}
@@ -502,10 +566,18 @@ function Ready({
         </div>
       )}
       {move.phase === 'pending' && <p role="status">Moving your work…</p>}
+      {move.phase === 'choose' && (
+        <MoveChoices
+          plan={move.plan}
+          note={move.note}
+          onRun={(replace) => void runMove(move.plan, replace, move.unmatched)}
+          onCancel={() => setMove({ phase: 'idle' })}
+        />
+      )}
       {move.phase === 'error' && (
         <div role="alert">
           <p>{move.message}</p>
-          <Action variant="secondary" onClick={moveWork}>
+          <Action variant="secondary" onClick={() => void moveWork()}>
             Try again
           </Action>
         </div>
@@ -868,6 +940,111 @@ function Tabs({
           {t.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+/**
+ * Newer-version questions that already have work are never replaced silently: each needs an
+ * explicit tick, and the newer text can be copied first (with a visible fallback if the
+ * clipboard is denied). Questions the newer version has not touched move without a choice.
+ */
+function MoveChoices({
+  plan,
+  note,
+  onRun,
+  onCancel,
+}: {
+  plan: MovePlanItem[];
+  note: string;
+  onRun: (replace: Set<string>) => void;
+  onCancel: () => void;
+}) {
+  const [chosen, setChosen] = useState<Set<string>>(new Set());
+  const [copy, setCopy] = useState<{ id: string; denied: boolean } | null>(
+    null,
+  );
+  const existing = plan.filter((i) => i.targetRevision > 0);
+  const fresh = plan.length - existing.length;
+  const copyText = async (item: MovePlanItem) => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('unavailable');
+      await navigator.clipboard.writeText(item.targetSource);
+      setCopy({ id: item.id, denied: false });
+    } catch {
+      setCopy({ id: item.id, denied: true });
+    }
+  };
+  return (
+    <div
+      role="group"
+      aria-label="Choose what to replace"
+      className="cw-wb-confirm"
+    >
+      {note && <p role="alert">{note}</p>}
+      <p>
+        {existing.length === 1
+          ? 'One question already has work on the newer version.'
+          : `${existing.length} questions already have work on the newer version.`}{' '}
+        Moving replaces that text with your earlier answer as a new revision.
+        Nothing is replaced unless you tick it.
+        {fresh > 0 &&
+          ` ${fresh} other answer${fresh === 1 ? '' : 's'} will move because the newer version has no work there.`}
+      </p>
+      <ul className="cw-wb-move-list">
+        {existing.map((item) => (
+          <li key={item.id}>
+            <label>
+              <input
+                type="checkbox"
+                checked={chosen.has(item.id)}
+                onChange={(event) => {
+                  const next = new Set(chosen);
+                  if (event.target.checked) next.add(item.id);
+                  else next.delete(item.id);
+                  setChosen(next);
+                }}
+              />{' '}
+              Replace question {item.position} ({item.title}) on the newer
+              version, currently revision {item.targetRevision}
+            </label>
+            <Action variant="secondary" onClick={() => void copyText(item)}>
+              Copy newer version of question {item.position}
+            </Action>
+            {copy?.id === item.id && !copy.denied && (
+              <p role="status">
+                Copied the newer version of question {item.position}.
+              </p>
+            )}
+            {copy?.id === item.id && copy.denied && (
+              <div role="alert">
+                <p>
+                  The clipboard is not available. The newer text is selected
+                  below; copy it manually before you replace it.
+                </p>
+                <textarea
+                  readOnly
+                  rows={6}
+                  aria-label={`Newer version of question ${item.position}, for manual copying`}
+                  value={item.targetSource}
+                  ref={(el) => el?.select()}
+                  onFocus={(event) => event.currentTarget.select()}
+                />
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div className="cw-wb-actions">
+        <Action onClick={() => onRun(chosen)}>
+          {chosen.size
+            ? `Move and replace ${chosen.size} on the newer version`
+            : 'Move without replacing existing work'}
+        </Action>
+        <Action variant="secondary" onClick={onCancel}>
+          Cancel
+        </Action>
+      </div>
     </div>
   );
 }

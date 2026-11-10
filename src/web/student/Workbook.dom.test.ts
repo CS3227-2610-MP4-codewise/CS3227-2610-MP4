@@ -152,6 +152,16 @@ function route(method: string, path: string, body: any): Reply {
   const move = /^\/api\/student\/publications\/(v\d)\/drafts\/move$/.exec(path);
   if (method === 'POST' && move) {
     const from = draftOf(body.questionVersionId);
+    const targetNow = draftOf(body.targetQuestionVersionId);
+    if (body.targetBaseRevision !== targetNow.revision)
+      return {
+        status: 409,
+        body: conflictBody('CONFLICT_REVISION', {
+          revision: targetNow.revision,
+          source: targetNow.source,
+          sourceHash: sha(targetNow.source),
+        }),
+      };
     drafts.set(body.targetQuestionVersionId, {
       revision: body.targetBaseRevision + 1,
       source: from.source,
@@ -699,18 +709,108 @@ describe('conflict window and newer version (SW-02/04, task 5.2)', () => {
     expect(editor().value).toBe('my work\n');
   });
 
-  it('does not overwrite work that already exists on the newer version', async () => {
+  const seedNewer = () => {
     drafts.set('qv-v1-1', { revision: 2, source: 'my work\n' });
     drafts.set('qv-v2-1', { revision: 1, source: 'newer work\n' });
     latest = 'v2';
+  };
+  const moveCalls = () => calls.filter((c) => c.key.includes('/move'));
+
+  it('asks before replacing work that already exists on the newer version, and replaces nothing unless ticked', async () => {
+    seedNewer();
     await open();
     click(/Move my work to the newer version/);
     click('Move my saved answers');
+    expect(
+      await screen.findByRole('group', { name: 'Choose what to replace' }),
+    ).toBeTruthy();
+    expect(screen.getByText(/currently revision 1/)).toBeTruthy();
+    expect(moveCalls()).toHaveLength(0);
+    click('Move without replacing existing work');
     await waitFor(() =>
       expect(screen.getByText(/Moved 0 answers/)).toBeTruthy(),
     );
-    expect(calls.some((c) => c.key.includes('/move'))).toBe(false);
+    expect(moveCalls()).toHaveLength(0);
     expect(drafts.get('qv-v2-1')!.source).toBe('newer work\n');
+  });
+
+  it('moves onto existing newer work only after an explicit tick, on top of its current revision', async () => {
+    seedNewer();
+    await open();
+    click(/Move my work to the newer version/);
+    click('Move my saved answers');
+    fireEvent.click(
+      await screen.findByRole('checkbox', { name: /Replace question 1/ }),
+    );
+    click('Move and replace 1 on the newer version');
+    await waitFor(() =>
+      expect(screen.getByText(/Moved 1 answer/)).toBeTruthy(),
+    );
+    expect(moveCalls()[0].body).toEqual({
+      schemaVersion: 1,
+      questionVersionId: 'qv-v1-1',
+      targetQuestionVersionId: 'qv-v2-1',
+      targetBaseRevision: 1,
+    });
+    expect(drafts.get('qv-v2-1')).toEqual({ revision: 2, source: 'my work\n' });
+    expect(drafts.get('qv-v1-1')).toEqual({ revision: 2, source: 'my work\n' });
+  });
+
+  it('asks again when the newer version changed during the move (409)', async () => {
+    seedNewer();
+    await open();
+    click(/Move my work to the newer version/);
+    click('Move my saved answers');
+    fireEvent.click(
+      await screen.findByRole('checkbox', { name: /Replace question 1/ }),
+    );
+    drafts.set('qv-v2-1', { revision: 2, source: 'typed meanwhile\n' }); // changes after it was read
+    click('Move and replace 1 on the newer version');
+    expect(
+      await screen.findByText(/newer version changed while moving/),
+    ).toBeTruthy();
+    expect(screen.getByText(/currently revision 2/)).toBeTruthy();
+    expect(drafts.get('qv-v2-1')!.source).toBe('typed meanwhile\n'); // nothing overwritten
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: /Replace question 1/ }),
+    );
+    click('Move and replace 1 on the newer version');
+    await waitFor(() =>
+      expect(screen.getByText(/Moved 1 answer/)).toBeTruthy(),
+    );
+    expect(moveCalls().map((c) => c.body.targetBaseRevision)).toEqual([1, 2]);
+    expect(drafts.get('qv-v2-1')).toEqual({ revision: 3, source: 'my work\n' });
+  });
+
+  it('offers to copy the newer text first, with a visible fallback when the clipboard is denied', async () => {
+    seedNewer();
+    await open();
+    click(/Move my work to the newer version/);
+    click('Move my saved answers');
+    await screen.findByRole('group', { name: 'Choose what to replace' });
+    click('Copy newer version of question 1');
+    const box = (await screen.findByRole('textbox', {
+      name: /Newer version of question 1, for manual copying/,
+    })) as HTMLTextAreaElement;
+    expect(box.value).toBe('newer work\n');
+    expect(box.readOnly).toBe(true);
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    });
+    click('Copy newer version of question 1');
+    await waitFor(() =>
+      expect(
+        screen.getByText(/Copied the newer version of question 1/),
+      ).toBeTruthy(),
+    );
+    expect(writeText).toHaveBeenCalledWith('newer work\n');
+    Object.defineProperty(navigator, 'clipboard', {
+      value: undefined,
+      configurable: true,
+    });
+    expect(moveCalls()).toHaveLength(0);
   });
 });
 

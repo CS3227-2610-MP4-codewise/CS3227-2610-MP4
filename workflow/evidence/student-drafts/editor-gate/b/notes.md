@@ -17,9 +17,13 @@ Branch `keith/student-drafts-ui-b`, design `warm-workbook-v1`, UI-01/04/05/07/08
 
 `desktop-1280-{light,dark}-editor.png`, `desktop-1280-{light,dark}-conflict.png`, `desktop-1280-light-review.png`, `desktop-1280-light-newer-notice.png`, `narrow-320-light-editor.png`, `narrow-320-dark-conflict.png`, `narrow-320-light-review.png`, `zoom200-640css-light-editor.png`. They do not prove authentication or save durability. To regenerate: `npx vite --config workflow/evidence/student-drafts/editor-gate/b/harness/vite.config.mjs`, then open `http://127.0.0.1:5188/?state=editor|conflict|review|newer[&theme=dark]` (or `frame.html?w=320&h=1600&q=state%3Deditor`).
 
+## Real built assets under the Worker's CSP (repair round)
+
+`stub-proxy.mjs` (adapted from variant A's helper) forwards HTML/JS/CSS to the real local Worker (`wrangler dev --env development --port 8788`, port 8803 for the proxy) and answers only `/api/auth/session`, `/api/courses/contexts` and `/api/student/*` from an in-memory stub. The Worker's header was: `default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`. Headless Edge loaded `/student/assignments/synthetic-work-publication/work/1` through the proxy: `screenshots/worker-csp-1280-light-editor.png` shows the editor with gutter and Python highlighting; `--dump-dom` showed Prism token spans (`keyword`, `function`, `punctuation`) and the textarea; Edge's stderr log contained 0 CSP or "Refused to" lines (the only console line was an unrelated Edge extension message). This proves browser rendering of the real build under the real CSP, not the real API, sign-in or D1. `frame-ancestors 'none'` blocks the iframe trick, so the 320 px, zoom and dark shots above still come from the Vite harness; they were not re-captured under the Worker.
+
 ## Departures and notes
 
 - The dashboard-era test "never persists protected student data in browser storage" (`model.test.ts`) was narrowed: `sessionStorage` is now allowed in `work-model.ts` only (design section 7); `localStorage`, IndexedDB, caches and service workers remain forbidden everywhere.
 - Route position in the URL is 1-based (`/work/1`); the API `position` is 0-based and is not exposed.
 - Blank answers are flagged in review but do not block submit.
-- Move to newer version copies only questions that have a saved revision and whose target is still at revision 0; targets with existing work are left alone and reported.
+- Move to newer version: questions whose target is still at revision 0 move directly. Targets that already have work are listed with a per-question tick (default off), a copy offer for the newer text (visible fallback if the clipboard is denied), and move on top of the revision just read (`targetBaseRevision`). A 409 re-reads the newer version and asks again; nothing is replaced without a tick.
