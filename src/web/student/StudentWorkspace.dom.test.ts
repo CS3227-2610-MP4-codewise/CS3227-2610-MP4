@@ -10,6 +10,8 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudentWorkspace } from './StudentWorkspace';
+import { WorkspaceEntry } from './WorkspaceEntry';
+import { encodeCursor } from '../../shared/student-assignments';
 import { WorkspaceSwitch } from '../ui/workspace-switch';
 import { chooseWorkspace, parseStudentRoute, type StudentRoute } from './model';
 import type { Publication } from '../../shared/instructor-contracts/publication';
@@ -335,7 +337,7 @@ describe('student overview', () => {
       { status: 200, body: publication('alpha-v1', 'Alpha one') },
     ];
     for (let load = 0; load < 2; load++) {
-      show({ kind: 'overview', versionId: 'alpha-v1' });
+      show({ kind: 'overview', versionId: 'alpha-v1', from: null });
       expect(
         (await screen.findByRole('heading', { level: 1 })).textContent,
       ).toBe('Alpha one');
@@ -358,7 +360,7 @@ describe('student overview', () => {
     routes[path] = [
       { status: 200, body: publication('alpha-v2', 'Alpha two') },
     ];
-    show({ kind: 'overview', versionId: 'alpha-v1' });
+    show({ kind: 'overview', versionId: 'alpha-v1', from: null });
     expect(
       await screen.findByText('This is not available to you.', {
         selector: 'p:not([role])',
@@ -382,7 +384,7 @@ describe('student overview', () => {
       { status: 200, body: publication('alpha-v1', 'Alpha one') },
       { status: 404, body: { error: {} } },
     ];
-    show({ kind: 'overview', versionId: 'alpha-v1' });
+    show({ kind: 'overview', versionId: 'alpha-v1', from: null });
     expect(await screen.findByText('Alpha one')).toBeTruthy();
     act(() => {
       const event = new Event('pageshow') as PageTransitionEvent;
@@ -397,7 +399,7 @@ describe('student overview', () => {
     routes[path] = [
       { status: 200, body: publication('alpha-v1', 'Alpha one') },
     ];
-    show({ kind: 'overview', versionId: 'alpha-v1' });
+    show({ kind: 'overview', versionId: 'alpha-v1', from: null });
     expect(await screen.findByText('Alpha one')).toBeTruthy();
     expect(setItem).not.toHaveBeenCalled();
   });
@@ -410,8 +412,15 @@ describe('/workspace entry choice', () => {
     // First-admin Instructor eligible to create courses but with zero courses.
     expect(chooseWorkspace(null, ['instructor'])).toBe('instructor');
     expect(chooseWorkspace(null, [])).toBe('instructor');
-    expect(chooseWorkspace('student', [])).toBe('student');
-    expect(chooseWorkspace('admin', ['student'])).toBe('instructor');
+    expect(chooseWorkspace('admin', ['student'])).toBe('student');
+    // Requested roles count only while the account still holds them.
+    expect(chooseWorkspace('student', ['student'])).toBe('student');
+    expect(chooseWorkspace('instructor', ['student'])).toBe('student');
+    expect(chooseWorkspace('student', ['instructor'])).toBe('instructor');
+    expect(chooseWorkspace('student', ['student', 'instructor'])).toBe(
+      'student',
+    );
+    expect(chooseWorkspace('student', [])).toBe('instructor');
   });
 });
 
@@ -429,5 +438,197 @@ describe('leaving unsaved instructor work', () => {
     ).toBe(true);
     expect(calls.length).toBe(before);
     expect(calls.some((c) => c.startsWith('/api/student/'))).toBe(false);
+  });
+});
+
+describe('post-review fixes', () => {
+  const listPath = '/api/student/courses/course-a/assignments';
+  const focus = () =>
+    act(() => {
+      window.dispatchEvent(new Event('focus'));
+    });
+
+  it('refreshes the signed-in account with the content when focus returns (UI-02)', async () => {
+    const other = {
+      ...view,
+      session: { ...view.session, userId: 'user-2' },
+      email: 'other@u.nus.edu',
+      csrfToken: 'csrf-b',
+    };
+    routes['/api/auth/session'] = [
+      { status: 200, body: view },
+      { status: 200, body: other },
+    ];
+    routes[listPath] = [{ status: 200, body: page(1) }];
+    show({ kind: 'assignments', courseId: 'course-a', cursor: null });
+    await waitFor(() =>
+      expect(
+        document.querySelector('summary')?.getAttribute('aria-label'),
+      ).toBe('Account: student@u.nus.edu'),
+    );
+    focus();
+    await waitFor(() =>
+      expect(
+        document.querySelector('summary')?.getAttribute('aria-label'),
+      ).toBe('Account: other@u.nus.edu'),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Sign out', hidden: true }),
+    );
+    await waitFor(() => {
+      const logout = vi
+        .mocked(globalThis.fetch)
+        .mock.calls.find(([input]) => input === '/api/auth/logout');
+      expect(
+        (logout?.[1]?.headers as Record<string, string>)['X-CSRF-Token'],
+      ).toBe('csrf-b');
+    });
+  });
+
+  it('clears an earlier failure message after a successful revalidation (UI-08)', async () => {
+    routes[listPath] = [
+      { status: 200, body: page(1) },
+      { status: 503, body: { error: {} } },
+      { status: 200, body: page(1) },
+    ];
+    show({ kind: 'assignments', courseId: 'course-a', cursor: null });
+    expect(await screen.findByText('Assignment 0')).toBeTruthy();
+    focus();
+    await waitFor(() => expect(screen.queryByText('Assignment 0')).toBeNull());
+    focus();
+    expect(await screen.findByText('Assignment 0')).toBeTruthy();
+    expect(
+      screen.queryByText(
+        'This could not be loaded. Check your connection and try again.',
+      ),
+    ).toBeNull();
+  });
+
+  it('returns from an overview to the assignment page it was opened from (SD-03)', async () => {
+    const cursor = encodeCursor('2026-11-01T12:00:00.000Z', 'a49');
+    routes[listPath + '?cursor=' + cursor] = [{ status: 200, body: page(1) }];
+    show({ kind: 'assignments', courseId: 'course-a', cursor });
+    expect(
+      (
+        await screen.findByRole('link', { name: /Open Assignment 0/ })
+      ).getAttribute('href'),
+    ).toBe('/student/assignments/v0?from=' + cursor);
+    cleanup();
+    routes['/api/student/publications/alpha-v1'] = [
+      { status: 200, body: publication('alpha-v1', 'Alpha one') },
+    ];
+    show({ kind: 'overview', versionId: 'alpha-v1', from: cursor });
+    expect(
+      (
+        await screen.findByRole('link', { name: /Back to assignments/ })
+      ).getAttribute('href'),
+    ).toBe('/student/courses/course-a/assignments?cursor=' + cursor);
+  });
+
+  it('makes instruction code blocks focusable, labelled scroll regions (UI-07)', async () => {
+    const withCode = publication('alpha-v1', 'Alpha one');
+    withCode.questions[0].instructions =
+      'Example:\n\n```python\nprint("' + 'x'.repeat(200) + '")\n```';
+    routes['/api/student/publications/alpha-v1'] = [
+      { status: 200, body: withCode },
+    ];
+    show({ kind: 'overview', versionId: 'alpha-v1', from: null });
+    const region = await screen.findByRole('region', {
+      name: 'Code example in question 1, block 1',
+    });
+    expect(region.tagName).toBe('PRE');
+    expect(region.getAttribute('tabindex')).toBe('0');
+  });
+
+  it('keeps a focused instruction code block focused when the page revalidates (UI-07)', async () => {
+    const withCode = publication('alpha-v1', 'Alpha one');
+    withCode.questions[0].instructions = '```python\nprint(1)\n```';
+    const retitled = { ...withCode, title: 'Alpha one, rechecked' };
+    routes['/api/student/publications/alpha-v1'] = [
+      { status: 200, body: withCode },
+      { status: 200, body: retitled },
+    ];
+    show({ kind: 'overview', versionId: 'alpha-v1', from: null });
+    const region = await screen.findByRole('region', {
+      name: 'Code example in question 1, block 1',
+    });
+    region.focus();
+    expect(document.activeElement).toBe(region);
+    focus();
+    // Wait for the visible re-render, not just the request.
+    expect(
+      await screen.findByRole('heading', { name: 'Alpha one, rechecked' }),
+    ).toBeTruthy();
+    expect(region.isConnected).toBe(true);
+    expect(document.activeElement).toBe(region);
+  });
+
+  it('keeps the account menu on a network error but clears it when signed out', async () => {
+    const settle = () =>
+      act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+    routes['/api/auth/session'] = [
+      { status: 200, body: view },
+      { status: 503, body: { error: {} } },
+      async () => {
+        throw new TypeError('offline');
+      },
+      { status: 401, body: { error: {} } },
+    ];
+    routes[listPath] = [{ status: 200, body: page(1) }];
+    show({ kind: 'assignments', courseId: 'course-a', cursor: null });
+    await waitFor(() =>
+      expect(document.querySelector('summary')).not.toBeNull(),
+    );
+    focus();
+    await waitFor(() =>
+      expect(
+        calls.filter((c) => c === '/api/auth/session').length,
+      ).toBeGreaterThanOrEqual(2),
+    );
+    await settle();
+    expect(document.querySelector('summary')).not.toBeNull();
+    focus();
+    await waitFor(() =>
+      expect(
+        calls.filter((c) => c === '/api/auth/session').length,
+      ).toBeGreaterThanOrEqual(3),
+    );
+    await settle();
+    expect(document.querySelector('summary')).not.toBeNull();
+    focus();
+    await waitFor(() => expect(document.querySelector('summary')).toBeNull());
+  });
+
+  it('opens the requested Student workspace when the contexts check fails', async () => {
+    window.history.replaceState(null, '', '/workspace?role=student');
+    try {
+      routes['/api/courses/contexts'] = [{ status: 503, body: { error: {} } }];
+      render(createElement(WorkspaceEntry));
+      expect(
+        (await screen.findByRole('heading', { level: 1 })).textContent,
+      ).toBe('Your courses');
+      expect(screen.queryByText(/not yet available/)).toBeNull();
+    } finally {
+      window.history.replaceState(null, '', '/');
+    }
+  });
+
+  it('resolves a stale role link against current contexts before choosing a workspace', async () => {
+    window.history.replaceState(null, '', '/workspace?role=instructor');
+    try {
+      routes['/api/courses/contexts'] = [
+        { status: 200, body: contexts(['student']) },
+      ];
+      render(createElement(WorkspaceEntry));
+      expect(
+        (await screen.findByRole('heading', { level: 1 })).textContent,
+      ).toBe('Your courses');
+      expect(window.location.search).toBe('?role=student');
+      expect(screen.queryByText(/not yet available/)).toBeNull();
+    } finally {
+      window.history.replaceState(null, '', '/');
+    }
   });
 });

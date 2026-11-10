@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { authViewSchema, type AuthView } from '../../shared/auth';
+import { BoundaryError } from '../../shared/instructor-contracts/schema';
 import type { Publication } from '../../shared/instructor-contracts/publication';
 import type { StudentAssignmentPage } from '../../shared/student-assignments';
 import { authRequest } from '../auth/client';
@@ -33,6 +34,7 @@ type State =
   | { phase: 'failed'; failure: Failure };
 
 const api = studentApi();
+const failureTexts = new Set(Object.values(failureMessage));
 
 /** SD-01–06: read-only course → assignment → exact-version browsing for current Students. */
 export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
@@ -75,7 +77,10 @@ export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
         .then((loaded) => {
           if (!request.current()) return;
           setState({ phase: 'ready', loaded });
-          if (reason !== 'revalidate') setAnnouncement('');
+          // A successful read, including focus revalidation, ends any earlier failure.
+          setAnnouncement((current) =>
+            failureTexts.has(current) ? '' : current,
+          );
         })
         .catch((error: unknown) => {
           if (!request.current()) return;
@@ -91,18 +96,39 @@ export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
 
   useEffect(() => {
     let active = true;
-    authRequest('session')
-      .then((body) => {
-        if (active) setView(authViewSchema.parse(body));
-      })
-      .catch(() => {
-        if (active) setView(null);
-      });
+    let viewRequest = 0;
+    // The account shown and the CSRF token used for sign-out must follow the current
+    // cookie, which another tab may have replaced with a different account.
+    const refreshView = () => {
+      const request = ++viewRequest;
+      authRequest('session')
+        .then((body) => {
+          if (active && request === viewRequest)
+            setView(authViewSchema.parse(body));
+        })
+        .catch((error: unknown) => {
+          if (!active || request !== viewRequest) return;
+          // A signed-out session clears the account; a brief network error keeps the
+          // last confirmed view so sign-out stays reachable (content is checked separately).
+          if (
+            error instanceof BoundaryError &&
+            (error.code === 'UNAUTHENTICATED' || error.code === 'FORBIDDEN')
+          )
+            setView(null);
+        });
+    };
+    refreshView();
     load('initial');
-    const revalidate = () => load('revalidate');
+    const revalidate = () => {
+      refreshView();
+      load('revalidate');
+    };
     // bfcache restoration and returning focus both re-authorize the destination.
     const restore = (event: PageTransitionEvent) => {
-      if (event.persisted) load('initial');
+      if (event.persisted) {
+        refreshView();
+        load('initial');
+      }
     };
     window.addEventListener('focus', revalidate);
     window.addEventListener('pageshow', restore);
@@ -170,7 +196,10 @@ export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
           state.loaded.kind === 'overview' && (
             <a
               className="cw-student-back"
-              href={studentPaths.assignments(state.loaded.data.courseId)}
+              href={studentPaths.assignments(
+                state.loaded.data.courseId,
+                route.from,
+              )}
             >
               <Icon name="arrow-left" /> Back to assignments
             </a>
@@ -212,7 +241,7 @@ export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
         {state.phase === 'ready' && state.loaded.kind === 'assignments' && (
           <AssignmentList
             data={state.loaded.data}
-            paged={route?.kind === 'assignments' && !!route.cursor}
+            cursor={route?.kind === 'assignments' ? route.cursor : null}
           />
         )}
         {state.phase === 'ready' && state.loaded.kind === 'overview' && (
@@ -294,10 +323,11 @@ function CourseList({ data, after }: { data: Courses; after: string }) {
 
 export function AssignmentList({
   data,
-  paged,
+  cursor,
 }: {
   data: StudentAssignmentPage;
-  paged: boolean;
+  /** The cursor of the page being shown; null on the first page. */
+  cursor: string | null;
 }) {
   return (
     <>
@@ -312,7 +342,7 @@ export function AssignmentList({
                   {formatDeadline(item.deadlineAt)}
                 </time>
               </p>
-              <a href={studentPaths.overview(item.assignmentVersionId)}>
+              <a href={studentPaths.overview(item.assignmentVersionId, cursor)}>
                 Open {item.title} <Icon name="arrow-right" />
               </a>
             </li>
@@ -323,7 +353,7 @@ export function AssignmentList({
       )}
       <Pager
         label="Assignment pages"
-        first={paged ? studentPaths.assignments(data.course.id) : null}
+        first={cursor ? studentPaths.assignments(data.course.id) : null}
         next={
           data.nextCursor
             ? studentPaths.assignments(data.course.id, data.nextCursor)
@@ -398,7 +428,10 @@ export function Overview({ publication }: { publication: Publication }) {
                 Question {index + 1}: {question.title}
               </h2>
               <div className="cw-student-instructions">
-                <InstructionText value={question.instructions} />
+                <InstructionText
+                  value={question.instructions}
+                  codeLabel={'Code example in question ' + (index + 1)}
+                />
               </div>
               <h3>Starter code (Python)</h3>
               <pre

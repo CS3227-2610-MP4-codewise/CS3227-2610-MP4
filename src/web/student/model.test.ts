@@ -95,7 +95,11 @@ describe('student routes', () => {
     expect(parseStudentRoute('/student/assignments/v_1', '')).toEqual({
       kind: 'overview',
       versionId: 'v_1',
+      from: null,
     });
+    expect(
+      parseStudentRoute('/student/assignments/v_1', '?from=' + cursor),
+    ).toEqual({ kind: 'overview', versionId: 'v_1', from: cursor });
     for (const [path, search] of [
       ['/workspace', '?role=admin'],
       ['/student', '?after=../x'],
@@ -104,6 +108,9 @@ describe('student routes', () => {
       ['/student/courses/c/assignments', '?cursor=***'],
       ['/student/courses/c/assignments', '?role=instructor'],
       ['/student/assignments/v1', '?version=latest'],
+      ['/student/assignments/v1', '?from=***'],
+      ['/student/assignments/v1', '?from=' + cursor + '&from=' + cursor],
+      ['/student/assignments/v1', '?from=' + cursor + '&cursor=' + cursor],
       ['/student/assignments/', ''],
       ['/student/elsewhere', ''],
     ])
@@ -115,6 +122,10 @@ describe('student routes', () => {
       '/student/courses/c1/assignments?cursor=abc',
     );
     expect(studentPaths.overview('v1')).toBe('/student/assignments/v1');
+    expect(studentPaths.overview('v1', 'abc')).toBe(
+      '/student/assignments/v1?from=abc',
+    );
+    expect(studentPaths.overview('v1', null)).toBe('/student/assignments/v1');
     expect(studentPaths.courses('n1')).toBe('/student?after=n1');
   });
 
@@ -255,7 +266,7 @@ describe('student rendering', () => {
     const html = renderToStaticMarkup(
       createElement(AssignmentList, {
         data: { ...page(), schemaVersion: 1 as const },
-        paged: false,
+        cursor: null,
       }),
     );
     expect(html).toContain('Synthetic loops');

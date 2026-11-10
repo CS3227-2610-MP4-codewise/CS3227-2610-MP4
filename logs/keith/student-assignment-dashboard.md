@@ -290,3 +290,49 @@ No earlier provisional, pending or partial turns changed status.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 27661693; cached input subset 27129511; output 161699; reasoning output subset 34517; total 27823392.
 - Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-assignment-dashboard:post-review-fixes-2026-11-10 -->
+<!-- experiment-turns:post-review-fixes-2026-11-10:85b249912b16a2eb,de8922b7bc37fefc,0e900ccab494137f,901c8be263bc0443,6cb626f2a9ab8986,757aea180cb513e6,f67acd934b6a1c9f,6daa34551eeb2eb8,c50776ed59d7a289 -->
+## Checkpoint `post-review-fixes-2026-11-10` — 2026-11-10T03:17:25.494437+00:00
+
+### Request
+
+Verify 7 reported bugs and fix with a generator-verifier workflow
+
+### Results
+
+- Owner: Keith.
+- Changes and why: All 7 valid; #2,#3,#4,#6,#7 fixed in Keith files (tasks 6.1-6.5); #1,#5 and stale placeholder text handed to Darryl; Reviewer subagent round 1 found P1 lint failure and P2 focus loss in #7 plus 3 P3 notes, all repaired; round 2 confirmed, 2 further P3 notes (tests strengthened; tabindex note handed off); npm run check exit 0 (464 tests)
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-assignment-dashboard/post-review-fixes.md.
+- Remaining limitations and next owner: Push to PR #25 and confirm CI; optional real-browser recheck by Keith; Darryl handles #1, #5 and stale texts.
+
+### Agents spawned
+
+- Implementer turn started 2026-11-10T02:58:19.082Z spawned Reviewer / reviewer (a36f12cb).
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T02:39:43.494Z | 2026-11-10T02:43:27.381Z | final | claude-opus-5-5 | medium | 2109 | 99 | 2109 |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T02:45:38.025Z | 2026-11-10T02:45:51.506Z | final | claude-opus-5-5 | medium | 809 | 58 | 809 |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T02:54:02.490Z | 2026-11-10T02:54:17.792Z | final | claude-opus-5-5 | medium | 1108 | 303 | 1108 |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T02:58:19.082Z | 2026-11-10T03:09:29.665Z | final | claude-opus-5-5 | medium | 28276 | 8512 | 47905 |
+| Reviewer / reviewer | a36f12cb | Implementer (c1aaaded) / 19f1ac67 | 2026-11-10T03:09:16.262Z | open | provisional | claude-opus-5-5 | medium | 19629 | 8044 | 19629 |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T03:12:17.527Z | 2026-11-10T03:14:40.781Z | final | claude-opus-5-5 | medium | 10274 | 1952 | 10274 |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T03:15:57.182Z | open | provisional | claude-opus-5-5 | medium | 4910 | 643 | 4910 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | 2026-11-10T02:31:58.612Z | provisional | final | 5937 | 1577 | 5937 |
+| Implementer / implementer | c1aaaded | 2026-11-10T02:36:07.740Z | provisional | final | 12470 | 2519 | 12470 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 50002860; cached input subset 49231924; output 247221; reasoning output subset 58224; total 50250081.
+- Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

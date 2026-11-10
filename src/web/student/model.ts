@@ -13,7 +13,7 @@ import {
 export type StudentRoute =
   | { kind: 'courses'; after: string }
   | { kind: 'assignments'; courseId: string; cursor: string | null }
-  | { kind: 'overview'; versionId: string };
+  | { kind: 'overview'; versionId: string; from: string | null };
 
 const routeId = /^[A-Za-z0-9_-]{1,128}$/;
 const contextCursor = /^[A-Za-z0-9_-]{1,128}$/;
@@ -36,23 +36,29 @@ export function parseStudentRoute(
     if (after !== '' && !contextCursor.test(after)) return null;
     return { kind: 'courses', after };
   }
+  const validCursor = (value: string | null) => {
+    if (value === null) return true;
+    try {
+      studentCursor(value);
+      return true;
+    } catch {
+      return false;
+    }
+  };
   const list = /^\/student\/courses\/([^/]+)\/assignments$/.exec(pathname);
   if (list) {
     if (!routeId.test(list[1]) || !only(['cursor'])) return null;
     const cursor = params.get('cursor');
-    if (cursor !== null) {
-      try {
-        studentCursor(cursor);
-      } catch {
-        return null;
-      }
-    }
+    if (!validCursor(cursor)) return null;
     return { kind: 'assignments', courseId: list[1], cursor };
   }
   const overview = /^\/student\/assignments\/([^/]+)$/.exec(pathname);
   if (overview) {
-    if (!routeId.test(overview[1]) || keys.length) return null;
-    return { kind: 'overview', versionId: overview[1] };
+    // `from` is only the assignment-list page to return to (SD-03); it never authorizes.
+    if (!routeId.test(overview[1]) || !only(['from'])) return null;
+    const from = params.get('from');
+    if (!validCursor(from)) return null;
+    return { kind: 'overview', versionId: overview[1], from };
   }
   return null;
 }
@@ -65,8 +71,10 @@ export const studentPaths = {
     encodeURIComponent(courseId) +
     '/assignments' +
     (cursor ? '?cursor=' + encodeURIComponent(cursor) : ''),
-  overview: (versionId: string) =>
-    '/student/assignments/' + encodeURIComponent(versionId),
+  overview: (versionId: string, from?: string | null) =>
+    '/student/assignments/' +
+    encodeURIComponent(versionId) +
+    (from ? '?from=' + encodeURIComponent(from) : ''),
 };
 
 /** UTC is the explicit display timezone; no course timezone is invented. */
@@ -228,17 +236,22 @@ export class RequestGenerations {
 }
 
 /**
- * `/workspace` entry choice. Preserves the existing Instructor-first fallback,
- * including an eligible first-admin Instructor with zero courses; a Student-only
- * account opens the Student workspace. Role preferences never grant access: each
- * workspace re-checks trusted contexts itself.
+ * `/workspace` entry choice against the current trusted contexts. A requested role is
+ * honoured only while the account still holds it, so a stale `?role=` link falls back
+ * instead of opening a workspace the account lost. Otherwise the existing
+ * Instructor-first fallback is preserved, including an eligible first-admin Instructor
+ * with zero courses; a Student-only account opens the Student workspace. Role
+ * preferences never grant access: each workspace re-checks trusted contexts itself.
  */
 export function chooseWorkspace(
   requested: string | null,
   roles: readonly ('student' | 'instructor')[],
 ): 'student' | 'instructor' {
-  if (requested === 'student') return 'student';
-  if (requested !== null) return 'instructor';
+  if (
+    (requested === 'student' || requested === 'instructor') &&
+    roles.includes(requested)
+  )
+    return requested;
   return !roles.includes('instructor') && roles.includes('student')
     ? 'student'
     : 'instructor';

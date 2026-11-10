@@ -88,3 +88,15 @@ Next owner: Darryl. Keith's dashboard needs no change for these; Keith will rech
 - 5.3: [final self-review](../evidence/student-assignment-dashboard/final-review.md): no findings since `8a7951f`; `npm run check` exit 0. No independent review.
 - Owned files changed since `8a7951f`: `src/web/student/student.css`, `StudentWorkspace.tsx` and its two test files, `workflow/student/seed-courses*`, evidence, this handoff, tasks and Keith's log.
 - Remaining: Darryl's GitHub review of PR #25; Darryl's shared-shell findings above; hosted staging acceptance under the reviewed release workflow. Archive the change only after merge.
+
+## Post-review fixes — 2026-11-10
+
+Seven review reports were checked against the code; all were valid. Generator–verifier: main `/root` fixed them, and one Reviewer subagent verified the fixes (agent review, not human). See [post-review fixes](../evidence/student-assignment-dashboard/post-review-fixes.md).
+
+- **Fixed in Keith's files (tasks 6.1–6.5):** account view refreshed on focus (#2); `/workspace?role=` resolved against current contexts (#3); stale failure text cleared (#4); Back link keeps the assignment page (#6); instruction code blocks are focusable, labelled regions (#7).
+- **For Darryl (added to the section above):**
+  - #1 is the same as F2: the shared switch treats a 401 as revocation, and the shared CSS then hides the recovery.
+  - #5 is the same as F4: the radio group versus the documented switch. Either change the code or revise the design.
+  - The obsolete text "The Student workspace is not yet available." remains in `src/web/instructor/Workspace.tsx:228–229` and in `src/web/auth/client.ts:14` (finding 1). It can still appear if `/workspace`'s own contexts check fails and the Instructor workspace then finds a Student-only account.
+  - Optional: the instructor preview can opt in to focusable code blocks with `<InstructionText codeLabel="…">`.
+  - Reviewer note (existing behaviour): in the instructor preview, raw HTML in instructions can keep an author-supplied `tabindex`; the sanitiser's default rules allow it. Consider removing `tabIndex` from `instructionSchema` in `src/web/ui/instruction-text.tsx`; agree it with Keith, since the renderer is shared.
