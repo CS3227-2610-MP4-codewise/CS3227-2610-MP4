@@ -1,0 +1,50 @@
+{
+  "version": 2,
+  "generated": "2026-11-10T04:03:22.968984+00:00",
+  "classification": "private metadata and redacted annotations",
+  "turns": [],
+  "unattributed_children": [],
+  "increments": [],
+  "sessions": [],
+  "runs": [],
+  "windows": [],
+  "members": [],
+  "admitted_turns": [],
+  "spawned": [],
+  "roles": [],
+  "legacy": {
+    "classification": "legacy/unbounded",
+    "excluded_records": 104
+  },
+  "sources": [],
+  "totals": {
+    "input_tokens": null,
+    "cached_input_tokens": null,
+    "output_tokens": null,
+    "reasoning_output_tokens": null,
+    "total_tokens": null
+  },
+  "supplemental_totals": {
+    "cache_creation_input_tokens": null
+  },
+  "status": "unavailable",
+  "cache_ratio": null,
+  "reasoning_output_ratio": null,
+  "annotations": [],
+  "blocked_intervals": [],
+  "coordination_checks": [],
+  "repeated_tool_candidates": {},
+  "coverage": [
+    "Active/idle time and unnecessary retries require annotations; silence is not evidence.",
+    "Client hook coverage is observational, not guaranteed; unknown fields are unavailable.",
+    "Only admitted turns count; excluded conversation may still appear as context in later project requests.",
+    "No causal savings or monetary cost inferred. Comparisons require equivalent scope and quality.",
+    "104 legacy/unbounded records retained but excluded from totals."
+  ],
+  "tracker_overhead": {
+    "timestamp": "2026-11-10T04:03:21.840721+00:00",
+    "duration_ms": 65.93,
+    "queued": 2
+  },
+  "measurement_groups": []
+}

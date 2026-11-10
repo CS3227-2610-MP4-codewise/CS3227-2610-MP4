@@ -1,0 +1,52 @@
+# Tasks
+
+Planning is complete, but that does not mean implementation or review is. Every task starts unchecked. The human owner is Keith. Darryl remains the producer owner for SH-AUTH, SH-ID and SH-PUB, and the consumer and reviewer for C-SUB. Design revision: warm-workbook-v1. Implementation starts only on a later apply instruction.
+
+## 1. Gates and shared writer window
+
+- [ ] 1.1 Get Darryl's agreement on the shared writer window: migration `0015_student_submissions.sql` (number rechecked against main), `src/shared/student-work.ts`, `currentStudentWriteGuard` in `src/server/courses/authority.ts`, and student route wiring in `src/server/index.ts` and `src/web/main.tsx`. Record it in `workflow/Ownership.md` and `workflow/IntegrationContracts.md`, naming one writer per file. **Verify:** the records name each file and its writer, and no shared file is edited before this. [SW-01–SW-09, AUTH-02/03]
+- [ ] 1.2 Record Darryl's acceptance or requested changes for the C-SUB producer gates: the deadline and clock (proposal decision 1), the latest attempt being assessed (2), the idempotency key and fingerprint (3), the save and submit transaction (4) and Python with one source per question (6). Record his response on retention and the course-archive dependency (7), and the `SubmissionCatalog.list` semantics. **Verify:** the IntegrationContracts C-SUB "Keith producer gates" line is updated with dated outcomes; any changes are fed back into the specs before task 3.x. [SW-05–SW-07, SW-09, SW-10, C-SUB]
+- [ ] 1.3 Settle the tracker attribution for this increment (run `student-drafts`) and record the apply instruction and the actual Implementer role in `logs/keith/student-drafts.md`. **Verify:** `tracker.py status` shows the run and role, and unavailable telemetry is recorded as a gap without blocking the work. [DEV-02/04]
+- [ ] 1.4 Measure a synthetic editing session's save count with the planned 1.5 s / 10 s timing, compare it with the current published Workers Free and D1 daily request and write allowances (cite the source and date), and fix the timing values. **Verify:** the evidence note in `workflow/evidence/student-drafts/` gives the numbers, source and chosen values; no allowance figure is assumed. [SW-03/04, OPS-01]
+
+## 2. Storage, contracts and draft API
+
+- [ ] 2.1 Add the additive migration `0015` (drafts, attempts, attempt answers, idempotency uniqueness) and the closed `schemaVersion 1` schemas in `src/shared/student-work.ts`. **Verify:** migration tests on a local D1 confirm the constraints (primary/unique keys, revision ≥ 0, foreign keys to existing tables) and that no identity, course or publication data is duplicated. Schema tests reject unknown fields and enforce size bounds. [SW-01/03/05/07]
+- [ ] 2.2 Add `currentStudentWriteGuard` (in the agreed window) and a `StudentWork` repository with the draft read, the compare-and-swap save and the explicit move. **Verify:** D1 tests cover first open at revision 0, the stale-revision 409 with the current row, unchanged-hash no-write, CRLF→LF with a final LF kept, the 32 KiB limit, the move copying onto the newer version while the old draft is untouched, and revocation between read and write. [SW-01–SW-03, K4]
+- [ ] 2.3 Add the student draft HTTP routes to `src/server/student/` and wire them in `src/server/index.ts`. **Verify:** integration tests cover no session or an expired one, a forged origin or CSRF, another student's or an instructor's access returning a uniform 404, cross-course and foreign question IDs, `no-store`, and safe error codes. Document the routes in `src/server/student/README.md`. [SW-01/03, AUTH-01–03]
+
+## 3. Atomic submission and history
+
+- [ ] 3.1 Implement the guarded submit batch: membership, latest publication, `receivedAt < deadline`, complete coverage, and per-question revision and hash guards, with answers copied from drafts and the injected clock. **Verify:** D1 tests cover a valid submit, a changed draft, a stale publication, missing, duplicate or foreign questions, a submit exactly at, 1 ms before and after the deadline, a forged client time, and revocation or republish forced between confirmation and batch. Each failure leaves no partial attempt rows. [SW-05/06, C-SUB SUB-C01/C02/C05]
+- [ ] 3.2 Implement idempotent replay and the fingerprint. **Verify:** tests cover the same key and payload returning the original (including after the deadline), the same key with a different payload returning 409 with the original unchanged, concurrent same-key replays producing one attempt, a revoked replay getting 404 with no data, and distinct keys creating unlimited attempts with earlier ones kept. [SW-07, SUB-C03/C04/C06]
+- [ ] 3.3 Add the history list and attempt read routes. **Verify:** tests cover own-only access, newest first in pages of 50, a closed projection with no private references, and an earlier attempt still returning its original source after later draft edits. [SW-08, SUB-04]
+- [ ] 3.4 Measure a 20-question × 32 KiB submit batch on local D1 and record the timing and any batch limits. **Verify:** the evidence note records the actual measurement; the batch is restructured only if a limit is reached, and the test from 3.1 still passes. [SW-05, OPS-01]
+
+## 4. Editor gate
+
+- [ ] 4.1 Build editor prototypes for the CodeMirror 6 and textarea + `prismjs` options, plus at most one more, and compare them on keyboard use (Esc leaves the editor), screen reader, 320 px, 200% zoom, light and dark, Python highlighting, line numbers and the gzip size of the workbook bundle. If multiple agents are used, they need their own authorization and their identities are recorded. **Verify:** a comparison note with measurements and screenshots in `workflow/evidence/student-drafts/editor-gate/`; prototypes stay out of production code. [SW-04, SUB-02, UI-01/04/07]
+- [ ] 4.2 Get Keith's explicit choice and dependency approval, then add the chosen packages at exact pinned versions behind a `CodeEditor` wrapper. **Verify:** the decision is recorded in the proposal; `npm run check` passes; the lockfile diff is limited to the approved packages. [SW-04, DEV-03]
+
+## 5. Workbook UI
+
+- [ ] 5.1 Implement the working copy route with the question, editor, save state machine, `sessionStorage` backup and Previous/Next. **Verify:** model and DOM tests cover the timing (fake timers), one save at a time with queued edits, stale acknowledgement after typing or navigation, network failure keeping the text with a retry, "Saved" only for the acknowledged displayed revision, backup cleared on save, sign-out or 401, and per-question state kept across navigation. [SW-03/04, UI-04/05/08]
+- [ ] 5.2 Implement the conflict window and the newer-version notice with the move action. **Verify:** DOM tests cover Keep mine (saved on top of the server revision), Use saved, the copy offer before discarding (with a fallback when the clipboard is denied), reload with an unsaved local copy prompting a choice, and the newer-version notice not replacing source. [SW-02/04, UI-04/08]
+- [ ] 5.3 Implement Review assignment and submit confirmation, the deadline-passed state, history and the read-only attempt view. **Verify:** DOM tests cover no attempt before confirmation, a pending action preventing a duplicate submit, the same idempotency key on retry, a reconcile prompt on a changed draft or stale publication, submit disabled after the deadline while editing continues, honest empty history, and an attempt view with no edit controls that leaves the working copy unchanged. [SW-05–SW-08, UI-04/05/08]
+- [ ] 5.4 Complete `workflow/templates/ui-review.md` for the workbook: keyboard, focus and announcements, 44 px targets, 320/768/1024/1440 px, 200% zoom, light and dark, contrast and reduced motion, with screenshots of every SW-04/UI-08 state, plus Keith's manual acceptance. **Verify:** the filled review and screenshots in `workflow/evidence/student-drafts/`, with untested combinations listed. Screenshots do not complete the persistence tasks. [UI-01/04/05/07/08, warm-workbook-v1]
+
+## 6. C-SUB producer handoff
+
+- [ ] 6.1 Implement `D1SubmissionCatalog` (`getAuthorized` with `validateAttempt`, `scope`, `list` returning the latest attempt per student, `sampleMode=false`). **Verify:** run Darryl's `workflow/contracts/instructor-contracts.ts` factory suites against the real catalog, plus tests for drafts never being returned, a non-instructor getting 404, and malformed stored data being reported as unavailable. [SW-09, C-SUB]
+- [ ] 6.2 Write the producer handoff in `workflow/handoffs/student-drafts.md` with the exact revision, schemas, synthetic payloads and checks; Darryl (or Keith in a granted window) composes the catalog in `src/server/index.ts` in place of the loopback samples outside loopback development. **Verify:** a composed local run where a synthetic student submits and the instructor assessment workflow loads that exact attempt; loopback samples remain development only. [SW-09, C-SUB, AUTH-02]
+
+## 7. Composed verification
+
+- [ ] 7.1 Run a composed local acceptance with real local SH-AUTH and SH-ID: two tabs causing a conflict, republish during editing, revocation during editing, a submit near the deadline, a retry after a dropped response and a dual-role account. **Verify:** record the outcomes, repairs and exact revisions in `workflow/evidence/student-drafts/composed-acceptance.md`. [SW-01–SW-09, AUTH-01–03]
+- [ ] 7.2 Run `npx openspec validate student-drafts --strict`, `npm run check` and the privacy and security review (owner-only drafts, no private references, no execution path, stale-result leaks). **Verify:** the outcomes are recorded in the handoff and the log, with any review by another agent recorded as separate from Keith's or Darryl's review. [SW-01–SW-10, DEV-02/04]
+
+## Workflow follow-up
+
+- Planning does not authorize application changes, shared writer windows, migrations, dependency additions, commits, pushes or deployments. Request the apply workflow in a later turn.
+- SW-10 deletion and course archive need a later change involving Darryl's SH-ID; real learner data stays blocked until then.
+- Hosted release goes only through the reviewed GitHub Actions workflow after a successful staging run.
+- Archive only when implementation and the required acceptance are complete.
