@@ -326,6 +326,7 @@ export function AuthApp() {
             {invitations && (
               <WorkspaceSwitch
                 role="instructor"
+                account={view}
                 courseId={course || undefined}
                 beforeLeave={() => !pending}
               />
@@ -400,11 +401,16 @@ export function AuthApp() {
                   {joined.roles.map((role) => (
                     <p key={role}>{joinedWorkspaceMessage(role)}</p>
                   ))}
-                  {joined.roles.includes('instructor') && (
-                    <a className="cw-action" href="/workspace">
-                      Open Instructor workspace <Icon name="arrow-right" />
+                  {joined.roles.map((role) => (
+                    <a
+                      key={role}
+                      className="cw-action"
+                      href={'/workspace?role=' + role}
+                    >
+                      Open {role === 'student' ? 'Student' : 'Instructor'}{' '}
+                      workspace <Icon name="arrow-right" />
                     </a>
-                  )}
+                  ))}
                 </>
               ) : done ? (
                 <a className="cw-action" href="/sign-in">

@@ -245,7 +245,7 @@ export function ReviewWorkspace() {
         id={assessmentId}
         preview={false}
         apiPrefix={prefix}
-        account={{ email: view.email, logout }}
+        account={{ email: view.email, logout, identity: view }}
       />
     );
   return (
@@ -256,6 +256,7 @@ export function ReviewWorkspace() {
           {view && (
             <WorkspaceSwitch
               role="instructor"
+              account={view}
               courseId={course || undefined}
               beforeLeave={() => !busy}
             />
