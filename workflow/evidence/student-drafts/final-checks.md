@@ -27,3 +27,7 @@ Reviewer: Claude Code Coordinator (root session, Opus 5.5), by reading code and 
 - Real learner data stays blocked until archive-based deletion exists (SW-10).
 - Shared items with Darryl: Skip to content target is 42 px (shared `styles.css`); an intermittent auth-lock assertion was seen once in a parallel run.
 - Composed acceptance (6.2, 7.1) is Keith's report without captured screenshots or IDs; the membership changes there were local SQL, not the invitation/removal UI.
+
+## After merging main (2026-11-12)
+
+The PR head moved to `53c1974` by merging `origin/main` (`45d8fd9`, PR #27). `npm run check` on the merged tree: **exit 0**, all OpenSpec changes valid, typecheck and lint pass, **50 files / 651 tests passed**, deployment tests and build passed. [Output](post-merge-check.txt). The privacy and security review above was not repeated: the merge changed no student source; it changed the shared workspace switch, styles and the student shell's test file.

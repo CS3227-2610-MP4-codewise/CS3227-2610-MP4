@@ -3,7 +3,7 @@
 - Human owner: Keith (producer, SH-SUB). Consumer and reviewer: Darryl (C-SUB, instructor assessment).
 - Agent role / model / configuration: Claude Code Coordinator (root session, Opus 5.5); no agents spawned for this handoff. The catalog itself was built by the domain Implementer agent and reviewed by the Reviewer agent in commit `defbd63` (see `logs/keith/student-drafts.md`).
 - Requirement IDs and OpenSpec change: `student-drafts` SW-09 (C-SUB SUB-C01–C06), with SW-05–SW-08 and SW-11 behind it; AUTH-02.
-- Input commit/artifact versions: producer revision **`1d39d61`** on `keith/student-drafts` (PR #26). `src/server/student/catalog.ts` and `attempts.ts` are unchanged since `defbd63`. Migration `0015_student_submissions.sql`.
+- Input commit/artifact versions: review revision **`53c1974`** on `keith/student-drafts` (PR #26), which includes the catalog composition `1a5b924` and a merge of `origin/main` at `45d8fd9` (PR #27, shared-shell recovery). The handoff was first written at `1d39d61`. `src/server/student/catalog.ts` and `attempts.ts` are unchanged since `defbd63`. Migration `0015_student_submissions.sql`.
 - Owned files (exclusive write ownership): Keith — `src/server/student/` (catalog, attempts, work, rate limit), `src/shared/student-work.ts`, migration 0015. The `AssessmentWorkflow` submissions argument in `src/server/index.ts`: Keith, by Darryl's grant reported 2026-11-12 (`workflow/Ownership.md`, "Extension — SubmissionCatalog composition").
 
 ## What Darryl receives
@@ -65,6 +65,14 @@ Synthetic only (SW-10: real learner data stays blocked until archive-based delet
 ## Resource measurements
 
 Catalog reads are bounded by the 1,000-row cap; per-request D1 rows for list/get were not separately measured. Write-side figures: `workflow/evidence/student-drafts/save-cadence.md`, `submit-batch.md`.
+
+## After merging main (2026-11-12)
+
+`origin/main` (`45d8fd9`, PR #27: native Student/Instructor switch with session revalidation, and main's own update of `StudentWorkspace.dom.test.ts`) was merged as `53c1974` with no conflicts. `npm run check`: exit 0, 50 files / **651 tests**, build passed ([output](../evidence/student-drafts/post-merge-check.txt)). The workbook was not re-opened in a browser after the merge.
+
+## Darryl's local-completion packet
+
+`workflow/handoffs/local-completion-keith-packet.md` (from main, written at `af1bc90`, before this change) proposes SH-SUB rules for agreement. Its deadline, attempt-count, save/submit transaction and version-pinning rules match this change. Its fingerprint (adds a format version, `userId`, `courseId`, `rubricVersionId`, publication order) and key scope (per published version) differ. Keith keeps the decisions recorded as accepted in `workflow/IntegrationContracts.md` (fingerprint over publication ID and sorted answers; key scoped to user and logical assignment) and has replied with the reasoning; Darryl's response is pending. No code was changed for it.
 
 ## Blockers and next action
 
