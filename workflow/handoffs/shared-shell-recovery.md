@@ -1,5 +1,7 @@
 # Handoff: shared-auth/shell consumer recheck
 
+Final code producer: **`6a277026df23c6097733bed13b2762900e177e81`**. Both changed shared source files were retrieved from GitHub at this exact revision and verified equal to the reviewed local continuation. Subsequent publication of this checkpoint is documentation-only and does not change that code pin. Source CI run43057323069:501pass/3consumer assertions fail, secrets success. See [final-source CI checkpoint](../evidence/local-shared-instructor-completion/ci-summary.md#final-source-checkpoint).
+
 - Human owner: Darryl, shared auth/shell and instructor; Keith owns the existing student consumer/tests.
 - Requirements: AUTH-01–03, COU-06/07, UI-02/03/07/08; `docs/ui/design.md`, `warm-workbook-v1`.
 - Publication: [draft PR27](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/27), branch `codex/shared-shell-recovery`, base `af1bc90fa47ed0b8726a46084ce642992c807e15`. Initial scoped producer commit `fe8f49b7f74db248344fe40ba47e8d99ef9334f6` was published before continuation, as requested. The final arrival source is pinned in [arrival source manifest](../evidence/local-shared-instructor-completion/shell-arrival-source-manifest.txt); the PR description pins the final code commit separately from any documentation-only head.

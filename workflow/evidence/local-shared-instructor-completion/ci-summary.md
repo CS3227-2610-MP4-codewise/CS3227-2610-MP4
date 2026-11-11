@@ -1,5 +1,11 @@
 # Redacted CI checkpoint - PR27
 
+## Final source checkpoint
+
+Final code source: `6a277026df23c6097733bed13b2762900e177e81`, after the UI-03 arrival/focus continuation. [Checks job130650155849](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/43057323069/job/130650155849) failed with **501pass/3fail, 42files pass/1fail, 504tests/43files**. The3failures are exactly the same two Student-radio assertions and session-response-count fixture below; no additional failure. [Secrets job130650156338](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/43057323069/job/130650156338) passed. Read-only retrieved/redacted on2026-11-12 Asia/Singapore. Later documentation-only commits may have their own CI head; this evidence is explicitly for the final code revision and not a claim of green PR checks.
+
+## Initial publication checkpoint
+
 Source revision: `fe8f49b7f74db248344fe40ba47e8d99ef9334f6`, initial scoped publication before the arrival/focus continuation. Workflow run43054941837; [checks job130641759975](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/43054941837/job/130641759975), [secrets job130641759452](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/43054941837/job/130641759452). Logs retrieved read-only through GitHub's connector on2026-11-12 Asia/Singapore. This is a summary; no raw workflow logs/private source or credentials exported.
 
 - `secrets`: success.
