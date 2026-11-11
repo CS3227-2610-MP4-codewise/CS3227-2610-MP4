@@ -1,5 +1,7 @@
 # Secure AI gateway handoff
 
+Published update: repair source commit `1920f91bb743a0f5325c03be8ce0024011e2686d`, [PR28](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/28), based on current main46830b6. PR26/27 and the real D1SubmissionCatalog are now merged and preserved. Original local snapshot descriptions below remain historical; pending gateway/progress consumer review is distinct from Keith's existing C-SUB acceptance.
+
 ## Readiness update — 2026-11-12
 
 Current exact-content audit and normal-application/private-config/staging-only plan: [readiness audit](../evidence/secure-ai-gateway/readiness-audit.md), [source manifest](../evidence/secure-ai-gateway/readiness-source-sha256.json). Base main `af1bc90fa47ed0b8726a46084ce642992c807e15`; repairs are local/uncommitted. Do not infer publication or main inclusion. [Keith progress-consumer packet](secure-ai-gateway-progress-consumer.md) states proposed exclusive windows and pending source review.
