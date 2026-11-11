@@ -346,3 +346,48 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 137192055; cached input subset 133715743; output 875081; reasoning output subset unavailable; total 138067136.
 - Coverage/status: partial; 7 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-drafts:csub-composition-2026-11-12 -->
+<!-- experiment-turns:csub-composition-2026-11-12:def570768b5903c8,2b870483fc1f4ce6,7884d55f2a585a2f,a7a60b7f7ee52108,1d3203806340bfc1,dbfcb630fafc0bcb,86735a3fc6592d1d,69869bf533afcc8f -->
+## Checkpoint `csub-composition-2026-11-12` — 2026-11-11T18:23:23.020203+00:00
+
+### Request
+
+Write C-SUB handoff, apply catalog composition (Darryl grant), composed local run (task 6.2)
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Handoff written; Darryl granted Keith the index.ts composition (reported); D1SubmissionCatalog composed outside loopback sample runs; npm run check exit 0, 611 tests; Keith accepted the composed run. 6.2 ticked (24/26). No agents spawned.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/handoffs/student-drafts.md; workflow/evidence/student-drafts/composed-acceptance.md.
+- Remaining limitations and next owner: Task 7.1 remaining scenarios, then 7.2.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T17:10:25.463Z | 2026-11-11T17:11:47.926Z | final | claude-opus-5-5 | medium | 7002 | 2020 | 7002 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T17:18:49.438Z | 2026-11-11T17:19:00.438Z | final | claude-opus-5-5 | medium | 806 | 34 | 806 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T17:19:51.237Z | 2026-11-11T17:20:08.244Z | final | claude-opus-5-5 | medium | 1324 | 365 | 1324 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T17:29:58.761Z | 2026-11-11T17:30:19.435Z | final | claude-opus-5-5 | medium | 622 | 53 | 622 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T17:36:53.359Z | 2026-11-11T17:38:07.993Z | final | claude-opus-5-5 | medium | 6816 | 1340 | 6816 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T17:42:21.675Z | 2026-11-11T17:44:21.790Z | final | claude-opus-5-5 | medium | 7468 | 2158 | 7468 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T18:23:04.770Z | open | provisional | claude-opus-5-5 | medium | 1785 | 56 | 1785 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | 2026-11-11T17:04:00.847Z | provisional | final | 26650 | 5209 | 26650 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 147793674; cached input subset 144275560; output 902025; reasoning output subset unavailable; total 148695699.
+- Coverage/status: partial; 7 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

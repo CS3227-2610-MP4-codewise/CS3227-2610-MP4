@@ -37,7 +37,7 @@ Planning is complete, but that does not mean implementation or review is. Every 
 ## 6. C-SUB producer handoff
 
 - [x] 6.1 Implement `D1SubmissionCatalog` (`getAuthorized` with `validateAttempt`, `scope`, `list` returning the latest attempt per student, `sampleMode=false`). **Verify:** run Darryl's `workflow/contracts/instructor-contracts.ts` factory suites against the real catalog, plus tests for drafts never being returned, a non-instructor getting 404, and malformed stored data being reported as unavailable. [SW-09, C-SUB]
-- [ ] 6.2 Write the producer handoff in `workflow/handoffs/student-drafts.md` with the exact revision, schemas, synthetic payloads and checks; Darryl (or Keith in a granted window) composes the catalog in `src/server/index.ts` in place of the loopback samples outside loopback development. **Verify:** a composed local run where a synthetic student submits and the instructor assessment workflow loads that exact attempt; loopback samples remain development only. [SW-09, C-SUB, AUTH-02]
+- [x] 6.2 Write the producer handoff in `workflow/handoffs/student-drafts.md` with the exact revision, schemas, synthetic payloads and checks; Darryl (or Keith in a granted window) composes the catalog in `src/server/index.ts` in place of the loopback samples outside loopback development. **Verify:** a composed local run where a synthetic student submits and the instructor assessment workflow loads that exact attempt; loopback samples remain development only. [SW-09, C-SUB, AUTH-02]
 
 ## 7. Composed verification
 

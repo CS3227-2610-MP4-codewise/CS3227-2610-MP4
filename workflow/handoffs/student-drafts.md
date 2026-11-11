@@ -64,6 +64,6 @@ Catalog reads are bounded by the 1,000-row cap; per-request D1 rows for list/get
 
 ## Blockers and next action
 
-- No blocker for composition. Next action: the composed run above (task 6.2 verify), done together with task 7.1.
+- Composed run done 2026-11-12 at `1a5b924`: Keith accepted all four steps (`workflow/evidence/student-drafts/composed-acceptance.md`, Keith's report). Next action: the remaining task 7.1 scenarios.
 - Next owner: Keith (composed run), with Darryl reviewing the composition and this handoff.
 - Independent review outcome: pending Darryl's review of this handoff.
