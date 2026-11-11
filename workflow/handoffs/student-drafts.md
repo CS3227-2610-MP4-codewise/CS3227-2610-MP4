@@ -4,7 +4,7 @@
 - Agent role / model / configuration: Claude Code Coordinator (root session, Opus 5.5); no agents spawned for this handoff. The catalog itself was built by the domain Implementer agent and reviewed by the Reviewer agent in commit `defbd63` (see `logs/keith/student-drafts.md`).
 - Requirement IDs and OpenSpec change: `student-drafts` SW-09 (C-SUB SUB-C01–C06), with SW-05–SW-08 and SW-11 behind it; AUTH-02.
 - Input commit/artifact versions: producer revision **`1d39d61`** on `keith/student-drafts` (PR #26). `src/server/student/catalog.ts` and `attempts.ts` are unchanged since `defbd63`. Migration `0015_student_submissions.sql`.
-- Owned files (exclusive write ownership): Keith — `src/server/student/` (catalog, attempts, work, rate limit), `src/shared/student-work.ts`, migration 0015. The composition line in `src/server/index.ts` below is **not** in Keith's window (`workflow/Ownership.md`: "SubmissionCatalog composition … is not opened"); Darryl applies it, or grants Keith a window for it.
+- Owned files (exclusive write ownership): Keith — `src/server/student/` (catalog, attempts, work, rate limit), `src/shared/student-work.ts`, migration 0015. The `AssessmentWorkflow` submissions argument in `src/server/index.ts`: Keith, by Darryl's grant reported 2026-11-12 (`workflow/Ownership.md`, "Extension — SubmissionCatalog composition").
 
 ## What Darryl receives
 
@@ -19,9 +19,9 @@
 
 Schemas: `attemptSchema` / `validateAttempt` (shared C-SUB contract, unchanged), plus the producer-side closed `schemaVersion 1` request/response schemas in `src/shared/student-work.ts`. Producer gates (deadline and server clock, latest attempt assessed, idempotency key and fingerprint, guarded save/submit batch, Python one source per question) are as accepted in `workflow/IntegrationContracts.md` ("Keith producer gates").
 
-## Composition to apply (Darryl, `src/server/index.ts`)
+## Composition (applied by Keith, 2026-11-12, `src/server/index.ts`)
 
-Today `AssessmentWorkflow` receives the loopback samples in loopback development and **no catalog** everywhere else, so staging and production have no submissions. Proposed change, inside `workflow()`:
+Before this change `AssessmentWorkflow` received the loopback samples in loopback development and **no catalog** everywhere else, so staging and production had no submissions. Applied inside `workflow()`:
 
 ```ts
 import { D1SubmissionCatalog } from './student/catalog';
@@ -32,7 +32,8 @@ allowLocalSamples(env, request, config?.origin) && ports.localSubmissions
 ```
 
 - Loopback samples stay development-only and only when the connected-preview worker supplies `localSubmissions` (`workflow/connected-preview/worker.ts`); plain `wrangler dev`, staging and production use the real catalog.
-- Decide whether a sample-port run should also see real attempts; this proposal keeps samples exclusive there, as today.
+- Decided (Darryl, via Keith, 2026-11-12): samples stay exclusive in a sample-port run.
+- `npm run check` after the change: exit 0, 47 files / 611 tests, build passed. No automated test drives the composed Worker with a signed-in instructor; the composed run below is the check.
 
 ## Synthetic payloads
 
@@ -63,6 +64,6 @@ Catalog reads are bounded by the 1,000-row cap; per-request D1 rows for list/get
 
 ## Blockers and next action
 
-- **Blocker:** the composition line is outside Keith's writer window. Next action: Darryl applies it (or grants Keith that line), then the composed run above.
-- Next owner: **Darryl** for composition; then Keith and Darryl for the composed run (tasks 6.2 verify and 7.1).
+- No blocker for composition. Next action: the composed run above (task 6.2 verify), done together with task 7.1.
+- Next owner: Keith (composed run), with Darryl reviewing the composition and this handoff.
 - Independent review outcome: pending Darryl's review of this handoff.

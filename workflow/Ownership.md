@@ -157,3 +157,7 @@ Keith reported on 2026-11-12 that Darryl agreed Keith may edit, one writer per f
 | Limiter composition for the student handler in `src/server/index.ts` (already in the window above) | Keith |
 
 Darryl's `AuthStore.rate` (`src/server/auth/store.ts`) is consumed unchanged, not edited. This record carries Keith's report; Darryl's direct review is not claimed. No deployment is authorized by it.
+
+### Extension — SubmissionCatalog composition (task 6.2), reported agreed 2026-11-12
+
+Keith reported on 2026-11-12 that he may apply the C-SUB composition himself: Keith is the writer for the `AssessmentWorkflow` submissions argument in `src/server/index.ts` (real `D1SubmissionCatalog` outside the loopback sample run; loopback samples stay exclusive when the connected-preview port supplies them). No other part of `index.ts` is opened. This record carries Keith's report; Darryl's direct review is not claimed.
