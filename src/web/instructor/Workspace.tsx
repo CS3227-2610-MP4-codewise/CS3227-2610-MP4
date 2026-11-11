@@ -196,6 +196,7 @@ export function InstructorWorkspace() {
           {role && (
             <WorkspaceSwitch
               role={role}
+              account={view ?? undefined}
               courses={role === 'instructor' ? courses : undefined}
               csrf={view?.csrfToken}
               beforeLeave={() =>
@@ -226,7 +227,9 @@ export function InstructorWorkspace() {
         </h1>
         {status && <p role="status">{status}</p>}
         {role === 'student' && (
-          <p role="status">The Student workspace is not yet available.</p>
+          <a className="cw-action" href="/workspace?role=student">
+            Open Student workspace <Icon name="arrow-right" />
+          </a>
         )}
         {creationStatus && <p role="status">{creationStatus}</p>}
         {ready &&

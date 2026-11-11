@@ -1,5 +1,7 @@
 # Shared authentication — Firebase passwords/Gmail tasks
 
+Local shell follow-up 2026-11-11: approved `local-shell-recovery-01` repairs Student join/navigation and 401/session-replacement recovery under SHA-06/07 and AUTH-01–03. Implementation and independent source review are recorded in course-onboarding tasks 6.1/6.2; native/manual acceptance and Keith's exact-source test alignment remain open in 6.3. This does not complete live provider, mail, hosted or broader auth acceptance tasks below. Evidence: `workflow/evidence/local-shared-instructor-completion/shell-verification.md`.
+
 AUTH-01–03, SHA-01–10, CON-03/07; warm-workbook-v1 UI-01/02/07/08. Earlier Google and hash-spike evidence is historical; no live provider completion.
 
 ## 0. Approved analysis

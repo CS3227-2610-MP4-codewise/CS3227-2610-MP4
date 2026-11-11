@@ -1,0 +1,4 @@
+local-shell-recovery-01 arrival continuation; base code commit fe8f49b7f74db248344fe40ba47e8d99ef9334f6
+SHA-256 of exact final working-tree source file bytes; source formatted with LF
+200b552c664cc41ae4618fe9d6b982ae5aad848c8b6c1b3bbba91f88a8d2f44d  src/web/ui/workspace-switch.tsx
+e8bdbfe5351b2efec04e9245bcd5ff024c4ec4f8345d0d7ed9aba04c93760607  src/web/ui/workspace-switch.test.ts

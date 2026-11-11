@@ -133,9 +133,12 @@ describe('student courses', () => {
       await screen.findByRole('group', { name: 'Workspace' }),
     ).toBeTruthy();
     expect(
-      (screen.getByRole('radio', { name: 'Student' }) as HTMLInputElement)
-        .checked,
-    ).toBe(true);
+      (
+        screen.getByRole('switch', {
+          name: 'Instructor workspace',
+        }) as HTMLInputElement
+      ).checked,
+    ).toBe(false);
   });
 
   it('omits the switch for a single-role account', async () => {
@@ -428,14 +431,14 @@ describe('leaving unsaved instructor work', () => {
   it('keeps the Instructor role and makes no Student request when the prompt is cancelled', async () => {
     const beforeLeave = vi.fn(() => false);
     render(createElement(WorkspaceSwitch, { role: 'instructor', beforeLeave }));
-    const student = await screen.findByRole('radio', { name: 'Student' });
+    const roleSwitch = (await screen.findByRole('switch', {
+      name: 'Instructor workspace',
+    })) as HTMLInputElement;
+    await waitFor(() => expect(roleSwitch.disabled).toBe(false));
     const before = calls.length;
-    fireEvent.click(student);
+    fireEvent.click(roleSwitch);
     expect(beforeLeave).toHaveBeenCalledTimes(1);
-    expect(
-      (screen.getByRole('radio', { name: 'Instructor' }) as HTMLInputElement)
-        .checked,
-    ).toBe(true);
+    expect(roleSwitch.checked).toBe(true);
     expect(calls.length).toBe(before);
     expect(calls.some((c) => c.startsWith('/api/student/'))).toBe(false);
   });
@@ -568,37 +571,49 @@ describe('post-review fixes', () => {
       act(async () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
       });
+    // Both parent and shared shell legitimately revalidate the session. Model the
+    // current server state, rather than consuming future states by reader count.
+    let phase: 'ready' | 'unavailable' | 'offline' | 'signed-out' = 'ready';
     routes['/api/auth/session'] = [
-      { status: 200, body: view },
-      { status: 503, body: { error: {} } },
       async () => {
-        throw new TypeError('offline');
+        if (phase === 'offline') throw new TypeError('offline');
+        if (phase === 'unavailable')
+          return { status: 503, body: { error: {} } };
+        if (phase === 'signed-out') return { status: 401, body: { error: {} } };
+        return { status: 200, body: view };
       },
-      { status: 401, body: { error: {} } },
     ];
-    routes[listPath] = [{ status: 200, body: page(1) }];
+    routes[listPath] = [
+      async () =>
+        phase === 'signed-out'
+          ? { status: 401, body: { error: {} } }
+          : { status: 200, body: page(1) },
+    ];
     show({ kind: 'assignments', courseId: 'course-a', cursor: null });
     await waitFor(() =>
       expect(document.querySelector('summary')).not.toBeNull(),
     );
-    focus();
-    await waitFor(() =>
-      expect(
-        calls.filter((c) => c === '/api/auth/session').length,
-      ).toBeGreaterThanOrEqual(2),
-    );
-    await settle();
-    expect(document.querySelector('summary')).not.toBeNull();
-    focus();
-    await waitFor(() =>
-      expect(
-        calls.filter((c) => c === '/api/auth/session').length,
-      ).toBeGreaterThanOrEqual(3),
-    );
-    await settle();
-    expect(document.querySelector('summary')).not.toBeNull();
+    const roleSwitch = (await screen.findByRole('switch', {
+      name: 'Instructor workspace',
+    })) as HTMLInputElement;
+    await waitFor(() => expect(roleSwitch.disabled).toBe(false));
+    for (const next of ['unavailable', 'offline'] as const) {
+      phase = next;
+      const before = calls.filter((c) => c === '/api/auth/session').length;
+      focus();
+      await waitFor(() =>
+        expect(
+          calls.filter((c) => c === '/api/auth/session').length,
+        ).toBeGreaterThan(before),
+      );
+      await settle();
+      expect(document.querySelector('summary')).not.toBeNull();
+    }
+    phase = 'signed-out';
     focus();
     await waitFor(() => expect(document.querySelector('summary')).toBeNull());
+    expect(await screen.findByRole('link', { name: 'Sign in' })).toBeTruthy();
+    expect(screen.queryByText('Assignment 0')).toBeNull();
   });
 
   it('opens the requested Student workspace when the contexts check fails', async () => {

@@ -319,6 +319,7 @@ export function AssignmentWorkspace({
           <nav className="cw-app-nav" aria-label="Main navigation">
             <WorkspaceSwitch
               role="instructor"
+              account={account}
               courseId={courseId}
               beforeLeave={() => !state.pending}
             />

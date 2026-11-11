@@ -11,7 +11,7 @@ export type InvitationPreview =
   | { legacy: true; session: 'none' | 'other' };
 export function joinedWorkspaceMessage(role: 'student' | 'instructor') {
   return role === 'student'
-    ? 'The Student workspace is not yet available.'
+    ? 'You can now open your Student workspace.'
     : 'You can now open your Instructor workspace.';
 }
 export function parseInvitationPreview(value: unknown): InvitationPreview {
