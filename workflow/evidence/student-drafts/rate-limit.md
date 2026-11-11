@@ -29,7 +29,7 @@ The Coordinator then sent requests from one client, all answered by the same Clo
 
 **Outcome:** on this account the binding deploys but did **not** enforce: no request was refused at up to 40 requests per key per minute, from one location, over about two minutes. Cloudflare documents the binding as approximate, but not as allowing more than three times the limit with no refusals. Whether this is a Free-plan restriction or a delay after a new deployment is not established; the documentation does not say. For SW-11 this means the binding cannot be relied on for saves on this account, so saves use the D1 fallback (`AuthStore.rate`), as the design allows.
 
-The probe Worker is to be deleted by Keith (`wrangler delete --name rl-probe`).
+Keith deleted the probe Worker on 2026-11-12 (`wrangler delete --name rl-probe`); its URL no longer serves the probe.
 
 ## Decision (Keith, 2026-11-12)
 
