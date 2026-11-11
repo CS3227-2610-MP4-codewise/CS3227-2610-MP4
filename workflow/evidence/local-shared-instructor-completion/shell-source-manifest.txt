@@ -1,0 +1,15 @@
+local-shell-recovery-01; base af1bc90fa47ed0b8726a46084ce642992c807e15; uncommitted source snapshot
+SHA-256 of exact working-tree file bytes (not a commit or review approval)
+0aebb6f3f2534d60dcfcd625e86eb3e9ccc5428f4626dfba42f7e49367abfcb8  src/web/ui/workspace-switch.tsx
+5c815d2d74e9f56b61ec79c54164c6e293d277440016dbcb8c24f4f4ab9097e5  src/web/ui/workspace-switch.test.ts
+1c8e0c0276b99d17930418dd6553983d77f6039eef445c643ed3c6a39498f714  src/web/styles.css
+619a51eae281071697b09035228af1afa77633d16b3bb6b768328ae0924a2543  src/web/auth/client.ts
+5cf94ae922ac6eab147749095ec46ce687299d2ca189b4238ff3c214d2425271  src/web/auth/client.test.ts
+5c71e1ede9fb65fc4607b3b4d4b7c379c6498488a534028d8c3e6eac8811fbf9  src/web/auth/App.tsx
+b4d4cca85017dd9930db1a95188af39b959764c0bfebcfab8d29ffb461c2eb3b  src/web/auth/App.dom.test.ts
+2ec64efc6bf8e9149943b7b8e7f043ac6df1362c0b0f68eb9519e2db4cba6270  src/web/instructor/Workspace.tsx
+c949b37ed3e1dfb831fa0d7bced1f995e86f49b328ac936f0b0d6c13fa6029b8  src/web/instructor/courses/client.ts
+5ea157c627eef53304cfd54e94995c153f6c83a37fe86e4dd99242ef1669736a  src/web/instructor/courses/client.test.ts
+f04f895b53de772d0770ac0e6c60896b57c6ba3bbaee2d12343e4c91ad37daa8  src/web/instructor/assignments/AssignmentWorkspace.tsx
+4a59946f39c7b016dffa5019d0f57418d9f73025b903821ea20b1ac13f0cd3cd  src/web/instructor/assessments/AssessmentWorkspace.tsx
+49f41c0bfc84edb4a5184c823342b9e99e01e0ff25af341c7ec507b14bbb50e5  src/web/instructor/assessments/ReviewWorkspace.tsx

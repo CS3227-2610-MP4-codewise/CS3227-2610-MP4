@@ -4,6 +4,8 @@ A merged deployment can authenticate the first owner yet leave it with no course
 
 ## What Changes
 
+- Local shell follow-up approved 2026-11-11 (`local-shell-recovery-01`): reflect the merged Student dashboard after joins, distinguish session loss from role/course denial and availability failures, and implement the documented native UI-03 switch. Current-account checks and visible recovery withhold stale protected content without changing authorization, student features or the accepted onboarding/K1–K6 policies. Local tests/review do not establish native/manual acceptance or hosted/provider verification.
+
 - Follow-up requested by Darryl: show one entry per course and recipient; pending Student and Instructor invitations are accepted together by either current link after the full role set is shown. A previously invited Firebase account without a local account uses mailbox proof and an explicit existing-password or create/reset-password choice; never silently merge or reset it. [COU-03–05/07, SHA-05/08/11, UI-01/02/07/08, warm-workbook-v1]
 
 - Treat the existing operator-pinned `instructor@u.nus.edu` starting account as the **first admin**, with an explicit trusted course-creation capability. Email text, passwords or browser role flags never confer admin authority.

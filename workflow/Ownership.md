@@ -1,5 +1,9 @@
 # Ownership and integration agreement
 
+## Local shell recovery window - approved 2026-11-11
+
+Darryl approved the concrete `local-shell-recovery-01` brief. Sole product writer: Darryl/main for shared `workspace-switch.tsx` and focused tests, role/recovery CSS, auth `client.ts`/`App.tsx` and focused tests, instructor `Workspace.tsx`, course client/tests, plus existing specs/tasks/evidence/handoffs and Darryl log. Independent reviewer `/root/shell_review` is read-only. The brief conditionally includes necessary instructor parent recovery consumers: independent review proved initial cross-account binding needs existing identity passed through `assignments/AssignmentWorkspace.tsx`, `assessments/AssessmentWorkspace.tsx` and `assessments/ReviewWorkspace.tsx`. These exact additions were announced before editing; no parent business flow, student source, backend/DTO/schema/migration or live operation is changed. Manual acceptance and Keith's exact-revision consumer review remain separate from his accepted broad decisions.
+
 Current confirmation — 2026-11-09: Keith directly accepts Darryl's SH-AUTH/SH-ID ownership and the C-ID, onboarding, dashboard-context and K1–K6 contract decisions recorded in [IntegrationContracts.md](IntegrationContracts.md#current-decision-status--keith-confirmation-2026-11-09). Earlier pending policy-agreement statements are historical; exact-revision source review and real student consumer integration remain pending. This confirmation changes no runtime permissions or shared write windows.
 
 Confirmed by the team: Darryl implements instructor features; Keith implements student features. Both contribute a substantial share of team-level work.

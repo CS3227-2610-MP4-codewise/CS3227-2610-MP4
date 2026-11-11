@@ -7,6 +7,24 @@ import {
 } from '../../../shared/courses';
 import { BoundaryError } from '../../../shared/instructor-contracts/schema';
 
+function responseError(status: number) {
+  return new BoundaryError(
+    status === 401
+      ? 'UNAUTHENTICATED'
+      : status === 403
+        ? 'FORBIDDEN'
+        : status === 404
+          ? 'NOT_FOUND'
+          : status === 409
+            ? 'IDEMPOTENCY_CONFLICT'
+            : status === 400
+              ? 'INVALID_CONTRACT'
+              : status === 429
+                ? 'RATE_LIMITED'
+                : 'UPSTREAM_UNAVAILABLE',
+  );
+}
+
 export async function courseRequest(
   path: string,
   csrf?: string,
@@ -21,20 +39,7 @@ export async function courseRequest(
       : {},
     ...(input ? { body: JSON.stringify(input) } : {}),
   });
-  if (!response.ok)
-    throw new BoundaryError(
-      response.status === 401
-        ? 'UNAUTHENTICATED'
-        : response.status === 403
-          ? 'FORBIDDEN'
-          : response.status === 409
-            ? 'IDEMPOTENCY_CONFLICT'
-            : response.status === 400
-              ? 'INVALID_CONTRACT'
-              : response.status === 429
-                ? 'RATE_LIMITED'
-                : 'UPSTREAM_UNAVAILABLE',
-    );
+  if (!response.ok) throw responseError(response.status);
   return response.json() as Promise<unknown>;
 }
 export const courseClient = {
@@ -54,7 +59,7 @@ export const courseClient = {
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
       body: JSON.stringify({ ids }),
     });
-    if (!response.ok) throw new BoundaryError('FORBIDDEN');
+    if (!response.ok) throw responseError(response.status);
     return verifiedCoursesSchema.parse(await response.json()).courses;
   },
 };

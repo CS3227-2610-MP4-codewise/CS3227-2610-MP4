@@ -83,8 +83,9 @@ pre {
   gap: 8px;
   flex-wrap: wrap;
 }
-body[data-workspace-revoked] .cw-shell > :not(.cw-header),
-body[data-workspace-revoked] .assessment-app > :not(.assessment-top) {
+.cw-shell[data-workspace-access] > :not(.cw-header):not(.cw-workspace-recovery),
+.assessment-app[data-workspace-access]
+  > :not(.assessment-top):not(.cw-workspace-recovery) {
   display: none;
 }
 .cw-role-switch {
@@ -94,15 +95,56 @@ body[data-workspace-revoked] .assessment-app > :not(.assessment-top) {
   padding: 0;
   border: 0;
 }
-.cw-role-switch legend {
-  font-size: 0.75rem;
-}
 .cw-role-switch label {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 44px;
   cursor: pointer;
+}
+.cw-role-switch input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.cw-role-track {
+  width: 44px;
+  height: 24px;
+  border: 2px solid var(--cw-secondary);
+  border-radius: 16px;
+  background: var(--cw-page);
+}
+.cw-role-track::after {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 16px;
+  margin: 2px;
+  border-radius: 50%;
+  background: var(--cw-ink);
+}
+.cw-role-switch input:checked + .cw-role-track::after {
+  transform: translateX(20px);
+}
+.cw-role-switch input:focus-visible + .cw-role-track {
+  outline: 3px solid var(--cw-accent);
+  outline-offset: 4px;
+}
+.cw-role-switch input:disabled {
+  cursor: wait;
+}
+.cw-workspace-recovery {
+  width: 100%;
+}
+.cw-shell[data-workspace-access='session'] .cw-app-nav > :not(.cw-role-context),
+.assessment-app[data-workspace-access='session']
+  .cw-app-nav
+  > :not(.cw-role-context) {
+  display: none;
 }
 .cw-wordmark {
   font-family: var(--cw-font-editorial);

@@ -16,6 +16,7 @@ import { Brand, Icon } from '../../ui/brand';
 import { AccountMenu } from '../../ui/account-menu';
 import { CourseNavigation } from '../../ui/course-navigation';
 import { WorkspaceSwitch } from '../../ui/workspace-switch';
+import type { AuthView } from '../../../shared/auth';
 import {
   feedbackVisibility,
   observationMatches,
@@ -34,7 +35,11 @@ export function AssessmentWorkspace({
   controller: AssessmentController;
   id: string;
   preview?: boolean;
-  account?: { email: string; logout: () => void | Promise<void> };
+  account?: {
+    email: string;
+    logout: () => void | Promise<void>;
+    identity?: Pick<AuthView, 'session' | 'csrfToken'>;
+  };
   apiPrefix?: string;
 }) {
   const s = useSyncExternalStore(controller.subscribe, controller.snapshot),
@@ -318,6 +323,7 @@ export function AssessmentWorkspace({
           <nav className="cw-app-nav" aria-label="Main navigation">
             <WorkspaceSwitch
               role="instructor"
+              account={account?.identity}
               courseId={v?.head.courseId}
               beforeLeave={() => !s.busy}
             />

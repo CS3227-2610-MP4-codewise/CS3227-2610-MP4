@@ -101,8 +101,15 @@ The system SHALL preserve both roles and show a top keyboard-operable Student/In
 - **THEN** recovery is offered before navigation, the new heading/context is announced, only that role's courses appear and being an instructor in one course grants no instructor access to a student-only course.
 
 ### Requirement: COU-07 Current authority after revocation
-The system SHALL re-evaluate role/workspace eligibility and course access after membership, inviter, account or session revocation. Previously available switches, invitation receipts, cached lists or browser preferences SHALL NOT preserve revoked authority. Loss of one role SHALL leave other valid memberships intact and return the user to an authorized dashboard without leaking the previous role's private content. (AUTH-01–03, UI-03/08)
+The system SHALL re-evaluate role/workspace eligibility and course access after membership, inviter, account or session revocation. Previously available switches, invitation receipts, cached lists or browser preferences SHALL NOT preserve revoked authority. Loss of one role SHALL leave other valid memberships intact and return the user to an authorized dashboard without leaking the previous role's private content. (AUTH-01-03, UI-03/08)
 
+#### Scenario: Session loss versus role loss in shared chrome
+- **WHEN** any current shell session/course/context check returns 401, the session identity differs from the account that loaded an instructor page, or the current role is missing from a successful context response
+- **THEN** the shell SHALL withhold stale protected content and provide visible recovery; session loss/replacement SHALL offer Sign in, while role loss SHALL offer an authorized workspace path. A network/provider failure SHALL NOT be described as revoked authority. A successful later context check alone SHALL NOT unmask stale account content.
+
+#### Scenario: Cancelled role navigation
+- **WHEN** dirty-work protection cancels leaving the current authorized workspace
+- **THEN** the role/checked state SHALL remain synchronized with that workspace, editing and future availability checks SHALL remain usable, and no pending transition lock SHALL persist indefinitely.
 #### Scenario: Last role membership is revoked
 - **WHEN** the user's last Instructor or Student entitlement is revoked
 - **THEN** the unavailable workspace is removed from current trusted context, stale selections cannot retrieve protected data and any remaining authorized dashboard is still usable.

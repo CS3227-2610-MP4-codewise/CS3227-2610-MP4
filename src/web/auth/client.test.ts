@@ -8,7 +8,7 @@ import {
 describe('invitation entry', () => {
   it('reports the actual workspace availability after joining', () => {
     expect(joinedWorkspaceMessage('student')).toBe(
-      'The Student workspace is not yet available.',
+      'You can now open your Student workspace.',
     );
     expect(joinedWorkspaceMessage('instructor')).toBe(
       'You can now open your Instructor workspace.',
