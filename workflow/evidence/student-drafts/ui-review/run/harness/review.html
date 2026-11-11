@@ -1,0 +1,92 @@
+<!doctype html><meta charset="utf-8" /><title>
+  Variant B manual review — synthetic</title
+><style>
+  body {
+    margin: 0;
+    font: 14px Arial;
+    background: #ddd;
+  }
+  header {
+    padding: 8px;
+  }
+  iframe {
+    display: block;
+    border: 0;
+    height: 1050px;
+  }
+  pre {
+    white-space: pre-wrap;
+    margin: 8px;
+  }
+</style>
+<header>
+  <b>Variant B manual review — synthetic API, merged source</b><br /><label
+    >Width
+    <select id="width">
+      <option>320</option>
+      <option>768</option>
+      <option>1024</option>
+      <option selected>1440</option>
+    </select></label
+  >
+  <label
+    >Theme
+    <select id="theme">
+      <option>light</option>
+      <option>dark</option>
+    </select></label
+  >
+  <label
+    >State
+    <select id="state">
+      <option>editor</option>
+      <option>starter</option>
+      <option>saving</option>
+      <option>failed</option>
+      <option>conflict</option>
+      <option>conflict-save</option>
+      <option>conflict-fallback</option>
+      <option>session</option>
+      <option>denied</option>
+      <option>invalid</option>
+      <option>too-large</option>
+      <option>newer</option>
+      <option>review</option>
+    </select></label
+  >
+  <button id="load">Load scenario</button>
+  <button id="release">Release pending acknowledgement</button
+  ><span id="summary"></span>
+</header>
+<iframe title="Workbook under review" id="frame"></iframe>
+<details open>
+  <summary>Measured targets and focus (CSS px)</summary>
+  <pre id="metrics"></pre>
+</details>
+<script>
+  const $ = (id) => document.getElementById(id);
+  function load() {
+    $('frame').width = $('width').value;
+    $('frame').src =
+      '/index.html?theme=' + $('theme').value + '&state=' + $('state').value;
+  }
+  const params = new URLSearchParams(location.search);
+  for (const id of ['width', 'theme', 'state'])
+    if (params.has(id)) $(id).value = params.get(id);
+  $('load').onclick = load;
+  $('release').onclick = () =>
+    $('frame').contentWindow.dispatchEvent(new Event('review-release'));
+  window.onmessage = (e) => {
+    if (e.origin !== location.origin || !e.data.review) return;
+    $('summary').textContent =
+      ' viewport ' +
+      e.data.width +
+      '; scroll width ' +
+      e.data.scroll +
+      '; reduced motion ' +
+      e.data.motion;
+    $('metrics').textContent = JSON.stringify(e.data, null, 2);
+    fetch('/review-report', { method: 'POST', body: JSON.stringify(e.data) });
+  };
+  load();
+</script>

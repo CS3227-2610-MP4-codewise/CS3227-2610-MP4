@@ -618,6 +618,35 @@ describe('conflict window and newer version (SW-02/04, task 5.2)', () => {
     expect(screen.getByText('Saved. Revision 4.')).toBeTruthy();
   });
 
+  it('keeps keyboard focus on a logical control through the conflict choice (UI-07/UI-08)', async () => {
+    await conflict();
+    click('Keep my version');
+    const group = screen.getByRole('group', { name: 'Confirm choice' });
+    expect(document.activeElement).toBe(group);
+    expect(group.getAttribute('aria-describedby')).toBeTruthy();
+    click('Back');
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Keep my version' }),
+    );
+    click('Use saved version');
+    click('Back');
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Use saved version' }),
+    );
+    click('Use saved version');
+    click('Use saved and discard mine');
+    await tick(0);
+    expect(document.activeElement).toBe(editor());
+  });
+
+  it('moves focus into the editor after keeping my version', async () => {
+    await conflict();
+    click('Keep my version');
+    click('Keep mine and discard saved');
+    await tick(0);
+    expect(document.activeElement).toBe(editor());
+  });
+
   it('copies the other version, or shows a visible fallback when the clipboard is denied', async () => {
     await conflict();
     click('Keep my version');

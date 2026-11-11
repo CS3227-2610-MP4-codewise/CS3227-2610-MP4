@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Action } from '../ui/primitives';
 import { diffLines, type DiffRow, type ServerDraft } from './work-model';
 
@@ -39,7 +39,23 @@ export function ConflictWindow({
     'idle',
   );
   const fallback = useRef<HTMLTextAreaElement>(null);
+  const choices = useRef<HTMLDivElement>(null);
+  const confirmation = useRef<HTMLDivElement>(null);
+  const returnTo = useRef<'keep' | 'use' | null>(null);
   const headingId = useId();
+  const confirmTextId = useId();
+  // UI-07/UI-08: the choice buttons and the confirmation replace each other. Move focus to the
+  // confirmation when it appears, and back to the button that opened it on Back, so keyboard and
+  // screen-reader users are not dropped on the document.
+  useEffect(() => {
+    if (confirm) {
+      confirmation.current?.focus();
+    } else if (returnTo.current) {
+      const index = returnTo.current === 'keep' ? 0 : 1;
+      choices.current?.querySelectorAll('button')[index]?.focus();
+      returnTo.current = null;
+    }
+  }, [confirm]);
   // The copy offered is the version the chosen action discards.
   const discarded = confirm === 'keep' ? 'saved' : 'mine';
   const discardedText = discarded === 'saved' ? saved.source : mine;
@@ -130,7 +146,7 @@ export function ConflictWindow({
         Markers: ≠ changed line, + only in my version, − only in saved version.
       </p>
       {confirm === null ? (
-        <div className="cw-wb-actions">
+        <div className="cw-wb-actions" ref={choices}>
           <Action onClick={() => choose('keep')} disabled={pending}>
             Keep my version
           </Action>
@@ -143,8 +159,15 @@ export function ConflictWindow({
           </Action>
         </div>
       ) : (
-        <div className="cw-wb-confirm" role="group" aria-label="Confirm choice">
-          <p>
+        <div
+          className="cw-wb-confirm"
+          role="group"
+          aria-label="Confirm choice"
+          aria-describedby={confirmTextId}
+          tabIndex={-1}
+          ref={confirmation}
+        >
+          <p id={confirmTextId}>
             {confirm === 'keep'
               ? `Keep my version saves it as a new revision on top of revision ${saved.revision}. The saved version will be replaced.`
               : 'Use saved version replaces the text in this tab. My version will be discarded.'}{' '}
@@ -164,7 +187,10 @@ export function ConflictWindow({
             </Action>
             <Action
               variant="secondary"
-              onClick={() => setConfirm(null)}
+              onClick={() => {
+                returnTo.current = confirm;
+                setConfirm(null);
+              }}
               disabled={pending}
             >
               Back

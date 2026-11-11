@@ -17,7 +17,7 @@ import { InstructionText } from '../ui/instruction-text';
 import { Action, QuestionNavigation } from '../ui/primitives';
 import { WorkspaceSwitch } from '../ui/workspace-switch';
 import { AttemptsPanel } from './Attempts';
-import { CodeEditor } from './CodeEditor';
+import { CodeEditor, type CodeEditorHandle } from './CodeEditor';
 import { ConflictWindow } from './ConflictWindow';
 import { Review } from './Review';
 import { formatDeadline, studentPaths, type StudentRoute } from './model';
@@ -29,6 +29,9 @@ import {
   workApi,
   type DraftItem,
 } from './work-model';
+// Workbook is also rendered on its own (lazy chunk, review harness); its link targets rely on
+// the student stylesheet, so import it explicitly rather than through StudentWorkspace.
+import './student.css';
 import './workbook.css';
 
 type WorkRoute = Extract<StudentRoute, { kind: 'work' }>;
@@ -346,6 +349,15 @@ function Ready({
   const [navPending, setNavPending] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const focusHeading = useRef(false);
+  // UI-07/UI-08: after a conflict choice the window unmounts; move focus into the editor that
+  // replaces it instead of dropping it on the document.
+  const focusEditorNext = useRef(false);
+  const editorMounted = useCallback((h: CodeEditorHandle | null) => {
+    if (h && focusEditorNext.current) {
+      focusEditorNext.current = false;
+      h.focus();
+    }
+  }, []);
   const now = useNow();
 
   const question = pub.questions[position - 1];
@@ -633,9 +645,11 @@ function Ready({
             Your session has ended. Text that is not saved stays on this page
             only. Copy anything important before you sign in again.
           </p>
-          <a className="cw-action cw-action--primary" href="/sign-in">
-            Sign in
-          </a>
+          <div className="cw-course-actions">
+            <a className="cw-action cw-action--primary" href="/sign-in">
+              Sign in
+            </a>
+          </div>
         </div>
       )}
       {newer}
@@ -748,15 +762,20 @@ function Ready({
                       mine={item.source}
                       saved={item.conflict}
                       recovered={item.recovered}
-                      onKeepMine={() =>
-                        void ctl.keepMine(item.questionVersionId)
-                      }
-                      onUseSaved={() => ctl.useSaved(item.questionVersionId)}
+                      onKeepMine={() => {
+                        focusEditorNext.current = true;
+                        void ctl.keepMine(item.questionVersionId);
+                      }}
+                      onUseSaved={() => {
+                        focusEditorNext.current = true;
+                        ctl.useSaved(item.questionVersionId);
+                      }}
                     />
                   ) : (
                     <>
                       <CodeEditor
                         id={'cw-editor-' + position}
+                        handle={editorMounted}
                         label={label}
                         value={item.source}
                         describedBy={`${hintId} ${statusId}`}

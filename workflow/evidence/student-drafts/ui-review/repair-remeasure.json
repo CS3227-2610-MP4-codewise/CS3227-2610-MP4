@@ -1,0 +1,236 @@
+{
+ "320-light-conflict-fallback": {
+  "initial": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "BODY:Skip to contentcodewise.StudentCoursesSA"
+  },
+  "afterKeep": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "Confirm choice"
+  },
+  "afterCopyDenied": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "Confirm choice"
+  },
+  "afterBack": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "BUTTON:Keep my version"
+  },
+  "afterResolve": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "Python answer for question 1: Sum a list 1"
+  }
+ },
+ "320-dark-conflict": {
+  "initial": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "BODY:Skip to contentcodewise.StudentCoursesSA"
+  },
+  "afterKeep": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "Confirm choice"
+  },
+  "afterBack": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "BUTTON:Keep my version"
+  },
+  "afterResolve": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "Python answer for question 1: Sum a list 1"
+  }
+ },
+ "320-light-editor": {
+  "initial": {
+   "inner": 320,
+   "scroll": 320,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "BODY:Skip to contentcodewise.StudentCoursesSA"
+  }
+ },
+ "1440-light-session": {
+  "initial": {
+   "inner": 1440,
+   "scroll": 1440,
+   "back": [
+    {
+     "name": "Back to the assignment",
+     "w": 192.3,
+     "h": 44
+    }
+   ],
+   "signin": [
+    {
+     "name": "Sign in",
+     "w": 76.8,
+     "h": 44
+    }
+   ],
+   "skip": [
+    {
+     "name": "Skip to content",
+     "w": 137.8,
+     "h": 42
+    }
+   ],
+   "focus": "BODY:Skip to contentcodewise.StudentCoursesSA"
+  }
+ }
+}

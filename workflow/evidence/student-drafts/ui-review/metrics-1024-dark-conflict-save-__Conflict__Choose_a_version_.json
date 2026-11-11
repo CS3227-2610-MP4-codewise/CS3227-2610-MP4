@@ -1,0 +1,958 @@
+{
+  "review": true,
+  "status": "≠ Conflict. Choose a version.",
+  "contrast": [
+    {
+      "name": "H1",
+      "text": "Synthetic workbook assignment",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "cw-student-meta-line",
+      "text": "Deadline Thu 1 Jan 2099, 00:00 U",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 8.38
+    },
+    {
+      "name": "H2",
+      "text": "Sum a list 1",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "BUTTON",
+      "text": "Working copy",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "BUTTON",
+      "text": "Submitted attempts",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 8.38
+    },
+    {
+      "name": "cw-wb-save",
+      "text": "≠ Conflict. Choose a version.",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "P",
+      "text": "Your text and the saved version ",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "TD",
+      "text": "1≠Changed line: # stale tabdef t",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "1",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "≠",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "1≠Changed line: def total(values",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "1",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "≠",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "2≠Changed line:     \"\"\"Return th",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "2",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "≠",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "2≠Changed line:     return sum(v",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "2",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "≠",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "3+Only in my version:     result",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "3",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "TD",
+      "text": "4+Only in my version:     for va",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "4",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "TD",
+      "text": "5+Only in my version:         re",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "5",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "TD",
+      "text": "6+Only in my version:     return",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "6",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "TD",
+      "text": "7+Only in my version:",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "7",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "TD",
+      "text": "8+Only in my version: print(tota",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 9.46
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "8",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        255,
+        179,
+        153,
+        255
+      ],
+      "bg": [
+        72,
+        56,
+        45,
+        255
+      ],
+      "ratio": 6.47
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "cw-wb-legend",
+      "text": "Markers: ≠ changed line, + only ",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 8.38
+    },
+    {
+      "name": "P",
+      "text": "Use saved version replaces the t",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Copy other version",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "cw-action cw-action--primary",
+      "text": "Use saved and discard mine",
+      "fg": [
+        34,
+        39,
+        31,
+        255
+      ],
+      "bg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "ratio": 12.89
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Back",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "P",
+      "text": "Copied the my version to the cli",
+      "fg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 12.91
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Previous question",
+      "fg": [
+        190,
+        194,
+        176,
+        255
+      ],
+      "bg": [
+        37,
+        38,
+        32,
+        255
+      ],
+      "ratio": 8.38
+    },
+    {
+      "name": "cw-action cw-action--primary",
+      "text": "Next question",
+      "fg": [
+        34,
+        39,
+        31,
+        255
+      ],
+      "bg": [
+        240,
+        236,
+        223,
+        255
+      ],
+      "ratio": 12.89
+    }
+  ],
+  "overflow": [
+    {
+      "tag": "CODE",
+      "cls": "",
+      "right": 1423.3
+    }
+  ],
+  "state": "conflict-save",
+  "theme": "dark",
+  "width": 1024,
+  "scroll": 1024,
+  "motion": false,
+  "focus": "Copy other version",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Question text",
+      "w": 359,
+      "h": 44
+    },
+    {
+      "name": "Rubric guidance",
+      "w": 359,
+      "h": 44
+    },
+    {
+      "name": "Working copy",
+      "w": 276,
+      "h": 44
+    },
+    {
+      "name": "Submitted attempts",
+      "w": 276,
+      "h": 44
+    },
+    {
+      "name": "Copy other version",
+      "w": 151.5,
+      "h": 44
+    },
+    {
+      "name": "Use saved and discard mine",
+      "w": 210.6,
+      "h": 44
+    },
+    {
+      "name": "Back",
+      "w": 65.1,
+      "h": 44
+    },
+    {
+      "name": "Previous question",
+      "w": 419.9,
+      "h": 44
+    },
+    {
+      "name": "Next question",
+      "w": 419.9,
+      "h": 44
+    }
+  ]
+}

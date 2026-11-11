@@ -1,0 +1,91 @@
+{
+  "review": true,
+  "state": "failed",
+  "theme": "light",
+  "width": 1024,
+  "scroll": 1024,
+  "motion": false,
+  "focus": "Next question",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Sign out",
+      "w": 252,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Question text",
+      "w": 359,
+      "h": 44
+    },
+    {
+      "name": "Rubric guidance",
+      "w": 359,
+      "h": 44
+    },
+    {
+      "name": "Working copy",
+      "w": 276,
+      "h": 44
+    },
+    {
+      "name": "Submitted attempts",
+      "w": 276,
+      "h": 44
+    },
+    {
+      "name": "Retry save",
+      "w": 100.9,
+      "h": 44
+    },
+    {
+      "name": "Retry save",
+      "w": 100.9,
+      "h": 44
+    },
+    {
+      "name": "Keep editing",
+      "w": 111.8,
+      "h": 44
+    },
+    {
+      "name": "Continue without saving",
+      "w": 182.6,
+      "h": 44
+    },
+    {
+      "name": "Previous question",
+      "w": 419.9,
+      "h": 44
+    },
+    {
+      "name": "Next question",
+      "w": 419.9,
+      "h": 44
+    }
+  ]
+}

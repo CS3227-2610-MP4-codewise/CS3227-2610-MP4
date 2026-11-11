@@ -123,6 +123,10 @@
   padding-top: 12px;
   margin-top: 16px;
 }
+.cw-wb-confirm:focus {
+  outline: 2px solid var(--cw-accent);
+  outline-offset: 4px;
+}
 .cw-wb-newer {
   border-top: 1px solid var(--cw-rule);
   border-bottom: 1px solid var(--cw-rule);
@@ -281,6 +285,9 @@
   margin-bottom: 8px;
 }
 .cw-wb-diff-scroll {
+  /* UI-07: contain the absolutely positioned screen-reader labels inside the cells. Without a
+     positioned ancestor here they escape the scroll box and widen the page at 320px. */
+  position: relative;
   overflow: auto;
   max-height: 24rem;
   border: 1px solid var(--cw-rule);

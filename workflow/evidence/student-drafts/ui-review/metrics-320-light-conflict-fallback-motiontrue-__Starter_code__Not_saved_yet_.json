@@ -1,0 +1,344 @@
+{
+  "review": true,
+  "status": "✓ Starter code. Not saved yet.",
+  "contrast": [
+    {
+      "name": "H1",
+      "text": "Synthetic workbook assignment",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-student-meta-line",
+      "text": "Deadline Thu 1 Jan 2099, 00:00 U",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "H2",
+      "text": "Sum a list 2",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "BUTTON",
+      "text": "Working copy",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "BUTTON",
+      "text": "Submitted attempts",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "cw-wb-save",
+      "text": "✓ Starter code. Not saved yet.",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "CODE",
+      "text": "def total(values):\n    pass",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token keyword",
+      "text": "def",
+      "fg": [
+        138,
+        60,
+        124,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.84
+    },
+    {
+      "name": "token function",
+      "text": "total",
+      "fg": [
+        36,
+        93,
+        131,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.95
+    },
+    {
+      "name": "token punctuation",
+      "text": "(",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token punctuation",
+      "text": ")",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token punctuation",
+      "text": ":",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token keyword",
+      "text": "pass",
+      "fg": [
+        138,
+        60,
+        124,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.84
+    },
+    {
+      "name": "cw-wb-hint",
+      "text": "Tab indents by four spaces. Pres",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Previous question",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-action cw-action--primary",
+      "text": "Review assignment",
+      "fg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "bg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "ratio": 13.22
+    }
+  ],
+  "overflow": [],
+  "motionStyles": [],
+  "scenario": "conflict-fallback",
+  "state": "conflict",
+  "theme": "light",
+  "width": 320,
+  "scroll": 320,
+  "motion": true,
+  "focus": "Sum a list 2",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Question text",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Rubric guidance",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Working copy",
+      "w": 144,
+      "h": 52
+    },
+    {
+      "name": "Submitted attempts",
+      "w": 144,
+      "h": 52
+    },
+    {
+      "name": "Previous question",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Review assignment",
+      "w": 288,
+      "h": 44
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "review": true,
+  "state": "conflict-save",
+  "theme": "dark",
+  "width": 1024,
+  "scroll": 1024,
+  "motion": false,
+  "focus": "Skip to contentcodewise.StudentCoursesSAccountstudent@u.nus.eduSign out Back to the assignmentSynthe",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Sign out",
+      "w": 252,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Question text",
+      "w": 359,
+      "h": 44
+    },
+    {
+      "name": "Rubric guidance",
+      "w": 359,
+      "h": 44
+    },
+    {
+      "name": "Working copy",
+      "w": 276,
+      "h": 44
+    },
+    {
+      "name": "Submitted attempts",
+      "w": 276,
+      "h": 44
+    },
+    {
+      "name": "Previous question",
+      "w": 419.9,
+      "h": 44
+    },
+    {
+      "name": "Next question",
+      "w": 419.9,
+      "h": 44
+    }
+  ]
+}

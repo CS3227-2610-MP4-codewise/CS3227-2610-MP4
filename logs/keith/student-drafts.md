@@ -202,3 +202,95 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 116313555; cached input subset 113352491; output 792644; reasoning output subset unavailable; total 117106199.
 - Coverage/status: partial; 7 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-drafts:ui-review-2026-11-11 -->
+<!-- experiment-turns:ui-review-2026-11-11:26440246e2d82e96,9f9cf64d703edaac,06a852ec0f9d179d,3c2f254af7e39d46,5159a68270c52d60,87931cae422216aa,e7599bb4d1e77e12,7ac434572dd85271 -->
+## Checkpoint `ui-review-2026-11-11` — 2026-11-10T19:54:53.813916+00:00
+
+### Request
+
+Conduct computer-use UI testing of merged workbook variant B and capture save/conflict states.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Main agent only; no subagents. Native Edge reviewed required widths, both appearances, actual 200% zoom, reduced motion, keyboard and save/conflict states. 29 screenshots; contrast minimum 4.92:1. Return with F1 narrow conflict overflow, F2 undersized links and F3 conflict focus loss. npm run check passed: 597 Vitest and 4 deployment tests. Synthetic browser responses do not verify real authentication or durability. Current Codex tracker session off; no recording activated and current usage unavailable.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [UI review](../../workflow/evidence/student-drafts/ui-review.md); [handoff](../../workflow/handoffs/student-drafts-ui-review.md).
+- Remaining limitations and next owner: Keith: repair F1-F3, re-review and provide human acceptance; run real composed acceptance separately..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T07:09:01.837Z | 2026-11-10T07:09:19.794Z | final | claude-opus-5-5 | medium | 532 | 22 | 532 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-10T08:52:53.385Z | 2026-11-10T08:54:00.006Z | final | claude-opus-5-5 | medium | 969 | 128 | 969 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Domain Implementer / implementer | a93df894 | 2026-11-10T04:52:23.872Z | provisional | pending | 117654 | 34987 | 117654 |
+| Reviewer / reviewer | a941df52 | 2026-11-10T05:08:00.118Z | provisional | pending | 59832 | 29053 | 59832 |
+| UI Implementer A (CodeMirror 6) / implementer | ac08cb72 | 2026-11-10T05:23:15.650Z | provisional | pending | 191076 | 62421 | 191076 |
+| UI Implementer B (textarea+prismjs) / implementer | ab0c9394 | 2026-11-10T05:23:15.657Z | provisional | pending | 153818 | 47569 | 153818 |
+| UI Implementer C (Monaco) / implementer | a8259647 | 2026-11-10T05:23:15.720Z | provisional | pending | 164161 | 42563 | 164161 |
+| Coordinator / coordinator | 970664a8 | 2026-11-10T07:06:00.273Z | provisional | final | 4127 | 519 | 4127 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 117433038; cached input subset 114428708; output 794787; reasoning output subset unavailable; total 118227825.
+- Coverage/status: partial; 7 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+### UI review verification correction — 2026-11-11
+
+The generated checkpoint above records the earlier successful full check. A later full parallel `npm run check` exited 1: 592/597 passed, four 5000 ms timeouts and one course-invitation assertion failure. The affected three files then passed serially, 111/111, exit 0, without changing application code or timeout settings. All three outputs are linked from the UI review. The parallel cause is unproven. Current Codex session remains off; the generated historical activity/reconciliation tables do not measure this UI-review turn. No subagents were spawned. Final outcome remains return with F1–F3 and unverified real authenticated browser integration.
+
+
+<!-- experiment-checkpoint:student-drafts:ui-review-repair-2026-11-11 -->
+<!-- experiment-turns:ui-review-repair-2026-11-11:5d065493c40af176,eef18ad6f54eb766,3dc1c0abf7c560ec,32a08fcf3c9cd09d,7e62cdcf939cdc2d,d425d53fbc9b60e4 -->
+## Checkpoint `ui-review-repair-2026-11-11` — 2026-11-11T05:44:32.213109+00:00
+
+### Request
+
+Restart usage tracking; repair UI review findings F1-F3 (task 5.4)
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Run a1e42c75 finalized partial (5 child turns lacking terminal evidence, Keith approved) and new run 3e568c5e started. F1 fixed (diff scroll box positioned). F2: session Sign in fixed, Workbook imports student.css; Skip to content (42px, shared styles.css) returned to Darryl. F3 focus moves with 2 failing-first DOM tests. npm run check exit 0, 599 tests. No agents spawned. 5.4 unchecked pending Keith acceptance; nothing committed.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-drafts/ui-review.md#repair-round-1-2026-11-11-claude-code-coordinator-self-repair-not-an-independent-re-review.
+- Remaining limitations and next owner: Keith manual acceptance of the workbook, then tick 5.4 and commit; tell Darryl about the skip-link target and the auth lock flaky assertion.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T05:39:04.969Z | open | provisional | claude-opus-5-5 | medium | 22642 | 6083 | 22642 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Domain Implementer / implementer | a93df894 | 2026-11-10T04:52:23.872Z | pending | partial | 117654 | 34987 | 117654 (partial) |
+| Reviewer / reviewer | a941df52 | 2026-11-10T05:08:00.118Z | pending | partial | 59832 | 29053 | 59832 (partial) |
+| UI Implementer A (CodeMirror 6) / implementer | ac08cb72 | 2026-11-10T05:23:15.650Z | pending | partial | 191076 | 62421 | 191076 (partial) |
+| UI Implementer B (textarea+prismjs) / implementer | ab0c9394 | 2026-11-10T05:23:15.657Z | pending | partial | 153818 | 47569 | 153818 (partial) |
+| UI Implementer C (Monaco) / implementer | a8259647 | 2026-11-10T05:23:15.720Z | pending | partial | 164161 | 42563 | 164161 (partial) |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 121834976; cached input subset 118713889; output 817429; reasoning output subset unavailable; total 122652405.
+- Coverage/status: partial; 7 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
