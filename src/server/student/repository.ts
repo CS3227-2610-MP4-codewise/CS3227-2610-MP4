@@ -13,7 +13,7 @@ import {
 } from '../../shared/instructor-contracts/schema';
 
 /** Stored data that fails the public contract fails closed as unavailable, never as a client error. */
-function stored<T>(decode: () => T): T {
+export function stored<T>(decode: () => T): T {
   try {
     return decode();
   } catch (error) {
@@ -110,36 +110,57 @@ export class StudentAssignments {
     principal: TrustedPrincipal,
     versionId: string,
   ): Promise<Publication> {
+    return readPublication(
+      this.db,
+      versionId,
+      currentStudentGuard,
+      studentGuardBindings(principal, this.clock()),
+    );
+  }
+}
+
+/**
+ * Reads one exact publication under a caller-supplied authority fragment (`access` receives a
+ * trusted column reference and returns SQL over ?1–?4, with bindings supplied as `bind`).
+ * Never selects private references.
+ */
+export async function readPublication(
+  db: D1Database,
+  versionId: string,
+  access: (courseColumn: string) => string,
+  bind4: readonly unknown[],
+): Promise<Publication> {
+  {
     const guard = `EXISTS (SELECT 1 FROM instructor_assignment_publications gp
-      WHERE gp.id=?5 AND ${currentStudentGuard('gp.course_id')})`;
-    const bind = [...studentGuardBindings(principal, this.clock()), versionId];
+      WHERE gp.id=?5 AND ${access('gp.course_id')})`;
+    const bind = [...bind4, versionId];
     // One D1 batch is one transaction: authority and content come from one snapshot.
-    const [root, questions, criteria] = await this.db.batch<
-      Record<string, unknown>
-    >([
-      this.db
-        .prepare(
-          `SELECT id,assignment_id,course_id,published_at,title,deadline_at
+    const [root, questions, criteria] = await db.batch<Record<string, unknown>>(
+      [
+        db
+          .prepare(
+            `SELECT id,assignment_id,course_id,published_at,title,deadline_at
         FROM instructor_assignment_publications WHERE id=?5 AND ${guard}`,
-        )
-        .bind(...bind),
-      this.db
-        .prepare(
-          `SELECT q.id,q.question_id,q.title,q.instructions,q.language,q.starter_code,
+          )
+          .bind(...bind),
+        db
+          .prepare(
+            `SELECT q.id,q.question_id,q.title,q.instructions,q.language,q.starter_code,
           r.id AS rubric_version_id,r.rubric_id
         FROM instructor_question_versions q JOIN instructor_rubric_versions r ON r.question_version_id=q.id
         WHERE q.publication_id=?5 AND ${guard} ORDER BY q.position`,
-        )
-        .bind(...bind),
-      this.db
-        .prepare(
-          `SELECT c.rubric_version_id,c.criterion_id,c.comparison_key,c.descriptor,c.minimum_units,c.maximum_units
+          )
+          .bind(...bind),
+        db
+          .prepare(
+            `SELECT c.rubric_version_id,c.criterion_id,c.comparison_key,c.descriptor,c.minimum_units,c.maximum_units
         FROM instructor_criterion_versions c JOIN instructor_rubric_versions r ON r.id=c.rubric_version_id
         JOIN instructor_question_versions q ON q.id=r.question_version_id
         WHERE q.publication_id=?5 AND ${guard} ORDER BY q.position,c.position`,
-        )
-        .bind(...bind),
-    ]);
+          )
+          .bind(...bind),
+      ],
+    );
     const r = root.results[0] as
       | {
           id: string;

@@ -1,0 +1,710 @@
+{
+  "review": true,
+  "status": "✓ Saved. Revision 3.",
+  "contrast": [
+    {
+      "name": "H1",
+      "text": "Synthetic workbook assignment",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-student-meta-line",
+      "text": "Deadline Thu 1 Jan 2099, 00:00 U",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "H2",
+      "text": "Sum a list 1",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "BUTTON",
+      "text": "Working copy",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "BUTTON",
+      "text": "Submitted attempts",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "cw-wb-save",
+      "text": "✓ Saved. Revision 3.",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "CODE",
+      "text": "def total(values):\n    \"\"\"Return",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token keyword",
+      "text": "def",
+      "fg": [
+        138,
+        60,
+        124,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.84
+    },
+    {
+      "name": "token function",
+      "text": "total",
+      "fg": [
+        36,
+        93,
+        131,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.95
+    },
+    {
+      "name": "token punctuation",
+      "text": "(",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token punctuation",
+      "text": ")",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token punctuation",
+      "text": ":",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token triple-quoted-string string",
+      "text": "\"\"\"Return the sum of values.\"\"\"",
+      "fg": [
+        146,
+        82,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 5.96
+    },
+    {
+      "name": "token operator",
+      "text": "=",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token number",
+      "text": "0",
+      "fg": [
+        99,
+        87,
+        154,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "token keyword",
+      "text": "for",
+      "fg": [
+        138,
+        60,
+        124,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.84
+    },
+    {
+      "name": "token keyword",
+      "text": "in",
+      "fg": [
+        138,
+        60,
+        124,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.84
+    },
+    {
+      "name": "token punctuation",
+      "text": ":",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token comment",
+      "text": "# a very long trailing comment t",
+      "fg": [
+        55,
+        99,
+        57,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.87
+    },
+    {
+      "name": "token operator",
+      "text": "+=",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token keyword",
+      "text": "return",
+      "fg": [
+        138,
+        60,
+        124,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.84
+    },
+    {
+      "name": "token keyword",
+      "text": "print",
+      "fg": [
+        138,
+        60,
+        124,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.84
+    },
+    {
+      "name": "token punctuation",
+      "text": "(",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token callable",
+      "text": "total",
+      "fg": [
+        36,
+        93,
+        131,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.95
+    },
+    {
+      "name": "token punctuation",
+      "text": "(",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token punctuation",
+      "text": "[",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token number",
+      "text": "1",
+      "fg": [
+        99,
+        87,
+        154,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "token punctuation",
+      "text": ",",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token number",
+      "text": "2",
+      "fg": [
+        99,
+        87,
+        154,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "token punctuation",
+      "text": ",",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token number",
+      "text": "3",
+      "fg": [
+        99,
+        87,
+        154,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 6.14
+    },
+    {
+      "name": "token punctuation",
+      "text": "]",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token punctuation",
+      "text": ")",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "token punctuation",
+      "text": ")",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "cw-wb-hint",
+      "text": "Tab indents by four spaces. Pres",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Previous question",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "cw-action cw-action--primary",
+      "text": "Next question",
+      "fg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "bg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "ratio": 13.22
+    }
+  ],
+  "overflow": [
+    {
+      "tag": "CODE",
+      "cls": "",
+      "right": 1541.6
+    },
+    {
+      "tag": "SPAN",
+      "cls": "token comment",
+      "right": 1541.6
+    }
+  ],
+  "state": "session",
+  "theme": "light",
+  "width": 1440,
+  "scroll": 1440,
+  "motion": false,
+  "focus": "✓ Saved. Revision 3.1\n2\n3\n4\n5\n6\n7\n8\n9def total(values):\n    \"\"\"Return the sum of values.\"\"\"\n    resu",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Question text",
+      "w": 413.4,
+      "h": 44
+    },
+    {
+      "name": "Rubric guidance",
+      "w": 413.4,
+      "h": 44
+    },
+    {
+      "name": "Working copy",
+      "w": 316.8,
+      "h": 44
+    },
+    {
+      "name": "Submitted attempts",
+      "w": 316.8,
+      "h": 44
+    },
+    {
+      "name": "Previous question",
+      "w": 487.9,
+      "h": 44
+    },
+    {
+      "name": "Next question",
+      "w": 487.9,
+      "h": 44
+    }
+  ]
+}

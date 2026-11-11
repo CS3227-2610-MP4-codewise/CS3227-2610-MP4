@@ -1,0 +1,1021 @@
+{
+  "review": true,
+  "status": "≠ Unsaved copy found. Choose a version.",
+  "contrast": [
+    {
+      "name": "H1",
+      "text": "Synthetic workbook assignment",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-student-meta-line",
+      "text": "Deadline Thu 1 Jan 2099, 00:00 U",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "H2",
+      "text": "Sum a list 1",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "BUTTON",
+      "text": "Working copy",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "BUTTON",
+      "text": "Submitted attempts",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "cw-wb-save",
+      "text": "≠ Unsaved copy found. Choose a v",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "P",
+      "text": "This tab was reloaded with text ",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "TD",
+      "text": "1def total(values):",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "1",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "TD",
+      "text": "1def total(values):",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "1",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "TD",
+      "text": "2≠Changed line:     \"\"\"Return th",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "2",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "≠",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "2≠Changed line:     return sum(v",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "2",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "≠",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "3+Only in my version:     result",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "3",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "TD",
+      "text": "4+Only in my version:     for va",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "4",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "TD",
+      "text": "5+Only in my version:         re",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "5",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "TD",
+      "text": "6+Only in my version:     return",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "6",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "TD",
+      "text": "7+Only in my version:",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "7",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "TD",
+      "text": "8+Only in my version: print(tota",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 10.93
+    },
+    {
+      "name": "cw-wb-ln",
+      "text": "8",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 4.92
+    },
+    {
+      "name": "cw-wb-mark",
+      "text": "+",
+      "fg": [
+        155,
+        62,
+        43,
+        255
+      ],
+      "bg": [
+        244,
+        229,
+        219,
+        255
+      ],
+      "ratio": 5.48
+    },
+    {
+      "name": "TD",
+      "text": "No line",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-wb-legend",
+      "text": "Markers: ≠ changed line, + only ",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "P",
+      "text": "Keep my version saves it as a ne",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Copy other version",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-action cw-action--primary",
+      "text": "Keep mine and discard saved",
+      "fg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "bg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Back",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "P",
+      "text": "The clipboard is not available. ",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Previous question",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "cw-action cw-action--primary",
+      "text": "Next question",
+      "fg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "bg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "ratio": 13.22
+    }
+  ],
+  "overflow": [
+    {
+      "tag": "TABLE",
+      "cls": "cw-wb-diff",
+      "right": 593
+    },
+    {
+      "tag": "THEAD",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "TR",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "TH",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "TBODY",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "TR",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "TD",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "SPAN",
+      "cls": "cw-wb-ln",
+      "right": 334
+    },
+    {
+      "tag": "CODE",
+      "cls": "",
+      "right": 519.6
+    },
+    {
+      "tag": "TR",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "CODE",
+      "cls": "",
+      "right": 387.2
+    },
+    {
+      "tag": "TD",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "SPAN",
+      "cls": "cw-wb-ln",
+      "right": 335.5
+    },
+    {
+      "tag": "SPAN",
+      "cls": "cw-wb-mark",
+      "right": 359.1
+    },
+    {
+      "tag": "SPAN",
+      "cls": "cw-sr-only",
+      "right": 360.1
+    },
+    {
+      "tag": "CODE",
+      "cls": "",
+      "right": 557.1
+    },
+    {
+      "tag": "TR",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "TD",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "TR",
+      "cls": "",
+      "right": 593
+    },
+    {
+      "tag": "CODE",
+      "cls": "",
+      "right": 999.3
+    }
+  ],
+  "motionStyles": [],
+  "scenario": "conflict-fallback",
+  "state": "conflict",
+  "theme": "light",
+  "width": 320,
+  "scroll": 360,
+  "motion": false,
+  "focus": "The saved version, for manual copying",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Question text",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Rubric guidance",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Working copy",
+      "w": 144,
+      "h": 52
+    },
+    {
+      "name": "Submitted attempts",
+      "w": 144,
+      "h": 52
+    },
+    {
+      "name": "Copy other version",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Keep mine and discard saved",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Back",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Previous question",
+      "w": 288,
+      "h": 44
+    },
+    {
+      "name": "Next question",
+      "w": 288,
+      "h": 44
+    }
+  ]
+}

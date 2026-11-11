@@ -1,5 +1,39 @@
 # Student service boundary - Keith
 
-Implement draft saving, submission, released feedback views, and progress requests here. Frontend screens belong under src/web/student/. Preserve immutable submitted source and reject stale draft writes. Use shared contracts and the common database; do not create duplicate assignments, users, or assessment tables.
+Student dashboard reads, durable working copies, atomic submission, attempt history and the C-SUB producer (`D1SubmissionCatalog`). Frontend screens belong under `src/web/student/`. Released feedback and progress requests are later changes. Use shared contracts and the common database; do not create duplicate assignments, users or assessment tables. Never return unreleased assessment drafts or private reference solutions to students.
 
-No feature endpoint exists yet. Add authentication and course/object checks before exposing data. Never return unreleased assessment drafts or private reference solutions to students.
+Specs: `openspec/changes/student-drafts` (SW-01-SW-10, C-SUB SUB-C01-C06, K4); `student-dashboard` for the read routes. Shapes are the closed `schemaVersion 1` schemas in `src/shared/student-work.ts` and `src/shared/student-assignments.ts`.
+
+## Routes (`studentHandler`, wired in `src/server/index.ts`)
+
+Every route needs a trusted session. Every mutation also needs the origin and CSRF check (`requireMutationOrigin`); a port without it fails closed. Every response is `Cache-Control: no-store`. Denied and missing objects (other student, instructor, outsider, revoked member, foreign or cross-course ID) share one 404 body.
+
+| Method and path                                                                                                                            | Purpose                                                                                                                                                  | Success                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `GET /api/student/courses/:course/assignments`                                                                                             | Latest publications (dashboard)                                                                                                                          | 200                                                                           |
+| `GET /api/student/publications/:pub`                                                                                                       | Exact publication, no private reference (dashboard)                                                                                                      | 200                                                                           |
+| `GET /api/student/publications/:pub/work`                                                                                                  | Caller's draft per question, or the starter at revision 0 (no row exists until the first save); latest-publication pointer and attempt count             | 200                                                                           |
+| `PUT /api/student/drafts/:questionVersionId` `{schemaVersion, baseRevision, source}`                                                       | Compare-and-swap save. Source is LF-normalised (K4) and at most 32 KiB after normalisation; body at most 193 KiB (6 bytes per source byte plus envelope) | 200 `{revision, sourceHash, savedAt}`; 409 `CONFLICT_REVISION` with `current` |
+| `POST /api/student/publications/:pub/drafts/move` `{schemaVersion, questionVersionId, targetQuestionVersionId, targetBaseRevision}`        | Explicit move: copy the draft of an earlier version of the same question onto `:pub`'s question as a new revision. The old draft is untouched            | 200 as save; 409 `CONFLICT_REVISION`; 404 for anything else                   |
+| `POST /api/student/publications/:pub/attempts` `{schemaVersion, idempotencyKey, answers:[{questionVersionId, draftRevision, sourceHash}]}` | Atomic submit of the confirmed revisions; source is copied from stored drafts, never from the body                                                       | 201 new; 200 replay (`replayed: true`)                                        |
+| `GET /api/student/publications/:pub/attempts[?cursor=]`                                                                                    | Own attempts for the assignment, newest first, pages of 50                                                                                               | 200                                                                           |
+| `GET /api/student/attempts/:attemptId`                                                                                                     | Own attempt in the closed attempt shape (read-only)                                                                                                      | 200                                                                           |
+
+Safe error codes: `INVALID_CONTRACT` (400), `UNAUTHENTICATED` (401), `NOT_FOUND` (404), `CONFLICT_REVISION`, `STALE_PUBLICATION`, `DEADLINE_PASSED`, `IDEMPOTENCY_MISMATCH` (409), `RATE_LIMITED` (429, `Retry-After: 60`), `UPSTREAM_UNAVAILABLE` (503). Bodies carry `code`, a fixed message and a request ID only; a revision conflict also carries the caller's own current row.
+
+## Rules the code keeps
+
+- **Authority where data is written or disclosed.** Reads embed `currentStudentGuard`. A save is one statement whose WHERE clause contains the guard. Move and submit are D1 batches that start with `currentStudentWriteGuard` (a `course_write_guards` row computed in SQL), so a revocation, republish or deadline between the confirmation and the write aborts the whole batch.
+- **Server clock.** `StudentWork` reads its injected `clock()` once per request. A submit is accepted only when `now < deadline_at` (ISO strings); client time is neither accepted (closed schema) nor used.
+- **Idempotency.** The key is scoped to (user, assignment). The replay lookup is membership-guarded and runs before the batch, so the same key and fingerprint returns the original even after the deadline, and a former member gets 404. A different fingerprint is 409. Racing replays hit the UNIQUE constraint and re-read.
+- **Rate limit (SW-11).** Per account: 12 draft saves and 3 new submits per fixed 60 s window, through the existing D1 limiter `AuthStore.rate` (`rate-limit.ts`, composed in `src/server/index.ts`). Counted after the session check; for submit, after the replay lookup, so a same-key retry is never limited. Over the limit: 429 `RATE_LIMITED`, nothing written. Not a cap on attempts (SW-07). Move is not limited. Each counted request writes a limiter row as well.
+- **Fingerprint.** SHA-256 of canonical JSON `{publicationId, answers:[[questionVersionId, draftRevision, sourceHash]...]}` sorted by question version.
+- **No execution.** Source is stored and returned as text only.
+
+## C-SUB producer
+
+`D1SubmissionCatalog` (`catalog.ts`) implements `SubmissionCatalog` with `sampleMode=false`. It checks current Instructor membership in SQL, validates attempts with `validateAttempt`, lists a student only when their latest attempt for the whole assignment (ordered by `submitted_at`, then insert sequence) is on that exact publication; more than 1,000 rows fails closed. It uses an opaque per-course label (`Student` plus 8 hex of a hash) and reports malformed stored data as `UPSTREAM_UNAVAILABLE`. It never reads `student_drafts`. It is not composed in `index.ts` yet (task 6.2, Darryl's seam).
+
+## Files
+
+`http.ts` routing and error mapping; `work.ts` drafts, move, submit, history; `attempts.ts` attempt projection shared by student and catalog reads; `repository.ts` dashboard reads and `readPublication`; `catalog.ts` the producer; `rate-limit.ts` the SW-11 limiter; `test-fixture.ts` synthetic local-D1 fixtures for tests.

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /Users/keith/Documents/CS3227-2610-MP4
+
+
+ Test Files  3 passed (3)
+      Tests  111 passed (111)
+   Start at  03:56:36
+   Duration  68.00s (transform 521ms, setup 0ms, import 2.71s, tests 64.73s, environment 0ms)
+

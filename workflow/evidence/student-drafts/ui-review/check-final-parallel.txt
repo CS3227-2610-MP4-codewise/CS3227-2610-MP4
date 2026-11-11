@@ -1,0 +1,133 @@
+
+> codewise@0.1.0 check
+> npm run specs:validate && npm run typecheck && npm run lint && npm run test && npm run build
+
+
+> codewise@0.1.0 specs:validate
+> openspec validate --all --strict
+
+✓ change/codewise-mvp
+✓ change/course-onboarding
+✓ change/experiment-turn-activity
+✓ change/formatted-assignment-instructions
+✓ change/instructor-ai-assessment
+✓ change/instructor-assessment-lifecycle
+✓ change/instructor-assignment-publication
+✓ change/instructor-authoring-ux
+✓ change/instructor-development-contracts
+✓ change/measured-evaluation
+✓ change/project-experiment-tracker
+✓ change/project-readiness
+  ℹ [INFO] file: skip_specs is set in .openspec.yaml: change declares no spec-level behavior changes, zero deltas accepted
+✓ change/secure-ai-gateway
+✓ change/shared-authentication
+✓ change/student-assignment-dashboard
+✓ change/student-drafts
+✓ change/warm-workbook-ui
+Totals: 17 passed, 0 failed (17 items)
+
+> codewise@0.1.0 typecheck
+> tsc --noEmit
+
+
+> codewise@0.1.0 lint
+> eslint .
+
+
+> codewise@0.1.0 test
+> vitest run && node --test workflow/scripts/deployment.test.mjs
+
+
+ RUN  v4.1.12 /Users/keith/Documents/CS3227-2610-MP4
+
+ ❯ src/server/student/work.test.ts (43 tests | 1 failed) 28486ms
+     × pages newest first in pages of 50 with a closed projection 5035ms
+ ❯ workflow/auth/managed.test.ts (28 tests | 1 failed) 32440ms
+     × invitation setup, password login, closed C-ID and unavailable workspace 5021ms
+Not implemented: navigation to another Document
+ ❯ workflow/auth/course-invitations.test.ts (40 tests | 3 failed) 81495ms
+     × serializes simultaneous first-time setup and recovers the other invitation without resetting the password 5018ms
+     × recovers a terminal rejection after cleanup fails only with a fresh proof 5100ms
+     × retains an unknown lock when terminal journal persistence fails 2664ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  workflow/auth/course-invitations.test.ts > course-role invitations against isolated D1 and synthetic mail/provider > serializes simultaneous first-time setup and recovers the other invitation without resetting the password
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ workflow/auth/course-invitations.test.ts:736:3
+    734|   });
+    735|
+    736|   it('serializes simultaneous first-time setup and recovers the other …
+       |   ^
+    737|     const owner = await actor(),
+    738|       firstCourse = await course(owner),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  workflow/auth/course-invitations.test.ts > course-role invitations against isolated D1 and synthetic mail/provider > recovers a terminal rejection after cleanup fails only with a fresh proof
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ workflow/auth/course-invitations.test.ts:998:3
+    996|   });
+    997|
+    998|   it('recovers a terminal rejection after cleanup fails only with a fr…
+       |   ^
+    999|     const owner = await actor(),
+    1000|       firstCourse = await course(owner),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  workflow/auth/course-invitations.test.ts > course-role invitations against isolated D1 and synthetic mail/provider > retains an unknown lock when terminal journal persistence fails
+AssertionError: expected { outcome: 'rejected' } to deeply equal { outcome: null }
+
+- Expected
++ Received
+
+  {
+-   "outcome": null,
++   "outcome": "rejected",
+  }
+
+ ❯ workflow/auth/course-invitations.test.ts:1188:7
+    1186|         .bind(email)
+    1187|         .first(),
+    1188|     ).toEqual({ outcome: null });
+       |       ^
+    1189|     expect(
+    1190|       await database.db
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  workflow/auth/managed.test.ts > Firebase native mail real isolated D1, synthetic provider boundaries > invitation setup, password login, closed C-ID and unavailable workspace
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ workflow/auth/managed.test.ts:207:3
+    205|     };
+    206|   });
+    207|   it('invitation setup, password login, closed C-ID and unavailable wo…
+       |   ^
+    208|     const admin = await seed(),
+    209|       i = await invite(admin),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/server/student/work.test.ts > 3.3 history and attempt reads (SW-08, SUB-04) > pages newest first in pages of 50 with a closed projection
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/server/student/work.test.ts:1292:3
+    1290|     ).toBe(404);
+    1291|   });
+    1292|   it('pages newest first in pages of 50 with a closed projection', asy…
+       |   ^
+    1293|     const p = await fresh({ count: 1 });
+    1294|     await saveAll('s2', p);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed | 44 passed (47)
+      Tests  5 failed | 592 passed (597)
+   Start at  03:54:42
+   Duration  83.61s (transform 5.65s, setup 0ms, import 38.69s, tests 458.24s, environment 6.91s)
+

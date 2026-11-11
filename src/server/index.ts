@@ -21,6 +21,9 @@ import {
 import { AssessmentRepository } from './instructor/assessments/repository';
 import { StudentAssignments } from './student/repository';
 import { studentHandler } from './student/http';
+import { StudentWork } from './student/work';
+import { d1RateLimiter } from './student/rate-limit';
+import { D1SubmissionCatalog } from './student/catalog';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
 
 const securityHeaders = {
@@ -165,9 +168,12 @@ export function createApplication(ports: DevelopmentPorts = {}) {
               guardedBatch: (statements, principal, course) =>
                 assignmentRepository.guarded(statements, principal, course),
             }),
-            allowLocalSamples(env, request, config?.origin)
-              ? ports.localSubmissions?.({ assignments, request })
-              : undefined,
+            // C-SUB (SW-09): the real D1 producer everywhere, except a loopback development run
+            // whose connected-preview port supplies samples; samples stay exclusive there.
+            allowLocalSamples(env, request, config?.origin) &&
+              ports.localSubmissions
+              ? ports.localSubmissions({ assignments, request })
+              : new D1SubmissionCatalog(env.DB),
             allowLocalSamples(env, request, config?.origin)
               ? ports.localAssessmentGateway?.(env.DB)
               : undefined,
@@ -175,7 +181,12 @@ export function createApplication(ports: DevelopmentPorts = {}) {
         };
         if (pathname.startsWith('/api/auth/')) return auth.fetch(request);
         if (pathname.startsWith('/api/student/'))
-          return studentHandler(request, auth, new StudentAssignments(env.DB));
+          return studentHandler(
+            request,
+            auth,
+            new StudentAssignments(env.DB),
+            new StudentWork(env.DB, Date.now, d1RateLimiter(store)),
+          );
         if (pathname === '/api/courses' || pathname.startsWith('/api/courses/'))
           return courseHandler(
             request,

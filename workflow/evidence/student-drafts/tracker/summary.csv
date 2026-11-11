@@ -1,0 +1,2 @@
+increment,classification,status,input_tokens,cached_input_tokens,output_tokens,reasoning_output_tokens,total_tokens,cache_ratio,reasoning_output_ratio
+student-drafts,measured; ratios derived,partial,117433038,114428708,794787,unavailable,118227825,0.9744166543660396,

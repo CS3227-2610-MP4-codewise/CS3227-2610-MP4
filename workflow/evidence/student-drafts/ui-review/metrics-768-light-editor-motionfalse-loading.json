@@ -1,0 +1,181 @@
+{
+  "review": true,
+  "status": "",
+  "contrast": [
+    {
+      "name": "H1",
+      "text": "Synthetic workbook assignment",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-student-meta-line",
+      "text": "Deadline Thu 1 Jan 2099, 00:00 U",
+      "fg": [
+        97,
+        100,
+        87,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 5.14
+    },
+    {
+      "name": "H2",
+      "text": "Review assignment",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Edit question 1",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Edit question 2",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    },
+    {
+      "name": "cw-action cw-action--primary",
+      "text": "Submit assignment…",
+      "fg": [
+        255,
+        253,
+        247,
+        255
+      ],
+      "bg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "ratio": 13.22
+    },
+    {
+      "name": "cw-action cw-action--secondary",
+      "text": "Back to questions",
+      "fg": [
+        44,
+        48,
+        41,
+        255
+      ],
+      "bg": [
+        241,
+        236,
+        226,
+        255
+      ],
+      "ratio": 11.42
+    }
+  ],
+  "overflow": [],
+  "motionStyles": [],
+  "scenario": "editor",
+  "state": "editor",
+  "theme": "light",
+  "width": 768,
+  "scroll": 768,
+  "motion": false,
+  "focus": "Review assignment",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Edit question 1",
+      "w": 126.6,
+      "h": 44
+    },
+    {
+      "name": "Edit question 2",
+      "w": 126.6,
+      "h": 44
+    },
+    {
+      "name": "Submit assignment…",
+      "w": 167.1,
+      "h": 44
+    },
+    {
+      "name": "Back to questions",
+      "w": 144.5,
+      "h": 44
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "review": true,
+  "state": "editor",
+  "theme": "dark",
+  "width": 768,
+  "scroll": 768,
+  "motion": false,
+  "focus": "✓ Saved. Revision 3.1\n2\n3\n4\n5\n6\n7\n8\n9def total(values):\n    \"\"\"Return the sum of values.\"\"\"\n    resu",
+  "controls": [
+    {
+      "name": "Skip to content",
+      "w": 137.8,
+      "h": 42.5
+    },
+    {
+      "name": "codewise.",
+      "w": 174.7,
+      "h": 44
+    },
+    {
+      "name": "Courses",
+      "w": 48.4,
+      "h": 44
+    },
+    {
+      "name": "SAccount",
+      "w": 117.6,
+      "h": 44
+    },
+    {
+      "name": "Sign out",
+      "w": 252,
+      "h": 44
+    },
+    {
+      "name": "Back to the assignment",
+      "w": 190.8,
+      "h": 18
+    },
+    {
+      "name": "Question text",
+      "w": 256.6,
+      "h": 44
+    },
+    {
+      "name": "Rubric guidance",
+      "w": 256.6,
+      "h": 44
+    },
+    {
+      "name": "Working copy",
+      "w": 199.2,
+      "h": 44
+    },
+    {
+      "name": "Submitted attempts",
+      "w": 199.2,
+      "h": 44
+    },
+    {
+      "name": "Previous question",
+      "w": 291.9,
+      "h": 44
+    },
+    {
+      "name": "Next question",
+      "w": 291.9,
+      "h": 44
+    }
+  ]
+}
