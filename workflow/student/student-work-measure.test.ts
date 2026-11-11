@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Miniflare } from 'miniflare';
 import { StudentWork } from '../../src/server/student/work';
+import { AuthStore } from '../../src/server/auth/store';
+import { d1RateLimiter } from '../../src/server/student/rate-limit';
 import {
   NOW,
   createDatabase,
@@ -53,6 +55,13 @@ function instrumented(inner: D1Database): D1Database {
                 const r = await target.run();
                 metas.push([r.meta as Meta]);
                 return r;
+              };
+            // first() hides meta; run() returns the same row with it (used by AuthStore.rate).
+            if (prop === 'first')
+              return async () => {
+                const r = await target.run();
+                metas.push([r.meta as Meta]);
+                return r.results[0] ?? null;
               };
             const v = (target as never)[prop];
             return typeof v === 'function' ? v.bind(target) : v;
@@ -292,4 +301,65 @@ describe('3.4 submit batch: 20 questions x 32 KiB', () => {
     ).toBeLessThanOrEqual(100);
     void log;
   }, 120000);
+});
+
+describe('8.5 rows written by the SW-11 D1 limiter', () => {
+  it('measures limiter rows per save across one full window and the next', async () => {
+    await publish(db, {
+      course: 'course-a',
+      assignment: 'a-rl',
+      version: 'v-rl',
+      number: 1,
+      deadline: iso(NOW + 600_000),
+      count: 1,
+    });
+    let t = NOW + 60_000; // a window no earlier measurement used
+    const clock = () => t;
+    const inner = instrumented(db);
+    const work = new StudentWork(
+      inner,
+      clock,
+      d1RateLimiter(new AuthStore(inner, clock)),
+    );
+    const q = 'qv-v-rl-0';
+    const per: number[] = [];
+    let refused = -1;
+    for (let i = 0; i < 13; i++) {
+      reset();
+      try {
+        await work.save(
+          principal('m1'),
+          q,
+          draftSaveRequestSchema.parse({
+            schemaVersion: 1,
+            baseRevision: i,
+            source: `a = ${i}\n`,
+          }),
+        );
+      } catch {
+        refused = i;
+      }
+      per.push(metas.flat().reduce((n, m) => n + (m.rows_written ?? 0), 0));
+    }
+    t += 120_000; // next window: the expired bucket is cleaned up
+    reset();
+    await work.save(
+      principal('m1'),
+      q,
+      draftSaveRequestSchema.parse({
+        schemaVersion: 1,
+        baseRevision: 12,
+        source: 'a = 12\n',
+      }),
+    );
+    const nextWindowFirst = metas
+      .flat()
+      .reduce((n, m) => n + (m.rows_written ?? 0), 0);
+    report('limiter-rows', {
+      perSaveInWindow: per,
+      refusedAt: refused,
+      nextWindowFirst,
+    });
+    expect(refused).toBe(12);
+  });
 });

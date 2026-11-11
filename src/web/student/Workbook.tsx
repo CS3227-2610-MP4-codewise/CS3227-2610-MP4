@@ -68,7 +68,9 @@ export function saveLabel(item: DraftItem): string {
             ? 'Not saved. The text is over 32 KiB.'
             : item.failure === 'invalid'
               ? 'Not saved. The server rejected this text.'
-              : 'Not saved. Connection problem.';
+              : item.failure === 'rate-limited'
+                ? 'Saving paused for a moment. Your text is kept and will be saved automatically.'
+                : 'Not saved. Connection problem.';
     case 'saving':
       return 'Saving…';
     case 'unsaved':
@@ -743,7 +745,8 @@ function Ready({
                     </p>
                     {item.status === 'failed' &&
                       item.failure !== 'session' &&
-                      item.failure !== 'unavailable' && (
+                      item.failure !== 'unavailable' &&
+                      item.failure !== 'rate-limited' && (
                         <Action
                           variant="secondary"
                           onClick={() => void ctl.retry(item.questionVersionId)}

@@ -42,7 +42,15 @@ Planning is complete, but that does not mean implementation or review is. Every 
 ## 7. Composed verification
 
 - [ ] 7.1 Run a composed local acceptance with real local SH-AUTH and SH-ID: two tabs causing a conflict, republish during editing, revocation during editing, a submit near the deadline, a retry after a dropped response and a dual-role account. **Verify:** record the outcomes, repairs and exact revisions in `workflow/evidence/student-drafts/composed-acceptance.md`. [SW-01–SW-09, AUTH-01–03]
-- [ ] 7.2 Run `npx openspec validate student-drafts --strict`, `npm run check` and the privacy and security review (owner-only drafts, no private references, no execution path, stale-result leaks). **Verify:** the outcomes are recorded in the handoff and the log, with any review by another agent recorded as separate from Keith's or Darryl's review. [SW-01–SW-10, DEV-02/04]
+- [ ] 7.2 Run `npx openspec validate student-drafts --strict`, `npm run check` and the privacy and security review (owner-only drafts, no private references, no execution path, stale-result leaks, and the SW-11 rate limits). **Verify:** the outcomes are recorded in the handoff and the log, with any review by another agent recorded as separate from Keith's or Darryl's review. [SW-01–SW-11, DEV-02/04]
+
+## 8. Per-student rate limit (SW-11, decision 13)
+
+- [x] 8.1 Decide the save limiter backend. Check the Workers Rate Limiting binding locally and on the Codewise deployment account, with Darryl's writer window for `wrangler.json`/`environment.ts` recorded. **Verify:** outcomes with source and date in `workflow/evidence/student-drafts/rate-limit.md`. Outcome 2026-11-12: enforced under `wrangler dev`, but on the deployment account it refused nothing at over three times the limit, so Keith dropped the binding; saves and submits both use `AuthStore.rate`. [SW-11, OPS-01]
+- [x] 8.2 Add the `RateLimiter` interface backed by `AuthStore.rate`, and apply it to the draft save (12/60 s) and submit (3/60 s) routes after the session check and, for submit, after the replay lookup. **Verify:** tests cover the 13th save and 4th submit returning 429 with `Retry-After` and no rows written, a same-key replay over the limit (and after the deadline) returning the original, per-account isolation, and unauthenticated requests not counting. [SW-11, SW-07]
+- [x] 8.3 Handle 429 in the workbook: a save keeps the text and backup, shows that saving is paused and retries after `Retry-After`; a submit shows a retry message and keeps the same idempotency key. **Verify:** model and DOM tests with fake timers. [SW-11, SW-04, UI-08]
+- [x] 8.4 ~~Configure the rate-limit binding.~~ Not applicable: binding dropped at 8.1 (2026-11-12); no `wrangler.json` or `environment.ts` change. [SW-11]
+- [x] 8.5 Record the worst-case figures (one student at the save limit all day, the D1 limiter's write cost, submit rows per minute, unprotected Worker requests) in `workflow/evidence/student-drafts/save-cadence.md`. **Verify:** figures derive from the measured per-save and per-submit rows and the cited allowances. [SW-11, OPS-01]
 
 ## Workflow follow-up
 

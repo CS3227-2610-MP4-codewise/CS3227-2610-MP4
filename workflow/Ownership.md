@@ -145,3 +145,15 @@ Keith reported on 2026-11-10 that Darryl approved all shared decisions for the s
 | Student workbook route wiring in `src/web/main.tsx` | Keith (one UI Implementer agent per variant branch `keith/student-drafts-ui-{a,b,c}`; only the variant Keith chooses at task 4.2 merges) |
 
 Also in Keith's window: `src/server/student/`, `src/web/student/`, the change's artifacts, evidence, handoff and Keith log. `SubmissionCatalog` composition in place of the loopback samples (task 6.2) is not opened by this record. This record carries Keith's report; Darryl's direct review is not claimed. No push or deployment is authorized by it.
+
+### Extension — rate-limit binding (SW-11, task 8.1), reported agreed 2026-11-12
+
+Keith reported on 2026-11-12 that Darryl agreed Keith may edit, one writer per file with Darryl reviewing:
+
+| File | Writer |
+|------|--------|
+| `ratelimits` binding entry for each environment in `wrangler.json` (no other section) | Keith |
+| Rate-limit binding type in `src/server/environment.ts` (no other change) | Keith |
+| Limiter composition for the student handler in `src/server/index.ts` (already in the window above) | Keith |
+
+Darryl's `AuthStore.rate` (`src/server/auth/store.ts`) is consumed unchanged, not edited. This record carries Keith's report; Darryl's direct review is not claimed. No deployment is authorized by it.

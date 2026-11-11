@@ -133,6 +133,25 @@ The system SHALL supply attempts to authorized instructors through the C-SUB con
 - **WHEN** a non-instructor requests an attempt or catalog listing
 - **THEN** the non-enumerating not-found error is returned.
 
+### Requirement: SW-11 Per-student request rate
+The server SHALL limit each account to 12 draft saves and 3 assignment submits per 60 seconds, keyed by the authenticated account and the action. An over-limit request SHALL return `429 RATE_LIMITED` with `Retry-After` and SHALL write nothing. The limit SHALL NOT cap the number of attempts (SW-07). [SW-03, SW-05, SW-07, OPS-01]
+
+#### Scenario: Save over the limit
+- **WHEN** a student's thirteenth save within 60 seconds arrives
+- **THEN** the server returns 429 with `Retry-After` and writes no draft row, and the workbook keeps the text and its tab backup, shows that saving is paused, and retries after the stated delay.
+
+#### Scenario: Submit over the limit
+- **WHEN** a student's fourth submit with a new key within 60 seconds arrives
+- **THEN** the server returns 429 and creates no attempt, and the workbook keeps the same idempotency key for the retry.
+
+#### Scenario: Idempotent replay is not limited
+- **WHEN** a committed key is replayed with the same fingerprint while the student is over the submit limit, including after the deadline
+- **THEN** the original attempt is returned.
+
+#### Scenario: Limits are per account
+- **WHEN** one student is over a limit, or a request has no valid session
+- **THEN** other students' saves and submits are unaffected, and the unauthenticated request uses no student's allowance.
+
 ### Requirement: SW-10 Retention policy
 Student attempts, drafts and the feedback linked to them SHALL be kept until 90 days after the course is archived and SHALL then be deleted, with backup windows disclosed. Until a course-archive event exists and deletion is implemented, the system SHALL be used with synthetic data only. [Retention gate, DEV-03]
 

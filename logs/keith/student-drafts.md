@@ -294,3 +294,55 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 121834976; cached input subset 118713889; output 817429; reasoning output subset unavailable; total 122652405.
 - Coverage/status: partial; 7 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-drafts:rate-limit-2026-11-12 -->
+<!-- experiment-turns:rate-limit-2026-11-12:3a7fa695e5ef9cc7,e7b3801c54eda093,9c7f6d07ad7f8af1,d7ba59b3f946eb1c,9822842de4b7c420,8ad30295d27bd8d3,91c62eee16be1b2d,f887cc65603f5429,fdf29a154200d265,279ba59621bd68f9,c1f4b89d5f95e44a,2336c4ad2a28a1e9,93046d2a54ac9aef,7330fb58aeead180,66917cd336e756c1 -->
+## Checkpoint `rate-limit-2026-11-12` — 2026-11-11T17:09:20.697371+00:00
+
+### Request
+
+Decide and build per-student rate limit (decision 13, SW-11): binding probe, drop binding, tasks 8.2/8.3
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Planning updated (decision 13, SW-11, design 10, tasks 8.x). Binding probe on deployment account: deployed, refused nothing (~90 requests); Keith dropped it (8.1 done, 8.4 not applicable). Built D1 limiter for saves 12/60s and submits 3/60s, client pause/resume and submit retry message. npm run check exit 0, 610 tests. No agents spawned. Uncommitted.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-drafts/rate-limit.md.
+- Remaining limitations and next owner: 8.5 worst-case evidence; commit; then 6.2 handoff, 7.1, 7.2.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T10:11:27.369Z | 2026-11-11T10:12:08.823Z | final | claude-opus-5-5 | medium | 2215 | 548 | 2215 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T10:26:22.731Z | 2026-11-11T10:26:52.988Z | final | claude-opus-5-5 | medium | 2457 | 265 | 2457 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T10:59:31.644Z | 2026-11-11T11:00:13.088Z | final | claude-opus-5-5 | medium | 3617 | 2216 | 3617 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T11:02:19.042Z | 2026-11-11T11:03:09.977Z | final | claude-opus-5-5 | medium | 3668 | 1112 | 3668 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T11:06:26.651Z | 2026-11-11T11:06:38.911Z | final | claude-opus-5-5 | medium | 1144 | 201 | 1144 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T11:07:49.496Z | 2026-11-11T11:08:17.271Z | final | claude-opus-5-5 | medium | 2362 | 666 | 2362 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T16:40:33.352Z | 2026-11-11T16:41:02.912Z | final | claude-opus-5-5 | low | 2272 | 390 | 2272 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T16:43:32.523Z | 2026-11-11T16:44:08.885Z | final | claude-opus-5-5 | medium | 3844 | 69 | 3844 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T16:47:19.443Z | 2026-11-11T16:48:00.029Z | final | claude-opus-5-5 | medium | 3887 | 847 | 3887 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T16:49:23.402Z | 2026-11-11T16:49:29.244Z | final | claude-opus-5-5 | medium | 509 | 0 | 509 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T16:50:55.154Z | 2026-11-11T16:51:07.312Z | final | claude-opus-5-5 | medium | 1090 | 283 | 1090 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T16:51:45.721Z | 2026-11-11T16:51:52.066Z | final | claude-opus-5-5 | medium | 619 | 88 | 619 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T16:54:58.543Z | 2026-11-11T16:57:19.760Z | final | claude-opus-5-5 | medium | 3453 | 467 | 3453 |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T17:04:00.847Z | open | provisional | claude-opus-5-5 | medium | 25529 | 5209 | 25529 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | 2026-11-11T05:39:04.969Z | provisional | final | 23628 | 6083 | 23628 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 137192055; cached input subset 133715743; output 875081; reasoning output subset unavailable; total 138067136.
+- Coverage/status: partial; 7 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

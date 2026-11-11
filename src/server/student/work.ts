@@ -25,6 +25,7 @@ import {
   type WorkResponse,
 } from '../../shared/student-work';
 import { readAttempt } from './attempts';
+import { unlimited, type RateLimiter } from './rate-limit';
 import { stored } from './repository';
 
 export type WorkErrorCode =
@@ -67,6 +68,8 @@ export class StudentWork {
   constructor(
     readonly db: D1Database,
     readonly clock: () => number = Date.now,
+    /** SW-11: production composes the D1 limiter; the default is for tests and loopback only. */
+    readonly limiter: RateLimiter = unlimited,
   ) {}
 
   /** SW-01: the caller's working copy of one question (revision 0 = published starter, virtual). */
@@ -191,6 +194,7 @@ export class StudentWork {
     questionVersionId: string,
     request: DraftSaveRequest,
   ): Promise<DraftSaveResponse> {
+    await this.limiter.limit('save', principal.userId); // SW-11: before any draft write
     const now = this.clock(),
       at = isoOf(now),
       hash = await sourceHash(request.source),
@@ -422,6 +426,8 @@ export class StudentWork {
       key = request.idempotencyKey;
     const replay = await this.replayOf(principal, publicationId, key, now);
     if (replay) return this.replayResult(replay, fingerprint);
+    // SW-11: counted only after the replay lookup, so a same-key retry is never limited.
+    await this.limiter.limit('submit', principal.userId);
     const attemptId = crypto.randomUUID(),
       guardId = crypto.randomUUID(),
       pairs = JSON.stringify(

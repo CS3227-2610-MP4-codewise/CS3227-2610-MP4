@@ -6,6 +6,7 @@ import {
   type Schema,
 } from '../../shared/instructor-contracts/schema';
 import { studentCursor } from '../../shared/student-assignments';
+import { STUDENT_RETRY_AFTER_SECONDS } from './rate-limit';
 import {
   MAX_SAVE_BODY_BYTES,
   MAX_SUBMIT_BODY_BYTES,
@@ -102,7 +103,16 @@ export async function studentHandler(
   work?: StudentWork,
 ): Promise<Response> {
   const json = (body: unknown, status = 200) =>
-    Response.json(body, { status, headers: authHeaders });
+    Response.json(body, {
+      status,
+      headers:
+        status === 429
+          ? {
+              ...authHeaders,
+              'Retry-After': String(STUDENT_RETRY_AFTER_SECONDS),
+            }
+          : authHeaders,
+    });
   try {
     const url = new URL(request.url);
     const match = (name: keyof typeof routes) =>

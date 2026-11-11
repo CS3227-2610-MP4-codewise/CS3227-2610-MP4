@@ -22,6 +22,7 @@ import { AssessmentRepository } from './instructor/assessments/repository';
 import { StudentAssignments } from './student/repository';
 import { studentHandler } from './student/http';
 import { StudentWork } from './student/work';
+import { d1RateLimiter } from './student/rate-limit';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
 
 const securityHeaders = {
@@ -180,7 +181,7 @@ export function createApplication(ports: DevelopmentPorts = {}) {
             request,
             auth,
             new StudentAssignments(env.DB),
-            new StudentWork(env.DB),
+            new StudentWork(env.DB, Date.now, d1RateLimiter(store)),
           );
         if (pathname === '/api/courses' || pathname.startsWith('/api/courses/'))
           return courseHandler(

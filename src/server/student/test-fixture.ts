@@ -27,6 +27,15 @@ export async function createDatabase(name: string) {
     db.prepare(
       'CREATE TABLE auth_sessions(id TEXT PRIMARY KEY, user_id TEXT NOT NULL, revoked_at INTEGER, expires_at INTEGER, last_seen INTEGER)',
     ),
+    // SW-11: the tables AuthStore.rate touches, as in migration 0003 (transactions reduced to
+    // the columns its expiry cleanup reads).
+    db.prepare(
+      'CREATE TABLE auth_rate_limits(bucket TEXT PRIMARY KEY, count INTEGER NOT NULL, expires_at INTEGER NOT NULL)',
+    ),
+    db.prepare('CREATE INDEX auth_rate_expiry ON auth_rate_limits(expires_at)'),
+    db.prepare(
+      'CREATE TABLE auth_transactions(id TEXT PRIMARY KEY, expires_at INTEGER NOT NULL)',
+    ),
   ]);
   for (const migration of [
     '0002_instructor_assignments.sql',

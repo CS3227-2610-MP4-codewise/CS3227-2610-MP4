@@ -19,13 +19,14 @@ Every route needs a trusted session. Every mutation also needs the origin and CS
 | `GET /api/student/publications/:pub/attempts[?cursor=]`                                                                                    | Own attempts for the assignment, newest first, pages of 50                                                                                               | 200                                                                           |
 | `GET /api/student/attempts/:attemptId`                                                                                                     | Own attempt in the closed attempt shape (read-only)                                                                                                      | 200                                                                           |
 
-Safe error codes: `INVALID_CONTRACT` (400), `UNAUTHENTICATED` (401), `NOT_FOUND` (404), `CONFLICT_REVISION`, `STALE_PUBLICATION`, `DEADLINE_PASSED`, `IDEMPOTENCY_MISMATCH` (409), `UPSTREAM_UNAVAILABLE` (503). Bodies carry `code`, a fixed message and a request ID only; a revision conflict also carries the caller's own current row.
+Safe error codes: `INVALID_CONTRACT` (400), `UNAUTHENTICATED` (401), `NOT_FOUND` (404), `CONFLICT_REVISION`, `STALE_PUBLICATION`, `DEADLINE_PASSED`, `IDEMPOTENCY_MISMATCH` (409), `RATE_LIMITED` (429, `Retry-After: 60`), `UPSTREAM_UNAVAILABLE` (503). Bodies carry `code`, a fixed message and a request ID only; a revision conflict also carries the caller's own current row.
 
 ## Rules the code keeps
 
 - **Authority where data is written or disclosed.** Reads embed `currentStudentGuard`. A save is one statement whose WHERE clause contains the guard. Move and submit are D1 batches that start with `currentStudentWriteGuard` (a `course_write_guards` row computed in SQL), so a revocation, republish or deadline between the confirmation and the write aborts the whole batch.
 - **Server clock.** `StudentWork` reads its injected `clock()` once per request. A submit is accepted only when `now < deadline_at` (ISO strings); client time is neither accepted (closed schema) nor used.
 - **Idempotency.** The key is scoped to (user, assignment). The replay lookup is membership-guarded and runs before the batch, so the same key and fingerprint returns the original even after the deadline, and a former member gets 404. A different fingerprint is 409. Racing replays hit the UNIQUE constraint and re-read.
+- **Rate limit (SW-11).** Per account: 12 draft saves and 3 new submits per fixed 60 s window, through the existing D1 limiter `AuthStore.rate` (`rate-limit.ts`, composed in `src/server/index.ts`). Counted after the session check; for submit, after the replay lookup, so a same-key retry is never limited. Over the limit: 429 `RATE_LIMITED`, nothing written. Not a cap on attempts (SW-07). Move is not limited. Each counted request writes a limiter row as well.
 - **Fingerprint.** SHA-256 of canonical JSON `{publicationId, answers:[[questionVersionId, draftRevision, sourceHash]...]}` sorted by question version.
 - **No execution.** Source is stored and returned as text only.
 
@@ -35,4 +36,4 @@ Safe error codes: `INVALID_CONTRACT` (400), `UNAUTHENTICATED` (401), `NOT_FOUND`
 
 ## Files
 
-`http.ts` routing and error mapping; `work.ts` drafts, move, submit, history; `attempts.ts` attempt projection shared by student and catalog reads; `repository.ts` dashboard reads and `readPublication`; `catalog.ts` the producer; `test-fixture.ts` synthetic local-D1 fixtures for tests.
+`http.ts` routing and error mapping; `work.ts` drafts, move, submit, history; `attempts.ts` attempt projection shared by student and catalog reads; `repository.ts` dashboard reads and `readPublication`; `catalog.ts` the producer; `rate-limit.ts` the SW-11 limiter; `test-fixture.ts` synthetic local-D1 fixtures for tests.

@@ -2,6 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Miniflare } from 'miniflare';
 import { StudentWork, StudentWorkError } from './work';
 import { StudentAssignments } from './repository';
+import { AuthStore } from '../auth/store';
+import { d1RateLimiter } from './rate-limit';
 import { studentHandler } from './http';
 import {
   NOW,
@@ -1543,5 +1545,145 @@ describe('repair round: move, body bound, rubric coverage, receipt time', () => 
       sourceHash: await sourceHash('def solve0():\n    return 0\n'),
     });
     expect(await count('student_drafts')).toBe(before);
+  });
+});
+
+describe('8.2 per-student rate limit (SW-11, decision 13)', () => {
+  // A limited StudentWork over the real D1 limiter (AuthStore.rate) and the test clock. Each test
+  // uses its own minute so fixed 60 s buckets do not leak between tests.
+  // Fixture sessions expire 30 idle minutes after NOW; each test takes two fresh minutes inside that.
+  let minute = 10;
+  const limitedWork = () =>
+    new StudentWork(db, clock, d1RateLimiter(new AuthStore(db, clock)));
+  async function withLimits<T>(run: () => Promise<T>) {
+    const unlimitedWork = work;
+    minute += 2;
+    clockMs = NOW + minute * 60_000;
+    work = limitedWork();
+    try {
+      return await run();
+    } finally {
+      work = unlimitedWork;
+      clockMs = NOW;
+    }
+  }
+  const put = (user: string, q: string, base: number, source: string) =>
+    call(`/api/student/drafts/${q}`, {
+      user,
+      method: 'PUT',
+      body: { schemaVersion: 1, baseRevision: base, source },
+    });
+  const buckets = () => count('auth_rate_limits');
+
+  it('refuses the 13th save in a minute with 429, Retry-After and no draft write', async () => {
+    const p = await fresh({ deadline: iso(NOW + 30 * 86_400_000) });
+    const q = p.questions[0];
+    await withLimits(async () => {
+      for (let i = 0; i < 12; i++) {
+        const res = await put('s1', q, i, `print(${i})\n`);
+        expect(res.status).toBe(200);
+      }
+      const before = await db
+        .prepare(
+          'SELECT revision, source FROM student_drafts WHERE question_version_id=?',
+        )
+        .bind(q)
+        .all();
+      const res = await put('s1', q, 12, 'print(12)\n');
+      expect(res.status).toBe(429);
+      expect(res.json.error.code).toBe('RATE_LIMITED');
+      expect(res.headers.get('retry-after')).toBe('60');
+      expect(res.headers.get('cache-control')).toBe('no-store');
+      const after = await db
+        .prepare(
+          'SELECT revision, source FROM student_drafts WHERE question_version_id=?',
+        )
+        .bind(q)
+        .all();
+      expect(after.results).toEqual(before.results);
+      // Another student is unaffected.
+      expect((await put('s2', q, 0, 'print(1)\n')).status).toBe(200);
+      // The next window allows saving again.
+      clockMs += 60_000;
+      expect((await put('s1', q, 12, 'print(12)\n')).status).toBe(200);
+    });
+  });
+
+  it('refuses the 4th new submit in a minute and creates no attempt; attempts stay unlimited across minutes', async () => {
+    const p = await fresh({ deadline: iso(NOW + 30 * 86_400_000) });
+    await saveAll('s2', p);
+    await withLimits(async () => {
+      const conf = await confirmed('s2', p.version);
+      const post = (key: string) =>
+        call(`/api/student/publications/${p.version}/attempts`, {
+          user: 's2',
+          method: 'POST',
+          body: { schemaVersion: 1, idempotencyKey: key, answers: conf },
+        });
+      for (const k of ['rl-1', 'rl-2', 'rl-3'])
+        expect((await post(k)).status).toBe(201);
+      const attempts = await count('student_attempts');
+      const res = await post('rl-4');
+      expect(res.status).toBe(429);
+      expect(res.headers.get('retry-after')).toBe('60');
+      expect(await count('student_attempts')).toBe(attempts);
+      clockMs += 60_000;
+      expect((await post('rl-4')).status).toBe(201);
+    });
+  });
+
+  it('never limits a same-key replay, including over the limit and after the deadline', async () => {
+    const deadline = NOW + 25 * 60_000; // inside the 30-minute idle window of fixture sessions
+    const p = await fresh({ deadline: iso(deadline) });
+    await saveAll('s3', p);
+    await withLimits(async () => {
+      const conf = await confirmed('s3', p.version);
+      const first = await work.submit(
+        principal('s3'),
+        p.version,
+        submitReq('rp-1', conf),
+      );
+      await work.submit(principal('s3'), p.version, submitReq('rp-2', conf));
+      await work.submit(principal('s3'), p.version, submitReq('rp-3', conf));
+      expect(
+        (await failure(
+          work.submit(principal('s3'), p.version, submitReq('rp-4', conf)),
+        )) as {
+          code: string;
+        },
+      ).toMatchObject({ code: 'RATE_LIMITED' });
+      const again = await work.submit(
+        principal('s3'),
+        p.version,
+        submitReq('rp-1', conf),
+      );
+      expect(again).toMatchObject({
+        attemptId: first.attemptId,
+        replayed: true,
+      });
+      clockMs = deadline + 1000;
+      const late = await work.submit(
+        principal('s3'),
+        p.version,
+        submitReq('rp-1', conf),
+      );
+      expect(late).toMatchObject({
+        attemptId: first.attemptId,
+        replayed: true,
+      });
+    });
+  });
+
+  it('does not count requests without a valid session', async () => {
+    const p = await fresh();
+    await withLimits(async () => {
+      const before = await buckets();
+      const res = await call(`/api/student/drafts/${p.questions[0]}`, {
+        method: 'PUT',
+        body: { schemaVersion: 1, baseRevision: 0, source: 'x\n' },
+      });
+      expect(res.status).toBe(401);
+      expect(await buckets()).toBe(before);
+    });
   });
 });

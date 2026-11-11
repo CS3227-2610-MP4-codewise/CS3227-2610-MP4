@@ -433,6 +433,34 @@ describe('API error mapping and routes', () => {
       kind,
     });
   });
+  it.each([
+    ['60', 60000],
+    ['5', 5000],
+    [null, 60000],
+    ['soon', 60000],
+  ])(
+    'maps 429 with Retry-After %s to rate-limited (SW-11)',
+    async (header, ms) => {
+      const api = workApi(
+        vi.fn(
+          async () =>
+            new Response(
+              JSON.stringify({
+                error: { code: 'RATE_LIMITED', message: 'm', requestId: 'r' },
+              }),
+              {
+                status: 429,
+                headers: header === null ? {} : { 'Retry-After': header },
+              },
+            ),
+        ),
+      );
+      await expect(api.save('q1', 1, 'x')).rejects.toMatchObject({
+        kind: 'rate-limited',
+        retryAfterMs: ms,
+      });
+    },
+  );
   it('sends the CSRF token on mutations only', async () => {
     const fetcher = reply(401, {});
     const api = workApi(fetcher, () => 'tok');
@@ -455,5 +483,54 @@ describe('API error mapping and routes', () => {
     expect(
       parseStudentRoute('/student/assignments/v1/work/1', '?x=1'),
     ).toBeNull();
+  });
+});
+
+describe('rate limit (SW-11, task 8.3)', () => {
+  const limited = (ms = 60000) => new ApiError('rate-limited', null, ms);
+
+  it('keeps the text and backup, says saving is paused, and sends nothing until Retry-After', async () => {
+    const save = vi.fn().mockRejectedValueOnce(limited());
+    const ctl = setup(save);
+    ctl.edit('q1', 'keep me');
+    await tick(1500);
+    const q1 = () => ctl.get('q1')!;
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(q1()).toMatchObject({
+      status: 'failed',
+      failure: 'rate-limited',
+      source: 'keep me',
+    });
+    expect(saveLabel(q1())).toMatch(/^Saving paused for a moment/);
+    expect(window.sessionStorage.getItem(key('q1'))).not.toBeNull();
+    // Further typing on this and another question sends nothing during the pause.
+    ctl.edit('q1', 'keep me too');
+    ctl.edit('q2', 'other');
+    await tick(15000);
+    await ctl.flush('q2');
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(ctl.get('q2')!.failure).toBe('rate-limited');
+    // After the stated delay both questions are saved without user action.
+    save.mockImplementation(async (_q: string, base: number, source: string) =>
+      ack(base + 1, source),
+    );
+    await tick(45000);
+    expect(save).toHaveBeenCalledTimes(3);
+    expect(q1()).toMatchObject({ status: 'saved', source: 'keep me too' });
+    expect(ctl.get('q2')!.status).toBe('saved');
+    expect(window.sessionStorage.getItem(key('q1'))).toBeNull();
+  });
+
+  it('does not count a pause as a network failure for backoff', async () => {
+    const save = vi
+      .fn()
+      .mockRejectedValueOnce(limited(5000))
+      .mockRejectedValueOnce(new ApiError('network'));
+    const ctl = setup(save);
+    ctl.edit('q1', 'x');
+    await tick(1500);
+    await tick(5000);
+    expect(save).toHaveBeenCalledTimes(2);
+    expect(ctl.get('q1')!).toMatchObject({ failure: 'network', failures: 1 });
   });
 });

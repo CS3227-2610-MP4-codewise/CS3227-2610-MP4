@@ -956,6 +956,33 @@ describe('review, submit, deadline and history (SW-05–SW-08, task 5.3)', () =>
     expect(keys[0]).toBe(keys[1]);
   });
 
+  it('explains a submit rate limit (429) and retries with the same idempotency key (SW-11)', async () => {
+    let first = true;
+    overrides['POST /api/student/publications/v1/attempts'] = () => {
+      if (first) {
+        first = false;
+        return { status: 429, body: conflictBody('RATE_LIMITED') };
+      }
+      return undefined;
+    };
+    await toReview();
+    click('Submit assignment…');
+    click('Confirm and submit');
+    expect(
+      await screen.findByText(
+        /Too many submissions in the last minute\. Nothing new was submitted/,
+      ),
+    ).toBeTruthy();
+    expect(attempts).toHaveLength(0);
+    click('Try again');
+    expect(
+      await screen.findByRole('heading', { name: 'Assignment submitted' }),
+    ).toBeTruthy();
+    const keys = postAttempts().map((c) => c.body.idempotencyKey);
+    expect(keys).toHaveLength(2);
+    expect(keys[0]).toBe(keys[1]);
+  });
+
   it('prompts to reconcile when a confirmed draft changed (409), and shows the conflict', async () => {
     overrides['POST /api/student/publications/v1/attempts'] = () => ({
       status: 409,

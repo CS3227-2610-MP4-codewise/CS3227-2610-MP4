@@ -17,7 +17,12 @@ import {
 
 export type SaveStatus = 'unsaved' | 'saving' | 'saved' | 'conflict' | 'failed';
 export type FailureKind =
-  'network' | 'session' | 'unavailable' | 'invalid' | 'too-large';
+  | 'network'
+  | 'session'
+  | 'unavailable'
+  | 'invalid'
+  | 'too-large'
+  | 'rate-limited';
 export type ServerDraft = {
   revision: number;
   source: string;
@@ -32,11 +37,22 @@ export type ApiErrorKind =
   | 'conflict'
   | 'stale'
   | 'deadline'
-  | 'mismatch';
+  | 'mismatch'
+  | 'rate-limited';
+/** SW-11: fallback wait when a 429 has no usable Retry-After; the server sends 60 s. */
+export const RATE_LIMIT_DEFAULT_MS = 60000;
+const retryAfterMs = (header: string | null) => {
+  const seconds = Number(header);
+  return Number.isFinite(seconds) && seconds > 0
+    ? Math.min(seconds, 300) * 1000
+    : RATE_LIMIT_DEFAULT_MS;
+};
 export class ApiError extends Error {
   constructor(
     readonly kind: ApiErrorKind,
     readonly current: ServerDraft | null = null,
+    /** For `rate-limited`: how long to wait before sending again. */
+    readonly retryAfterMs = 0,
   ) {
     super('Student work request failed.');
   }
@@ -86,6 +102,12 @@ export function workApi(
     if (response.status === 403 || response.status === 404)
       throw new ApiError('unavailable');
     if (response.status === 400) throw new ApiError('invalid');
+    if (response.status === 429)
+      throw new ApiError(
+        'rate-limited',
+        null,
+        retryAfterMs(response.headers.get('Retry-After')),
+      );
     if (response.status === 409) {
       let parsed: unknown = null;
       try {
@@ -316,6 +338,8 @@ export class DraftController {
   private disposed = false;
   /** After a 401, revocation or sign-out nothing more is written to sessionStorage. */
   private backupsOff = false;
+  /** SW-11: after a 429 no save is sent before this time (the limit is per account). */
+  private pausedUntil = 0;
 
   constructor(
     private readonly deps: {
@@ -487,6 +511,13 @@ export class DraftController {
       this.touch();
       return Promise.resolve();
     }
+    const wait = this.pausedUntil - Date.now();
+    if (wait > 0) {
+      // Rate limited: send nothing until the pause ends; the text and backup are kept.
+      this.pause(id, it, wait);
+      this.touch();
+      return Promise.resolve();
+    }
     const seq = ++it.seq;
     const sent = it.source;
     const base = it.baseRevision;
@@ -591,6 +622,14 @@ export class DraftController {
       this.deps.announce?.('Not saved. The text cannot be saved.');
       return;
     }
+    if (error.kind === 'rate-limited') {
+      this.pausedUntil = Date.now() + error.retryAfterMs;
+      this.pause(it.questionVersionId, it, error.retryAfterMs);
+      this.deps.announce?.(
+        'Saving paused for a moment. Your text is kept and will be saved automatically.',
+      );
+      return;
+    }
     it.failure = 'network';
     it.failures += 1;
     this.deps.announce?.('Not saved. Retrying automatically.');
@@ -599,6 +638,18 @@ export class DraftController {
       if (cur && cur.status === 'failed' && cur.source !== cur.ackSource)
         void this.save(id);
     }, backoffDelay(it.failures));
+  }
+
+  /** SW-11: mark the item paused and retry once the pause ends; failures do not back off further. */
+  private pause(id: string, it: DraftItem, wait: number) {
+    it.status = 'failed';
+    it.failure = 'rate-limited';
+    this.clearTimers(id, ['retry']);
+    this.timers(id).retry = setTimeout(() => {
+      const cur = this.items.get(id);
+      if (cur && cur.status === 'failed' && cur.source !== cur.ackSource)
+        void this.save(id);
+    }, wait);
   }
 
   /** Conflict window: keep the local text, saved on top of the server revision. */

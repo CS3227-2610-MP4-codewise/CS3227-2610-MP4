@@ -30,6 +30,7 @@ Students can now find a published assignment and read its overview (student-assi
 | 10 | The proposed editor was CodeMirror 6, decided at the editor gate after a prototype comparison. **Decided 2026-11-10: variant B (textarea + `prismjs` overlay), no new dependency** (see update below). |
 | 11 | Migration `0015` is the next after current main `0014`; the number is rechecked when the file is created. |
 | 12 | Keith supplies the D1 `SubmissionCatalog` at a reviewed revision, checked with Darryl's existing contract suites. Darryl, or Keith in a granted window, composes it in `src/server/index.ts` in place of the loopback samples. |
+| 13 | Per-student request rate (Keith, 2026-11-12): at most **12 draft saves** and **3 submits** per account per 60 s. Both use the existing D1 limiter (`AuthStore.rate`). The Workers Rate Limiting binding was considered for saves and dropped on 2026-11-12: on the Codewise deployment account it deployed but refused nothing at over three times the limit (`workflow/evidence/student-drafts/rate-limit.md`). A same-key idempotent replay is never limited. An over-limit request gets `429 RATE_LIMITED` with `Retry-After`; it delays the save or submit and never loses text. Decision 2 is unchanged: there is no attempt-count limit. |
 
 ### Unresolved before dependent implementation
 
@@ -56,6 +57,7 @@ None. `openspec list --specs --json` reports no canonical specs. This delta refi
 
 - **Keith-owned:** `src/server/student/` and `src/web/student/` (workbook, editor, history) and their tests.
 - **Shared, needs a writer window:** additive migration `0015_student_submissions.sql` (drafts, attempts, attempt answers, idempotency receipts); `src/shared/student-work.ts`; a student-write guard in `src/server/courses/authority.ts`; route composition in `src/server/index.ts` and `src/web/main.tsx`; and `SubmissionCatalog` composition in place of the loopback samples.
+- **Rate limit (decision 13):** consumes Darryl's existing `AuthStore.rate` unchanged; no `wrangler.json` or `environment.ts` change.
 - **Dependency:** a likely new editor dependency (CodeMirror 6 packages, exact pinned versions), subject to the editor gate.
 - **Unchanged:** identity, course and publication stores, SessionView, instructor semantics, AI and providers.
 - **Not allowed:** code execution, late attempts and real learner data before retention is implementable. Deployment happens only through the reviewed release workflow.

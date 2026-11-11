@@ -226,7 +226,13 @@ export function Review({
           message:
             'A saved answer changed since you confirmed. Nothing was submitted. Reload your saved answers, check any conflicts, then submit again.',
         });
-      } else
+      } else if (kind === 'rate-limited')
+        setSubmit({
+          phase: 'error',
+          message:
+            'Too many submissions in the last minute. Nothing new was submitted. Wait a minute, then try again. Retrying sends the same submission, so it cannot create a second attempt by accident.',
+        });
+      else
         setSubmit({
           phase: 'error',
           message:
