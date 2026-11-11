@@ -33,6 +33,7 @@ let sessionResponse: () => Promise<Response>;
 let calls: string[];
 let style: HTMLStyleElement;
 beforeEach(() => {
+  window.history.replaceState(null, '', '/');
   calls = [];
   sessionResponse = async () => json(account);
   respond = async (path) =>
@@ -62,6 +63,7 @@ afterEach(() => {
   style.remove();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  window.history.replaceState(null, '', '/');
 });
 function show(
   props: Parameters<typeof WorkspaceSwitch>[0] = { role: 'instructor' },
@@ -408,5 +410,80 @@ it('restores a validated page and focus refresh after navigation does not leave 
   focus();
   await control();
   expect(calls.length).toBeGreaterThan(count);
+  visible();
+});
+
+it.each(['student', 'instructor'] as const)(
+  'focuses the %s arrival heading after the authorization mask clears and announces the role once',
+  async (role) => {
+    window.history.replaceState(null, '', '/workspace?role=' + role);
+    show({ role });
+    const destination = screen.getByText('Private title');
+    const focusHeading = vi.spyOn(destination, 'focus');
+    await control();
+    expect(
+      document
+        .querySelector('.cw-shell')
+        ?.hasAttribute('data-workspace-access'),
+    ).toBe(false);
+    expect(document.activeElement).toBe(destination);
+    expect(destination.tabIndex).toBe(-1);
+    expect(focusHeading).toHaveBeenCalledOnce();
+    const status = screen.getByRole('status');
+    expect(status.textContent).toBe(
+      `${role === 'instructor' ? 'Instructor' : 'Student'} workspace opened.`,
+    );
+    const statusChanges = vi.fn();
+    const observer = new MutationObserver(statusChanges);
+    observer.observe(status, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+    const editor = document.createElement('textarea');
+    screen.getByTestId('protected').appendChild(editor);
+    editor.focus();
+    act(() => {
+      window.dispatchEvent(new Event('focus'));
+      editor.blur(); // Emulate native focus loss while its page is display:none.
+    });
+    await control();
+    expect(document.activeElement).toBe(editor);
+    expect(focusHeading).toHaveBeenCalledOnce();
+    expect(statusChanges).not.toHaveBeenCalled();
+    observer.disconnect();
+  },
+);
+
+it('does not steal a newly chosen focus target when refresh finishes', async () => {
+  show();
+  await control();
+  const editor = document.createElement('textarea');
+  screen.getByTestId('protected').appendChild(editor);
+  editor.focus();
+  const pending = deferred();
+  respond = () => pending.promise;
+  focus();
+  const outside = document.createElement('button');
+  document.body.appendChild(outside);
+  outside.focus();
+  await act(async () => {
+    pending.resolve(json(contexts()));
+  });
+  await control();
+  expect(document.activeElement).toBe(outside);
+  outside.remove();
+});
+
+it('restores switch focus and clears checking text when navigation is cancelled', async () => {
+  show();
+  const input = await control();
+  input.focus();
+  fireEvent.click(input);
+  input.blur();
+  await waitFor(() => expect(workspaceNavigation.open).toHaveBeenCalledOnce());
+  await control();
+  expect(document.activeElement).toBe(input);
+  expect(screen.queryByText('Checking workspace availability.')).toBeNull();
   visible();
 });

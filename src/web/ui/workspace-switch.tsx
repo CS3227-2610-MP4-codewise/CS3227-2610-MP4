@@ -72,6 +72,8 @@ export function WorkspaceSwitch({
   const busyRef = useRef(false);
   const failed = useRef(false);
   const mounted = useRef(false);
+  const arrivedRole = useRef<Role | null>(null);
+  const focusBeforeCheck = useRef<HTMLElement | null>(null);
   const sessionIdentity = useRef<string | null>(null);
   const expectedIdentity = account ? identityKey(account) : null;
   const courseIds = courses?.map((item) => item.id).join(',') ?? '';
@@ -103,6 +105,47 @@ export function WorkspaceSwitch({
     )
       block('session');
   }, [expectedIdentity]);
+  useLayoutEffect(() => {
+    if (!shell || pending || failure || failed.current || !roles.includes(role))
+      return;
+    // Parent headings may try to focus while the protected page is still hidden.
+    // Finish the transition only after the shared authorization mask is removed.
+    if (arrivedRole.current !== role) {
+      arrivedRole.current = role;
+      setMessage(
+        `${role === 'instructor' ? 'Instructor' : 'Student'} workspace opened.`,
+      );
+      if (new URLSearchParams(window.location.search).get('role') === role) {
+        const destination = shell.querySelector<HTMLElement>(
+          'main:not(.cw-workspace-recovery) h1',
+        );
+        if (destination) {
+          destination.tabIndex = -1;
+          destination.focus();
+        }
+      }
+    } else {
+      const previous = focusBeforeCheck.current;
+      if (
+        previous?.isConnected &&
+        (document.activeElement === document.body ||
+          document.activeElement === previous)
+      )
+        previous.focus();
+    }
+    focusBeforeCheck.current = null;
+  }, [shell, pending, failure, roles, role]);
+
+  function rememberFocus() {
+    const active = document.activeElement;
+    const scope = anchor.current?.closest('.cw-shell, .assessment-app');
+    focusBeforeCheck.current =
+      active instanceof HTMLElement &&
+      scope?.contains(active) &&
+      !active.closest('.cw-workspace-recovery')
+        ? active
+        : null;
+  }
 
   function block(reason: Failure) {
     failed.current = true;
@@ -158,6 +201,7 @@ export function WorkspaceSwitch({
     let current = true;
     const refresh = () => {
       const request = ++epoch.current;
+      if (!busyRef.current) rememberFocus();
       busyRef.current = true;
       setPending(true);
       void checks(true)
@@ -199,6 +243,7 @@ export function WorkspaceSwitch({
     if (busyRef.current || next === role || (beforeLeave && !beforeLeave()))
       return;
     if (busyRef.current) return;
+    rememberFocus();
     busyRef.current = true;
     setPending(true);
     const request = ++epoch.current;
@@ -215,6 +260,7 @@ export function WorkspaceSwitch({
         return;
       }
       workspaceNavigation.open(next);
+      setMessage('');
       // Native beforeunload may cancel. Restore the validated page if we stay.
     } catch (error: unknown) {
       if (mounted.current && request === epoch.current) reject(error);

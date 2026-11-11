@@ -2,6 +2,8 @@
 
 ## Local shell implementation checkpoint - 2026-11-11
 
+Publication/continuation2026-11-12: initial snapshot is committed in PR27 at `fe8f49b7f74db248344fe40ba47e8d99ef9334f6`; subsequent source/DOM-reviewed arrival focus/announcement repairs and the precise final producer pin are in the narrower [shared-shell recheck packet](shared-shell-recovery.md) and PR description. This supplement does not reopen any SH-SUB/format decisions below, change student source or claim manual acceptance.
+
 `local-shell-recovery-01` is implemented in the current uncommitted working tree over the input main revision. Exact changed-source SHA-256 values: [shell source manifest](../evidence/local-shared-instructor-completion/shell-source-manifest.txt). The historical Git blob table below remains the inspected base, not the new producer content. Review/repairs, verification and manual checklist: [shell verification](../evidence/local-shared-instructor-completion/shell-verification.md). Darryl approved W1's brief; source-specific Keith review and all other proposed windows remain separate. No source commit, remote review or new Keith agreement is invented.
 
 Shared public/session DTOs, backend and student implementation are unchanged. The shared control now adds an actual `/api/auth/session` read during mount/focus/switch revalidation, compares user/session identity, and receives existing AuthView identity from instructor parents. This is an internal browser-component prop, not an identity-store/API contract fork.

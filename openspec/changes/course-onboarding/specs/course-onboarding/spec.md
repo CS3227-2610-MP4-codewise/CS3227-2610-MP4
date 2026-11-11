@@ -100,6 +100,10 @@ The system SHALL preserve both roles and show a top keyboard-operable Student/In
 - **WHEN** a dual-role user changes dashboards, including during unsaved work
 - **THEN** recovery is offered before navigation, the new heading/context is announced, only that role's courses appear and being an instructor in one course grants no instructor access to a student-only course.
 
+#### Scenario: Authorized workspace arrival and revalidation focus
+- **WHEN** an authorized role transition opens its destination and shared availability checks finish
+- **THEN** the destination heading SHALL receive focus after the protected-page mask is removed, the selected workspace SHALL be announced once, and later successful availability checks SHALL preserve the user's focus without repeating the arrival announcement or stealing an intentionally changed focus target.
+
 ### Requirement: COU-07 Current authority after revocation
 The system SHALL re-evaluate role/workspace eligibility and course access after membership, inviter, account or session revocation. Previously available switches, invitation receipts, cached lists or browser preferences SHALL NOT preserve revoked authority. Loss of one role SHALL leave other valid memberships intact and return the user to an authorized dashboard without leaking the previous role's private content. (AUTH-01-03, UI-03/08)
 

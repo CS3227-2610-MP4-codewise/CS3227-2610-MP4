@@ -1,5 +1,15 @@
 # local-shell-recovery-01 verification
 
+## Publication and UI-03 continuation - 2026-11-12
+
+Initial26-file scoped snapshot committed/published through GitHub's connector at `fe8f49b7f74db248344fe40ba47e8d99ef9334f6`, [draft PR27](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/27), before the user's requested follow-up. Local Git metadata denied branch creation, so local HEAD remains main `af1bc90`; it is not the published branch/head. Unrelated dirty work is excluded from the remote tree. Two task-attachment attempts failed with Codex app tool request errors; PR creation itself succeeded.
+
+The repeated bounded request identified a remaining UI-03 gap: parent destination focus can run while shared availability checks still hide the page, and role arrival was not explicitly announced. Continuation changes shared switch/test only: destination focus after authorization mask removal, once-per-entry workspace live status, restored pre-check focus unless the user chose another target, and clear checking text/switch focus after cancelled navigation. Main43/43 focused checks pass; actually reused read-only reviewer `/root/shell_review` found no findings and independently ran shared31/31. These source/DOM checks do not claim actual native Space, beforeunload cancellation, screen-reader speech, rendered matrix or human acceptance.
+
+Exact continuation source: [arrival manifest](shell-arrival-source-manifest.txt). Focused Keith packet: [shared-shell recovery](../../handoffs/shared-shell-recovery.md). Earlier checkpoints below are retained as history, not final producer revisions. Final static/build/publication results are appended at this prompt's completion.
+
+Continuation verification: main43/43 focused tests; independent shared31/31; final changed-source ESLint and Vite build pass (373modules,747.98kB main chunk, existing large-chunk warning). Required full check still stops at unrelated dirty evidence lint after strict specs16/16/typecheck. Initial committed CI, which excludes that dirty evidence, executes500 tests with497pass/3student compatibility failures and passes secrets; see [redacted CI summary](ci-summary.md). No source tests or shared SessionView were changed to hide those failures.
+
 Owner: Darryl. Base: local main `af1bc90fa47ed0b8726a46084ce642992c807e15` plus the exact uncommitted source snapshot in [source manifest](shell-source-manifest.txt). No new commit or remote revision claimed. Requirements AUTH-01–03, COU-06/07, SHA-06/07, UI-01/02/03/07/08; `warm-workbook-v1`.
 
 ## Behavior and owned source

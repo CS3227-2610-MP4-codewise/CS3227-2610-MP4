@@ -2,6 +2,8 @@
 
 ## Repair checkpoint - 2026-11-11
 
+Continuation2026-11-12 (PR27): shared arrival focus now waits until the authorization mask is removed; a role status is announced once per entry, ordinary revalidation retains recoverable focus without stealing a new target, and cancelled navigation clears stale checking text. Main focused43/43 and reused independent reviewer shared31/31 pass. These source/DOM checks supplement the earlier checkpoints; actual native Space/speech/beforeunload and the visual matrix remain unverified, not completed by PR publication. Focused consumer packet: [shared-shell recovery](../../handoffs/shared-shell-recovery.md).
+
 The original inspection table below is preserved as pre-implementation history. Approved `local-shell-recovery-01` now repairs its shell findings in source. Current review: main plus independent `/root/shell_review`, source/synthetic DOM only. See [final shell verification and manual checklist](shell-verification.md) and its exact source manifest. New automated checks exercise the actual recovery CSS, focus, native checkbox semantics, current/initial account binding, all-check 401 priority, dirty-cancel callback, navigation cancellation recovery and stale/unmounted requests. Main final focused suites: 57/57; independent shared switch suite: 27/27 after focus repair. These do not establish actual Space/VoiceOver/native-beforeunload or rendered matrix acceptance.
 
 | Current area                            | Outcome                                                                                                                                                                                                                                   |
