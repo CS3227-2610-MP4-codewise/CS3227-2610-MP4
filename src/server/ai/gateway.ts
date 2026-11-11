@@ -316,6 +316,25 @@ export class SecureAIGateway<A extends AIAction, T> implements AIGatewayPort<
       }
       let finalized = false;
       let attemptUsage: number | undefined;
+      const accountUsage = async (usage: SoclaasResult['usage']) => {
+        if (usage.status !== 'reported') return false;
+        attemptUsage = usage.inputTokens + usage.outputTokens;
+        if (!Number.isSafeInteger(attemptUsage)) {
+          await this.store.markUncertain(row.id, leaseId, this.clock());
+        } else if (
+          attemptUsage >
+          profile.inputTokenReservation + input.outputTokenLimit
+        ) {
+          await this.store.markOverage(
+            row.id,
+            leaseId,
+            this.clock(),
+            attemptUsage,
+          );
+        } else return false;
+        finalized = true;
+        return true;
+      };
       try {
         const dispatchEvidence = await resolve(principal, input);
         const dispatchFingerprint = await digest(
@@ -348,24 +367,15 @@ export class SecureAIGateway<A extends AIAction, T> implements AIGatewayPort<
           maxOutputTokens: input.outputTokenLimit,
           timeoutMs: Math.min(dispatchRemaining, 60000),
         });
-        const usedTokens =
-          result.usage.status === 'reported'
-            ? result.usage.inputTokens + result.usage.outputTokens
-            : undefined;
-        attemptUsage = usedTokens;
-        if (
-          usedTokens !== undefined &&
-          usedTokens > profile.inputTokenReservation + input.outputTokenLimit
-        ) {
-          await this.store.markOverage(
-            row.id,
-            leaseId,
-            this.clock(),
-            usedTokens,
-          );
-          finalized = true;
+        if (await accountUsage(result.usage)) {
           return this.readAuthorized(principal, row.id);
         }
+        if (
+          result.usage.status === 'reported' &&
+          (result.usage.inputTokens > profile.inputTokenReservation ||
+            result.usage.outputTokens > input.outputTokenLimit)
+        )
+          throw new SoclaasTransportError('invalid_response');
         const payload = await evidence.validate(result.payload);
         if (
           !payload ||
@@ -412,12 +422,18 @@ export class SecureAIGateway<A extends AIAction, T> implements AIGatewayPort<
           ...(profile.cacheMs > 0
             ? { cacheUntil: this.clock() + profile.cacheMs }
             : {}),
-          ...(usedTokens === undefined ? {} : { usedTokens }),
+          ...(attemptUsage === undefined ? {} : { usedTokens: attemptUsage }),
         });
         finalized = true;
         return this.readAuthorized(principal, row.id);
       } catch (error) {
         if (finalized) throw error;
+        if (
+          error instanceof SoclaasTransportError &&
+          error.usage &&
+          (await accountUsage(error.usage))
+        )
+          return this.readAuthorized(principal, row.id);
         if (
           error instanceof SoclaasTransportError &&
           (error.kind === 'timeout' ||

@@ -124,6 +124,8 @@ Darryl approves/releases the exact revision; edits invalidate approval and corre
 
 ## C-AI: shared AI gateway
 
+Readiness reconciliation2026-11-12: the historical candidate description below is superseded for implementation status by [current audit](evidence/secure-ai-gateway/readiness-audit.md) and [progress consumer packet](handoffs/secure-ai-gateway-progress-consumer.md). Durable gateway admission/transport exists on base af1bc90fa47ed0b8726a46084ce642992c807e15; local reported-bounds repair is identified by its source manifest. No DTO/API/migration contract changes or new Keith acceptance. Normal-app live composition, real progress consumer, provider semantics and exact-revision integrated checks remain pending. The packet proposes, but does not claim agreement to, exclusive shared wiring/migration windows.
+
 Runtime candidate: [aiRequestSchema/gatewayOutcomeSchema/assessmentDraftSchema/validateAssessmentDraft/usageSchema/publicAIStatusSchema/projectAIStatus](../src/shared/instructor-contracts/ai.ts). Typed action/evidence input, registered domain validators, tagged unavailable usage and a distinct safe public status projection. Generic progress validation is not supplied; Keith provides it. No provider/admission/request persistence implementation is added.
 
 **Producer/writer:** Darryl. **Consumers/reviewer:** Darryl's assessment and Keith's progress services. **Requirements:** AI-01–AI-05, GRADE-01–02, PROG-01–03. **Gate:** accepted C-ID and action-specific immutable evidence contracts.

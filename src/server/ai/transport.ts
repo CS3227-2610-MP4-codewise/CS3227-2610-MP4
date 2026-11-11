@@ -21,6 +21,7 @@ export class SoclaasTransportError extends Error {
   constructor(
     readonly kind: SoclaasErrorKind,
     readonly retryAfterMs: number | null = null,
+    readonly usage?: SoclaasResult['usage'],
   ) {
     super('AI provider request could not be completed.');
     this.name = 'SoclaasTransportError';
@@ -169,23 +170,6 @@ export async function callSoclaas(
       throw new SoclaasTransportError('invalid_request');
     }
     const envelope = record(await readBounded(response));
-    const choices = envelope?.choices;
-    const choice =
-      Array.isArray(choices) && choices.length === 1
-        ? record(choices[0])
-        : null;
-    const message = record(choice?.message);
-    if (
-      choice?.finish_reason !== 'stop' ||
-      typeof message?.content !== 'string'
-    )
-      throw new SoclaasTransportError('invalid_response');
-    let payload: unknown;
-    try {
-      payload = JSON.parse(message.content);
-    } catch {
-      throw new SoclaasTransportError('invalid_response');
-    }
     let usage: SoclaasResult['usage'] = { status: 'unavailable' };
     if (envelope?.usage != null) {
       const raw = record(envelope.usage),
@@ -203,6 +187,23 @@ export async function callSoclaas(
         inputTokens: i as number,
         outputTokens: o as number,
       };
+    }
+    const choices = envelope?.choices;
+    const choice =
+      Array.isArray(choices) && choices.length === 1
+        ? record(choices[0])
+        : null;
+    const message = record(choice?.message);
+    if (
+      choice?.finish_reason !== 'stop' ||
+      typeof message?.content !== 'string'
+    )
+      throw new SoclaasTransportError('invalid_response', null, usage);
+    let payload: unknown;
+    try {
+      payload = JSON.parse(message.content);
+    } catch {
+      throw new SoclaasTransportError('invalid_response', null, usage);
     }
     return { payload, usage };
   } catch (error) {

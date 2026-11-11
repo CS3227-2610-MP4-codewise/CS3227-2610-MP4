@@ -30,6 +30,27 @@ function reply(content: unknown, usage?: unknown) {
   );
 }
 describe('AI-01–05 synthetic SoCLaaS transport', () => {
+  it.each(['stop', 'length'])(
+    'preserves valid reported usage when content is rejected (%s)',
+    async (finish_reason) => {
+      await expect(
+        callSoclaas(request, async () =>
+          Response.json({
+            choices: [
+              {
+                finish_reason,
+                message: { content: 'private non-JSON content' },
+              },
+            ],
+            usage: { prompt_tokens: 99, completion_tokens: 3 },
+          }),
+        ),
+      ).rejects.toMatchObject({
+        kind: 'invalid_response',
+        usage: { status: 'reported', inputTokens: 99, outputTokens: 3 },
+      });
+    },
+  );
   it('sends one fixed-host request with only the supplied action credential and no tools', async () => {
     const fetcher = vi.fn(async () =>
       reply({ draft: 'synthetic' }, { prompt_tokens: 5, completion_tokens: 3 }),
