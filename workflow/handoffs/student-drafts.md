@@ -53,6 +53,10 @@ Synthetic only (SW-10: real learner data stays blocked until archive-based delet
   4. Confirm a draft edited after submitting does not change what A sees, and that the loopback samples do not appear in this run.
   Record the outcome in `workflow/evidence/student-drafts/composed-acceptance.md` (shared with task 7.1).
 
+## Final checks (task 7.2, 2026-11-12)
+
+`openspec validate --strict` valid; `npm run check` exit 0, 611 tests; privacy and security review (agent review, separate from Keith's and Darryl's) passed with known limits listed in `workflow/evidence/student-drafts/final-checks.md`. Task 7.1 composed scenarios accepted by Keith (`composed-acceptance.md`).
+
 ## Security findings / unresolved defects
 
 - None open in the catalog. Privacy: projections carry no private references; the review in task 7.2 re-checks owner-only drafts, no private references, no execution path and SW-11.

@@ -41,8 +41,8 @@ Planning is complete, but that does not mean implementation or review is. Every 
 
 ## 7. Composed verification
 
-- [ ] 7.1 Run a composed local acceptance with real local SH-AUTH and SH-ID: two tabs causing a conflict, republish during editing, revocation during editing, a submit near the deadline, a retry after a dropped response and a dual-role account. **Verify:** record the outcomes, repairs and exact revisions in `workflow/evidence/student-drafts/composed-acceptance.md`. [SW-01–SW-09, AUTH-01–03]
-- [ ] 7.2 Run `npx openspec validate student-drafts --strict`, `npm run check` and the privacy and security review (owner-only drafts, no private references, no execution path, stale-result leaks, and the SW-11 rate limits). **Verify:** the outcomes are recorded in the handoff and the log, with any review by another agent recorded as separate from Keith's or Darryl's review. [SW-01–SW-11, DEV-02/04]
+- [x] 7.1 Run a composed local acceptance with real local SH-AUTH and SH-ID: two tabs causing a conflict, republish during editing, revocation during editing, a submit near the deadline, a retry after a dropped response and a dual-role account. **Verify:** record the outcomes, repairs and exact revisions in `workflow/evidence/student-drafts/composed-acceptance.md`. [SW-01–SW-09, AUTH-01–03]
+- [x] 7.2 Run `npx openspec validate student-drafts --strict`, `npm run check` and the privacy and security review (owner-only drafts, no private references, no execution path, stale-result leaks, and the SW-11 rate limits). **Verify:** the outcomes are recorded in the handoff and the log, with any review by another agent recorded as separate from Keith's or Darryl's review. [SW-01–SW-11, DEV-02/04]
 
 ## 8. Per-student rate limit (SW-11, decision 13)
 

@@ -20,6 +20,15 @@ Revision: `1a5b924` (`D1SubmissionCatalog` composed in `src/server/index.ts`).
 
 Keith reported: "Accepted. All steps show the intended behaviour". Screenshots, attempt IDs and request logs were not captured; this row is Keith's report, not recorded evidence.
 
-## 7.1 scenarios
+## 7.1 scenarios (2026-11-12, revision `a59cb28`, same setup)
 
-Not yet run: two tabs causing a conflict, republish during editing, revocation during editing, submit near the deadline, retry after a dropped response. The dual-role account above is in place for them.
+| Scenario | Expected | Outcome (Keith's report) |
+|---|---|---|
+| Two tabs on one question: save in A, edit in B | B opens the conflict window; Keep mine saves on top of A's revision; Use saved takes A's text | as expected |
+| Instructor republishes while the student edits | newer-version notice appears, the student's text is untouched; Move my work copies it onto the new version | as expected |
+| Student membership deactivated during editing (local SQL `active=0`), then restored | next save reports the work is no longer available, text stays on screen; access returns after `active=1` | as expected |
+| Submit near a 2–3 minute deadline | submit just before succeeds; just after reports the deadline passed while editing continues | as expected |
+| Submit with the browser offline, then Try again online | error first; exactly one new attempt after retry | as expected |
+| Dual-role account switching Student/Instructor | no student data on instructor pages or the reverse; permissions follow the server, not the switch | as expected |
+
+Keith reported: "Each step works as intended". As in 6.2, screenshots, attempt IDs and request logs were not captured; the rows are Keith's report. The membership change was a local SQL update, not the instructor's removal flow. Real Firebase sign-in was used; staging and production were not touched.

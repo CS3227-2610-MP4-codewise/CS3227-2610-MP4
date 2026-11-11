@@ -391,3 +391,42 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 147793674; cached input subset 144275560; output 902025; reasoning output subset unavailable; total 148695699.
 - Coverage/status: partial; 7 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-drafts:final-checks-2026-11-12 -->
+<!-- experiment-turns:final-checks-2026-11-12:fa0a541e33ce2417,de0ff6b51c9e9a75 -->
+## Checkpoint `final-checks-2026-11-12` — 2026-11-11T18:40:59.965900+00:00
+
+### Request
+
+Composed acceptance 7.1 and final checks 7.2
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Keith accepted all 7.1 scenarios (report). 7.2: strict validate valid, npm run check exit 0 (611 tests), coordinator privacy/security review pass with known limits. 26/26 tasks ticked. No agents spawned.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-drafts/composed-acceptance.md; workflow/evidence/student-drafts/final-checks.md.
+- Remaining limitations and next owner: Push; Keith marks PR #26 ready and requests Darryl's review; archive after merge.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | root | 2026-11-11T18:39:26.705Z | open | provisional | claude-opus-5-5 | medium | 5349 | 665 | 5349 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 970664a8 | 2026-11-11T18:23:04.770Z | provisional | final | 2508 | 56 | 2508 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 149544265; cached input subset 146019157; output 908097; reasoning output subset unavailable; total 150452362.
+- Coverage/status: partial; 7 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
