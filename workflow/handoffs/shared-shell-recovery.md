@@ -1,5 +1,7 @@
 # Handoff: shared-auth/shell consumer recheck
 
+CI compatibility repair2026-11-12: the three test adjustments described below are now implemented on PR27 under the failing-PR repair request. Main changed only `StudentWorkspace.dom.test.ts`: native switch assertions and phase-based session replies, with Sign in/content-clearing assertions retained and strengthened. Student application code remains unchanged. Local Student25/25 and shared31/31 pass (56total). Keith still reviews the exact shared producer/consumer test revision; there is no remaining request for him to implement those three mechanical adjustments. New-head CI outcome is pinned in the PR description; earlier red CI is historical.
+
 Final code producer: **`6a277026df23c6097733bed13b2762900e177e81`**. Both changed shared source files were retrieved from GitHub at this exact revision and verified equal to the reviewed local continuation. Subsequent publication of this checkpoint is documentation-only and does not change that code pin. Source CI run43057323069:501pass/3consumer assertions fail, secrets success. See [final-source CI checkpoint](../evidence/local-shared-instructor-completion/ci-summary.md#final-source-checkpoint).
 
 - Human owner: Darryl, shared auth/shell and instructor; Keith owns the existing student consumer/tests.

@@ -111,3 +111,35 @@ Main applied $verify-feature after review. Additional ordinary existing acceptan
 - Recorder config still matches project; current report attempt again fails EPERM creating private records temporary file outside writable roots. LOCAL-01/02 reconciliation remains unavailable; no totals or group IDs invented. Source manifests and narrow Keith packet prepared; same PR receives the bounded continuation. No commit/PR permission inferred to merge, deploy or mark manual acceptance complete.
 
 Final LOCAL-03 checkpoint: bounded continuation committed and remote branch fast-forwarded to `6a277026df23c6097733bed13b2762900e177e81`; PR27 description updated with exact producer, requirement IDs, review/checks and focused consumer packet. Read-back of both changed product files matches reviewed source. Actual final-source CI run43057323069 yields501pass/3student consumer compatibility failures and secrets success; redacted evidence and narrow handoff now pin this exact source. A documentation-only checkpoint records these outcomes without changing code. App task-attachment failed twice, so direct PR URL is retained. No merge/deploy, student code, public contract, account/membership/bootstrap or real provider/mail mutation. All current-prompt agent/token sections verified present; reused reviewer identity recorded, measured usage/source groups still unavailable and current final response excluded. Darryl manual acceptance and Keith's3test/source recheck remain pending. No second substantive feature iteration or fabricated acceptance.
+
+## Prompt LOCAL-04 - 2026-11-12 Asia/Singapore
+
+**Prompt (redacted):** Some pull requests are failing; inspect current open PR checks and diagnose/fix appropriate failures while preserving ownership.
+
+### Agents spawned
+
+- New agents: None. Direct CI-log triage and ownership comparison needs no delegation; reuse a reviewer only if substantive product fixes become necessary.
+- Reused agents: None at opening. Previous shell review is prior-prompt evidence.
+- Main agent: `/root`, Codex; exact model unavailable.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | current turn/group ID unavailable | provisional |
+| Children (none) | 0 | 0 | 0 | 0 | observed no delegation | provisional |
+
+- Earlier LOCAL records remain unreconciled after recorder EPERM; refresh at this reporting checkpoint. No invented source IDs, per-prompt allocation or duplicated cumulative totals. Current final response excluded.
+
+### Experiment outcome
+
+- Read-only open-PR inventory:27(shared shell) and26(Keith student-drafts proposal). Inspect latest heads/checks rather than assuming previous source results apply; preserve unrelated dirty work and existing ownership.
+- Current actual CI findings, permitted repairs and next owners appended before final response. No merge/deployment or student product implementation authorized by this triage.
+
+- Latest-head inspection: PR26 at ba5cce16abfc97c31a3577393f260b812d71e037 has checks/secrets success; PR27 at7a8854017917c44f867036ec41e19d454814c4e1 has501pass/3fail, secrets success. All failures are the previously identified Student DOM consumer expectations invalidated by Darryl's shared producer. Current CI-repair intent permits mechanical alignment of those three tests in this PR; no student application feature or shared policy is implemented. Keith retains student ownership and exact-source review; no Keith approval is invented. Earlier local-shell brief kept student source/tests untouched; this is a new test-only repair scope for the current failing-PR request, not retroactive authorization of earlier edits.
+
+- Main repairs only `src/web/student/StudentWorkspace.dom.test.ts` under current CI-repair scope: native switch off/on expectations replace radios; phase-based responses give both session readers the same network/terminal401 state. Preserved menu-retention/cancellation assertions and strengthened terminal Sign in/content-clearing checks. Local student25/25 and shared31/31 pass (56tests/2files). No test skip, weakened privacy rule, timeout inflation or student runtime edit. Main self-review suffices for this mechanical test-only correction; no substantive product change/independent-agent work or new feature brief is fabricated.
+- Rechecked configured recorder scope; report again fails EPERM writing private records temporary file outside writable roots. Previous prompt usage reconciliation and current main usage remain unavailable; current child activity is none, zero child tokens reflect observed no delegation. No invented source group/allocation and no double counting. Current final response excluded.
+- Publish only this test and its scoped ownership/evidence/handoff/log checkpoint to existing PR27 via connector because local Git metadata remains read-only. Preserve unrelated dirty work/PR26 and pending native/manual acceptance. Await the new commit's real CI rather than re-running deterministic failures on the old head.
+
+- LOCAL-04 required local check: specs16/16 and TypeScript pass; repository lint stops on the same unrelated untracked module-demo `tasks` variable, excluded from publication. Focused test-file ESLint and diff whitespace checks pass. Test-only diff self-reviewed: no dropped negative assertion, callback/page request state now models server sign-out consistently. No additional product build/test rerun needed for application source unchanged; CI runs the complete committed-tree check. Runtime student/backend/shared-contract files remain untouched.
