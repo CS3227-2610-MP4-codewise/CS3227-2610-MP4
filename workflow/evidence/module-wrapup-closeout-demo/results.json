@@ -1,0 +1,40 @@
+{
+  "runAt": "2026-11-10T02:20:00.003Z",
+  "scope": "Actual manual execution of a deterministic prototype on synthetic fixtures",
+  "integration": "No lifecycle hook installed. No product code or historical MP4 run evaluated.",
+  "results": [
+    {
+      "id": "A",
+      "scenario": "Missing token section",
+      "expected": "BLOCK",
+      "decision": "BLOCK",
+      "reasons": [
+        "Missing ### Token count"
+      ]
+    },
+    {
+      "id": "B",
+      "scenario": "Source edited after passing check",
+      "expected": "BLOCK",
+      "decision": "BLOCK",
+      "reasons": [
+        "Source changed after verification"
+      ]
+    },
+    {
+      "id": "C",
+      "scenario": "Required sections and matching source",
+      "expected": "ALLOW",
+      "decision": "ALLOW",
+      "reasons": []
+    },
+    {
+      "id": "D",
+      "scenario": "False narrative added to complete log",
+      "expected": "ALLOW",
+      "decision": "ALLOW",
+      "reasons": []
+    }
+  ],
+  "limitation": "Case D passes deliberately: format and freshness checks cannot establish narrative truth. Verification metadata is fixture input, not authenticated tool telemetry."
+}

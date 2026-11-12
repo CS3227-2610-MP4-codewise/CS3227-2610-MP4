@@ -1,0 +1,173 @@
+{
+  "generatedAt": "2026-11-10T03:12:36.388Z",
+  "scope": "Executed deterministic scheduling simulation using assumed durations; not recovered or measured MP4 results",
+  "assumptions": [
+    "Same task durations, review and repair in both conditions",
+    "Server, UI implementation and test design can start from an agreed interface",
+    "Three independent implementation slots, no resource contention",
+    "No interface churn or extra rework beyond the stated coordination allowance",
+    "Integration, test execution, review and repair remain sequential"
+  ],
+  "assumedMinutes": {
+    "agreeContract": 6,
+    "serverImplementation": 18,
+    "uiImplementation": 14,
+    "designTests": 8,
+    "integrate": 8,
+    "executeTests": 4,
+    "review": 10,
+    "repairAndRecheck": 6
+  },
+  "sequential": {
+    "mode": "sequential",
+    "coordination": 0,
+    "elapsedModelMinutes": 74,
+    "intervals": [
+      {
+        "name": "agreeContract",
+        "start": 0,
+        "end": 6,
+        "duration": 6
+      },
+      {
+        "name": "serverImplementation",
+        "start": 6,
+        "end": 24,
+        "duration": 18
+      },
+      {
+        "name": "uiImplementation",
+        "start": 24,
+        "end": 38,
+        "duration": 14
+      },
+      {
+        "name": "designTests",
+        "start": 38,
+        "end": 46,
+        "duration": 8
+      },
+      {
+        "name": "integrate",
+        "start": 46,
+        "end": 54,
+        "duration": 8
+      },
+      {
+        "name": "executeTests",
+        "start": 54,
+        "end": 58,
+        "duration": 4
+      },
+      {
+        "name": "review",
+        "start": 58,
+        "end": 68,
+        "duration": 10
+      },
+      {
+        "name": "repairAndRecheck",
+        "start": 68,
+        "end": 74,
+        "duration": 6
+      }
+    ]
+  },
+  "parallel": {
+    "mode": "parallel",
+    "coordination": 4,
+    "elapsedModelMinutes": 56,
+    "intervals": [
+      {
+        "name": "agreeContract",
+        "start": 0,
+        "end": 6,
+        "duration": 6
+      },
+      {
+        "name": "extraCoordination",
+        "start": 6,
+        "end": 10,
+        "duration": 4
+      },
+      {
+        "name": "serverImplementation",
+        "start": 10,
+        "end": 28,
+        "duration": 18
+      },
+      {
+        "name": "uiImplementation",
+        "start": 10,
+        "end": 24,
+        "duration": 14
+      },
+      {
+        "name": "designTests",
+        "start": 10,
+        "end": 18,
+        "duration": 8
+      },
+      {
+        "name": "integrate",
+        "start": 28,
+        "end": 36,
+        "duration": 8
+      },
+      {
+        "name": "executeTests",
+        "start": 36,
+        "end": 40,
+        "duration": 4
+      },
+      {
+        "name": "review",
+        "start": 40,
+        "end": 50,
+        "duration": 10
+      },
+      {
+        "name": "repairAndRecheck",
+        "start": 50,
+        "end": 56,
+        "duration": 6
+      }
+    ]
+  },
+  "elapsedReductionPercent": 24.3,
+  "speedupRatio": 1.32,
+  "breakEvenExtraCoordinationMinutes": 22,
+  "sensitivity": [
+    {
+      "extraCoordinationMinutes": 0,
+      "elapsedModelMinutes": 52,
+      "reductionPercent": 29.7
+    },
+    {
+      "extraCoordinationMinutes": 4,
+      "elapsedModelMinutes": 56,
+      "reductionPercent": 24.3
+    },
+    {
+      "extraCoordinationMinutes": 10,
+      "elapsedModelMinutes": 62,
+      "reductionPercent": 16.2
+    },
+    {
+      "extraCoordinationMinutes": 18,
+      "elapsedModelMinutes": 70,
+      "reductionPercent": 5.4
+    },
+    {
+      "extraCoordinationMinutes": 22,
+      "elapsedModelMinutes": 74,
+      "reductionPercent": 0
+    },
+    {
+      "extraCoordinationMinutes": 26,
+      "elapsedModelMinutes": 78,
+      "reductionPercent": -5.4
+    }
+  ],
+  "limitation": "This model illustrates conditional elapsed-time savings. It does not measure agent productivity, monetary cost, token usage, quality or historical MP4 speedup."
+}

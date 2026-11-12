@@ -119,3 +119,51 @@ Owner: Darryl. Requirements: AUTH-01-03, COU-01-07, SUB-01-04, GRADE-01-04, PROG
 - Explicit feature-skill invocation limited to substantive implementation iterations; audits, documentation reconciliation, evaluation and release preparation use ordinary project workflows. Broad first entry orchestrates bounded iterations rather than invoking one giant feature.
 - Preserved brief approval/manual acceptance, exact revision review, existing policy agreements and explicit live-operation/release gates. No user authorization for implementation, agents, mail, provider calls or deployment inferred from prompt drafting.
 - No product edits/tests performed. Findings remain based on the preceding local af1bc90 scan; remote freshness and previously reported lint failure are not reverified or claimed repaired.
+
+## Prompt FIN-05 - 2026-11-12 Asia/Singapore (time unavailable)
+
+**Prompt (redacted):** Replace repeatedly blocked D3 with prompts that resolve routine undecided items and continue implementation toward project completion.
+
+### Agents spawned
+
+- New agents: None; current-state inspection and prompt synthesis do not benefit from delegation.
+- Reused agents: None.
+- Main agent: /root, Codex; exact model identifier unavailable.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main /root | unavailable | unavailable | unavailable | unavailable | current turn ID unavailable | provisional |
+| Children (none) | 0 | 0 | 0 | 0 | observed no delegation | final activity coverage |
+
+- Total unavailable. Earlier FIN prompt reconciliation remains unavailable; private recorder refresh previously failed EPERM outside writable roots, and no fresh attributable measurement is available. Preserve earlier entries and count no shared turn twice. Current final response excluded.
+
+### Experiment outcome
+
+- Inspected current local main 8db7795, dirty tree, RSAI handoff/log, conflict review, student-drafts ownership windows and integration task. No remote freshness claim.
+- Producer/catalog already exist; current conflict review resolves fingerprint/key scope to later recorded contract. Actual C-REL student composition remains a separate authorization issue; do not weaken instructor-only catalog or invent Keith approval.
+- Existing in-progress ReviewWorkspace/test/evidence changes preserved. Real D1 verification remains blocked by Miniflare EACCES in the other session; full check also records a pre-existing simulation lint error. No tests rerun by prompt drafting.
+- Prepared three remaining entry prompts with bounded decision authority, Darryl-owned compatibility-preserving composition, explicit decision acceptance, read-only independent review authorization for future execution, continued unblocked work, honest environment limitations and separate student ownership/provider/release gates.
+- No product implementation, external mutation or agent spawning authorized/executed merely by drafting these prompts. No optimality or completed-review claim.
+
+
+## Prompt FIN-06 — 2026-11-12 (time unavailable)
+
+**Prompt (redacted):** Commit remaining uncommitted changes, push and create a pull request.
+
+### Agents spawned
+
+- New: none; the requested inventory, commit and publication are sequential. Reused: none. Main: /root, model unavailable.
+
+### Token count
+
+| Agent | Input | Cached input | Output | Total | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | current turn | provisional; reconcile next checkpoint |
+| Children | none | none | none | none | observed | no children |
+
+### Experiment outcome
+
+- Inspected the remaining planning log and two synthetic presentation demonstrations; separate nested worktrees are preserved. Preparing a PR from the current remote main. No provider calls or deployment; no controlled comparison.
+- Verification: `node --check` passed for both scripts; focused ESLint passed; both existing result files parse as JSON. Scripts were not rerun to avoid overwriting historical results. Recorder project scope matched; report refresh failed EPERM writing outside the workspace, so current usage remains unavailable. PR outcome is pending at this checkpoint.
