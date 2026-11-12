@@ -2,7 +2,7 @@
 import React from 'react';
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { AssessmentWorkspace } from '../../src/web/instructor/assessments/AssessmentWorkspace';
 import type {
   AssessmentController,
@@ -51,11 +51,9 @@ describe.skipIf(process.env.SOCLAAS_EVAL_UI !== 'true')(
           preview: true,
         }),
       );
-      const heading = screen.getByText('Private AI suggestion');
-      const region = heading.parentElement!;
-      const summary = within(region).getByText('Question 1: Positive sum');
-      fireEvent.click(summary);
-      expect(summary.closest('details')?.open).toBe(true);
+      const region = screen.getByRole('region', {
+        name: 'AI-assisted grading',
+      });
       for (const criterion of result.payload.criteria) {
         expect(region.textContent).toContain(criterion.explanation);
         expect(region.textContent).toContain(
@@ -63,7 +61,9 @@ describe.skipIf(process.env.SOCLAAS_EVAL_UI !== 'true')(
         );
       }
       expect(
-        within(region).getByRole('button', { name: 'Adopt AI draft' }),
+        within(region).getByRole('button', {
+          name: 'Apply AI draft to feedback',
+        }),
       ).toBeTruthy();
     });
   },

@@ -28,3 +28,7 @@ A live synthetic blank answer received maximum scores with contradictory explana
 
 For the repeated Q2 contradiction, the prompt now generally requires numeric scores to agree with their explanations and forbids awarding full credit while explaining failure. This does not change the rubric or expected scores; only a live rerun can assess the effect. [GRADE-02, AI-02/05]
 The model also attributed feedback to the private reference in Q4. The assessment prompt explicitly forbids quoting or revealing reference solutions in feedback and asks it to cite submitted source only; this instruction is not a deterministic privacy guarantee and must be evaluated. [AI-02/05]
+
+## Instructor interaction refresh — 2026-11-13
+
+User-authorized extension: simplify instructor generation and candidate presentation, prioritize submitted source beside editable feedback, improve authoring guidance, and remove repeated focus-triggered authorization cycles. Keep warm-workbook-v1 and UI-01/04/05/06/07/08. Preserve private reference opt-in, full rationale accessibility, dirty work, explicit all-question adoption, approval/release and source evidence. This presentation change does not modify the model prompt or make grading accuracy claims. Foreground checks distinguish real window/tab return from internal focus restoration, coalesce concurrent checks and retain fail-closed authorization behavior.

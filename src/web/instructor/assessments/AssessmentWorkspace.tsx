@@ -24,6 +24,7 @@ import {
   draftSourceLines,
 } from './presentation';
 import { AssessmentController } from './controller';
+import { AIDraftPanel } from './AIDraftPanel';
 import './styles.css';
 export function AssessmentWorkspace({
   controller,
@@ -58,7 +59,6 @@ export function AssessmentWorkspace({
       end: number;
       answerId: string;
     } | null>(null),
-    [includePrivateReferences, setIncludePrivateReferences] = useState(false),
     [withdrawVersion, setWithdrawVersion] = useState<number | null>(null),
     [reason, setReason] = useState(''),
     [audit, setAudit] = useState(''),
@@ -85,9 +85,6 @@ export function AssessmentWorkspace({
     setPublicFeedback(null);
     setPublicStatus('');
   }, [id, v?.head.availabilityRevision]);
-  useEffect(() => {
-    setIncludePrivateReferences(false);
-  }, [v?.head.id, v?.head.headRevisionId]);
   useEffect(() => {
     setQuestion(0);
     resetNote();
@@ -346,6 +343,9 @@ export function AssessmentWorkspace({
       : [];
   return (
     <div className="assessment-app">
+      <a className="cw-skip-link" href="#assessment-main">
+        Skip to grading
+      </a>
       <header className="assessment-top">
         <Brand href={preview ? '/' : '/workspace'} />
         {preview ? (
@@ -379,7 +379,7 @@ export function AssessmentWorkspace({
       {!preview && v && (
         <CourseNavigation courseId={v.head.courseId} active="grading" />
       )}
-      <main>
+      <main id="assessment-main">
         <div className="assessment-title">
           <div>
             <p className="assessment-eyebrow">
@@ -392,7 +392,7 @@ export function AssessmentWorkspace({
           </div>
           <div className="assessment-actions">
             <button
-              className="cw-text-action"
+              className="assessment-reload"
               onClick={() => void open()}
               disabled={!!s.busy}
             >
@@ -417,111 +417,30 @@ export function AssessmentWorkspace({
               : 'Loading assessment…')}
         </p>
         {v && !historical && (
-          <details className="assessment-context assessment-ai">
-            <summary>
-              AI assessment draft{s.candidate ? ' · Ready to review' : ''}
-            </summary>
-            {(preview || v.attempt.attemptId.startsWith('sample_')) && (
-              <p>
-                Sample only: no model is used. Suggested scores start at the
-                rubric minimum and are not grades.
-              </p>
-            )}
-            <p>Review suggestions before approval. Code is not executed.</p>
-            {s.aiPending ? (
-              <p>
-                Resuming may send the saved request to the AI provider if it has
-                not started. It uses the original reference selection and may
-                include instructor-only reference solutions.
-              </p>
-            ) : (
-              <label>
-                <input
-                  type="checkbox"
-                  checked={includePrivateReferences}
-                  disabled={!!s.busy || s.aiPending}
-                  onChange={(event) =>
-                    setIncludePrivateReferences(event.target.checked)
-                  }
-                />
-                <span>Include instructor-only reference solutions</span>
-              </label>
-            )}
-            <button
-              className="cw-text-action"
-              disabled={!!s.busy || (!s.aiPending && (s.dirty || noteDirty))}
-              onClick={() =>
-                void (s.aiPending
-                  ? controller.checkAI()
-                  : controller.generateAI(includePrivateReferences))
-              }
-            >
-              {s.aiPending ? 'Resume or check draft' : 'Generate draft'}
-            </button>
-            {(s.dirty || noteDirty) && (
-              <p>
-                Save your draft and finish any observation before generating or
-                adopting.
-              </p>
-            )}
-            {s.candidate && (
-              <div>
-                <h3>Private AI suggestion</h3>
-                <p>
-                  Check scores and source observations before adopting this
-                  draft. Remove private reference content before releasing
-                  feedback.
-                </p>
-                {v.publication.questions.map((question, index) => (
-                  <details key={question.questionVersionId}>
-                    <summary>
-                      Question {index + 1}: {question.title}
-                    </summary>
-                    <ul>
-                      {s
-                        .candidate!.payload.criteria.filter(
-                          (item) =>
-                            item.questionVersionId ===
-                            question.questionVersionId,
-                        )
-                        .map((item) => (
-                          <li key={item.criterionId}>
-                            {question.criteria.find(
-                              (criterion) =>
-                                criterion.criterionId === item.criterionId,
-                            )?.descriptor ?? item.criterionId}
-                            : {item.score} / {item.maximumScore} —{' '}
-                            {item.explanation}
-                          </li>
-                        ))}
-                      {s
-                        .candidate!.payload.annotations.filter(
-                          (item) =>
-                            item.questionVersionId ===
-                            question.questionVersionId,
-                        )
-                        .map((item, noteIndex) => (
-                          <li key={'note-' + noteIndex}>
-                            Lines {item.startLine}–{item.endLine}:{' '}
-                            {item.excerpt} — {item.explanation}
-                          </li>
-                        ))}
-                    </ul>
-                  </details>
-                ))}
-                {s.candidate.payload.reviewFlags.map((flag, index) => (
-                  <p key={index}>{flag}</p>
-                ))}
-                <button
-                  className="cw-action"
-                  disabled={!!s.busy || s.dirty || noteDirty}
-                  onClick={() => void controller.adoptAI()}
-                >
-                  Adopt AI draft
-                </button>
-              </div>
-            )}
-          </details>
+          <AIDraftPanel
+            key={v.head.id + ':' + v.head.headRevisionId}
+            publication={v.publication}
+            candidate={s.candidate?.payload}
+            pending={s.aiPending}
+            busy={!!s.busy}
+            blocked={s.dirty || noteDirty}
+            synthetic={preview || v.attempt.attemptId.startsWith('sample_')}
+            questionIndex={question}
+            onQuestionChange={(index) => {
+              if (
+                noteDirty &&
+                !window.confirm(
+                  'Discard the unfinished comment and change question?',
+                )
+              )
+                return;
+              resetNote();
+              setQuestion(index);
+            }}
+            onGenerate={(references) => void controller.generateAI(references)}
+            onResume={() => void controller.checkAI()}
+            onAdopt={() => void controller.adoptAI()}
+          />
         )}
         {!v || !feedback || !q || !answer ? (
           <section className="assessment-empty">
@@ -531,7 +450,7 @@ export function AssessmentWorkspace({
         ) : (
           <>
             <details className="assessment-context">
-              <summary>Attempt and version details</summary>
+              <summary>Submission details</summary>
               <dl>
                 <dt>Submitted</dt>
                 <dd>{new Date(v.attempt.submittedAt).toLocaleString()}</dd>
@@ -550,81 +469,6 @@ export function AssessmentWorkspace({
               </dl>
             </details>
             <div className="assessment-sheet">
-              <section
-                className="assessment-question"
-                aria-labelledby="assessment-question"
-              >
-                <p className="assessment-eyebrow">
-                  Question {question + 1} of {v.publication.questions.length}
-                </p>
-                <h2 id="assessment-question" ref={heading} tabIndex={-1}>
-                  {q.title}
-                </h2>
-                <details className="assessment-brief" open>
-                  <summary>Question instructions</summary>
-                  <p className="assessment-instructions">{q.instructions}</p>
-                </details>
-                <h3>Rubric</h3>
-                {q.criteria.map((c) => {
-                  const index = feedback.criteria.findIndex(
-                      (f) =>
-                        f.questionVersionId === q.questionVersionId &&
-                        f.criterionId === c.criterionId,
-                    ),
-                    score = feedback.criteria[index],
-                    error = scoreError(
-                      score.score,
-                      c.minimumScore,
-                      c.maximumScore,
-                    ),
-                    errorId = `score-error-${question}-${index}`;
-                  return (
-                    <fieldset key={c.criterionId} disabled={locked}>
-                      <legend>{c.descriptor}</legend>
-                      <label>
-                        Score{' '}
-                        <span className="assessment-secondary">
-                          / {c.maximumScore}
-                        </span>
-                        <input
-                          type="number"
-                          min={c.minimumScore}
-                          max={c.maximumScore}
-                          step="any"
-                          aria-invalid={!!error}
-                          aria-describedby={error ? errorId : undefined}
-                          value={score.score ?? ''}
-                          onChange={(e) => {
-                            const criteria = structuredClone(feedback.criteria);
-                            criteria[index].score =
-                              e.target.value === ''
-                                ? null
-                                : Number(e.target.value);
-                            edit({ ...feedback, criteria });
-                          }}
-                        />
-                        {error && (
-                          <span id={errorId} role="alert">
-                            {error}
-                          </span>
-                        )}
-                      </label>
-                      <label>
-                        Explanation
-                        <textarea
-                          rows={3}
-                          value={score.explanation}
-                          onChange={(e) => {
-                            const criteria = structuredClone(feedback.criteria);
-                            criteria[index].explanation = e.target.value;
-                            edit({ ...feedback, criteria });
-                          }}
-                        />
-                      </label>
-                    </fieldset>
-                  );
-                })}
-              </section>
               <section
                 className="assessment-work"
                 aria-label="Submitted source and observations"
@@ -876,6 +720,81 @@ export function AssessmentWorkspace({
                   )}
                 </section>
               </section>
+              <section
+                className="assessment-question"
+                aria-labelledby="assessment-question"
+              >
+                <p className="assessment-eyebrow">
+                  Question {question + 1} of {v.publication.questions.length}
+                </p>
+                <h2 id="assessment-question" ref={heading} tabIndex={-1}>
+                  {q.title}
+                </h2>
+                <details className="assessment-brief" open>
+                  <summary>Question instructions</summary>
+                  <p className="assessment-instructions">{q.instructions}</p>
+                </details>
+                <h3>Feedback &amp; scores</h3>
+                {q.criteria.map((c) => {
+                  const index = feedback.criteria.findIndex(
+                      (f) =>
+                        f.questionVersionId === q.questionVersionId &&
+                        f.criterionId === c.criterionId,
+                    ),
+                    score = feedback.criteria[index],
+                    error = scoreError(
+                      score.score,
+                      c.minimumScore,
+                      c.maximumScore,
+                    ),
+                    errorId = `score-error-${question}-${index}`;
+                  return (
+                    <fieldset key={c.criterionId} disabled={locked}>
+                      <legend>{c.descriptor}</legend>
+                      <label>
+                        Score{' '}
+                        <span className="assessment-secondary">
+                          / {c.maximumScore}
+                        </span>
+                        <input
+                          type="number"
+                          min={c.minimumScore}
+                          max={c.maximumScore}
+                          step="any"
+                          aria-invalid={!!error}
+                          aria-describedby={error ? errorId : undefined}
+                          value={score.score ?? ''}
+                          onChange={(e) => {
+                            const criteria = structuredClone(feedback.criteria);
+                            criteria[index].score =
+                              e.target.value === ''
+                                ? null
+                                : Number(e.target.value);
+                            edit({ ...feedback, criteria });
+                          }}
+                        />
+                        {error && (
+                          <span id={errorId} role="alert">
+                            {error}
+                          </span>
+                        )}
+                      </label>
+                      <label>
+                        Feedback for the student
+                        <textarea
+                          rows={3}
+                          value={score.explanation}
+                          onChange={(e) => {
+                            const criteria = structuredClone(feedback.criteria);
+                            criteria[index].explanation = e.target.value;
+                            edit({ ...feedback, criteria });
+                          }}
+                        />
+                      </label>
+                    </fieldset>
+                  );
+                })}
+              </section>
             </div>
             <nav
               className="assessment-pagination"
@@ -963,6 +882,7 @@ export function AssessmentWorkspace({
                 ) : (
                   <>
                     <button
+                      className={s.dirty ? 'cw-action' : undefined}
                       disabled={!s.dirty || !!s.busy || noteDirty}
                       onClick={() => void controller.save()}
                     >
@@ -979,7 +899,13 @@ export function AssessmentWorkspace({
                         !!s.busy ||
                         s.dirty ||
                         noteDirty ||
-                        v.head.approvedRevisionId === v.head.headRevisionId
+                        v.head.approvedRevisionId === v.head.headRevisionId ||
+                        invalidScores.length > 0 ||
+                        invalidEvidence ||
+                        feedback.criteria.some(
+                          (item) =>
+                            item.score === null || !item.explanation.trim(),
+                        )
                       }
                       onClick={() => void controller.action('approve')}
                     >
