@@ -39,7 +39,7 @@ Totals: 18 passed, 0 failed (18 items)
 > vitest run && node --test workflow/scripts/deployment.test.mjs
 
 
- RUN  v4.1.12 /Users/keith/Documents/CS3227-2610-MP4
+ RUN  v4.1.12 ~/Documents/CS3227-2610-MP4
 
 Not implemented: navigation to another Document
 

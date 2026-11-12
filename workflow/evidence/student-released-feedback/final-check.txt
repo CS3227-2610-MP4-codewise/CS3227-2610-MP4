@@ -1,0 +1,105 @@
+
+> codewise@0.1.0 check
+> npm run specs:validate && npm run typecheck && npm run lint && npm run test && npm run build
+
+
+> codewise@0.1.0 specs:validate
+> openspec validate --all --strict
+
+✓ change/codewise-mvp
+✓ change/course-onboarding
+✓ change/experiment-turn-activity
+✓ change/formatted-assignment-instructions
+✓ change/instructor-ai-assessment
+✓ change/instructor-assessment-lifecycle
+✓ change/instructor-assignment-publication
+✓ change/instructor-authoring-ux
+✓ change/instructor-development-contracts
+✓ change/measured-evaluation
+✓ change/project-experiment-tracker
+✓ change/project-readiness
+  ℹ [INFO] file: skip_specs is set in .openspec.yaml: change declares no spec-level behavior changes, zero deltas accepted
+✓ change/secure-ai-gateway
+✓ change/shared-authentication
+✓ change/student-assignment-dashboard
+✓ change/student-released-feedback
+✓ spec/student-submissions
+✓ change/warm-workbook-ui
+Totals: 18 passed, 0 failed (18 items)
+
+> codewise@0.1.0 typecheck
+> tsc --noEmit
+
+
+> codewise@0.1.0 lint
+> eslint .
+
+
+> codewise@0.1.0 test
+> vitest run && node --test workflow/scripts/deployment.test.mjs
+
+
+ RUN  v4.1.12 ~/Documents/CS3227-2610-MP4
+
+Not implemented: navigation to another Document
+
+ Test Files  57 passed (57)
+      Tests  700 passed (700)
+   Start at  00:01:21
+   Duration  32.30s (transform 2.62s, setup 0ms, import 16.64s, tests 192.68s, environment 3.06s)
+
+TAP version 13
+# Subtest: OPS-01: generated config contains only the selected environment and database
+ok 1 - OPS-01: generated config contains only the selected environment and database
+  ---
+  duration_ms: 0.939375
+  type: 'test'
+  ...
+# Subtest: OPS-01: missing, shared, or placeholder databases fail closed
+ok 2 - OPS-01: missing, shared, or placeholder databases fail closed
+  ---
+  duration_ms: 0.143334
+  type: 'test'
+  ...
+# Subtest: OPS-02: release rejects mismatched artifacts, another run and stale main
+ok 3 - OPS-02: release rejects mismatched artifacts, another run and stale main
+  ---
+  duration_ms: 0.18825
+  type: 'test'
+  ...
+# Subtest: OPS-02: production is a dependent approval-gated job, never a PR deployment
+ok 4 - OPS-02: production is a dependent approval-gated job, never a PR deployment
+  ---
+  duration_ms: 7.357083
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 71.567583
+
+> codewise@0.1.0 build
+> vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 385 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/index.html                               0.51 kB │ gzip:   0.31 kB
+dist/client/assets/Workbook-C55GVfzC.css             9.86 kB │ gzip:   2.61 kB
+dist/client/assets/index-DOpJ2ULN.css               34.87 kB │ gzip:   7.06 kB
+dist/client/assets/InstructionPreview-BPnKVlYe.js    0.15 kB │ gzip:   0.15 kB
+dist/client/assets/Workbook-DAw_rgC2.js             60.77 kB │ gzip:  18.11 kB
+dist/client/assets/index-oT_4aJG2.js               749.38 kB │ gzip: 222.64 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.04s

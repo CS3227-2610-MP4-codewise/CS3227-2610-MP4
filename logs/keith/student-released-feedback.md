@@ -306,3 +306,42 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 60048626; cached input subset 58998061; output 266082; reasoning output subset unavailable; total 60314708.
 - Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:final-checks-2026-11-13 -->
+<!-- experiment-turns:final-checks-2026-11-13:2f2577f21132b230,b6326942eea1e008 -->
+## Checkpoint `final-checks-2026-11-13` — 2026-11-12T16:02:38.919988+00:00
+
+### Request
+
+Run 6.1: final validation, npm run check and privacy/security review.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator agent review, no agents spawned; recorded separately from Keith's and Darryl's). openspec validate --strict exit 0; npm run check exit 0 (18/18 specs, 57 files/700 tests, 4/4 deployment, build). Review checklist all pass: closed DTOs, no private fields in bodies/errors/DOM, authority before any producer call (zero producer calls for denied callers), batched producer authorization with SQL revocation re-check, currentness gating, no-store and no client cache, Prism escaping verified, bound SQL parameters, no execution path, no secrets or identities committed. Findings: S1 medium, feedback reads not rate-limited (~33 production D1 queries per open); S2 informational (metadata-only path skips the evidence check, agreed); S3 redacted one home path in UI-review check output. 6.1 ticked (16/19).
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-released-feedback/final-checks.md; workflow/evidence/student-released-feedback/final-check.txt.
+- Remaining limitations and next owner: Keith decides S1 (limiter, accept, or defer); then 6.2 handoff; 5.3 pending Darryl; 6.3 after merge..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:00:22.131Z | open | provisional | claude-opus-5-5 | medium | 8602 | 3215 | 8602 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T15:53:22.894Z | provisional | final | 5787 | 1034 | 5787 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 62355399; cached input subset 61296928; output 275263; reasoning output subset unavailable; total 62630662.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
