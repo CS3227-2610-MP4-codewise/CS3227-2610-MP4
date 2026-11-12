@@ -17,7 +17,7 @@ Planning is complete, but that does not mean implementation or review is. Every 
 
 - [x] 3.1 Add `GET /api/student/attempts/:attemptId/feedback` and `.../feedback/:releaseVersion` to `studentHandler` (design D2): session, then the guarded own-attempt read, then `attemptReleases`, then `getAuthorized`, then `assertCurrentRelease` and the currentness re-check. Without a port, respond 503. **Verify:** integration tests on local D1 with the fake cover no session (401); another student, an instructor, a revoked member and foreign or unknown IDs getting the same 404 with no producer call; none, released, superseded and withdrawn; a race returning 409 `STALE_FEEDBACK`; a mismatched assessment or attempt ID not shown as current; `no-store`; and bodies with no draft or private keys. Document the routes in `src/server/student/README.md`. [SF-01, SF-02, SF-05, REL-01/02, AUTH-02]
 - [x] 3.2 Add `feedbackReleased` to the attempt-history rows with one batched `attemptReleases` call per page. **Verify:** tests cover a mixed page (only the current release flagged), withdrawn-only and stale rows false, the port absent giving false with the list still 200, and exactly one producer call per page. [SF-07]
-- [ ] 3.3 Measure D1 reads per feedback open and per history page on local D1 with the fake and, after 5.2, with the real producer. **Verify:** `workflow/evidence/student-released-feedback/read-cost.md` records the counts and timings. [SF-07, OPS-01]
+- [x] 3.3 Measure D1 reads per feedback open and per history page on local D1 with the fake and, after 5.2, with the real producer. **Verify:** `workflow/evidence/student-released-feedback/read-cost.md` records the counts and timings. [SF-07, OPS-01]
 
 ## 4. Attempt-view feedback UI
 

@@ -136,3 +136,45 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 26996448; cached input subset 26516928; output 158359; reasoning output subset 35949; total 27154807.
 - Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:conformance-2026-11-12 -->
+<!-- experiment-turns:conformance-2026-11-12:cc60ef595e1ff32c,80b3e0fadcfc752c,2222089f78e91e61,7da77a3183864758,e95a7eb974445c40 -->
+## Checkpoint `conformance-2026-11-12` — 2026-11-12T04:38:47.368313+00:00
+
+### Request
+
+Record Darryl's review as accepted (no findings or conditions), commit and push, then continue: 5.3 conformance and 3.3 read cost.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents). Recorded Darryl's reported acceptance in the new handoff, Ownership.md and IntegrationContracts.md; ticked 5.2; pushed ac155f7 to PR #32. 5.3: verifyAssessmentProducer passes from the consumer over the composed producer (reads via studentReleasePort as the student, cross-checked with HTTP routes); releaseContractSuite properties pass on real values, but the suite as written fails one check because it hard-codes availabilityRevision 2 and the real producer is already at 2 after the first release; finding and fix suggestion for Darryl; 5.3 left open. 3.3: measured on local D1 at 1edbb16; real released open 30 round trips, history about 3 per attempt (66 for 20), fake 1; OPS-01 finding against the per-invocation D1 query limit (plan unverified); 3.3 ticked. npm run check exit 0 (57 files/697 tests). Rework: first read-count instrumentation returned zeros and was redone with a Proxy.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-released-feedback/conformance.md; workflow/evidence/student-released-feedback/read-cost.md; workflow/handoffs/student-released-feedback.md.
+- Remaining limitations and next owner: Keith: decide the OPS-01 history-cost option and whether to send Darryl the suite fix; then 4.4 UI review, 5.4 composed acceptance, 6.1, 6.2..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T04:27:40.683Z | 2026-11-12T04:27:50.501Z | final | claude-opus-5-5 | medium | 682 | 222 | 682 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T04:27:52.806Z | 2026-11-12T04:28:44.464Z | final | claude-opus-5-5 | medium | 3901 | 328 | 3901 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T04:30:43.677Z | 2026-11-12T04:31:31.654Z | final | claude-opus-5-5 | medium | 4423 | 1016 | 4423 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T04:32:17.834Z | open | provisional | claude-opus-5-5 | medium | 28564 | 7194 | 28564 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T03:16:04.606Z | provisional | final | 22415 | 6693 | 22415 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 36351109; cached input subset 35819472; output 196746; reasoning output subset 44709; total 36547855.
+- Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
