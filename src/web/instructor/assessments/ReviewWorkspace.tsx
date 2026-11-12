@@ -422,7 +422,7 @@ export function ReviewWorkspace() {
               </section>
             )}
             {publication && (
-              <section className="assessment-review">
+              <section className="assessment-submissions">
                 <div>
                   <h2>Submissions</h2>
                   <p>{publication.title}</p>
@@ -439,19 +439,29 @@ export function ReviewWorkspace() {
                         : 'Submission integration is not available yet.'}
                     </p>
                   )}
-                  {attempts.map((attempt) => (
-                    <div key={attempt.attemptId}>
-                      <p>{attempt.label}</p>
-                      <button
-                        className="cw-action"
-                        disabled={busy}
-                        onClick={() => void open(attempt)}
-                      >
-                        <Icon name="arrow-right" />
-                        {attempt.sample ? 'Assess sample' : 'Assess submission'}
-                      </button>
-                    </div>
-                  ))}
+                  <ul className="cw-work-list">
+                    {attempts.map((attempt) => (
+                      <li key={attempt.attemptId}>
+                        <div>
+                          <h3>{attempt.label}</h3>
+                          <p>
+                            Submitted{' '}
+                            {new Date(attempt.submittedAt).toLocaleString()}
+                          </p>
+                        </div>
+                        <button
+                          className="cw-row-action"
+                          disabled={busy}
+                          onClick={() => void open(attempt)}
+                        >
+                          {attempt.sample
+                            ? 'Assess sample'
+                            : 'Assess submission'}
+                          <Icon name="arrow-right" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </section>
             )}

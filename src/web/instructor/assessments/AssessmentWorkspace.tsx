@@ -313,6 +313,37 @@ export function AssessmentWorkspace({
       return null;
     }
   })();
+  const scoreError = (
+    value: number | null,
+    minimum: number,
+    maximum: number,
+  ) => {
+    if (value === null) return '';
+    if (!Number.isFinite(value) || value < minimum || value > maximum)
+      return `Enter a score between ${minimum} and ${maximum}.`;
+    try {
+      hundredths(value);
+      return '';
+    } catch {
+      return 'Enter a score with at most two decimal places.';
+    }
+  };
+  const invalidScores =
+    v && feedback
+      ? v.publication.questions.flatMap((item) =>
+          item.criteria.flatMap((c) => {
+            const value =
+              feedback.criteria.find(
+                (f) =>
+                  f.questionVersionId === item.questionVersionId &&
+                  f.criterionId === c.criterionId,
+              )?.score ?? null;
+            return scoreError(value, c.minimumScore, c.maximumScore)
+              ? [item.title]
+              : [];
+          }),
+        )
+      : [];
   return (
     <div className="assessment-app">
       <header className="assessment-top">
@@ -368,14 +399,6 @@ export function AssessmentWorkspace({
               <Icon name="refresh" />
               Reload
             </button>
-            <button
-              className="cw-action"
-              disabled={!s.dirty || !!s.busy || historical || noteDirty}
-              onClick={() => void controller.save()}
-            >
-              <Icon name="save" />
-              Save draft
-            </button>
           </div>
         </div>
         <p className="assessment-status" role="status" aria-live="polite">
@@ -394,7 +417,7 @@ export function AssessmentWorkspace({
               : 'Loading assessment…')}
         </p>
         {v && !historical && (
-          <details className="assessment-context">
+          <details className="assessment-context assessment-ai">
             <summary>
               AI assessment draft{s.candidate ? ' · Ready to review' : ''}
             </summary>
@@ -548,7 +571,13 @@ export function AssessmentWorkspace({
                         f.questionVersionId === q.questionVersionId &&
                         f.criterionId === c.criterionId,
                     ),
-                    score = feedback.criteria[index];
+                    score = feedback.criteria[index],
+                    error = scoreError(
+                      score.score,
+                      c.minimumScore,
+                      c.maximumScore,
+                    ),
+                    errorId = `score-error-${question}-${index}`;
                   return (
                     <fieldset key={c.criterionId} disabled={locked}>
                       <legend>{c.descriptor}</legend>
@@ -562,6 +591,8 @@ export function AssessmentWorkspace({
                           min={c.minimumScore}
                           max={c.maximumScore}
                           step="any"
+                          aria-invalid={!!error}
+                          aria-describedby={error ? errorId : undefined}
                           value={score.score ?? ''}
                           onChange={(e) => {
                             const criteria = structuredClone(feedback.criteria);
@@ -572,6 +603,11 @@ export function AssessmentWorkspace({
                             edit({ ...feedback, criteria });
                           }}
                         />
+                        {error && (
+                          <span id={errorId} role="alert">
+                            {error}
+                          </span>
+                        )}
                       </label>
                       <label>
                         Explanation
@@ -901,11 +937,13 @@ export function AssessmentWorkspace({
                     : feedback.criteria.every((c) => c.score === null)
                       ? 'No scores yet.'
                       : `Total entered: ${total / 100} points.`}{' '}
-                  {feedback.criteria.some(
-                    (c) => c.score === null || !c.explanation.trim(),
-                  )
-                    ? 'Add a score and explanation for every rubric item in all questions before approving.'
-                    : 'All rubric items have a score and explanation.'}
+                  {invalidScores.length > 0
+                    ? `Correct invalid scores in: ${[...new Set(invalidScores)].join(', ')}.`
+                    : feedback.criteria.some(
+                          (c) => c.score === null || !c.explanation.trim(),
+                        )
+                      ? 'Add a score and explanation for every rubric item in all questions before approving.'
+                      : 'All rubric items have a score and explanation.'}
                 </p>
               </div>
               <div className="assessment-actions">
@@ -924,6 +962,13 @@ export function AssessmentWorkspace({
                   </>
                 ) : (
                   <>
+                    <button
+                      disabled={!s.dirty || !!s.busy || noteDirty}
+                      onClick={() => void controller.save()}
+                    >
+                      <Icon name="save" />
+                      Save draft
+                    </button>
                     <button
                       className={
                         v.head.approvedRevisionId === v.head.headRevisionId
