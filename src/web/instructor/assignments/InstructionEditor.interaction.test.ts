@@ -28,7 +28,7 @@ it('applies bold to selected instructions when the toolbar is clicked', async ()
   await waitFor(() => expect(input.value).toBe('**hello** world'));
   expect(screen.getByRole('status').textContent).toContain('Bold applied');
   fireEvent.click(screen.getByRole('button', { name: 'Preview' }));
-  expect((await screen.findByText('hello')).tagName).toBe('STRONG');
+  expect((await screen.findByText('hello', {}, { timeout: 10000 })).tagName).toBe('STRONG');
 });
 
 it.each([

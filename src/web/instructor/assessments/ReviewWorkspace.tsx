@@ -189,7 +189,7 @@ export function ReviewWorkspace() {
           },
           '$.attempts',
           0,
-          100,
+          1000,
         );
       if (current !== epoch.current) return;
       setPublication(pub);

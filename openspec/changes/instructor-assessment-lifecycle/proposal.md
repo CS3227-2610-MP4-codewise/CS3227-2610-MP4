@@ -39,3 +39,7 @@ Darryl requested one sign-in → course → assignment authoring/publication →
 ## Approved UX continuation — IAL-11
 
 Darryl approved simplifying auth/invitations/course navigation/instructor authoring and assessment controls using FoC User Service interaction patterns, while preserving warm-workbook-v1 layout, palette, typography and brand. Native account dropdowns, contextual actions, concise copy and a consistent primary/secondary hierarchy replace scattered account controls and equally weighted buttons. This is presentation only: no student feature, role/auth/provider policy, persistence or contract change. Keep private/public version boundaries, sample/unavailable markers and approval/release separate. UI-01/02/04/05/06/07/08 apply. Main remains authoritative; this is a matching-branch continuation after the requested push.
+
+### Real submission and C-REL continuation — 2026-11-12
+
+Darryl authorized compatible real-producer composition and a distinct request-bound student release reader. The existing D1 submission catalog remains instructor-only; the student reader checks current Student membership and ownership against the same store. The additive C-REL route exposes only validated release/currentness/tombstone projections. Keith retains student UI and exact-revision review; no new Keith approval is claimed. UI changes retain warm-workbook-v1 (UI-04–08), with manual acceptance pending.

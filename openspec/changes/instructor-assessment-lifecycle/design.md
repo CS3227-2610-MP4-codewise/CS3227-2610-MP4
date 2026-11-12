@@ -110,3 +110,7 @@ Reference read-only local FoC-team-12 user-service/frontend/src/App.tsx and Admi
 ## IAL-11 manual rejection and repair — 2026-11-07
 
 Darryl rejected the first interaction pass: raw grading bullets, awkward assignment-only course button, unclear Assignments versus Assessments and inconsistent top tabs. This returns the approved UI scope to implementation, not accepted completion. Course list now provides one Open course destination; global navigation remains Courses/Account; one shared secondary CourseNavigation supplies Assignments/Grading/Students in identical order on authoring, grading, assessment and invitations. Course name is presentation metadata from the existing authorized course list; no inferred roles, roster or extra storage. Grading lists use ruled rows with assignment title/date and labelled View submissions. UI naming changes do not change assessment contracts/routes, approval/release or pending/dirty guards. UI-01/02/04/07/08 apply.
+
+### Real D1 release consumer — 2026-11-12
+
+The request-bound release consumer uses an independent owned-attempt reader with current session, same-course active Student membership and attempt ownership checked in the authoritative D1 store. Authorization is rechecked around projection reads; the existing instructor catalog is unchanged. Currentness is unavailable until a release exists. Published projections and withdrawal tombstones are validated by the existing C-REL schemas; student UI and discovery remain Keith-owned. No new table or submission copy is added.

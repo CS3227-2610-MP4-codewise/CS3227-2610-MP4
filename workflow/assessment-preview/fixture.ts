@@ -190,6 +190,19 @@ export async function fixture(db: D1Database, token = 'synthetic_test_token') {
       identity,
       submissions,
       publicationAdapter(publicationService, r),
+      undefined,
+      undefined,
+      undefined,
+      {
+        async getAuthorized(p, id) {
+          if (
+            state.role !== 'student' ||
+            p.userId !== attempt.submittedByUserId
+          )
+            throw new BoundaryError('FORBIDDEN');
+          return submissions.getAuthorized(p, id);
+        },
+      },
     );
   return {
     repository,
