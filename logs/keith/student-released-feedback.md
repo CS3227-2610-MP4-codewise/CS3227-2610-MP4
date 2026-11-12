@@ -345,3 +345,43 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 62355399; cached input subset 61296928; output 275263; reasoning output subset unavailable; total 62630662.
 - Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:handoff-2026-11-13 -->
+<!-- experiment-turns:handoff-2026-11-13:55bb66db4f015833,9a00f6413ab2c740,232b797a8e918957 -->
+## Checkpoint `handoff-2026-11-13` — 2026-11-12T16:08:17.050865+00:00
+
+### Request
+
+Accept S1 risk; complete 6.2 handoff.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents). Recorded S1 acceptance in final-checks.md, design.md Risks and handoff (8dd9d56). Rewrote workflow/handoffs/student-released-feedback.md from the template: requirement IDs, exact revisions (last code 2b2b7d3, final checks 71800b9), owned files and windows, decisions table, actual verification results with evidence links, findings, resource measurements, Darryl's review status stated as Keith's report, blockers (5.3 Darryl suite fix, 6.3 staging after merge, follow-up per-question views) and next owner. All handoff evidence links resolve. 6.2 ticked (17/19).
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/handoffs/student-released-feedback.md.
+- Remaining limitations and next owner: Darryl: fix releaseContractSuite (5.3) and merge review of PR #32; Keith: mark PR ready, then 6.3 on staging after merge; propose the per-question views follow-up..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:05:14.203Z | 2026-11-12T16:05:37.218Z | final | claude-opus-5-5 | medium | 1467 | 118 | 1467 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:07:29.478Z | open | provisional | claude-opus-5-5 | medium | 5146 | 245 | 5146 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T16:00:22.131Z | provisional | final | 9359 | 3215 | 9359 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 64712902; cached input subset 63643849; output 282633; reasoning output subset unavailable; total 64995535.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
