@@ -468,3 +468,45 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 84472608; cached input subset 82852792; output 319458; reasoning output subset unavailable; total 84792066.
 - Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:close-2026-11-13 -->
+<!-- experiment-turns:close-2026-11-13:595257f541764896,74b57faed50a6f26,6c96cab7b10df850,8be19f12436bb854,f6459c2fa3dad488 -->
+## Checkpoint `close-2026-11-13` — 2026-11-12T18:08:01.735974+00:00
+
+### Request
+
+Record Darryl's decision to hide his route; refresh the PR #32 description; mark the PR ready; stop recording.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents). Recorded Darryl's agreement to hide his assessment-keyed student route (handoff and IntegrationContracts.md, 78f5136). Rewrote the PR #32 title and description through the REST API to match the merged branch (18/19 tasks, 713 tests, conformance fixed, read cost about 22 and about 10, decisions and follow-up). GitHub reports MERGEABLE. Marked PR #32 ready for review. Stopping the recording run in this turn; this turn is counted and remains provisional until a later sync.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/handoffs/student-released-feedback.md; PR #32.
+- Remaining limitations and next owner: Darryl: review the suite fix, merge-review PR #32, hide his route. Keith: 6.3 staging check after merge, then archive; per-question views follow-up change; run tracker sync later to reconcile this final turn..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T18:00:28.969Z | 2026-11-12T18:00:36.330Z | final | claude-opus-5-5 | medium | 604 | 171 | 604 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T18:03:44.847Z | 2026-11-12T18:04:04.520Z | final | claude-opus-5-5 | medium | 1281 | 101 | 1281 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T18:04:49.090Z | 2026-11-12T18:05:21.912Z | final | claude-opus-5-5 | medium | 3113 | 69 | 3113 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T18:07:40.267Z | open | provisional | claude-opus-5-5 | medium | 1167 | 243 | 1167 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T17:56:09.582Z | provisional | final | 7459 | 901 | 7459 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 88752269; cached input subset 87123219; output 326256; reasoning output subset unavailable; total 89078525.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
