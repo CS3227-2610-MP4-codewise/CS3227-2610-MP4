@@ -60,7 +60,7 @@ The order for each request:
 4. Call `getAuthorized` for the chosen version.
 5. For the current-release route, run `assertCurrentRelease(release, currentness, token)` and then call `currentness` once more. If the token changed, respond 409 `STALE_FEEDBACK` (SF-02).
 
-The per-version states (`released`, `superseded`, `withdrawn`) come from the producer's projections, not from inference.
+The per-version states (`released`, `superseded`, `withdrawn`) in the summary are read from the producer's currentness projection (`versionState`): withdrawn when listed as withdrawn, released when it is the current version, otherwise superseded. This is the producer's own rule for one version. The single-version route re-verifies each state against the producer's projection of that version. Fetching every version's projection on each open was rejected: it costs one full producer authorization per version against the Workers Free query limit. (Keith decision, 2026-11-12.)
 
 Error mapping reuses the student error set:
 - Producer `FORBIDDEN`/`NOT_FOUND` → 404.
@@ -93,9 +93,9 @@ There is no Service Worker, no `sessionStorage` and no module-level memo for fee
 
 - **Layout.** The feedback panel sits inside the existing work pane of the attempt view, under the attempt metadata. A per-question criterion table shows criterion, score / bounds and explanation. Source is numbered and monospaced. Annotated lines get a letter marker and the `annotation` token fill plus a left rule (not colour-only). Each marker is a button. A labelled "Observations" list beneath the source has the same buttons.
 - **The note.** Selecting a marker or list entry sets the selected annotation. The note (proportional text, criterion, line range and explanation) sits in a `role="region"`, and an `aria-live="polite"` status announces it. Focus stays on the trigger.
-- **History.** A version selector lists "Current — released {time}", "Replaced — released {time}" and "Withdrawn {time}" entries. Withdrawn entries render the tombstone text only.
+- **History.** A version selector lists "Version N (current)", "Version N (replaced)" and "Version N (withdrawn)" entries. The release or withdrawal time appears in the heading of the version shown, because the summary carries no per-version times and fetching every version to label the list was rejected (Keith decision, 2026-11-12). Withdrawn entries render the tombstone text only.
 - **Responsive.** At 320 px or 200% zoom, the note stacks below the source, markers stay ≥44 px, and line numbers stay logical when wrapped. Tokens come from `docs/ui/design.md` (`accent`, `annotation`, typography rows). No new font or package.
-- **States** (SF-06). Loading, none, released, withdrawn, stale (with retry), expired session (the existing sign-in recovery), network (with retry) and unavailable.
+- **States** (SF-06). Loading, none, released, withdrawn, stale (with retry), expired session (the existing sign-in recovery), network (with retry) and unavailable. On the feedback routes only, a 503 shows the unavailable state ("not available right now", no retry button) rather than the network state. Other student routes keep treating 503 as a network failure (Keith decision, 2026-11-12).
 
 ## Risks / Trade-offs
 
