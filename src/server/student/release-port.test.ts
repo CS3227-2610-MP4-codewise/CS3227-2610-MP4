@@ -1,31 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { Miniflare } from 'miniflare';
-import { StudentWork } from './work';
-import { StudentAssignments } from './repository';
-import { studentHandler } from './http';
-import { studentReleasePort } from './release-port';
-import { D1SubmissionCatalog } from './catalog';
+import { principal } from './test-fixture';
 import {
-  NOW,
-  createDatabase,
-  iso,
-  principal,
-  publish,
-  seedPeople,
-  testSessions,
-} from './test-fixture';
-import { CourseAuthority } from '../courses/authority';
-import { D1Assignments } from '../instructor/assignments/repository';
-import { AssignmentService } from '../instructor/assignments/service';
-import { AssessmentRepository } from '../instructor/assessments/repository';
-import { AssessmentWorkflow } from '../instructor/assessments/workflow';
-import type { IdentityCoursePort } from '../instructor/ports/contracts';
+  composedEnvironment,
+  PRIVATE_MARKERS as PRIVATE,
+} from './composed-fixture';
 import { BoundaryError } from '../../shared/instructor-contracts/schema';
-import {
-  draftSaveRequestSchema,
-  submitRequestSchema,
-  attemptHistorySchema,
-} from '../../shared/student-work';
+import { attemptHistorySchema } from '../../shared/student-work';
 import {
   feedbackSummarySchema,
   feedbackVersionSchema,
@@ -36,168 +16,24 @@ import {
  * with Darryl's real producer (`AssessmentService.consumer` via `studentReleasePort`) and the
  * real instructor assessment workflow, on local D1 with synthetic data. Not a deployment check.
  */
-let mf: Miniflare;
-let db: D1Database;
-const clock = () => NOW;
-let work: StudentWork;
-let identity: IdentityCoursePort;
-let counter = 0;
-
-async function submitted(user: string, version: string, tag: string) {
-  const w = await work.work(principal(user), version);
-  for (const q of w.questions)
-    await work.save(
-      principal(user),
-      q.questionVersionId,
-      draftSaveRequestSchema.parse({
-        schemaVersion: 1,
-        baseRevision: q.revision,
-        source: `total = 0\nprint('${tag}')\n`,
-      }),
-    );
-  const fresh = await work.work(principal(user), version);
-  return (
-    await work.submit(
-      principal(user),
-      version,
-      submitRequestSchema.parse({
-        schemaVersion: 1,
-        idempotencyKey: 'key-' + tag,
-        answers: fresh.questions.map((q) => ({
-          questionVersionId: q.questionVersionId,
-          draftRevision: q.revision,
-          sourceHash: q.sourceHash,
-        })),
-      }),
-    )
-  ).attemptId;
-}
-async function assignment() {
-  const k = 'c' + ++counter;
-  await publish(db, {
-    course: 'course-a',
-    assignment: 'asg-' + k,
-    version: 'ver-' + k,
-    number: 1,
-    deadline: iso(NOW + 600_000),
-  });
-  return 'ver-' + k;
-}
-
-/** The instructor side through Darryl's real workflow and the real C-SUB catalog. */
-function instructor() {
-  const request = (method = 'GET') =>
-    new Request('https://app.example.test/api/instructor/assessments', {
-      method,
-      headers: { 'x-test-user': 'inst' },
-    });
-  const service = () => {
-    const r = request();
-    return new AssessmentWorkflow(
-      r,
-      identity,
-      new AssignmentService(new D1Assignments(db), identity),
-      new AssessmentRepository(db),
-      new D1SubmissionCatalog(db, clock),
-    ).service;
-  };
-  return {
-    async releasedAssessment(attemptId: string, key: string) {
-      let v = await service().create(request('POST'), {
-        attemptId,
-        requestKey: 'create-' + key,
-      });
-      v = await service().save(request('PUT'), v.head.id, {
-        expectedRevisionId: v.head.headRevisionId,
-        feedback: {
-          ...v.revision.feedback,
-          criteria: v.revision.feedback.criteria.map((c) => ({
-            ...c,
-            score: 3.5,
-            explanation: 'Static inspection only; code was not executed.',
-          })),
-        },
-      });
-      return v;
-    },
-    async approveAndRelease(id: string, key: string) {
-      let v = await service().load(request(), id);
-      v = await service().approve(request('POST'), id, {
-        expectedRevisionId: v.head.headRevisionId,
-        expectedAvailabilityRevision: v.head.availabilityRevision,
-      });
-      return service().release(request('POST'), id, {
-        schemaVersion: 1,
-        assessmentId: id,
-        assessmentRevisionId: v.head.headRevisionId,
-        expectedAvailabilityRevision: v.head.availabilityRevision,
-        idempotencyKey: 'release-' + key,
-      });
-    },
-    async correct(id: string) {
-      const v = await service().load(request(), id);
-      return service().correct(request('POST'), id, {
-        expectedRevisionId: v.head.headRevisionId,
-        sourceRevisionId: v.head.headRevisionId,
-      });
-    },
-    async withdraw(id: string, version: number, key: string) {
-      const v = await service().load(request(), id);
-      return service().withdraw(request('POST'), id, {
-        schemaVersion: 1,
-        assessmentId: id,
-        releaseVersion: version,
-        expectedAvailabilityRevision: v.head.availabilityRevision,
-        idempotencyKey: 'withdraw-' + key,
-        reason: 'PRIVATE-WITHDRAWAL-REASON',
-      });
-    },
-  };
-}
-
-async function call(path: string, user?: string) {
-  const response = await studentHandler(
-    new Request('https://app.example.test/api/student/' + path, {
-      headers: user ? { 'x-test-user': user } : {},
-    }),
-    testSessions,
-    new StudentAssignments(db, clock),
-    work,
-    (r) => studentReleasePort(db, identity, work, r),
-  );
-  const text = await response.text();
-  return { status: response.status, text, json: JSON.parse(text) };
-}
-const PRIVATE =
-  /PRIVATE-|reason|approv|actor|provenance|privateReference|evidence|headRevision/i;
+let env: Awaited<ReturnType<typeof composedEnvironment>>;
+const call = (path: string, user?: string) => env.call(path, user);
+const assignment = () => env.assignment();
+const submitted = (user: string, version: string, tag: string) =>
+  env.submitted(user, version, tag);
+const instructor = () => ({
+  releasedAssessment: (attemptId: string, key: string) =>
+    env.instructor.graded(attemptId, key),
+  approveAndRelease: env.instructor.approveAndRelease,
+  correct: env.instructor.correct,
+  withdraw: env.instructor.withdraw,
+});
 
 beforeAll(async () => {
-  ({ mf, db } = await createDatabase('student-release-port-test', [
-    '0008_instructor_assessments.sql',
-  ]));
-  await seedPeople(
-    db,
-    ['s1', 's2', 'inst', 'gone'],
-    [
-      ['course-a', 's1', 'student'],
-      ['course-a', 's2', 'student'],
-      ['course-a', 'inst', 'instructor'],
-      ['course-a', 'gone', 'student'],
-    ],
-  );
-  work = new StudentWork(db, clock);
-  const authority = new CourseAuthority(db, clock);
-  identity = {
-    async requireSession(request) {
-      return (await testSessions.requireSession(request)).principal;
-    },
-    async requireMutationOrigin() {},
-    requireCourse: authority.requireCourse.bind(authority),
-    requireObject: authority.requireObject.bind(authority),
-  };
+  env = await composedEnvironment('student-release-port-test');
 }, 30000);
 afterAll(async () => {
-  await mf?.dispose();
+  await env?.mf.dispose();
 });
 
 describe('student feedback through the real composed producer (5.2)', () => {
@@ -232,14 +68,7 @@ describe('student feedback through the real composed producer (5.2)', () => {
     }
     // The port itself refuses a foreign caller, independent of the route's guard.
     await expect(
-      studentReleasePort(
-        db,
-        identity,
-        work,
-        new Request('https://app.example.test/', {
-          headers: { 'x-test-user': 's2' },
-        }),
-      ).attemptReleases(principal('s2'), [attempt]),
+      env.port('s2').attemptReleases(principal('s2'), [attempt]),
     ).rejects.toBeInstanceOf(BoundaryError);
 
     const history = attemptHistorySchema.parse(
@@ -300,7 +129,7 @@ describe('student feedback through the real composed producer (5.2)', () => {
     expect((await call(`attempts/${attempt}/feedback`, 'gone')).status).toBe(
       200,
     );
-    await db
+    await env.db
       .prepare("UPDATE course_memberships SET active=0 WHERE user_id='gone'")
       .run();
     try {
@@ -308,17 +137,10 @@ describe('student feedback through the real composed producer (5.2)', () => {
         404,
       );
       await expect(
-        studentReleasePort(
-          db,
-          identity,
-          work,
-          new Request('https://app.example.test/', {
-            headers: { 'x-test-user': 'gone' },
-          }),
-        ).attemptReleases(principal('gone'), [attempt]),
+        env.port('gone').attemptReleases(principal('gone'), [attempt]),
       ).rejects.toBeInstanceOf(BoundaryError);
     } finally {
-      await db
+      await env.db
         .prepare("UPDATE course_memberships SET active=1 WHERE user_id='gone'")
         .run();
     }
