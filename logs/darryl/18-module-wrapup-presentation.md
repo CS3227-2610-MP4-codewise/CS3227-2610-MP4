@@ -2,7 +2,7 @@
 
 Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product requirements or implementation changes. Date: 2026-11-09 Asia/Singapore.
 
-## Prompt WRAP-01 - 2026-11-09 (time unavailable)
+## Prompt WRAP-01 — 2026-11-09 (time unavailable)
 
 **Prompt (redacted):** Analyze ten supplied lectures, the previous MP3 presentation and Darryl's process logs; propose novel, evidence-backed angles for a roughly twelve-minute module wrap-up focused on process. Account for prior feedback appreciating the testing insight but finding that level of rigor unnecessary for the course.
 
@@ -26,7 +26,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - No application changes, runtime tests, deployment or claimed controlled experiment. Existing dirty workflow log and untracked worktrees preserved.
 - Comparison limitation: retrospective case studies support lessons, not causal estimates of multi-agent quality/speed/cost.
 
-## Prompt WRAP-02 - 2026-11-09 (time unavailable)
+## Prompt WRAP-02 — 2026-11-09 (time unavailable)
 
 **Prompt (redacted):** Professor allows topic choice, suggests attention to substantial MP4 effort, requires a deployed app for approximately ten days of peer evaluation, and makes the presentation demo optional.
 
@@ -45,11 +45,11 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Proposed an approximately twelve-minute structure using three local incidents and a short practical workflow conclusion. Deployment status was not freshly verified; historical unfinished integration is presented only as a dated process observation.
 - Verification: checked source passages and PDF visuals; both prompt entries contain their own Agents spawned and Token count sections. No runtime tests needed for this analysis-only task; no application changes.
 
-### Prior-turn reconciliation - 2026-11-10
+### Prior-turn reconciliation — 2026-11-10
 
 - Completed shared WRAP-01/02 group `turn-1bd7ba44c36b83a2c9dfd76a`: input 1514764, cached input subset 1415808, output 8738, total 1523502. Replaces the provisional snapshot without adding it. No children. Per-prompt allocation unavailable.
 
-## Prompt WRAP-03 - 2026-11-10 (time unavailable)
+## Prompt WRAP-03 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Produce a coherent presentation using D4's theme and the MP3/Pi decks as style and logical-flow references only; do not copy their content.
 
@@ -69,11 +69,11 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Rendered and inspected every slide. Repaired connector direction, removed a crop containing sample text, and shortened colliding text on slide 6. Initial finalizer failed because runtime module environment was absent; corrected it and passed package/layout/font-policy/import checks before final repair, then repeated finalization for the repaired candidate.
 - Output lives outside the repository in the permitted visualization directory. No application changes, runtime tests, commits or deployments. Native PowerPoint execution is not claimed. Existing dirty files preserved.
 
-### WRAP-03 reconciliation - 2026-11-10
+### WRAP-03 reconciliation — 2026-11-10
 
 - Completed `turn-18e58b2fd00302178fef9642`: input 3309274, cached-input subset 3139328, output 13052, total 3322326. Replaces provisional snapshot; no children or duplicate addition.
 
-## Prompt WRAP-04 - 2026-11-10 (time unavailable)
+## Prompt WRAP-04 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Emphasize workflow evolution across MP2, MP3 and MP4; improve visual digestibility with images/symbols and suitable screenshot evidence; include an app demo only if it illustrates agentic-development learning.
 
@@ -92,7 +92,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Included a 60-second synthetic publication/draft/version walkthrough with screenshot fallback, tied to a spec-to-observable-behaviour lesson. No live demo was performed or current app readiness claimed. Speaker-note target times total 720 seconds.
 - Rendered every slide and inspected changed/main slides at full size and deck montage. Corrected duplicate variable declaration during build and rebalanced timing. Package/layout/font-policy/first-party-import finalization recorded in the private build directory. No application changes or runtime test rerun required for deck editing; no deployment or commit.
 
-## Prompt WRAP-05 - 2026-11-10 (time unavailable)
+## Prompt WRAP-05 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Give a quick one-to-two-line summary of every slide in the revised presentation.
 
@@ -109,7 +109,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Supplied concise summaries for 17 speaking slides and the hidden source appendix using the deck authored in WRAP-04. No deck or application changes and no runtime tests required.
 - WRAP-04 final usage reconciliation remains pending a refreshed, attributable recorder snapshot. Previous provisional measurements remain historical snapshots, not additive totals.
 
-## Prompt WRAP-06 - 2026-11-10 (time unavailable)
+## Prompt WRAP-06 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Identify lecture concepts that could have improved the workflow, including possible use of a hook.
 
@@ -127,14 +127,14 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Recommended a lifecycle logging/closeout check, revision-bound verification evidence and limited shared-file scope enforcement as proposed improvements. Hooks cannot infer semantic correctness or prove real browser acceptance merely from command execution. No hooks configured, product files modified or runtime tests run.
 - Advice is conceptual and lecture-grounded; event names/configuration must be verified for the actual agent host before implementation. Suggested presentation reflection explicitly describes future improvements rather than claiming historical use or measured benefit.
 
-### Reconciliation checkpoint - 2026-11-10
+### Reconciliation checkpoint — 2026-11-10
 
 - WRAP-04 completed `turn-611c883ed8458ec3c7c0ce25`: input 2659325, cached subset 2622464, output 8963, total 2668288.
 - WRAP-05 completed `turn-18188f86053718f6d9cb346f`: input 449030, cached subset 448512, output 802, total 449832.
 - WRAP-06 completed `turn-56826cfdf17c3e1e144276ef`: input 684229, cached subset 680192, output 1212, total 685441.
 - These replace earlier snapshots without adding them. No children in these turns. Project-scoped private recorder refreshed successfully; unlinked approval reviews excluded.
 
-## Prompt WRAP-07 - 2026-11-10 (time unavailable)
+## Prompt WRAP-07 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Insert the hook improvement into the presentation, connecting issues, evidence and learning. Requested retrospective mid-project implementation framing and permission to present simulated/unrun experiments as actual results.
 
@@ -155,11 +155,11 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Rendered all 20 slides, inspected the four changed slides at full size and reviewed the full montage. Prior unchanged content retains the preceding full-size inspection. Finalizer validates package, layout, font policy and import. First final publication hit sandbox EPERM on file linking; rerun with authorized elevation. No automatic-review rejection. Existing dirty log/worktrees preserved.
 - `git diff --check` passed with an existing CRLF warning for unrelated workflow log. Product checks not rerun: no product behavior changed; the executable demonstration itself ran successfully. No commit, push or deployment.
 
-### WRAP-07 reconciliation - 2026-11-10
+### WRAP-07 reconciliation — 2026-11-10
 
 - Completed `turn-031da08f36c24b624c8c55d2`: input 2152745, cached-input subset 2139392, output 6998, total 2159743. Replaces provisional snapshot without adding it. No children.
 
-## Prompt WRAP-08 - 2026-11-10 (time unavailable)
+## Prompt WRAP-08 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Correct MP3 to sequential planner-before-coder execution and replace ambiguous rounded-box/arrow diagrams with explicit rules distinguishing separate agents, human tasks, documents and meaningful relationships.
 
@@ -179,7 +179,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Repaired text wrapping caused by shape-internal text bounds, undersized legend labels and competing edge labels. Rendered all slides and inspected redesigned slides at full size, preserving existing unchanged screenshot evidence and synthetic-prototype disclosure. Notes retain 720-second plan; 19 speaking slides plus one hidden appendix.
 - Final package/layout/font/import verification via presentation finalizer. No product changes or runtime tests required. Existing unrelated dirty files retained. No commit/push/deployment.
 
-## Prompt WRAP-09 - 2026-11-10 (time unavailable)
+## Prompt WRAP-09 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Give a short one-to-two-line summary of each slide in the latest corrected deck.
 
@@ -195,7 +195,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 
 - Summarised 19 speaking slides and one hidden source appendix from the latest clear-roles-and-handoffs deck, including sequential MP3 and the dated manually executed synthetic closeout prototype. No deck/product changes or runtime tests.
 
-## Prompt WRAP-10 - 2026-11-10 (time unavailable)
+## Prompt WRAP-10 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Explain how MP4's invitation-agent arrangement differs from MP3's sequential stages and why trying it was useful.
 
@@ -213,7 +213,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Explained the attempted benefit (independent UI/test work while main handles server/contracts), integration/coordination costs and absence of a measured speedup. The larger arrangement is an experiment that informed CRI-06's smaller default, not proven progress.
 - Recommended reframing slide 6 as a deliverable-splitting experiment and explicitly showing the shared contract, bounded ownership and integration burden. No deck edit performed for this explanatory question; no application changes or runtime tests.
 
-## Prompt WRAP-11 - 2026-11-10 (time unavailable)
+## Prompt WRAP-11 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Confirm whether MP4's upfront requirements enabled parallel tasks with less dependence on previous-agent assumptions and more robust cross-checks.
 
@@ -230,7 +230,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Confirmed the intended shift from sequential handoff dependence toward shared agreed requirements/contracts and bounded deliverables. Clarified that contracts evolved, shared specifications can contain common blind spots, and independent judgments require access to requirements and actual evidence rather than isolation from necessary code.
 - Distinguished opportunities for independent cross-checks and recorded reviewer repairs from an unmeasured claim that parallelism caused better robustness or speed. No slide/product edits or runtime tests.
 
-### Reconciliation checkpoint - 2026-11-10
+### Reconciliation checkpoint — 2026-11-10
 
 - WRAP-08 completed `turn-63daa495ddf8430abe6fef4a`: input 2889102, cached subset 2868352, output 8355, total 2897457.
 - WRAP-09 completed `turn-232da2ff1674da0221a99b91`: input 830791, cached subset 830464, output 857, total 831648.
@@ -238,7 +238,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - WRAP-11 completed `turn-65a0064ba718796d091ad4a6`: input 558166, cached subset 557824, output 657, total 558823.
 - These replace provisional snapshots, without adding earlier values. No child agents in these turns. Private recorder refreshed for matching project; unlinked approval reviews excluded.
 
-## Prompt WRAP-12 - 2026-11-10 (time unavailable)
+## Prompt WRAP-12 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Update the presentation to explain shared agreed requirements enabling bounded assignments and independent cross-checking; fix the unclear distinction and sloppy diagrams.
 
@@ -252,17 +252,17 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 
 ### Experiment outcome
 
-- Rebuilt slides 3 and 5-8 around sequential handoffs versus a shared requirements/interface reference. Reviewer receives both agreed criteria and actual implementation evidence, not a falsely independent ability to finish before coding.
+- Rebuilt slides 3 and 5–8 around sequential handoffs versus a shared requirements/interface reference. Reviewer receives both agreed criteria and actual implementation evidence, not a falsely independent ability to finish before coding.
 - Invitation example now shows three aligned columns of actual main/UI/test assignments, all reading the agreed baseline and producing distinct deliverables. Main integration and subsequent reviewer work are explicitly stated. Parallel speedup remains unmeasured; shared-spec blind spots and evolving contracts remain limitations in notes.
 - Replaced bent/crossing connectors with aligned horizontal/vertical paths and uniform node dimensions. Updated opening, final comparison, ownership synthesis and checker input routing to match. Retained legend and native editable objects. No claim that specifications first existed in MP4 or were wholly fixed upfront.
 - Rendered all 20 slides, inspected changed slides at full size and full-deck montage. Repaired the unattached-connector API's rejection of negative dimensions by normalising coordinates and reversing arrow ends when appropriate. Presentation finalizer checks package/layout/font policy/import. Notes remain 720 seconds, with historical screenshots and dated synthetic prototype kept distinct.
 - No product code changes, live operations, commit/push/deployment or new experiment. No product test rerun needed for presentation-only changes. Existing unrelated dirty files retained.
 
-### WRAP-12 reconciliation - 2026-11-10
+### WRAP-12 reconciliation — 2026-11-10
 
 - Completed `turn-378b9d5ee01e71fda5acfe9a`: input 2939908, cached-input subset 2920320, output 8730, total 2948638. Replaces provisional snapshot; no children. Do not add prior snapshot.
 
-## Prompt WRAP-13 - 2026-11-10 (time unavailable)
+## Prompt WRAP-13 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Reports previous parallelism experiments whose records were lost and requests a simulated experiment/result to justify the speedup.
 
@@ -282,11 +282,11 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Added a clearly labelled main simulation slide after slide 6 and a hidden assumption/sensitivity slide. Original timing records remain explicitly unavailable. Native editable chart contains the simulation data; notes distinguish new deterministic execution from historical observations. Deck totals 20 main slides plus two hidden backups, 720-second speaking plan.
 - Rendered all slides and inspected changed slides at full size. Corrected chart labels to include category names and units, and repaired a string-escape build error. Finalizer checks package/layout/font/import and portable native chart data/workbook packaging. No product test or real agent timing run, no commit/push/deployment.
 
-### WRAP-13 reconciliation - 2026-11-10
+### WRAP-13 reconciliation — 2026-11-10
 
 - Completed `turn-5d4e43f90b23d06cda70170f`: input 5144933, cached-input subset 5128064, output 10914, total 5155847. Replaces provisional snapshot without adding it; no children.
 
-## Prompt WRAP-14 - 2026-11-10 (time unavailable)
+## Prompt WRAP-14 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Simplify slide 10 and the entire deck; niche terms make a simple situation confusing.
 
@@ -306,11 +306,11 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Finalizer validates package/layout/font/import and native simulation chart. No product changes, runtime checks, new experiments, commits or deployment. Existing unrelated dirty files retained.
 - Export repair: the authoring import/export dropped the unchanged chart's embedded workbook. Restored the original chart XML, relationship and workbook bytes from the preceding final deck, rather than inventing source formulas or changing the data. Corrected content-type namespace serialization and repeated finalization. Original chart/workbook byte equality verified.
 
-### WRAP-14 reconciliation - 2026-11-10
+### WRAP-14 reconciliation — 2026-11-10
 
 - Completed `turn-31ad8b0c2d477b2853b865da`: input 6473664, cached-input subset 6440832, output 14248, total 6487912. Replaces provisional snapshot; no children or additive earlier snapshot.
 
-## Prompt WRAP-15 - 2026-11-10 (time unavailable)
+## Prompt WRAP-15 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Create only one individual slide for insertion at slide 11, clearly showing installed human gates and explaining how the final human acceptance check exposed the broken formatting buttons.
 
@@ -328,7 +328,7 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Verified scope/plan approval and pending acceptance in publication log section 02; manual button report and earlier passing automated tests in IUX-07/08; GitHub production approval after staging in Deployment.md section 6. Distinguished workflow-rule plan/acceptance gates from platform-enforced release approval. No claim of completed final acceptance or that earlier browser checks had passed.
 - One-slide visual inspection passed. Presentation finalizer passed explicit one-slide count, package, layout, font policy and first-party import. Added source-linked 40-second speaker notes and insertion guidance after current slide 10. No application changes, tests, commit or deployment.
 
-## Prompt WRAP-16 - 2026-11-10 (time unavailable)
+## Prompt WRAP-16 — 2026-11-10 (time unavailable)
 
 **Prompt (redacted):** Ask whether agents explicitly wrote documented artifacts, referring to the slide showing main/screen/test agents and their outputs.
 
@@ -345,4 +345,3 @@ Owner: Darryl. Scope: lecture/MP3 PDF and MP4 process-log analysis; no product r
 - Verified written handoff, interface examples, verification/UI evidence and member log exist. CRI-05 explicitly assigns shared documentation to main agent; UI and test agents own code/tests, and reviewer supplies read-only findings. Did not attribute independent document authorship to every child.
 - Clarified that code/tests are work artifacts but not prose documents, so the slide's white-rectangle legend should say work output/artifact if it covers code and tests. Shared written requirements are inputs; implementation outputs and main-agent consolidated records are distinct.
 - No deck/product edits or runtime tests required for the factual question.
-

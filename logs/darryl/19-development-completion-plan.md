@@ -119,4 +119,3 @@ Owner: Darryl. Requirements: AUTH-01-03, COU-01-07, SUB-01-04, GRADE-01-04, PROG
 - Explicit feature-skill invocation limited to substantive implementation iterations; audits, documentation reconciliation, evaluation and release preparation use ordinary project workflows. Broad first entry orchestrates bounded iterations rather than invoking one giant feature.
 - Preserved brief approval/manual acceptance, exact revision review, existing policy agreements and explicit live-operation/release gates. No user authorization for implementation, agents, mail, provider calls or deployment inferred from prompt drafting.
 - No product edits/tests performed. Findings remain based on the preceding local af1bc90 scan; remote freshness and previously reported lint failure are not reverified or claimed repaired.
-
