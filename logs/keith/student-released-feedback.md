@@ -218,3 +218,50 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 43568421; cached input subset 43000936; output 224028; reasoning output subset 54017; total 43792449.
 - Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:ui-review-2026-11-12 -->
+<!-- experiment-turns:ui-review-2026-11-12:ee881cb2cd09751e,27ba0d718aa04ebf,0a1ede1bf894feff,62e0eeb8a625f6ac,59d932917e7d1de7,2a572d3503087649,b0128ab146a5bed2,63014a8b60030e9d,a10e6b60bb48895c,21b6f621ad2a5a66 -->
+## Checkpoint `ui-review-2026-11-12` — 2026-11-12T07:44:39.002634+00:00
+
+### Request
+
+Producer amendment approved; plan the UI review; provide a pasted brief for another agent to run checks; review its result; record decisions and Keith's manual acceptance.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents spawned here). Recorded Darryl's acceptance of the OPS-01 amendment (0e843c5). Added task 6.3 (staging CPU and D1 check). Wrote a pasted UI-review brief; Keith ran it in a separate agent outside this tracker run, so its usage is not counted. That agent built a loopback harness and covered 104 combinations, 48 annotation activations and 112 screenshots, with npm run check exit 0 (700 tests). It returned F1 (focus-only heading 22 px under the brief's literal [tabindex] rule). I verified the agent changed no product files; the Vite cache is git-ignored; two failed-run logs contained local paths and browser scripts. Keith accepted the three implementation decisions (design D2/D6 updated, 36ab141; PR description updated through the REST API after a gh pr edit GraphQL error), recorded F1 as not applicable, dropped the two logs, and approved the UI after his manual pass. 4.4 ticked (14/19).
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-released-feedback/ui-review.md; workflow/handoffs/student-released-feedback.md; openspec/changes/student-released-feedback/design.md.
+- Remaining limitations and next owner: Keith: 5.4 composed acceptance, 6.1 privacy/security review, 6.2 handoff; 5.3 pending Darryl's suite fix; 6.3 after merge..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T05:04:30.685Z | 2026-11-12T05:04:45.324Z | final | claude-opus-5-5 | medium | 1241 | 484 | 1241 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T06:12:13.544Z | 2026-11-12T06:12:36.500Z | final | claude-opus-5-5 | medium | 1350 | 327 | 1350 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T06:21:18.933Z | 2026-11-12T06:21:59.843Z | final | claude-opus-5-5 | medium | 3005 | 474 | 3005 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T06:31:06.871Z | 2026-11-12T06:31:50.971Z | partial | claude-opus-5-5 | medium | 1954 | 1112 | 1954 (partial) |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T06:32:04.511Z | 2026-11-12T06:32:51.714Z | final | claude-opus-5-5 | medium | 5006 | 26 | 5006 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T06:55:02.063Z | 2026-11-12T06:55:47.818Z | final | claude-opus-5-5 | medium | 3824 | 1674 | 3824 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T07:07:52.765Z | 2026-11-12T07:08:09.189Z | final | claude-opus-5-5 | medium | 1513 | 565 | 1513 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T07:38:59.438Z | 2026-11-12T07:39:48.811Z | final | claude-opus-5-5 | medium | 3433 | 601 | 3433 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T07:43:52.767Z | open | provisional | claude-opus-5-5 | medium | 3799 | 614 | 3799 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T04:55:26.984Z | provisional | final | 23993 | 7380 | 23993 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 55205025; cached input subset 54607160; output 250124; reasoning output subset unavailable; total 55455149.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
