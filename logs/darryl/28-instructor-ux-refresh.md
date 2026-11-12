@@ -34,3 +34,32 @@ Owner: Darryl. Branch: codex/instructor-ux-refresh. Base 19311ae7a9f7f6fbae57f0f
 - Evidence: workflow/evidence/instructor-ux-refresh/verification.md and ui-review.md; workflow/handoffs/instructor-ux-refresh.md.
 - No controlled comparison; token-efficiency inference unavailable. Reflection: live browser inspection caught a context mismatch missed by isolated panel tests, supporting combined UI/state verification without proving broader superiority.
 - Next owner: Darryl for independent/human/staging review. No merge or deployment. PR details and final check checkpoint appended below.
+
+### Review checkpoint — 2026-11-13
+
+Committed implementation as b64ce3d and pushed codex/instructor-ux-refresh. Opened draft PR #37: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/37. GitHub confirms base 19311ae and head b64ce3d. Original main checkout and its dirty files preserved; no merge/deployment. Final typecheck/lint/build passed; OpenSpec change validates and git diff check passed with line-ending warnings. Current prompt usage remains unavailable/provisional, with later calls and final response outside coverage. Reconcile at next checkpoint.
+
+## Prompt INSTRUCTOR-UX-02 — 2026-11-13 Asia/Singapore
+
+**Prompt (redacted):** Asked whether the authoring warning about student-side formatted rendering is stale or requires implementation.
+
+### Agents spawned
+
+- New agents: None; already inspected both student consumers and the shared renderer during this increment.
+- Reused agents: None.
+- Main agent: /root, gpt-6.1-sol.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; shared active turn |
+| Children | 0 | 0 | 0 | 0 | observed activity | no children |
+
+Total/source group unavailable. This steering prompt shares the active turn with INSTRUCTOR-UX-01; per-prompt allocation unavailable, count any later reconciled shared-turn measurement once. Recorder scope/refresh not established; current and preceding usage reconciliation unavailable. Final response/later calls excluded.
+
+### Experiment outcome
+
+- The warning is stale: StudentWorkspace.tsx and Workbook.tsx both render question instructions using shared ui/instruction-text.tsx, which sanitizes formatted content. PR37 already replaces the warning with guidance to use Preview before publishing. No extra student feature or student source edits are needed for this correction.
+- Verification: source inspection; full earlier suite included instruction renderer coverage, subsequent InstructionEditor and student DOM regressions passed in the 85-test focused run. No new test run needed for this explanatory steering prompt; no live deployment claimed.
+- No controlled comparison; next owner Darryl for PR/staging acceptance.
