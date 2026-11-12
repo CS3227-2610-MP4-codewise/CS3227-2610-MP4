@@ -265,3 +265,44 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 55205025; cached input subset 54607160; output 250124; reasoning output subset unavailable; total 55455149.
 - Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:composed-2026-11-12 -->
+<!-- experiment-turns:composed-2026-11-12:2693408f2ac90e76,b35d265d20a325aa,996915183bece4c7,b61c4b47f1538415 -->
+## Checkpoint `composed-2026-11-12` — 2026-11-12T15:54:19.821765+00:00
+
+### Request
+
+Run 5.4 composed acceptance; Keith reported no functional issues and attempt 81ae4c9e; asked why feedback sits behind Open attempt; chose a follow-up change; asked to verify the historical withdrawal step.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents). Checked local readiness (all migrations applied, two real local accounts in course_local_workflow) and gave Keith the steps. Verified from local D1: releases v1-v4, v3 withdrawn while current, correction released as v4, v1 withdrawn while historical with v4 still current, availability_revision 7, B's membership restored. Wrote composed-acceptance.md (recorded audit plus Keith's report; no identities). Explained the UI-04 mismatch (inherited all-question attempt view plus Decision 3); Keith chose option B (follow-up change); recorded in proposal open items and evidence. 5.4 ticked (15/19).
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-released-feedback/composed-acceptance.md; openspec/changes/student-released-feedback/proposal.md.
+- Remaining limitations and next owner: Keith: 6.1 privacy/security review, 6.2 handoff; 5.3 pending Darryl's suite fix; 6.3 after merge; propose the per-question views follow-up change..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T07:57:00.697Z | 2026-11-12T07:58:06.563Z | final | claude-opus-5-5 | medium | 5118 | 2696 | 5118 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T15:49:09.352Z | 2026-11-12T15:50:11.259Z | final | claude-opus-5-5 | medium | 5074 | 2941 | 5074 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T15:53:22.894Z | open | provisional | claude-opus-5-5 | medium | 5208 | 1034 | 5208 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T07:43:52.767Z | provisional | final | 4357 | 614 | 4357 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 60048626; cached input subset 58998061; output 266082; reasoning output subset unavailable; total 60314708.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
