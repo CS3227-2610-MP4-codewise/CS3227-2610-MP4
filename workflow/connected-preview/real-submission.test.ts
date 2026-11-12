@@ -23,21 +23,26 @@ import { AssessmentRepository } from '../../src/server/instructor/assessments/re
 import { AssessmentWorkflow } from '../../src/server/instructor/assessments/workflow';
 import { D1OwnedAttemptReader } from '../../src/server/instructor/assessments/owned-attempt';
 import { releaseHandler } from '../../src/server/instructor/assessments/release-http';
+import { syntheticAssessmentGateway } from './worker';
 
 let mf: Miniflare;
 let db: D1Database;
 beforeAll(async () => {
   ({ mf, db } = await createDatabase('real-assessment-integration'));
-  const sql = await readFile(
-    'src/server/db/migrations/0008_instructor_assessments.sql',
-    'utf8',
-  );
-  await db.batch(
-    sql
-      .split(/^-- statement\s*$/m)
-      .filter((s) => s.replace(/^--.*$/gm, '').trim())
-      .map((s) => db.prepare(s)),
-  );
+  for (const name of [
+    '0008_instructor_assessments.sql',
+    '0013_ai_gateway.sql',
+    '0014_assessment_ai_candidates.sql',
+    '0016_instructor_ai_recovery.sql',
+  ]) {
+    const sql = await readFile('src/server/db/migrations/' + name, 'utf8');
+    await db.batch(
+      sql
+        .split(/^-- statement\s*$/m)
+        .filter((s) => s.replace(/^--.*$/gm, '').trim())
+        .map((s) => db.prepare(s)),
+    );
+  }
   await seedPeople(
     db,
     ['learner', 'peer', 'teacher', 'outsider'],
@@ -66,7 +71,7 @@ afterAll(async () => {
 
 describe(
   'real submission and instructor assessment',
-  { timeout: 30000 },
+  { timeout: 120000 },
   () => {
     it('submits immutable work and creates, approves and releases its assessment', async () => {
       const work = new StudentWork(db, () => NOW);
@@ -139,6 +144,61 @@ describe(
       expect(view.attempt.answers.every((a) => a.source === 'print(1)\n')).toBe(
         true,
       );
+      // The actual submission producer and assessment gateway are composed with a synthetic provider transport.
+      const assessmentPath = '/api/instructor/assessments/' + view.head.id;
+      const aiRequest = (
+        user: string,
+        action: string,
+        method = 'GET',
+        body?: unknown,
+      ) =>
+        new Request('https://app.example.test' + assessmentPath + action, {
+          method,
+          headers: {
+            'x-test-user': user,
+            origin: 'https://app.example.test',
+            'x-csrf': 'valid',
+            'content-type': 'application/json',
+          },
+          ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        });
+      const aiWorkflow = (r: Request) =>
+        new AssessmentWorkflow(
+          r,
+          identity,
+          assignments,
+          repository,
+          catalog,
+          syntheticAssessmentGateway(db, () => 1_800_000_000_000),
+          new D1OwnedAttemptReader(db),
+        ).handle();
+      const generated = await aiWorkflow(
+        aiRequest('teacher', '/generate-ai', 'POST', {
+          expectedRevisionId: view.head.headRevisionId,
+          requestKey: 'real_submission_ai',
+          includePrivateReferences: false,
+        }),
+      );
+      expect(
+        generated.status,
+        JSON.stringify(await generated.clone().json()),
+      ).toBe(200);
+      const candidate = (await generated.json()) as {
+        status: string;
+        candidateId: string;
+      };
+      expect(candidate.status).toBe('succeeded');
+      expect(
+        (await aiWorkflow(aiRequest('outsider', '/ai-candidate'))).status,
+      ).toBe(403);
+      const recovered = await aiWorkflow(aiRequest('teacher', '/ai-candidate'));
+      expect(await recovered.json()).toMatchObject({
+        status: 'succeeded',
+        candidateId: candidate.candidateId,
+      });
+      expect(
+        (await repository.read(view.head.id)).head.approvedRevisionId,
+      ).toBeNull();
       const feedbackRequest = (user: string, suffix: string) =>
         new Request(
           `https://app.example.test/api/student/released-feedback/${view.head.id}/${suffix}`,

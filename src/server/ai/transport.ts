@@ -201,7 +201,12 @@ export async function callSoclaas(
       throw new SoclaasTransportError('invalid_response', null, usage);
     let payload: unknown;
     try {
-      payload = JSON.parse(message.content);
+      // Some compatible models wrap otherwise complete JSON in one Markdown fence.
+      // Accept only the entire fenced document; the domain validator still decides trust.
+      const fence = /^\s*```json[ \t]*\r?\n([\s\S]*?)\r?\n```[ \t]*\s*$/i.exec(
+        message.content,
+      );
+      payload = JSON.parse(fence ? fence[1] : message.content);
     } catch {
       throw new SoclaasTransportError('invalid_response', null, usage);
     }

@@ -17,7 +17,9 @@ export interface Environment {
   AUTH_MAIL_ENABLED?: string;
   BOOTSTRAP_OWNER_EMAIL?: string;
   BOOTSTRAP_OWNER_PASSWORD?: string;
-  // Server-only; no AI routes or live provider activation are enabled yet.
+  // Server-only; AI remains disabled without explicit verified configuration.
+  SOCLAAS_INSTRUCTOR_ENABLED?: string;
+  SOCLAAS_INSTRUCTOR_CONFIG?: string;
   SOCLAAS_INSTRUCTOR_API_KEY?: string;
   SOCLAAS_STUDENT_API_KEY?: string;
 }

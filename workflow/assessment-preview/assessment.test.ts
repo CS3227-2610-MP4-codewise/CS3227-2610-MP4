@@ -93,6 +93,30 @@ describe(
           .filter(Boolean)
           .map((s) => database.db.prepare(s)),
       );
+      const gatewaySql = await readFile(
+        'src/server/db/migrations/0013_ai_gateway.sql',
+        'utf8',
+      );
+      await database.db.batch(
+        gatewaySql
+          .split(/^-- statement\s*$/m)
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((s) => database.db.prepare(s)),
+      );
+      const recoverySql = await readFile(
+        'src/server/db/migrations/0016_instructor_ai_recovery.sql',
+        'utf8',
+      );
+      await database.db.batch(
+        recoverySql
+          .split(/^-- statement\s*$/m)
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((s) => database.db.prepare(s)),
+      );
+      vi.spyOn(f.repository, 'bindAIRequest').mockResolvedValue(true);
+      vi.spyOn(f.repository, 'recoverAIRequest').mockResolvedValue(null);
       const v = await create();
       const draft: AssessmentDraft = {
         kind: 'assessment-draft',

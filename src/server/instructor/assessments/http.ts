@@ -28,7 +28,7 @@ export function assessmentHandler(
           201,
         );
       const match = path.match(
-        /^\/assessments\/([^/]+)(?:\/(approve|release|withdraw|correct|audit|generate-ai|adopt-ai|ai-candidate))?$/,
+        /^\/assessments\/([^/]+)(?:\/(approve|release|withdraw|correct|audit|generate-ai|resume-ai|adopt-ai|ai-candidate))?$/,
       );
       if (!match) throw new BoundaryError('NOT_FOUND');
       const id = decodeURIComponent(match[1]),
@@ -56,6 +56,8 @@ export function assessmentHandler(
         return json(
           await service.generateAI(request, id, await readJson(request)),
         );
+      if (action === 'resume-ai' && request.method === 'POST')
+        return json(await service.resumeAI(request, id));
       if (action === 'ai-candidate' && request.method === 'GET')
         return json(await service.recoverAI(request, id));
       if (action === 'adopt-ai' && request.method === 'POST')
