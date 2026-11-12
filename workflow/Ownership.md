@@ -1,5 +1,9 @@
 # Ownership and integration agreement
 
+## Secure gateway readiness window — 2026-11-12
+
+Darryl/main is sole writer for the bounded `gateway-reported-bounds-01` repair in `src/server/ai/gateway.ts`, `transport.ts` and their tests, secure-ai-gateway artifacts/evidence/handoff, this coordination record, IntegrationContracts readiness note and log 21. `/root/gateway_readiness_review` is read-only. The transport scope follows its confirmed related usage-accounting finding. No shared DTO, route, schema or migration change is made. Existing writer windows and Keith's student/submission ownership remain intact. Future index/environment wiring or migration changes need a separately agreed exclusive window with exact producer/consumer revisions; none is inferred here. Darryl autoapproves this brief and waives human acceptance only; Keith exact-source review and provider activation are not approved.
+
 ## Local shell recovery window - approved 2026-11-11
 
 CI repair follow-up2026-11-12: under Darryl's current failing-PR request, main aligns only the shared-consumer expectations/fixture in `src/web/student/StudentWorkspace.dom.test.ts` on PR27. Two radio assertions now use the documented native switch; one request-count queue becomes server-phase responses for all session readers, retaining/strengthening sign-out recovery assertions. This is test compatibility for Darryl's changed shared producer, not student feature implementation or a transfer of Keith's ownership. Keith's source-specific review remains pending; no Keith approval is claimed. No student runtime, shared DTO/schema/API or PR26 edits.

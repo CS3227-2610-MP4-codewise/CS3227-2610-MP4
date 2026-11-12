@@ -1,0 +1,100 @@
+{
+  "baseCommit": "af1bc90fa47ed0b8726a46084ce642992c807e15",
+  "snapshotDate": "2026-11-12 Asia/Singapore",
+  "committed": false,
+  "algorithm": "SHA256 of exact working-copy bytes",
+  "files": [
+    {
+      "path": "src/server/ai/gateway.ts",
+      "sha256": "5cb46ffbcbb496e486026ca7cc57ab1b7a0a8f5d905b808e0d7d8c5f13511573",
+      "normalizedLfSha256": "5cb46ffbcbb496e486026ca7cc57ab1b7a0a8f5d905b808e0d7d8c5f13511573"
+    },
+    {
+      "path": "src/server/ai/gateway.test.ts",
+      "sha256": "db2d350de0395df456cb91c311341c5edaaddfeef3ad00ac3fde8d0f51bdc6ff",
+      "normalizedLfSha256": "db2d350de0395df456cb91c311341c5edaaddfeef3ad00ac3fde8d0f51bdc6ff"
+    },
+    {
+      "path": "src/server/ai/transport.ts",
+      "sha256": "51b0c19a1c86fbb54ae6131c0c163908e437c1346c74335701791b2db36ba229",
+      "normalizedLfSha256": "51b0c19a1c86fbb54ae6131c0c163908e437c1346c74335701791b2db36ba229"
+    },
+    {
+      "path": "src/server/ai/transport.test.ts",
+      "sha256": "122c3f568c8de1c933ad4d779eb6116ca755685f0bcf564f7fd398b2f7411d83",
+      "normalizedLfSha256": "122c3f568c8de1c933ad4d779eb6116ca755685f0bcf564f7fd398b2f7411d83"
+    },
+    {
+      "path": "src/server/ai/store.ts",
+      "sha256": "967c605cbbb25a1e8a5ea3b5ea6228ad9ea9b5554eafaa08ad6ea7ad14be3a95",
+      "normalizedLfSha256": "967c605cbbb25a1e8a5ea3b5ea6228ad9ea9b5554eafaa08ad6ea7ad14be3a95"
+    },
+    {
+      "path": "src/server/ai/store.test.ts",
+      "sha256": "7a81d5c321c38d7b08348a771f268f0e3d5b2d5274db014f5c5a77bac1aa9e97",
+      "normalizedLfSha256": "7a81d5c321c38d7b08348a771f268f0e3d5b2d5274db014f5c5a77bac1aa9e97"
+    },
+    {
+      "path": "src/server/ai/config.ts",
+      "sha256": "d6beab1e6d7f563320bf3c541863d91502027287a708dad65294c8feb81e1b5a",
+      "normalizedLfSha256": "d6beab1e6d7f563320bf3c541863d91502027287a708dad65294c8feb81e1b5a"
+    },
+    {
+      "path": "src/server/ai/assessment.ts",
+      "sha256": "a563d22fff4f5d2e7f9867a78ac5249b9874803a157775f7dc63c2bf6b2d80a3",
+      "normalizedLfSha256": "a563d22fff4f5d2e7f9867a78ac5249b9874803a157775f7dc63c2bf6b2d80a3"
+    },
+    {
+      "path": "src/server/index.ts",
+      "sha256": "a08293a76f26eeafa2362ac88d342a7135b89a942e6cd83b73428566a022e134",
+      "normalizedLfSha256": "a08293a76f26eeafa2362ac88d342a7135b89a942e6cd83b73428566a022e134"
+    },
+    {
+      "path": "src/server/environment.ts",
+      "sha256": "5c35bd322ff18dc5271fc568dc3c29d234e0c34bd8762ac0ba62d39b891765f1",
+      "normalizedLfSha256": "5c35bd322ff18dc5271fc568dc3c29d234e0c34bd8762ac0ba62d39b891765f1"
+    },
+    {
+      "path": "src/server/instructor/assessments/workflow.ts",
+      "sha256": "9f50f46b370e5d110924b2641a3593ade1f66a3e2d34d2fd706942cab92cc211",
+      "normalizedLfSha256": "9f50f46b370e5d110924b2641a3593ade1f66a3e2d34d2fd706942cab92cc211"
+    },
+    {
+      "path": "src/server/instructor/ports/contracts.ts",
+      "sha256": "75f69de0f0acc221862d3b9fb8a2381bf79cc54ec3a6cef619bc60f46e3efe31",
+      "normalizedLfSha256": "75f69de0f0acc221862d3b9fb8a2381bf79cc54ec3a6cef619bc60f46e3efe31"
+    },
+    {
+      "path": "src/shared/instructor-contracts/ai.ts",
+      "sha256": "96984d66c015f00925cd56c6c8e5b556bd4ae1283d82897c01a26ed372cf42fc",
+      "normalizedLfSha256": "96984d66c015f00925cd56c6c8e5b556bd4ae1283d82897c01a26ed372cf42fc"
+    },
+    {
+      "path": "src/shared/instructor-contracts/release.ts",
+      "sha256": "941e67f700dd3aad4d583225aba09a5d7ae7d78c92791a4379b7bd8d4bff3e36",
+      "normalizedLfSha256": "941e67f700dd3aad4d583225aba09a5d7ae7d78c92791a4379b7bd8d4bff3e36"
+    },
+    {
+      "path": "src/shared/instructor-contracts/submission.ts",
+      "sha256": "206991a0432c8912c1ae59b4f6651b9cdb00afec1c2f5ef1df2e822573688bff",
+      "normalizedLfSha256": "206991a0432c8912c1ae59b4f6651b9cdb00afec1c2f5ef1df2e822573688bff"
+    },
+    {
+      "path": "src/server/db/migrations/0013_ai_gateway.sql",
+      "sha256": "2da52cb1c6e2cb350b675988870822751f9a6572cabb657d01117ee9ee9e7736",
+      "normalizedLfSha256": "2da52cb1c6e2cb350b675988870822751f9a6572cabb657d01117ee9ee9e7736"
+    },
+    {
+      "path": "src/server/db/migrations/0014_assessment_ai_candidates.sql",
+      "sha256": "1ab8e9350aa49517177735026cc003b13a6c64daf01da22a0183943e58e95406",
+      "normalizedLfSha256": "1ab8e9350aa49517177735026cc003b13a6c64daf01da22a0183943e58e95406"
+    },
+    {
+      "path": "workflow/contracts/progress-gateway-consumer.ts",
+      "sha256": "31f71161c30f2f4156bf23d2eaf37894d0739ba0dfeb331bef99b4c51e192dce",
+      "normalizedLfSha256": "31f71161c30f2f4156bf23d2eaf37894d0739ba0dfeb331bef99b4c51e192dce"
+    }
+  ],
+  "publicationBaseCommit": "46830b6ffda2eeae20e615223836e010faf1afad",
+  "publicationNote": "Original working-copy audit hashes retained; index differs on publication base. Published gateway blobs use normalized LF text; no student/index blob is changed."
+}
