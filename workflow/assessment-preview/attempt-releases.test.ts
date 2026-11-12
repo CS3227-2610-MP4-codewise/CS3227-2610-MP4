@@ -1,178 +1,127 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { assessmentDatabase } from './database';
-import { fixture } from './fixture';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { composedEnvironment } from '../../src/server/student/composed-fixture';
+import { principal } from '../../src/server/student/test-fixture';
 import { currentnessSchema } from '../../src/shared/instructor-contracts/release';
 
 /**
- * student-released-feedback 5.1 (SF-01, SF-05, C-REL): producer tests for
- * `ReleaseReadPort.attemptReleases`, written by Keith in the 2026-11-12 window beside Darryl's
- * assessment tests, for Darryl's review. Synthetic fixture on local D1.
+ * student-released-feedback 5.1 and the batched-authorization amendment (SF-01, SF-05, OPS-01,
+ * C-REL): producer tests for `ReleaseReadPort.attemptReleases`, written by Keith beside Darryl's
+ * assessment tests for his review. They run on the composed local-D1 fixture because the batched
+ * check reads student attempts and course membership in SQL. Synthetic data only.
  */
-let database: Awaited<ReturnType<typeof assessmentDatabase>>,
-  f: Awaited<ReturnType<typeof fixture>>;
-beforeEach(async () => {
-  database = await assessmentDatabase();
-  f = await fixture(database.db);
-}, 20000);
-afterEach(async () => {
-  await database?.close();
+let env: Awaited<ReturnType<typeof composedEnvironment>>;
+let version = '';
+const lookup = (user: string, ids: string[], as = user) =>
+  env.port(user).attemptReleases(principal(as), ids);
+
+beforeAll(async () => {
+  env = await composedEnvironment('attempt-releases-producer-test');
+  version = await env.assignment();
+}, 30000);
+afterAll(async () => {
+  await env?.mf.dispose();
 });
 
-const own = () => f.attempt.attemptId;
-const asStudent = () => {
-  f.state.role = 'student';
-  Object.assign(f.principal, { userId: 'student_synthetic' });
-};
-const asInstructor = () => {
-  f.state.role = 'instructor';
-  Object.assign(f.principal, { userId: 'instructor_synthetic' });
-};
-const lookup = (ids: string[]) =>
-  f.service().consumer(f.request()).attemptReleases(f.principal, ids);
-
-async function created() {
-  return f.service().create(f.request('/', 'POST'), {
-    attemptId: own(),
-    requestKey: 'create_assessment',
-  });
-}
-async function approve(v: Awaited<ReturnType<typeof created>>) {
-  return f.service().approve(f.request('/', 'POST'), v.head.id, {
-    expectedRevisionId: v.head.headRevisionId,
-    expectedAvailabilityRevision: v.head.availabilityRevision,
-  });
-}
-async function releaseNext(
-  v: Awaited<ReturnType<typeof created>>,
-  key: string,
-) {
-  return f.service().release(f.request('/', 'POST'), v.head.id, {
-    schemaVersion: 1,
-    assessmentId: v.head.id,
-    assessmentRevisionId: v.head.headRevisionId,
-    expectedAvailabilityRevision: v.head.availabilityRevision,
-    idempotencyKey: key,
-  });
-}
-async function graded() {
-  const v = await created();
-  return f.service().save(f.request('/', 'PUT'), v.head.id, {
-    expectedRevisionId: v.head.headRevisionId,
-    feedback: {
-      ...v.revision.feedback,
-      criteria: v.revision.feedback.criteria.map((c) => ({
-        ...c,
-        score: 4,
-        explanation: 'Static inspection only; code was not executed.',
-      })),
-    },
-  });
-}
-async function withdraw(id: string, version: number, key: string) {
-  const current = await f.service().load(f.request(), id);
-  await f.service().withdraw(f.request('/', 'POST'), id, {
-    schemaVersion: 1,
-    assessmentId: id,
-    releaseVersion: version,
-    expectedAvailabilityRevision: current.head.availabilityRevision,
-    idempotencyKey: key,
-    reason: 'Private instructor correction reason',
-  });
-}
-
-describe('ReleaseReadPort.attemptReleases (student-released-feedback D1)', () => {
+describe('ReleaseReadPort.attemptReleases (batched authorization)', () => {
   it('rejects empty, oversized and duplicate batches before any read', async () => {
-    asStudent();
+    const a = await env.submitted('s1', version, 'bounds');
     for (const ids of [
       [],
       Array.from({ length: 51 }, (_, i) => 'attempt_' + i),
-      [own(), own()],
+      [a, a],
     ])
-      await expect(lookup(ids)).rejects.toMatchObject({
+      await expect(lookup('s1', ids)).rejects.toMatchObject({
         code: 'INVALID_CONTRACT',
       });
   });
 
   it('returns null with no assessment and for an assessed but unreleased attempt', async () => {
-    asStudent();
-    expect((await lookup([own()])).get(own())).toBeNull();
-    asInstructor();
-    await approve(await graded());
-    asStudent();
-    const found = await lookup([own()]);
-    expect([...found.keys()]).toEqual([own()]);
-    expect(found.get(own())).toBeNull();
-    expect(JSON.stringify([...found])).not.toMatch(
-      /score|explanation|approv|revision_|actor/i,
-    );
+    const none = await env.submitted('s1', version, 'none');
+    const draft = await env.submitted('s1', version, 'draft');
+    const v = await env.instructor.graded(draft, 'draft');
+    await env.instructor.approve(v.head.id);
+    const found = await lookup('s1', [none, draft]);
+    expect([...found.entries()]).toEqual([
+      [none, null],
+      [draft, null],
+    ]);
   }, 20000);
 
-  it('fails the whole batch when one attempt is foreign, and for a foreign or revoked caller', async () => {
-    asInstructor();
-    await releaseNext(await approve(await graded()), 'release_1');
-    asStudent();
-    await expect(lookup([own(), 'attempt_foreign'])).rejects.toMatchObject({
-      code: expect.stringMatching(/^(FORBIDDEN|NOT_FOUND)$/),
-    });
-    await expect(lookup(['attempt_foreign'])).rejects.toMatchObject({
-      code: expect.stringMatching(/^(FORBIDDEN|NOT_FOUND)$/),
-    });
-    Object.assign(f.principal, { userId: 'foreign_student' });
-    await expect(lookup([own()])).rejects.toMatchObject({
-      code: 'FORBIDDEN',
-    });
-    asStudent();
-    f.state.revoked = true;
-    await expect(lookup([own()])).rejects.toMatchObject({
-      code: expect.stringMatching(/^(FORBIDDEN|UNAUTHENTICATED)$/),
-    });
+  it('fails the whole batch for one foreign or unknown attempt, another caller, an instructor or a session mismatch', async () => {
+    const own = await env.submitted('s1', version, 'own');
+    const other = await env.submitted('s2', version, 'other');
+    const v = await env.instructor.graded(own, 'own');
+    await env.instructor.approveAndRelease(v.head.id, 'own');
+    const denied = { code: 'FORBIDDEN' };
+    await expect(lookup('s1', [own, other])).rejects.toMatchObject(denied);
+    await expect(lookup('s1', [own, 'attempt_unknown'])).rejects.toMatchObject(
+      denied,
+    );
+    await expect(lookup('s2', [own])).rejects.toMatchObject(denied);
+    await expect(lookup('inst', [own])).rejects.toMatchObject(denied);
+    // The principal must be the request's own session.
+    await expect(lookup('s1', [own], 's2')).rejects.toMatchObject(denied);
+    expect((await lookup('s1', [own])).get(own)?.releaseVersions).toEqual([1]);
   }, 20000);
+
+  it('denies a revoked member', async () => {
+    const a = await env.submitted('gone', version, 'gone');
+    expect((await lookup('gone', [a])).get(a)).toBeNull();
+    await env.db
+      .prepare("UPDATE course_memberships SET active=0 WHERE user_id='gone'")
+      .run();
+    try {
+      await expect(lookup('gone', [a])).rejects.toMatchObject({
+        code: 'FORBIDDEN',
+      });
+    } finally {
+      await env.db
+        .prepare("UPDATE course_memberships SET active=1 WHERE user_id='gone'")
+        .run();
+    }
+  });
 
   it('lists superseded and withdrawn versions through the K5 sequence without revival', async () => {
-    asInstructor();
-    const v = await approve(await graded());
-    await releaseNext(v, 'release_1');
-    asStudent();
-    let entry = (await lookup([own()])).get(own())!;
+    const a = await env.submitted('s1', version, 'k5');
+    const v = await env.instructor.graded(a, 'k5');
+    const read = async () => (await lookup('s1', [a])).get(a)!;
+    await env.instructor.approveAndRelease(v.head.id, 'k5-1');
+    let entry = await read();
     expect(entry.assessmentId).toBe(v.head.id);
     expect(entry.releaseVersions).toEqual([1]);
     expect(currentnessSchema.parse(entry.currentness)).toMatchObject({
-      submissionAttemptId: own(),
+      submissionAttemptId: a,
       currentReleaseVersion: 1,
       withdrawnReleaseVersions: [],
     });
-
-    asInstructor();
-    let next = await f.service().correct(f.request('/', 'POST'), v.head.id, {
-      expectedRevisionId: v.head.headRevisionId,
-      sourceRevisionId: v.head.headRevisionId,
-    });
-    next = await approve(next);
-    await releaseNext(next, 'release_2');
-    asStudent();
-    entry = (await lookup([own()])).get(own())!;
-    expect(entry.releaseVersions).toEqual([1, 2]);
-    expect(entry.currentness.currentReleaseVersion).toBe(2);
-
-    asInstructor();
-    await withdraw(v.head.id, 1, 'withdraw_1');
-    asStudent();
-    entry = (await lookup([own()])).get(own())!;
-    expect(entry.releaseVersions).toEqual([1, 2]);
-    expect(entry.currentness).toMatchObject({
+    await env.instructor.correct(v.head.id);
+    await env.instructor.approveAndRelease(v.head.id, 'k5-2');
+    expect((await read()).releaseVersions).toEqual([1, 2]);
+    await env.instructor.withdraw(v.head.id, 1, 'k5-1');
+    expect((await read()).currentness).toMatchObject({
       currentReleaseVersion: 2,
       withdrawnReleaseVersions: [1],
     });
-
-    asInstructor();
-    await withdraw(v.head.id, 2, 'withdraw_2');
-    asStudent();
-    entry = (await lookup([own()])).get(own())!;
+    await env.instructor.withdraw(v.head.id, 2, 'k5-2');
+    entry = await read();
     expect(entry.releaseVersions).toEqual([1, 2]);
     expect(entry.currentness).toMatchObject({
       currentReleaseVersion: null,
       withdrawnReleaseVersions: [1, 2],
     });
-    expect(entry.currentness.availabilityRevision).toBeGreaterThan(3);
+    expect(Object.keys(entry).sort()).toEqual([
+      'assessmentId',
+      'currentness',
+      'releaseVersions',
+    ]);
   }, 30000);
+
+  it('accepts a full page of 50 own attempts', async () => {
+    const ids: string[] = [];
+    for (let i = 0; i < 50; i++)
+      ids.push(await env.submitted('s1', version, 'page' + i));
+    const found = await lookup('s1', ids);
+    expect(found.size).toBe(50);
+    expect([...found.values()].every((x) => x === null)).toBe(true);
+  }, 60000);
 });

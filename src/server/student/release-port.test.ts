@@ -145,4 +145,29 @@ describe('student feedback through the real composed producer (5.2)', () => {
         .run();
     }
   }, 30000);
+  it('still denies a session revoked during the request although the session is resolved once', async () => {
+    const version = await assignment();
+    const attempt = await submitted('s2', version, 'revoke-mid');
+    const inst = instructor();
+    const v = await inst.releasedAssessment(attempt, 'revoke-mid');
+    await inst.approveAndRelease(v.head.id, 'revoke-mid');
+    const port = env.port('s2');
+    const found = await port.attemptReleases(principal('s2'), [attempt]);
+    const assessmentId = found.get(attempt)!.assessmentId;
+    await env.db
+      .prepare("UPDATE auth_sessions SET revoked_at=1 WHERE user_id='s2'")
+      .run();
+    try {
+      await expect(
+        port.getAuthorized(principal('s2'), assessmentId, 1),
+      ).rejects.toBeInstanceOf(BoundaryError);
+      await expect(
+        port.attemptReleases(principal('s2'), [attempt]),
+      ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    } finally {
+      await env.db
+        .prepare("UPDATE auth_sessions SET revoked_at=NULL WHERE user_id='s2'")
+        .run();
+    }
+  }, 30000);
 });

@@ -816,43 +816,6 @@ export class AssessmentService {
       )
         throw new BoundaryError('STALE_EVIDENCE');
     };
-    /**
-     * student-released-feedback D1 (Keith, 2026-11-12 window): an attempt with no assessment has
-     * no assessment ID for `authorize`, so ownership is checked the same way through the
-     * submission object: request-bound principal, student-read course authority and the exact
-     * own attempt. A foreign attempt therefore fails even when nothing has been assessed.
-     */
-    const authorizeAttempt = async (
-      principal: TrustedPrincipal,
-      attemptId: string,
-    ) => {
-      const current = await this.session(request);
-      if (
-        current.userId !== principal.userId ||
-        current.sessionHandle !== principal.sessionHandle
-      )
-        throw new BoundaryError('FORBIDDEN');
-      const scope = await this.identity!.requireObject(
-        current,
-        { kind: 'submission', id: attemptId },
-        'read',
-      );
-      await this.identity!.requireCourse(
-        current,
-        scope.courseId,
-        'student-read',
-      );
-      if (!this.submissions) throw new BoundaryError('UPSTREAM_UNAVAILABLE');
-      const attempt = attemptSchema.parse(
-        await this.submissions.getAuthorized(current, attemptId),
-      );
-      if (
-        attempt.attemptId !== attemptId ||
-        attempt.courseId !== scope.courseId ||
-        attempt.submittedByUserId !== current.userId
-      )
-        throw new BoundaryError('FORBIDDEN');
-    };
     return {
       attemptReleases: async (p, attemptIds) => {
         const ids = array(
@@ -863,22 +826,40 @@ export class AssessmentService {
           MAX_ATTEMPT_RELEASES_BATCH,
         );
         unique(ids, '$.attemptIds');
-        const found = await this.repository.attemptReleases(
+        // student-released-feedback D1, amended 2026-11-12 (OPS-01): one request-bound session
+        // check and one D1 batch authorize the whole batch, instead of a per-attempt `authorize`.
+        // The batch verifies in SQL that every attempt is the caller's own with current Student
+        // membership; one miss fails the call. Only metadata is disclosed; content reads
+        // (`getAuthorized`) keep the full per-attempt `authorize` and evidence check.
+        const current = await this.session(request);
+        if (
+          current.userId !== p.userId ||
+          current.sessionHandle !== p.sessionHandle
+        )
+          throw new BoundaryError('FORBIDDEN');
+        const { owned, found } = await this.repository.attemptReleases(
           ids,
-          this.clock().toISOString(),
+          current,
+          this.clock(),
         );
-        // All-or-nothing: every attempt is authorized after the read and before any disclosure.
         for (const attemptId of ids) {
+          const course = owned.get(attemptId);
           const entry = found.get(attemptId);
-          if (entry) await authorize(p, entry.assessmentId);
-          else await authorizeAttempt(p, attemptId);
+          if (!course || (entry && entry.courseId !== course))
+            throw new BoundaryError('FORBIDDEN');
         }
         return new Map(
           ids.map((attemptId) => {
             const entry = found.get(attemptId);
             return [
               attemptId,
-              entry && entry.releaseVersions.length > 0 ? entry : null,
+              entry && entry.releaseVersions.length > 0
+                ? {
+                    assessmentId: entry.assessmentId,
+                    currentness: entry.currentness,
+                    releaseVersions: entry.releaseVersions,
+                  }
+                : null,
             ] as const;
           }),
         );

@@ -51,8 +51,17 @@ export function studentReleasePort(
     if (!row) throw new BoundaryError('FORBIDDEN');
     return row.course_id;
   };
+  // OPS-01: a production session check costs 4 D1 queries and a provider lookup, and the
+  // producer re-resolves the session in every `authorize`. Resolve it once per request here.
+  // Revocation is still caught at each step: every object and attempt check below embeds
+  // `currentStudentGuard`, which re-checks the session row (revoked, expired, idle) in SQL.
+  let session: Promise<TrustedPrincipal> | undefined;
   const studentIdentity: IdentityCoursePort = {
     ...identity,
+    requireSession: (r) =>
+      r === request
+        ? (session ??= identity.requireSession(r))
+        : identity.requireSession(r),
     async requireObject(principal, target, action) {
       if (action !== 'read') throw new BoundaryError('FORBIDDEN');
       const targetId = id(target.id, '$.id');
@@ -72,10 +81,12 @@ export function studentReleasePort(
     getAuthorized: (principal, attemptId) => work.attempt(principal, attemptId),
   };
   // The consumer reads no publication, so no publication port is supplied.
+  // One clock for the student guard and the producer's currentness and session checks.
   return new AssessmentService(
     repository,
     studentIdentity,
     submissions,
     undefined,
+    () => new Date(work.clock()),
   ).consumer(request);
 }

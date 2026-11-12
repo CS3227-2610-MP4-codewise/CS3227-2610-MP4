@@ -1,48 +1,60 @@
 # D1 read cost per feedback open and history page (task 3.3)
 
-Requirement IDs: SF-07, OPS-01. Measured on 2026-11-12 on local D1 (Miniflare, Node, this laptop) at revision `1edbb16`, with synthetic data. Local timings are indicative only and are not Cloudflare edge latency.
+Requirement IDs: SF-07, OPS-01. Measured on 2026-11-12 on local D1 (Miniflare, Node, this laptop) with synthetic data. Local timings are indicative only and are not Cloudflare edge latency.
+
+## Limit that applies
+
+The project is on the Workers **Free** plan (Keith, 2026-11-12). Per [Cloudflare's D1 limits](https://developers.cloudflare.com/d1/platform/limits/), the Free plan allows **50 D1 queries per Worker invocation**, and one `db.batch()` counts as one query. Workers Free also caps external subrequests at 50 per invocation ([Workers limits](https://developers.cloudflare.com/workers/platform/limits/)). The "D1 calls" column below is therefore the figure that counts against the limit.
 
 ## Method
 
-- **Script:** a temporary vitest file, kept as [read-cost.measure.ts.txt](read-cost.measure.ts.txt) and not part of the suite. It wraps the D1 binding in a counting Proxy through `composedEnvironment(name, wrap)` in `src/server/student/composed-fixture.ts`.
+- **Script:** a temporary vitest file, kept as [read-cost.measure.ts.txt](read-cost.measure.ts.txt) and not part of the suite. It wraps the D1 binding in a counting Proxy through `composedEnvironment(name, wrap)` in `src/server/student/composed-fixture.ts`, and counts calls to the underlying session port.
 - **Each request runs 5 times.** The table shows the counts from the last run (they were stable) and the median and maximum wall time.
 - **Columns:**
-  - "Round trips": D1 calls, where one `batch` counts as one call.
+  - "D1 calls": one `batch` counts as one call.
   - "Statements": SQL statements, where a batch counts each statement inside it.
-  - "Rows read": the sum of D1 `meta.rows_read`.
-- **Setup:** one assignment version with 2 questions; student `s1`. The released attempt has v1 superseded and v2 current. The real producer is `studentReleasePort`; the fake is `FakeReleasePort`, which itself makes no D1 calls.
+  - "Rows read": the sum of `meta.rows_read`.
+- **Production estimate.** The test session port makes no D1 calls. A production session check (`ManagedAuthRoutes.requireSession`) makes 4 D1 queries (session touch, session read, provider binding, owner status) and 1 external Firebase account lookup. So production D1 ≈ measured D1 calls + 4 × session checks, and external calls ≈ session checks. This is derived from the code, not measured against production.
+- **Setup:** one assignment version with 2 questions; student `s1`. The released attempt has v1 superseded and v2 current.
 
-## Results
+## After the fixes (revision with this file; current)
 
-| Request                                                     | Producer | Round trips | Statements | Rows read | Median ms | Max ms |
-| ----------------------------------------------------------- | -------- | ----------: | ---------: | --------: | --------: | -----: |
-| `GET .../feedback`: released (v2 current)                   | real     |          30 |         42 |       166 |     143.6 |  150.5 |
-| `GET .../feedback/1`: superseded version                    | real     |          30 |         42 |       166 |     131.4 |  149.0 |
-| `GET .../feedback`: assessed, not released                  | real     |           7 |         11 |        46 |      31.5 |   37.2 |
-| `GET .../feedback`: no assessment                           | real     |           5 |          9 |        43 |      23.0 |   28.6 |
-| History page, 3 attempts (1 released, 1 assessed, 1 none)   | real     |          15 |         21 |       125 |      71.0 |  106.6 |
-| History page, 20 attempts (1 released, 1 assessed, 18 none) | real     |          66 |         89 |       703 |     303.5 |  322.5 |
-| `GET .../feedback`: released                                | fake     |           1 |          2 |        17 |       6.1 |    7.1 |
-| History page, 20 attempts                                   | fake     |           1 |          2 |       109 |       6.0 |    6.6 |
+Two changes:
 
-## Reading the numbers
+1. `attemptReleases` authorizes the whole batch with one session check plus one SQL ownership and current-Student check inside its single D1 batch. This was agreed by Darryl and is recorded in the Ownership.md amendment.
+2. `studentReleasePort` resolves the session once per request. Revocation is still re-checked at every step by `currentStudentGuard` in SQL; `release-port.test.ts` covers a session revoked partway through a request.
 
-- **Fake versus real.** With the fake producer, the student side costs one round trip, the guarded own-attempt or history read. Everything else is the producer's authorization.
-- **A released open costs about 30 round trips on the real producer.** The consumer calls `attemptReleases`, `getAuthorized` and `currentness`. Each runs the producer's `authorize`, `getAuthorized` runs it twice, and each `authorize` does session, object, course and submission reads plus an evidence hash. This is the "bounded per request" cost that design.md's Risks section anticipated.
-- **The history marker grows with page size: about 3 round trips per attempt** (15 for 3 attempts, 66 for 20). `attemptReleases` makes one D1 read for the mapping, but it then authorizes every attempt individually. A full page of 50 (`STUDENT_ATTEMPT_PAGE`) would be roughly 150+ round trips.
+| Request (real producer)                    | D1 calls | Statements | Rows read | Session checks | Production D1 (est.) | External (est.) | Median ms | Max ms |
+| ------------------------------------------ | -------: | ---------: | --------: | -------------: | -------------------: | --------------: | --------: | -----: |
+| `GET .../feedback`: released (v2 current)  |       25 |         37 |       143 |              2 |               **33** |               2 |     113.6 |  114.5 |
+| `GET .../feedback/1`: superseded version   |       25 |         37 |       143 |              2 |               **33** |               2 |     102.2 |  108.2 |
+| `GET .../feedback`: assessed, not released |        2 |          6 |        25 |              2 |               **10** |               2 |      11.4 |   12.5 |
+| `GET .../feedback`: no assessment          |        2 |          6 |        21 |              2 |               **10** |               2 |      12.8 |   17.2 |
+| History page, 3 attempts                   |        2 |          6 |        62 |              2 |               **10** |               2 |      11.4 |   12.8 |
+| History page, 20 attempts                  |        2 |          6 |       280 |              2 |               **10** |               2 |      15.2 |   15.4 |
+| History page, 50 attempts (full page)      |        2 |          6 |       670 |              2 |               **10** |               2 |      13.6 |   20.6 |
 
-## Finding (OPS-01, for Keith and Darryl)
+For comparison, the fake producer: released summary 1 D1 call (5 production estimate), and a 20-attempt history page 1 (5).
 
-Cloudflare limits D1 queries per Worker invocation. As I understand Cloudflare's published limits, this is 50 on the Free plan and 1,000 on Paid. **Verify this against current documentation and the project's actual plan, which is not recorded in this repository.**
+**History is now constant per page.** A full page of 50 is an estimated 10 production D1 queries.
 
-- A 20-attempt history page already makes 89 statements.
-- On a 50-query limit, history pages above roughly 15 attempts, or a released open combined with other work, could fail.
-- Because SF-07 degrades to "no marker" on any producer failure, the history list itself would still load, but markers would silently disappear.
+**A released open is an estimated 33, under 50 with a margin of 17.** Its remaining cost is Darryl's per-attempt `authorize`, which runs 4 times per open (twice in `getAuthorized`, twice in `currentness`). Each run makes about 5 D1 calls: assessment scope, object check (2), course membership, and the guarded attempt read. That is intentional for content reads. If the margin is needed later, the options are to merge the student object check's two queries into one, or to drop the consumer's own `currentness` re-check, since `getAuthorized` already re-checks internally (that would mean revising design D2 step 5).
 
-Options, not implemented, needing a decision:
+## Before the fixes (`1edbb16`, superseded)
 
-1. Batch authorization in the producer's `attemptReleases`: one SQL ownership and membership check for all IDs instead of a per-attempt `authorize`. This is a producer change and needs Darryl's review.
-2. Request markers only for the attempts the page shows above the fold, or cap the batch smaller than 50.
-3. Accept the cost on the Paid plan and record the measured margin.
+Local D1 calls as measured, with production session cost derived from the code:
 
-These are local Miniflare counts. Edge latency, cold starts and production data volumes were not measured.
+| Request                   | D1 calls (measured) | Session checks (derived) | Production D1 (est.) |
+| ------------------------- | ------------------: | -----------------------: | -------------------: |
+| Released open             |                  30 |                        6 |     ~54: **over 50** |
+| History page, 20 attempts |                  66 |                      ~21 |    ~150: **over 50** |
+| History page, 50 attempts | ~156 (extrapolated) |                      ~51 |    ~360: **over 50** |
+
+Before the fixes, `attemptReleases` ran the full `authorize` (with its own session check) once per attempt, and every `authorize` re-resolved the session.
+
+## Limits of this evidence
+
+- These are local Miniflare counts, not edge measurements.
+- Production session cost is derived from `ManagedAuthRoutes.requireSession`; Firebase admin-token fetches are not counted.
+- Free-plan daily row-read and row-write quotas also apply. A full history page reads about 670 rows locally.
+- Cold starts and production data volumes were not measured.
