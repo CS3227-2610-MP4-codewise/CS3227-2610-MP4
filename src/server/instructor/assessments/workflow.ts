@@ -49,6 +49,7 @@ export class AssessmentWorkflow {
     readonly repository: AssessmentRepository,
     readonly submissions?: SubmissionCatalog,
     gatewayFactory?: AssessmentGatewayFactory,
+    ownedAttempts?: SubmissionReadPort,
   ) {
     const identity: IdentityCoursePort = {
       ...base,
@@ -124,6 +125,7 @@ export class AssessmentWorkflow {
       undefined,
       undefined,
       gatewayFactory?.(resolver),
+      ownedAttempts,
     );
   }
   async authorizeDestination(principal: TrustedPrincipal, destination: string) {

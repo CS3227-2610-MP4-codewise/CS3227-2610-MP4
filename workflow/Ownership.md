@@ -171,3 +171,11 @@ Darryl's `AuthStore.rate` (`src/server/auth/store.ts`) is consumed unchanged, no
 ### Extension — SubmissionCatalog composition (task 6.2), reported agreed 2026-11-12
 
 Keith reported on 2026-11-12 that he may apply the C-SUB composition himself: Keith is the writer for the `AssessmentWorkflow` submissions argument in `src/server/index.ts` (real `D1SubmissionCatalog` outside the loopback sample run; loopback samples stay exclusive when the connected-preview port supplies them). No other part of `index.ts` is opened. This record carries Keith's report; Darryl's direct review is not claimed.
+
+## Real assessment integration writer window — 2026-11-12
+
+Darryl is sole writer for `src/server/instructor/assessments/service.ts` consumer authorization, new `src/server/instructor/assessments/owned-attempt.ts` adapter, `src/server/instructor/assessments/workflow.ts` and `src/server/index.ts` composition, `workflow/connected-preview/real-submission.test.ts` integration verification, and related tasks, evidence, handoff and Darryl log. Instructor catalog and Keith student implementation remain unchanged. This records Darryl's explicit authorization, not Keith approval.
+
+Darryl also writes `src/server/instructor/assessments/release-http.ts` (read-only C-REL HTTP adapter) and the release-existence check in `src/server/instructor/assessments/repository.ts`; focused tests remain in `workflow/connected-preview/real-submission.test.ts`. This is an additive consumer of the existing contract and does not claim Keith approval.
+Darryl also writes `workflow/assessment-preview/fixture.ts` to supply the distinct synthetic owned-attempt port to existing lifecycle tests.
+Darryl also writes `src/web/instructor/assignments/InstructionEditor.interaction.test.ts` solely to investigate and, if confirmed, accommodate the lazy preview's local loading time while retaining the rendered-bold assertion.
