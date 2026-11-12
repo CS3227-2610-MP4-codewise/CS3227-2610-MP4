@@ -56,7 +56,24 @@ export interface ReleaseReadPort {
     releaseVersion: number,
   ): Promise<Release | Withdrawn>;
   currentness(principal: TrustedPrincipal, id: string): Promise<Currentness>;
+  /**
+   * C-REL student lookup (student-released-feedback D1, agreed 2026-11-12): for 1..50 unique
+   * attempt IDs that must all be the caller's own, each attempt's assessment, currentness and
+   * every version ever released (including superseded and withdrawn), or `null` when there is no
+   * assessment or no release. Authorization is all-or-nothing: one denied attempt fails the call.
+   */
+  attemptReleases(
+    principal: TrustedPrincipal,
+    attemptIds: readonly string[],
+  ): Promise<Map<string, AttemptReleases | null>>;
 }
+export const MAX_ATTEMPT_RELEASES_BATCH = 50;
+export type AttemptReleases = {
+  assessmentId: string;
+  currentness: Currentness;
+  /** Ascending; includes superseded and withdrawn versions. */
+  releaseVersions: number[];
+};
 export interface AIGatewayPort<A extends AIAction, T> {
   request(
     principal: TrustedPrincipal,

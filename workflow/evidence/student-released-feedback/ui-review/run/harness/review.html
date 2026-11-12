@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><title>Feedback review controls</title
+  ><style>
+    body {
+      font: 16px Arial;
+      background: #ddd;
+    }
+    iframe {
+      display: block;
+      border: 0;
+      height: 1200px;
+      margin-top: 16px;
+      background: white;
+    }
+  </style>
+  <h1>Synthetic loopback review</h1>
+  <label
+    >Width
+    <select id="width">
+      <option>320</option>
+      <option>768</option>
+      <option>1024</option>
+      <option selected>1440</option>
+    </select></label
+  ><label
+    >Theme
+    <select id="theme">
+      <option>light</option>
+      <option>dark</option>
+    </select></label
+  ><label
+    >State
+    <select id="state"></select></label
+  ><iframe title="Synthetic submitted feedback panel"></iframe>
+  <script>
+    const states = [
+      'loading',
+      'none',
+      'released',
+      'released-noannotations',
+      'replaced',
+      'withdrawn-historical',
+      'withdrawn-current',
+      'unmatched',
+      'stale',
+      'expired',
+      'network',
+      'unavailable',
+      'history',
+    ];
+    const q = new URLSearchParams(location.search);
+    const fields = ['width', 'theme', 'state'].map((id) =>
+      document.getElementById(id),
+    );
+    for (const state of states)
+      fields[2].add(
+        new Option(state, state, state === 'released', state === 'released'),
+      );
+    for (const field of fields) {
+      if (q.has(field.id)) field.value = q.get(field.id);
+      field.onchange = update;
+    }
+    function update() {
+      const [w, t, s] = fields.map((f) => f.value);
+      const frame = document.querySelector('iframe');
+      frame.style.width = w + 'px';
+      frame.src = 'index.html?theme=' + t + '&state=' + s;
+    }
+    update();
+  </script>
+</html>

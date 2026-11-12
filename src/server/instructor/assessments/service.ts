@@ -6,6 +6,8 @@ import {
   schema,
   sourceHash,
   integer,
+  array,
+  unique,
 } from '../../../shared/instructor-contracts/schema';
 import {
   draftFeedbackSchema,
@@ -36,6 +38,7 @@ import type {
   ReleaseReadPort,
   AIGatewayPort,
 } from '../ports/contracts';
+import { MAX_ATTEMPT_RELEASES_BATCH } from '../ports/contracts';
 import {
   validateAssessmentDraft,
   type AssessmentDraft,
@@ -821,6 +824,53 @@ export class AssessmentService {
         throw new BoundaryError('STALE_EVIDENCE');
     };
     return {
+      attemptReleases: async (p, attemptIds) => {
+        const ids = array(
+          attemptIds,
+          (v, path) => id(v, path),
+          '$.attemptIds',
+          1,
+          MAX_ATTEMPT_RELEASES_BATCH,
+        );
+        unique(ids, '$.attemptIds');
+        // student-released-feedback D1, amended 2026-11-12 (OPS-01): one request-bound session
+        // check and one D1 batch authorize the whole batch, instead of a per-attempt `authorize`.
+        // The batch verifies in SQL that every attempt is the caller's own with current Student
+        // membership; one miss fails the call. Only metadata is disclosed; content reads
+        // (`getAuthorized`) keep the full per-attempt `authorize` and evidence check.
+        const current = await this.session(request);
+        if (
+          current.userId !== p.userId ||
+          current.sessionHandle !== p.sessionHandle
+        )
+          throw new BoundaryError('FORBIDDEN');
+        const { owned, found } = await this.repository.attemptReleases(
+          ids,
+          current,
+          this.clock(),
+        );
+        for (const attemptId of ids) {
+          const course = owned.get(attemptId);
+          const entry = found.get(attemptId);
+          if (!course || (entry && entry.courseId !== course))
+            throw new BoundaryError('FORBIDDEN');
+        }
+        return new Map(
+          ids.map((attemptId) => {
+            const entry = found.get(attemptId);
+            return [
+              attemptId,
+              entry && entry.releaseVersions.length > 0
+                ? {
+                    assessmentId: entry.assessmentId,
+                    currentness: entry.currentness,
+                    releaseVersions: entry.releaseVersions,
+                  }
+                : null,
+            ] as const;
+          }),
+        );
+      },
       getAuthorized: async (p, value, version) => {
         await authorize(p, value);
         const state = await this.repository.publicState(

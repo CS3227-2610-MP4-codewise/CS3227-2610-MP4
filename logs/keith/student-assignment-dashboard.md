@@ -336,3 +336,44 @@ Verify 7 reported bugs and fix with a generator-verifier workflow
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 50002860; cached input subset 49231924; output 247221; reasoning output subset 58224; total 50250081.
 - Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-assignment-dashboard:partial-finalization-2026-11-12 -->
+<!-- experiment-turns:partial-finalization-2026-11-12:cfa811d393a2b6ff,64c2fb686d277fad,14a520cfe392b20a,402e6929b3d05e45 -->
+## Checkpoint `partial-finalization-2026-11-12` — 2026-11-11T19:25:05.713580+00:00
+
+### Request
+
+Keith asked to sync, then finalize as partial, the dashboard run f583d5e3 left in draining-to-stop, and record the correction in this log.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Sync could not settle the run: Reviewer child a36f12cb transcript ends after a tool result at 2026-11-10T03:15:57Z with no end_turn, so no terminal evidence will ever appear. With explicit approval, ran finalize --partial for run f583d5e3 only; state is now stopped, partial=1, Reviewer turn 19f1ac67 partial. Usage observed up to the cutoff is retained; anything after it is unavailable. Earlier entries are unchanged; the provisional rows in checkpoint post-review-fixes-2026-11-10 are reconciled below.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: tracker status --session c1aaaded --run f583d5e3 (local, ignored .experiment-tracker/).
+- Remaining limitations and next owner: None for this run. Treat its totals as partial in any comparison. Keith: name the next increment to start recording..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T03:22:15.586Z | 2026-11-10T03:23:24.831Z | final | claude-opus-5-5 | medium | 4855 | 1438 | 4855 |
+| Implementer / implementer | c1aaaded | root | 2026-11-10T03:30:05.224Z | 2026-11-10T03:30:31.498Z | final | claude-opus-5-5 | medium | 1597 | 242 | 1597 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Reviewer / reviewer | a36f12cb | 2026-11-10T03:09:16.262Z | provisional | partial | 19629 | 8044 | 19629 (partial) |
+| Implementer / implementer | c1aaaded | 2026-11-10T03:15:57.182Z | provisional | final | 6665 | 696 | 6665 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 56977085; cached input subset 56189943; output 255428; reasoning output subset 59957; total 57232513.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

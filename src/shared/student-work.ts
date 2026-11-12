@@ -14,6 +14,7 @@ import {
   type Infer,
 } from './instructor-contracts/schema';
 import { routeIdentifier } from './student-assignments';
+import { feedbackReleasedFlag } from './student-feedback';
 
 /**
  * SW-01–SW-09: closed schemaVersion 1 request/response shapes for student working copies and
@@ -233,7 +234,13 @@ export const attemptHistorySchema = schema((v) => {
     (x, p) => {
       const i = object(
         x,
-        ['attemptId', 'assignmentVersionId', 'submittedAt', 'answerCount'],
+        [
+          'attemptId',
+          'assignmentVersionId',
+          'submittedAt',
+          'answerCount',
+          'feedbackReleased',
+        ],
         p,
       );
       return {
@@ -248,6 +255,11 @@ export const attemptHistorySchema = schema((v) => {
           p + '.answerCount',
           1,
           MAX_QUESTIONS,
+        ),
+        // SF-07: true only when the attempt has a current release at load time.
+        feedbackReleased: feedbackReleasedFlag(
+          i.feedbackReleased,
+          p + '.feedbackReleased',
         ),
       };
     },

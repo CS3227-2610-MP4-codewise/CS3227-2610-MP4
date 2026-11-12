@@ -1,0 +1,58 @@
+import { it } from 'vitest';
+import { composedEnvironment } from './composed-fixture';
+import { FakeReleasePort, testSessions, NOW } from './test-fixture';
+import { studentHandler } from './http';
+import { StudentAssignments } from './repository';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+it('measure', async () => {
+  let on = false;
+  const m = { calls: 0, statements: 0, rows: 0, sessions: 0 };
+  const add = (r: any) => { for (const x of Array.isArray(r) ? r : [r]) m.rows += x?.meta?.rows_read ?? 0; };
+  const real = new WeakMap<object, any>();
+  const wrapStmt = (s: any): any => {
+    const p: any = new Proxy(s, { get(t, k) {
+      if (k === 'bind') return (...a: any[]) => wrapStmt(t.bind(...a));
+      if (k === 'all' || k === 'run' || k === 'raw') return async (...a: any[]) => { const r = await t[k](...a); if (on) { m.calls++; m.statements++; if (k !== 'raw') add(r); } return r; };
+      if (k === 'first') return async (col?: string) => { const r = await t.all(); if (on) { m.calls++; m.statements++; add(r); } const row = r.results[0] ?? null; return col && row ? row[col] : row; };
+      const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; } });
+    real.set(p, s); return p;
+  };
+  const wrap = (db: any): any => new Proxy(db, { get(t, k) {
+    if (k === 'prepare') return (sql: string) => wrapStmt(t.prepare(sql));
+    if (k === 'batch') return async (sts: any[]) => { const r = await t.batch(sts.map((x) => real.get(x) ?? x)); if (on) { m.calls++; m.statements += sts.length; add(r); } return r; };
+    const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; } });
+  const env = await composedEnvironment('readcost', wrap);
+  const countSessions = (o: any) => { const f = o.requireSession.bind(o); o.requireSession = async (...a: any[]) => { if (on) m.sessions++; return f(...a); }; };
+  countSessions(testSessions);
+  const out: string[] = [];
+  const measure = async (label: string, fn: () => Promise<{ status: number }>, n = 5) => {
+    const times: number[] = []; let last: any = {}; let status = 0;
+    for (let i = 0; i < n; i++) { m.calls = 0; m.statements = 0; m.rows = 0; m.sessions = 0; on = true; const t = performance.now(); status = (await fn()).status; times.push(performance.now() - t); on = false; last = { ...m }; }
+    times.sort((a, b) => a - b);
+    out.push(label + ' ' + JSON.stringify({ status, ...last, prodD1Estimate: last.calls + 4 * last.sessions, prodExternal: last.sessions, medianMs: +times[Math.floor(n / 2)].toFixed(1), maxMs: +times[n - 1].toFixed(1) }));
+  };
+  const version = await env.assignment();
+  const ids: string[] = [];
+  for (let i = 0; i < 3; i++) ids.push(await env.submitted('s1', version, 'rc' + i));
+  const g = await env.instructor.graded(ids[0], 'rc');
+  await env.instructor.approveAndRelease(g.head.id, 'rc');
+  await env.instructor.correct(g.head.id);
+  await env.instructor.approveAndRelease(g.head.id, 'rc2');
+  await env.instructor.graded(ids[1], 'rc1');
+  await measure('real: summary, released (v2 current, v1 superseded)', () => env.call(`attempts/${ids[0]}/feedback`, 's1'));
+  await measure('real: version v1 (superseded)', () => env.call(`attempts/${ids[0]}/feedback/1`, 's1'));
+  await measure('real: summary, assessed not released', () => env.call(`attempts/${ids[1]}/feedback`, 's1'));
+  await measure('real: summary, no assessment', () => env.call(`attempts/${ids[2]}/feedback`, 's1'));
+  await measure('real: history page, 3 attempts (1 released, 1 assessed, 1 none)', () => env.call(`publications/${version}/attempts`, 's1'));
+  for (let i = 3; i < 20; i++) ids.push(await env.submitted('s1', version, 'rc' + i));
+  await measure('real: history page, 20 attempts (1 released, 1 assessed, 18 none)', () => env.call(`publications/${version}/attempts`, 's1'));
+  for (let i = 20; i < 50; i++) ids.push(await env.submitted('s1', version, 'rc' + i));
+  await measure('real: history page, 50 attempts (1 released, 1 assessed, 48 none)', () => env.call(`publications/${version}/attempts`, 's1'));
+  const fake = new FakeReleasePort(); fake.assess(ids[0], 's1'); fake.release(ids[0]);
+  const fcall = async (p: string) => studentHandler(new Request('https://app.example.test/api/student/' + p, { headers: { 'x-test-user': 's1' } }), testSessions, new StudentAssignments(env.db, () => NOW), env.work, () => fake);
+  await measure('fake: summary, released', () => fcall(`attempts/${ids[0]}/feedback`));
+  await measure('fake: history page, 20 attempts', () => fcall(`publications/${version}/attempts`));
+  await env.mf.dispose();
+  const { writeFileSync } = await import('node:fs');
+  writeFileSync(process.env.READCOST_OUT!, out.join('\n') + '\n');
+}, 180000);

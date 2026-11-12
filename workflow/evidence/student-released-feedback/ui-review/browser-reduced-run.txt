@@ -1,0 +1,16 @@
+1/104 320-light-stale
+2/104 320-light-withdrawn-current
+3/104 320-dark-stale
+4/104 320-dark-withdrawn-current
+5/104 768-light-stale
+6/104 768-light-withdrawn-current
+7/104 768-dark-stale
+8/104 768-dark-withdrawn-current
+9/104 1024-light-stale
+10/104 1024-light-withdrawn-current
+11/104 1024-dark-stale
+12/104 1024-dark-withdrawn-current
+13/104 1440-light-stale
+14/104 1440-light-withdrawn-current
+15/104 1440-dark-stale
+16/104 1440-dark-withdrawn-current

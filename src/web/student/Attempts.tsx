@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import type { Attempt } from '../../shared/instructor-contracts/submission';
 import type { Publication } from '../../shared/instructor-contracts/publication';
 import type { AttemptHistory } from '../../shared/student-work';
-import { highlightPython } from '../instructor/assignments/python-highlight';
 import { Action } from '../ui/primitives';
 import { formatDeadline } from './model';
-import { ApiError, shortHash, type WorkApi } from './work-model';
+import { ApiError, type WorkApi } from './work-model';
+import { AttemptFeedback } from './Feedback';
 
 type Load<T> =
   | { p: 'loading' }
@@ -21,7 +21,7 @@ const failureText = {
   network: 'This could not be loaded. Check your connection and try again.',
 };
 
-/** SW-08, UI-04: honest history and a read-only submitted attempt. Never touches the working copy. */
+/** SW-08, SF-07, UI-04: honest history and a read-only submitted attempt. Never touches the working copy. */
 export function AttemptsPanel({
   api,
   versionId,
@@ -110,6 +110,14 @@ export function AttemptsPanel({
                   {formatDeadline(item.submittedAt)}
                 </time>
                 , {item.answerCount} answer{item.answerCount === 1 ? '' : 's'}.
+                {item.feedbackReleased && (
+                  <>
+                    {' '}
+                    <span className="cw-wb-feedback-marker">
+                      Feedback released
+                    </span>
+                  </>
+                )}
               </p>
               <Action
                 variant="secondary"
@@ -233,38 +241,11 @@ function AttemptView({
           <p className="cw-student-readonly">
             This snapshot cannot be edited. Your working copy is unchanged.
           </p>
-          {state.data.attempt.answers.map((answer, index) => {
-            const q = state.data.pub?.questions.find(
-              (x) => x.questionVersionId === answer.questionVersionId,
-            );
-            const n = state.data.pub
-              ? state.data.pub.questions.indexOf(q!) + 1
-              : index + 1;
-            return (
-              <section key={answer.submittedAnswerId}>
-                <h4>
-                  Question {n > 0 ? n : index + 1}
-                  {q ? `: ${q.title}` : ''}
-                </h4>
-                <pre
-                  className="cw-student-source cw-wb-attempt-source"
-                  tabIndex={0}
-                  role="region"
-                  aria-label={`Submitted source for question ${n > 0 ? n : index + 1}`}
-                >
-                  <code
-                    dangerouslySetInnerHTML={{
-                      __html: highlightPython(answer.source),
-                    }}
-                  />
-                </pre>
-                <p className="cw-student-meta">
-                  Revision {answer.draftRevision}, hash{' '}
-                  {shortHash(answer.sourceHash)}
-                </p>
-              </section>
-            );
-          })}
+          <AttemptFeedback
+            api={api}
+            attempt={state.data.attempt}
+            pub={state.data.pub}
+          />
         </>
       )}
     </article>

@@ -1,6 +1,10 @@
 import type { TrustedPrincipal } from '../ports/contracts';
 import { BoundaryError } from '../../../shared/instructor-contracts/schema';
 import {
+  currentStudentGuard,
+  studentGuardBindings,
+} from '../../courses/authority';
+import {
   draftFeedbackSchema,
   type AssessmentHead,
   type AssessmentRevision,
@@ -549,6 +553,87 @@ export class AssessmentRepository {
       ),
       checkedAt: at,
     });
+  }
+  /**
+   * C-REL student lookup (student-released-feedback D1, Keith in the 2026-11-12 window, batched
+   * authorization amendment): one D1 batch, so one consistent snapshot and one query against the
+   * per-invocation limit. It maps attempt IDs to their assessment, currentness and every released
+   * version (superseded and withdrawn included), and returns `owned`: the course of each listed
+   * attempt that belongs to `principal`, whose session is current and who holds current Student
+   * membership in that course (`currentStudentGuard`). Attempts without an assessment are absent
+   * from `found`. The caller enforces all-or-nothing over `owned`.
+   */
+  async attemptReleases(
+    attemptIds: readonly string[],
+    principal: TrustedPrincipal,
+    now: Date,
+  ) {
+    const marks = attemptIds.map(() => '?').join(',');
+    const numbered = attemptIds.map((_, i) => '?' + (i + 5)).join(',');
+    const [heads, releases, withdrawals, owned] = await this.db.batch([
+      this.db
+        .prepare(
+          `SELECT * FROM instructor_assessments WHERE attempt_id IN (${marks})`,
+        )
+        .bind(...attemptIds),
+      this.db
+        .prepare(
+          `SELECT r.assessment_id,r.version FROM instructor_assessment_releases r
+           JOIN instructor_assessments a ON a.id=r.assessment_id
+           WHERE a.attempt_id IN (${marks}) ORDER BY r.version`,
+        )
+        .bind(...attemptIds),
+      this.db
+        .prepare(
+          `SELECT w.assessment_id,w.version FROM instructor_assessment_withdrawals w
+           JOIN instructor_assessments a ON a.id=w.assessment_id
+           WHERE a.attempt_id IN (${marks}) ORDER BY w.version`,
+        )
+        .bind(...attemptIds),
+      this.db
+        .prepare(
+          `SELECT a.id,a.course_id FROM student_attempts a
+           WHERE a.id IN (${numbered}) AND a.user_id=?4 AND ${currentStudentGuard('a.course_id')}`,
+        )
+        .bind(...studentGuardBindings(principal, now.getTime()), ...attemptIds),
+    ]);
+    const versions = (rows: D1Result, assessment: string) =>
+      (rows.results as { assessment_id: string; version: number }[])
+        .filter((r) => r.assessment_id === assessment)
+        .map((r) => r.version);
+    const found = new Map<
+      string,
+      {
+        assessmentId: string;
+        courseId: string;
+        currentness: ReturnType<typeof currentnessSchema.parse>;
+        releaseVersions: number[];
+      }
+    >();
+    for (const a of heads.results as HeadRow[])
+      found.set(a.attempt_id, {
+        assessmentId: a.id,
+        courseId: a.course_id,
+        currentness: currentnessSchema.parse({
+          schemaVersion: 1,
+          assessmentId: a.id,
+          submissionAttemptId: a.attempt_id,
+          availabilityRevision: a.availability_revision,
+          currentReleaseVersion: a.current_release_version,
+          withdrawnReleaseVersions: versions(withdrawals, a.id),
+          checkedAt: now.toISOString(),
+        }),
+        releaseVersions: versions(releases, a.id),
+      });
+    return {
+      owned: new Map(
+        (owned.results as { id: string; course_id: string }[]).map((r) => [
+          r.id,
+          r.course_id,
+        ]),
+      ),
+      found,
+    };
   }
   async audit(id: string, cursor = Number.MAX_SAFE_INTEGER) {
     const r = await this.db

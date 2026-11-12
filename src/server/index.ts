@@ -24,6 +24,7 @@ import { studentHandler } from './student/http';
 import { StudentWork } from './student/work';
 import { d1RateLimiter } from './student/rate-limit';
 import { D1SubmissionCatalog } from './student/catalog';
+import { studentReleasePort } from './student/release-port';
 import { D1OwnedAttemptReader } from './instructor/assessments/owned-attempt';
 import { releaseHandler } from './instructor/assessments/release-http';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
@@ -187,13 +188,23 @@ export function createApplication(ports: DevelopmentPorts = {}) {
           const w = workflow();
           return releaseHandler(request, w.base, w.service.consumer(request));
         }
-        if (pathname.startsWith('/api/student/'))
+        if (pathname.startsWith('/api/student/')) {
+          const work = new StudentWork(env.DB, Date.now, d1RateLimiter(store));
           return studentHandler(
             request,
             auth,
             new StudentAssignments(env.DB),
-            new StudentWork(env.DB, Date.now, d1RateLimiter(store)),
+            work,
+            // SF-01, C-REL: Darryl's real producer with student read ports; never loopback samples.
+            (r) =>
+              studentReleasePort(
+                env.DB,
+                composeIdentityCourse(auth, courses),
+                work,
+                r,
+              ),
           );
+        }
         if (pathname === '/api/courses' || pathname.startsWith('/api/courses/'))
           return courseHandler(
             request,
