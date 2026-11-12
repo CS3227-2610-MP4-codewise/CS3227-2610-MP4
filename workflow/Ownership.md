@@ -167,3 +167,17 @@ Darryl's `AuthStore.rate` (`src/server/auth/store.ts`) is consumed unchanged, no
 ### Extension — SubmissionCatalog composition (task 6.2), reported agreed 2026-11-12
 
 Keith reported on 2026-11-12 that he may apply the C-SUB composition himself: Keith is the writer for the `AssessmentWorkflow` submissions argument in `src/server/index.ts` (real `D1SubmissionCatalog` outside the loopback sample run; loopback samples stay exclusive when the connected-preview port supplies them). No other part of `index.ts` is opened. This record carries Keith's report; Darryl's direct review is not claimed.
+
+## Student released feedback — Keith writer window in SH-REL, reported agreed 2026-11-12
+
+Keith reported on 2026-11-12 that Darryl agreed to the `attemptReleases` method shape in `openspec/changes/student-released-feedback/design.md` D1 (1..50 unique own attempt IDs; `null` for no assessment or no release; all-or-nothing authorization; version list including superseded and withdrawn versions) and granted Keith this writer window. Darryl remains the SH-REL producer owner and reviews Keith's producer change before composition (task 5.2).
+
+| File | Writer | Reviewer |
+|------|--------|----------|
+| `src/server/instructor/ports/contracts.ts`: additive `attemptReleases` on `ReleaseReadPort` only | Keith | Darryl |
+| `src/server/instructor/assessments/service.ts`: `attemptReleases` in `AssessmentService.consumer` only, reusing the existing `authorize` | Keith | Darryl |
+| `src/server/instructor/assessments/repository.ts`: one read mapping attempt IDs to assessment and release versions, if needed | Keith | Darryl |
+| Producer tests for the new method beside the existing assessment tests | Keith | Darryl |
+| `src/server/index.ts`: the `studentHandler` feedback-port composition only, after Darryl's review | Keith | Darryl |
+
+No other part of these files is opened, and no migration or release DTO change (`src/shared/instructor-contracts/release.ts`) is included. This record carries Keith's report; Darryl's direct review is not claimed. No deployment is authorized by it.
