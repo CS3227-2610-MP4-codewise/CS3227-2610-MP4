@@ -1,6 +1,6 @@
 # Handoff: student-released-feedback
 
-**Status:** implementation, reviews and local acceptance complete; ready for merge review (draft PR #32). Two items remain open: task 5.3, which waits on Darryl's conformance-suite fix, and task 6.3, a staging check after merge. 17 of 19 tasks are done.
+**Status:** implementation, reviews and local acceptance complete; ready for merge review (draft PR #32). One item remains open: task 6.3, a staging check after merge. Task 5.3 is done: the conformance suite was fixed under Darryl's grant and passes on real producer values. 18 of 19 tasks are done.
 
 - **Human owner:** Keith (student consumer, SH-SUB). Producer owner and reviewer: Darryl (SH-REL, SH-ID).
 - **Agent role / model / configuration:** Claude Code root Coordinator (Opus 5.5), one recorded session (tracker run `414f6b81`, Coordinator role). No agents spawned in that session. The automated UI checks (4.4) were run by a separate agent that Keith started from a pasted brief, outside this tracker run; its usage is not counted.
@@ -64,7 +64,7 @@
   - `release-conformance.test.ts` (4) and `workflow/assessment-preview/attempt-releases.test.ts` (6, including a mutation check).
 - **Fixture runs (labelled as fixture runs):** `feedback.test.ts` (11).
 - **Unit and DOM tests:** `student-feedback.test.ts` (10), `feedback-model.test.ts` (6), `Feedback.dom.test.ts` (8).
-- **Conformance (5.3):** [conformance.md](../evidence/student-released-feedback/conformance.md). `verifyAssessmentProducer` passes from the consumer; the `releaseContractSuite` properties pass on real values. One suite check has a hard-coded revision assumption, so 5.3 stays open.
+- **Conformance (5.3):** [conformance.md](../evidence/student-released-feedback/conformance.md). `verifyAssessmentProducer` and `releaseContractSuite` (fixed at `81a27f2` under Darryl's grant) both pass when run from the consumer on real producer values.
 - **UI review (4.4):** [ui-review.md](../evidence/student-released-feedback/ui-review.md). Automated agent checks covered 104 combinations, 112 screenshots, contrast and targets. Keith then did his manual pass and approved.
 - **Composed browser acceptance (5.4):** [composed-acceptance.md](../evidence/student-released-feedback/composed-acceptance.md). Keith ran it at `0c8b38b` with real local sign-in. The local D1 audit verifies v1 to v4, current and historical withdrawals, and no revival.
 - **Privacy and security review (6.1):** [final-checks.md](../evidence/student-released-feedback/final-checks.md). This was an agent review, recorded separately; all checks pass.
@@ -90,11 +90,11 @@ Before the fixes, both were over 50. Edge CPU time is not measured yet (task 6.3
 
 0. **Duplicate route, Keith and Darryl:** `main` now also serves Darryl's assessment-keyed `/api/student/released-feedback/...` (`release-http.ts`, PR #33). Keith's decision (2026-11-13) is to keep the attempt-keyed routes in this change and ask Darryl to retire or stop exposing his student route. Darryl's files are unchanged here.
 
-1. **5.3, Darryl:** fix `releaseContractSuite` to derive its later `availabilityRevision` values from the input snapshot rather than hard-coding 2, 3 and 4. Then Keith re-runs the suite on real values and ticks 5.3. This doesn't block merge review.
+1. **5.3: done** (`81a27f2`). Keith fixed `releaseContractSuite` under Darryl's one-file grant; the suite passes on real producer values (7/7) and on its fixtures. **Darryl reviews the suite change.**
 2. **Merge, Keith and Darryl:** mark PR #32 ready, then get final merge review.
 3. **6.3, Keith, after merge:** on staging, through the reviewed release workflow, measure per-request CPU time and D1 query counts against the Free plan limits before production.
 4. **Follow-up change, Keith:** per-question Submitted and Released feedback views (UI-04).
-5. **Archive:** only after 5.3 and 6.3 are done.
+5. **Archive:** only after 6.3 is done.
 
 **Next owner:** Keith, with Darryl for 5.3 and the merge review.
 

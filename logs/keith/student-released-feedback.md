@@ -428,3 +428,43 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 79743100; cached input subset 78629448; output 310270; reasoning output subset unavailable; total 80053370.
 - Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:suite-fix-2026-11-13 -->
+<!-- experiment-turns:suite-fix-2026-11-13:a7fe8190f07f5958,c7756faa2daa73a1,bdec0397ef71e15b -->
+## Checkpoint `suite-fix-2026-11-13` — 2026-11-12T17:58:26.305083+00:00
+
+### Request
+
+Hypothetical full re-implementation from main; then Darryl granted the suite window: apply the fix.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents). Answered the re-implementation question (feasible but redoes attemptReleases windows, UI, tests and every review and acceptance; recommended squash-merge instead). Recorded Darryl's reported one-file grant in Ownership.md. Fixed releaseContractSuite so later revisions and versions derive from the input; existing fixtures pass (82); the student conformance test invokes the suite on real producer values (7/7); with the old suite restored, exactly the stale-token check failed. npm run check exit 0 (58 files/713 tests). Updated conformance.md and handoff; 5.3 ticked (18/19). Duplicate-route reply from Darryl not received in this session.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-released-feedback/conformance.md; workflow/contracts/instructor-contracts.ts.
+- Remaining limitations and next owner: Darryl reviews the suite change and answers the duplicate-route question; merge review of PR #32; 6.3 after merge..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:35:42.836Z | 2026-11-12T16:35:58.465Z | final | claude-opus-5-5 | medium | 1224 | 375 | 1224 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T17:56:09.582Z | open | provisional | claude-opus-5-5 | medium | 6826 | 859 | 6826 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T16:19:36.361Z | provisional | final | 15311 | 2734 | 15311 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 84472608; cached input subset 82852792; output 319458; reasoning output subset unavailable; total 84792066.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

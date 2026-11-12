@@ -15,6 +15,15 @@ Requirement IDs: SF-08, C-REL (K5, P4). Run on 2026-11-12 by Keith's root Coordi
 
 **Re-run after merging `main` (PR #33), 2026-11-13:** 4/4 pass. Darryl's consumer now answers `currentness` with NOT_FOUND before an assessment's first release. So the suite's single pre-release currentness read, used only to build the instructor's release command, is read on the producer side. The test asserts that the student consumer returns NOT_FOUND at that point. Every later read still goes through the student consumer and the HTTP cross-check.
 
+**Suite fixed and invoked directly, 2026-11-13 (`81a27f2`):** under Darryl's one-file grant (Ownership.md), Keith changed `releaseContractSuite` so that its later `availabilityRevision` and release-version values derive from the input snapshot (`+1`, `+2`, `+3`) instead of hard-coded 2, 3 and 4.
+
+- `src/server/student/release-conformance.test.ts` now calls `releaseContractSuite` directly on the real producer's first release, its currentness and the real v1 tombstone: **7/7 pass** (the 4 earlier checks plus the suite's 3).
+- The suite still passes on its synthetic fixtures (`src/shared/instructor-contracts/contracts.test.ts`, 82 tests).
+- With the old suite restored temporarily, exactly the stale-token check failed; with the fix it passes.
+- `npm run check` exit 0, 58 files / 713 tests.
+
+The finding below is therefore **resolved**; Darryl reviews the suite change.
+
 ## How it was run
 
 `npx vitest run src/server/student/release-conformance.test.ts` (also part of `npm run check`, exit 0, 57 files / 697 tests at `1edbb16`).
@@ -32,7 +41,7 @@ Requirement IDs: SF-08, C-REL (K5, P4). Run on 2026-11-12 by Keith's root Coordi
 | Stale tokens rejected; superseded, cross-attempt and withdrawn-current content never current                                                                                                                                                                                                                                                 | `releaseContractSuite` properties 2–3, on real values | **Pass** (first-release token versus the real final currentness; superseded and foreign-attempt variants rejected).                                                                                                                                                  |
 | Draft privacy, unreleased draft shows `none`; revoked member 404                                                                                                                                                                                                                                                                             | `src/server/student/release-port.test.ts` (5.2)       | **Pass** (3/3 at `4d0f0f8` and `1edbb16`).                                                                                                                                                                                                                           |
 
-## Finding for Darryl (suite, not producer)
+## Finding for Darryl (suite, not producer): resolved 2026-11-13, see above
 
 `releaseContractSuite` was **not invoked directly** with the real values. When it was tried, one check failed: "rejects revoked currentness and historical withdrawal never clears a newer current release".
 
