@@ -106,6 +106,8 @@ There is no Service Worker, no `sessionStorage` and no module-level memo for fee
 - [Excerpt matching false negatives from line-ending differences] → K4 stores LF-normalised source with a final LF kept, and Darryl's producer validates excerpts against the same canonical source. Any mismatch is shown as unavailable, never shifted.
 - [Superseded content shown to students may surprise instructors] → This follows Decision 2 and P4 (history preserved, clearly labelled replaced). It is noted for Darryl's review in task 1.1.
 
+- [Feedback reads are not rate-limited; a released open costs about 33 production D1 queries and 2 provider lookups, so a scripted loop by a signed-in student could drain the Workers Free daily quotas] → Accepted by Keith on 2026-11-13 for the class deployment (6.1 finding S1). Revisit after the staging check (task 6.3), on real quota pressure, or in a shared student rate-limit change; the SW-11 per-account limiter can be reused.
+
 ## Migration Plan
 
 No schema migration. The change ships with the normal reviewed CI and staging → production release workflow. The routes return 503 until Darryl's composition lands, so a partial rollout fails closed. Rollback is a revert of Keith's routes, the UI and the composition line. There is no stored state to undo.

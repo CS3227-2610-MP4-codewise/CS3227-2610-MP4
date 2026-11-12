@@ -42,6 +42,8 @@ Requirement IDs: SF-01–SF-08, DEV-02/04, AUTH-02, OPS-01. Revision `71800b9` o
   3. defer to a shared rate-limit change.
 - No code changed.
 
+**Keith's decision on S1 (2026-11-13): accept the risk for the class deployment.** No limiter is added. The risk is recorded in design.md Risks. Revisit it if the staging check (task 6.3) or real usage shows quota pressure, or as part of a shared student rate-limit change.
+
 **S2. Informational, accepted design: `attemptReleases` skips the evidence-digest check.** It discloses only metadata (assessment ID, currentness, version numbers) after the batched ownership check. Content reads keep the full evidence check. This was agreed by Darryl in the Ownership.md amendment.
 
 **S3. Informational, evidence hygiene:** the UI review agent's `ui-review/check.txt` contained one local home-directory path, which is now redacted to `~`.
