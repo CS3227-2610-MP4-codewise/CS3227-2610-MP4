@@ -20,3 +20,5 @@ Required real-composition checks: student owns attempt and has current same-cour
 
 Keith reports local student submit to instructor open at `1a5b924`, without captured request IDs/screenshots; it does not establish approval/release/student-consumer acceptance. Prior producer evidence records `npm run check` passing at `53c1974` with 651 tests. This session's focused D1 suites were attempted on `e5c981d` but Miniflare could not connect to its loopback listener (`EACCES 127.0.0.1`); no D1 test pass is claimed. Full release journey, current UI manual acceptance, exact consumer revision, Keith review and independently reviewed shared writer window remain outstanding. No deployment or live provider calls were made.
 
+Full check attempted on a clean archive of e5c981d: OpenSpec 17/17, typecheck and lint passed. Vitest reported 24 failed and 26 passed files (35 failed, 397 passed, 228 skipped); many D1 setup failures were loopback EACCES, and a UI interaction timed out separately. The process was interrupted after the reported results, so deployment tests and build were not reached. These are not a verified full-check pass.
+
