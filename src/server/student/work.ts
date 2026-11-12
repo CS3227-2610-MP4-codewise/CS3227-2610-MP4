@@ -32,7 +32,9 @@ export type WorkErrorCode =
   | 'CONFLICT_REVISION'
   | 'STALE_PUBLICATION'
   | 'DEADLINE_PASSED'
-  | 'IDEMPOTENCY_MISMATCH';
+  | 'IDEMPOTENCY_MISMATCH'
+  /** SF-02: release currentness changed between the read and the re-check. */
+  | 'STALE_FEEDBACK';
 export interface CurrentDraft {
   revision: number;
   source: string;
@@ -543,6 +545,8 @@ export class StudentWork {
     principal: TrustedPrincipal,
     publicationId: string,
     cursor: string | null,
+    /** SF-07: the page's attempt IDs with a current release; absent means no markers. */
+    released?: (attemptIds: string[]) => Promise<ReadonlySet<string>>,
   ): Promise<AttemptHistory> {
     const bind = [
       ...studentGuardBindings(principal, this.clock()),
@@ -578,6 +582,9 @@ export class StudentWork {
       answers: number;
     }[];
     const page = rows.slice(0, STUDENT_ATTEMPT_PAGE);
+    const flagged = released
+      ? await released(page.map((r) => r.id))
+      : new Set<string>();
     return stored(() =>
       attemptHistorySchema.parse({
         schemaVersion: 1,
@@ -586,6 +593,7 @@ export class StudentWork {
           assignmentVersionId: r.publication_id,
           submittedAt: r.submitted_at,
           answerCount: r.answers,
+          feedbackReleased: flagged.has(r.id),
         })),
         nextCursor:
           rows.length > STUDENT_ATTEMPT_PAGE ? String(page.at(-1)!.seq) : null,

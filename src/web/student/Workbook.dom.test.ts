@@ -209,10 +209,16 @@ function route(method: string, path: string, body: any): Reply {
           assignmentVersionId: a.version,
           submittedAt: a.submittedAt,
           answerCount: a.answers.length,
+          feedbackReleased: false,
         })),
         nextCursor: null,
       },
     };
+  if (
+    method === 'GET' &&
+    /^\/api\/student\/attempts\/[^/]+\/feedback$/.test(path)
+  )
+    return { status: 200, body: { schemaVersion: 1, state: 'none' } };
   const att = /^\/api\/student\/attempts\/(.+)$/.exec(path);
   if (method === 'GET' && att) {
     const a = attempts.find((x) => x.attemptId === att[1]);

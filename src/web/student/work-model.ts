@@ -8,6 +8,10 @@ import {
   submitResponseSchema,
   workResponseSchema,
 } from '../../shared/student-work';
+import {
+  feedbackSummarySchema,
+  feedbackVersionSchema,
+} from '../../shared/student-feedback';
 
 /**
  * SW-01–SW-08 client model: API client, the per-question save state machine (design section 7),
@@ -38,7 +42,9 @@ export type ApiErrorKind =
   | 'stale'
   | 'deadline'
   | 'mismatch'
-  | 'rate-limited';
+  | 'rate-limited'
+  /** SF-06: the feedback producer is not available (503 on feedback routes only). */
+  | 'service';
 /** SW-11: fallback wait when a 429 has no usable Retry-After; the server sends 60 s. */
 export const RATE_LIMIT_DEFAULT_MS = 60000;
 const retryAfterMs = (header: string | null) => {
@@ -69,6 +75,8 @@ export function workApi(
     method: 'GET' | 'PUT' | 'POST',
     path: string,
     body?: unknown,
+    /** Feedback routes report 503 as `service`; other routes keep it as `network`. */
+    service = false,
   ): Promise<unknown> {
     let response: Response;
     // A hung request must not freeze Previous/Next or submit forever.
@@ -99,6 +107,7 @@ export function workApi(
       }
     }
     if (response.status === 401) throw new ApiError('session');
+    if (service && response.status === 503) throw new ApiError('service');
     if (response.status === 403 || response.status === 404)
       throw new ApiError('unavailable');
     if (response.status === 400) throw new ApiError('invalid');
@@ -129,6 +138,7 @@ export function workApi(
       if (code === 'STALE_PUBLICATION') throw new ApiError('stale');
       if (code === 'DEADLINE_PASSED') throw new ApiError('deadline');
       if (code === 'IDEMPOTENCY_MISMATCH') throw new ApiError('mismatch');
+      if (code === 'STALE_FEEDBACK') throw new ApiError('stale');
       throw new ApiError('network');
     }
     throw new ApiError('network');
@@ -198,6 +208,28 @@ export function workApi(
     async attempt(attemptId: string) {
       const body = await call('GET', '/api/student/attempts/' + enc(attemptId));
       return parsed(() => attemptSchema.parse(body));
+    },
+    /** SF-01/02: always fetched fresh (`no-store`); never cached by the client. */
+    async feedback(attemptId: string) {
+      const body = await call(
+        'GET',
+        '/api/student/attempts/' + enc(attemptId) + '/feedback',
+        undefined,
+        true,
+      );
+      return parsed(() => feedbackSummarySchema.parse(body));
+    },
+    async feedbackVersion(attemptId: string, releaseVersion: number) {
+      const body = await call(
+        'GET',
+        '/api/student/attempts/' +
+          enc(attemptId) +
+          '/feedback/' +
+          String(releaseVersion),
+        undefined,
+        true,
+      );
+      return parsed(() => feedbackVersionSchema.parse(body));
     },
   };
 }

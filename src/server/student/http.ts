@@ -19,6 +19,7 @@ import { authHeaders } from '../auth/routes';
 import type { TrustedPrincipal } from '../instructor/ports/contracts';
 import type { StudentAssignments } from './repository';
 import { StudentWorkError, type StudentWork } from './work';
+import { StudentFeedback, type StudentReleasePort } from './feedback';
 
 /** Minimal session port so the handler depends only on trusted SH-AUTH resolution. */
 export interface StudentSessions {
@@ -39,6 +40,7 @@ const statusOf = (code: string) =>
           : code === 'CONFLICT_REVISION' ||
               code === 'STALE_PUBLICATION' ||
               code === 'DEADLINE_PASSED' ||
+              code === 'STALE_FEEDBACK' ||
               code === 'IDEMPOTENCY_MISMATCH'
             ? 409
             : 503;
@@ -53,6 +55,8 @@ const routes = {
   attempts: route(`publications/${id}/attempts`),
   draft: route(`drafts/${id}`),
   attempt: route(`attempts/${id}`),
+  feedback: route(`attempts/${id}/feedback`),
+  feedbackVersion: route(`attempts/${id}/feedback/([1-9][0-9]{0,8})`),
 };
 
 /** Reads at most `max` bytes of a JSON body; larger bodies fail before parsing. */
@@ -101,6 +105,8 @@ export async function studentHandler(
   sessions: StudentSessions,
   reads: StudentAssignments,
   work?: StudentWork,
+  /** SF-01, design D3: the composed C-REL producer for this request; absent means 503. */
+  feedback?: (request: Request) => StudentReleasePort,
 ): Promise<Response> {
   const json = (body: unknown, status = 200) =>
     Response.json(body, {
@@ -124,10 +130,18 @@ export async function studentHandler(
       move = match('move'),
       attempts = match('attempts'),
       draft = match('draft'),
-      attempt = match('attempt');
+      attempt = match('attempt'),
+      feedbackRoute = match('feedback'),
+      feedbackVersion = match('feedbackVersion');
     const known =
       (request.method === 'GET' &&
-        (listing || overview || workRoute || attempts || attempt)) ||
+        (listing ||
+          overview ||
+          workRoute ||
+          attempts ||
+          attempt ||
+          feedbackRoute ||
+          feedbackVersion)) ||
       (request.method === 'PUT' && draft) ||
       (request.method === 'POST' && (move || attempts));
     if (!known) throw new BoundaryError('NOT_FOUND');
@@ -192,12 +206,31 @@ export async function studentHandler(
         'query',
       );
       const raw = url.searchParams.get('cursor');
+      const port = feedback?.(request);
+      const releases = new StudentFeedback(work);
       return json(
         await work.history(
           principal,
           attempts[1],
           raw === null ? null : historyCursor(raw),
+          (ids) => releases.released(principal, ids, port),
         ),
+      );
+    }
+    if (feedbackRoute || feedbackVersion) {
+      // SF-01: session (above), then own attempt, then the producer; no caching anywhere.
+      assert(keys.length === 0, '$', 'query');
+      const releases = new StudentFeedback(work);
+      const port = () => feedback?.(request);
+      return json(
+        feedbackRoute
+          ? await releases.summary(principal, feedbackRoute[1], port())
+          : await releases.version(
+              principal,
+              feedbackVersion![1],
+              Number(feedbackVersion![2]),
+              port(),
+            ),
       );
     }
     assert(keys.length === 0, '$', 'query');

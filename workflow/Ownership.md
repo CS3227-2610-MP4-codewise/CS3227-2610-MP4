@@ -181,3 +181,12 @@ Keith reported on 2026-11-12 that Darryl agreed to the `attemptReleases` method 
 | `src/server/index.ts`: the `studentHandler` feedback-port composition only, after Darryl's review | Keith | Darryl |
 
 No other part of these files is opened, and no migration or release DTO change (`src/shared/instructor-contracts/release.ts`) is included. This record carries Keith's report; Darryl's direct review is not claimed. No deployment is authorized by it.
+
+**Extension — student read ports, reported agreed 2026-11-12.** Keith reported that Darryl gave the go-ahead for Keith to implement the student-side object authorization the producer needs. Production `AssessmentWorkflow` maps `assessment` and `submission` objects to instructor reads and `D1SubmissionCatalog` uses `currentInstructorGuard`, so `AssessmentService.consumer` composed as-is denies every student. The extension covers:
+
+| File | Writer | Reviewer |
+|------|--------|----------|
+| New `src/server/student/release-port.ts`: a student `IdentityCoursePort.requireObject` for `assessment`/`submission` read (own attempt plus current Student membership in SQL; assessment scope through `AssessmentRepository.scope`), a student `SubmissionReadPort` (`StudentWork.attempt`) and the `AssessmentService.consumer` it returns | Keith | Darryl |
+| `src/server/index.ts`: passing that port to `studentHandler` (real D1 only, never loopback samples) | Keith | Darryl |
+
+`AssessmentWorkflow`, `CourseAuthority` and the instructor ports are unchanged. Darryl's review of the 5.1 producer change and of this adapter is still pending and is not claimed by this record. No deployment is authorized by it.
