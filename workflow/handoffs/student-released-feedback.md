@@ -88,7 +88,7 @@ Before the fixes, both were over 50. Edge CPU time is not measured yet (task 6.3
 
 ## Blockers and next actions
 
-0. **Duplicate route, Keith and Darryl:** `main` now also serves Darryl's assessment-keyed `/api/student/released-feedback/...` (`release-http.ts`, PR #33). Keith's decision (2026-11-13) is to keep the attempt-keyed routes in this change and ask Darryl to retire or stop exposing his student route. Darryl's files are unchanged here.
+0. **Duplicate route, Darryl:** `main` also serves Darryl's assessment-keyed `/api/student/released-feedback/...` (`release-http.ts`, PR #33). Keith kept the attempt-keyed routes as the single student feedback API. Darryl agreed on 2026-11-13 (Keith's report) to **hide his student route**; that change is his, in his files, and is not part of this branch. The student UI never calls his route.
 
 1. **5.3: done** (`81a27f2`). Keith fixed `releaseContractSuite` under Darryl's one-file grant; the suite passes on real producer values (7/7) and on its fixtures. **Darryl reviews the suite change.**
 2. **Merge, Keith and Darryl:** mark PR #32 ready, then get final merge review.
