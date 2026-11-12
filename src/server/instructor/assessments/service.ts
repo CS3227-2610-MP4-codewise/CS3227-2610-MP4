@@ -6,6 +6,8 @@ import {
   schema,
   sourceHash,
   integer,
+  array,
+  unique,
 } from '../../../shared/instructor-contracts/schema';
 import {
   draftFeedbackSchema,
@@ -36,6 +38,7 @@ import type {
   ReleaseReadPort,
   AIGatewayPort,
 } from '../ports/contracts';
+import { MAX_ATTEMPT_RELEASES_BATCH } from '../ports/contracts';
 import {
   validateAssessmentDraft,
   type AssessmentDraft,
@@ -813,7 +816,73 @@ export class AssessmentService {
       )
         throw new BoundaryError('STALE_EVIDENCE');
     };
+    /**
+     * student-released-feedback D1 (Keith, 2026-11-12 window): an attempt with no assessment has
+     * no assessment ID for `authorize`, so ownership is checked the same way through the
+     * submission object: request-bound principal, student-read course authority and the exact
+     * own attempt. A foreign attempt therefore fails even when nothing has been assessed.
+     */
+    const authorizeAttempt = async (
+      principal: TrustedPrincipal,
+      attemptId: string,
+    ) => {
+      const current = await this.session(request);
+      if (
+        current.userId !== principal.userId ||
+        current.sessionHandle !== principal.sessionHandle
+      )
+        throw new BoundaryError('FORBIDDEN');
+      const scope = await this.identity!.requireObject(
+        current,
+        { kind: 'submission', id: attemptId },
+        'read',
+      );
+      await this.identity!.requireCourse(
+        current,
+        scope.courseId,
+        'student-read',
+      );
+      if (!this.submissions) throw new BoundaryError('UPSTREAM_UNAVAILABLE');
+      const attempt = attemptSchema.parse(
+        await this.submissions.getAuthorized(current, attemptId),
+      );
+      if (
+        attempt.attemptId !== attemptId ||
+        attempt.courseId !== scope.courseId ||
+        attempt.submittedByUserId !== current.userId
+      )
+        throw new BoundaryError('FORBIDDEN');
+    };
     return {
+      attemptReleases: async (p, attemptIds) => {
+        const ids = array(
+          attemptIds,
+          (v, path) => id(v, path),
+          '$.attemptIds',
+          1,
+          MAX_ATTEMPT_RELEASES_BATCH,
+        );
+        unique(ids, '$.attemptIds');
+        const found = await this.repository.attemptReleases(
+          ids,
+          this.clock().toISOString(),
+        );
+        // All-or-nothing: every attempt is authorized after the read and before any disclosure.
+        for (const attemptId of ids) {
+          const entry = found.get(attemptId);
+          if (entry) await authorize(p, entry.assessmentId);
+          else await authorizeAttempt(p, attemptId);
+        }
+        return new Map(
+          ids.map((attemptId) => {
+            const entry = found.get(attemptId);
+            return [
+              attemptId,
+              entry && entry.releaseVersions.length > 0 ? entry : null,
+            ] as const;
+          }),
+        );
+      },
       getAuthorized: async (p, value, version) => {
         await authorize(p, value);
         const state = await this.repository.publicState(

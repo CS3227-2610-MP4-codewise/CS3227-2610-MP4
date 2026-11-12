@@ -541,6 +541,63 @@ export class AssessmentRepository {
       checkedAt: at,
     });
   }
+  /**
+   * C-REL student lookup (student-released-feedback D1, Keith in the 2026-11-12 window): maps
+   * attempt IDs to their assessment, currentness and every released version (superseded and
+   * withdrawn included) in one batch, which is one consistent D1 snapshot. Attempts without an
+   * assessment are absent. Performs no authorization; the consumer authorizes every attempt.
+   */
+  async attemptReleases(attemptIds: readonly string[], at: string) {
+    const marks = attemptIds.map(() => '?').join(',');
+    const [heads, releases, withdrawals] = await this.db.batch([
+      this.db
+        .prepare(
+          `SELECT * FROM instructor_assessments WHERE attempt_id IN (${marks})`,
+        )
+        .bind(...attemptIds),
+      this.db
+        .prepare(
+          `SELECT r.assessment_id,r.version FROM instructor_assessment_releases r
+           JOIN instructor_assessments a ON a.id=r.assessment_id
+           WHERE a.attempt_id IN (${marks}) ORDER BY r.version`,
+        )
+        .bind(...attemptIds),
+      this.db
+        .prepare(
+          `SELECT w.assessment_id,w.version FROM instructor_assessment_withdrawals w
+           JOIN instructor_assessments a ON a.id=w.assessment_id
+           WHERE a.attempt_id IN (${marks}) ORDER BY w.version`,
+        )
+        .bind(...attemptIds),
+    ]);
+    const versions = (rows: D1Result, assessment: string) =>
+      (rows.results as { assessment_id: string; version: number }[])
+        .filter((r) => r.assessment_id === assessment)
+        .map((r) => r.version);
+    const out = new Map<
+      string,
+      {
+        assessmentId: string;
+        currentness: ReturnType<typeof currentnessSchema.parse>;
+        releaseVersions: number[];
+      }
+    >();
+    for (const a of heads.results as HeadRow[])
+      out.set(a.attempt_id, {
+        assessmentId: a.id,
+        currentness: currentnessSchema.parse({
+          schemaVersion: 1,
+          assessmentId: a.id,
+          submissionAttemptId: a.attempt_id,
+          availabilityRevision: a.availability_revision,
+          currentReleaseVersion: a.current_release_version,
+          withdrawnReleaseVersions: versions(withdrawals, a.id),
+          checkedAt: at,
+        }),
+        releaseVersions: versions(releases, a.id),
+      });
+    return out;
+  }
   async audit(id: string, cursor = Number.MAX_SAFE_INTEGER) {
     const r = await this.db
       .prepare(
