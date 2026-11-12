@@ -131,3 +131,27 @@ Total and source group unavailable. Reconcile later without double counting shar
 - `npm run check` on the clean source archive: OpenSpec 17/17, typecheck and lint passed; Vitest reported 24 failed/26 passed files, 35 failed/397 passed/228 skipped tests. Many D1 setups reported loopback EACCES; a separate UI interaction timed out and was not diagnosed. The run was interrupted after these results; deployment tests and build were not reached. This is not a successful check.
 - The handoff and this prompt log were committed to remote branch codex/real-submission-assessment-integration at 030ce3c; historical unpublished logs/evidence remain unchanged in the original checkout and are not yet committed. No product implementation or manual acceptance was completed. Independent reviewer was not performed because delegation was not requested. Next: run real D1 tests in an environment permitting local loopback, implement and verify the instructor integration and agree the student consumer adapter with Keith.
 
+## Prompt RSAI-06 - 2026-11-12 (time unavailable)
+
+**Prompt (redacted):** Repeat the real-submission/manual-assessment integration request, including exact producer checks, real D1/security verification, C-REL handoff and manual acceptance; no deployment or live providers.
+
+### Agents spawned
+
+- New: none; coordinated delegation was not explicitly requested and the immediate obstacle is the local execution environment. Reused: none. Main: /root; model identity unavailable.
+
+### Token count
+
+| Agent | Input | Cached input | Output | Total | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; recorder EPERM |
+| Children | none | none | none | none | observed | no child agents |
+
+Total and source group unavailable. Prior entries remain unreconciled because the recorder output directory is outside the writable sandbox; reconcile when accessible. Current response is outside this checkpoint.
+
+### Experiment outcome
+
+- Rechecked producer handoff: review revision 53c1974; normal catalog injection commit 1a5b924; Keith reports 15 catalog tests and post-merge full check 651 tests at that revision. Required catalog methods are getAuthorized, scope and list. Keith's handoff identifies Darryl's review as pending. Existing injection writer grant is to Keith for the narrow index argument.
+- Rechecked local environment with an independent Node loopback listener/connect probe; it returned EACCES, confirming the Miniflare loopback blocker persists. Previous full-check and focused results are documented in workflow/handoffs/real-submission-assessment-integration.md; no new D1 pass or end-to-end journey claimed.
+- Existing remote integration branch contains the prompt log and blocked C-REL handoff; old dirty workspace changes remain untouched. No new product, schema, API, deployment, provider or student changes; no independent agent review or manual acceptance.
+- Blocker: a runtime that permits local loopback and D1 is required to execute the user's mandatory checks; shared composition window and exact review remain outstanding for any shared edits. No controlled comparison.
+
