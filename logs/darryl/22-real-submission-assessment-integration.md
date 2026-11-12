@@ -155,3 +155,71 @@ Total and source group unavailable. Prior entries remain unreconciled because th
 - Existing remote integration branch contains the prompt log and blocked C-REL handoff; old dirty workspace changes remain untouched. No new product, schema, API, deployment, provider or student changes; no independent agent review or manual acceptance.
 - Blocker: a runtime that permits local loopback and D1 is required to execute the user's mandatory checks; shared composition window and exact review remain outstanding for any shared edits. No controlled comparison.
 
+## Prompt RSAI-07 - 2026-11-12 (time unavailable)
+
+**Prompt (redacted):** Challenge the earlier assurance that the integration prompt was ready to run.
+
+### Agents spawned
+
+- New: none; no delegation explicitly requested. Reused: none. Main: /root, model unavailable.
+
+### Token count
+
+| Agent | Input | Cached input | Output | Total | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; recorder EPERM |
+| Children | none | none | none | none | observed | no children |
+
+Total and source group unavailable; reconcile later when recorder access is available. No controlled comparison.
+
+### Experiment outcome
+
+- Acknowledged that the earlier recommendation omitted the environment constraint and that stopping at local Miniflare was too broad. Investigated existing GitHub Actions workflow: PR CI runs on Ubuntu without deployment; deployment workflow triggers only on main pushes.
+- PR #29 already existed when creation was attempted. Updated its placeholder description to state accurately that this is documentation and the integration is unfinished. CI run 43143927669 on head 0e2ab18 reports npm run check passed; secrets passed; remaining steps were in progress at this checkpoint. This does not establish the requested real end-to-end journey or manual acceptance.
+- No product edits, deployment, live provider calls or independent review. Next: add and verify real-composition tests using CI, address actual defects and complete the existing handoff; local browser/D1 manual acceptance still needs a suitable environment.
+
+## Prompt RSAI-08 - 2026-11-12 (time unavailable)
+
+**Prompt (redacted):** Resolve the blocked git pull while preserving existing local work.
+
+### Agents spawned
+
+- New: none; no delegation requested. Reused: none. Main: /root; model unavailable.
+
+### Token count
+
+| Agent | Input | Cached input | Output | Total | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; recorder EPERM |
+| Children | none | none | none | none | observed | no children |
+
+Total and source group unavailable; reconcile at next accessible checkpoint. No invented metrics.
+
+### Experiment outcome
+
+- User's fetch advanced origin/main to 105fd8b; local main remains af1bc90 with tracked modifications and untracked files that block fast-forward. Existing nested worktrees must not be stashed or deleted. Earlier comparison showed many changed files match merged remote, but unique local logs/evidence require preservation.
+- Attempting safe preservation and fast-forward; exact result to be recorded. No product tests or deployment.
+- `git stash push --include-untracked -m preserve-local-work-before-main-update-20261112 -- . :(exclude).worktrees` failed before stashing: `.git/index.lock` permission denied. The sandbox exposes this repository's .git as read-only; no stash, pull, deletion or product edit occurred. User can run the equivalent command in their own terminal; leave stash intact after a fast-forward and reconcile its unique contents separately.
+
+## Prompt RSAI-09 - 2026-11-12 (time unavailable)
+
+**Prompt (redacted):** Ask whether the local logs should be pushed before updating main.
+
+### Agents spawned
+
+- New: none; no delegation requested. Reused: none. Main: /root; model unavailable.
+
+### Token count
+
+| Agent | Input | Cached input | Output | Total | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; recorder EPERM |
+| Children | none | none | none | none | observed | no children |
+
+Total and group unavailable; reconcile at an accessible later checkpoint without double counting.
+
+### Experiment outcome
+
+- Compared local Darryl logs with origin/main 105fd8b: 18 and 19 are local only; 08, 20 and 21 contain local append-only additions; 22 has local prompts RSAI-07 onward absent from remote. Local changes must be preserved and reconciled rather than dropped.
+- Git metadata remains read-only to this agent; prior stash attempt failed. No tests, deployment or live provider calls. No controlled comparison.
+
