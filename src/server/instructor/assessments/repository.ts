@@ -115,6 +115,106 @@ export class AssessmentRepository {
       ? { courseId: r.course_id, attemptId: r.attempt_id, evidence: r.evidence }
       : null;
   }
+  async bindAIRequest(
+    input: {
+      assessmentId: string;
+      actorId: string;
+      courseId: string;
+      revisionId: string;
+      evidence: string;
+      requestKey: string;
+      includeReferences: boolean;
+      createdAt: string;
+    },
+    principal: TrustedPrincipal,
+  ) {
+    const results = await this.batch(
+      [
+        this.db
+          .prepare(
+            `INSERT OR IGNORE INTO instructor_ai_requests(actor_id,course_id,request_key,assessment_id,revision_id,evidence,include_references,created_at)
+      SELECT ?,?,?,id,?,?,?,? FROM instructor_assessments a WHERE id=? AND course_id=? AND head_revision_id=? AND evidence=?
+      AND NOT EXISTS (SELECT 1 FROM instructor_ai_requests r LEFT JOIN ai_gateway_requests g ON g.actor_id=r.actor_id AND g.course_id=r.course_id AND g.action='assessment-draft' AND g.idempotency_key=r.request_key WHERE r.actor_id=? AND r.course_id=? AND r.assessment_id=a.id AND r.revision_id=a.head_revision_id AND r.request_key<>? AND (g.id IS NULL OR g.status IN ('pending','running')))`,
+          )
+          .bind(
+            input.actorId,
+            input.courseId,
+            input.requestKey,
+            input.revisionId,
+            input.evidence,
+            input.includeReferences ? 1 : 0,
+            input.createdAt,
+            input.assessmentId,
+            input.courseId,
+            input.revisionId,
+            input.evidence,
+            input.actorId,
+            input.courseId,
+            input.requestKey,
+          ),
+      ],
+      input.courseId,
+      principal,
+    );
+    const row = await this.db
+      .prepare(
+        'SELECT assessment_id,revision_id,evidence,include_references FROM instructor_ai_requests WHERE actor_id=? AND course_id=? AND request_key=?',
+      )
+      .bind(input.actorId, input.courseId, input.requestKey)
+      .first<{
+        assessment_id: string;
+        revision_id: string;
+        evidence: string;
+        include_references: number;
+      }>();
+    if (!row) {
+      const current = await this.db
+        .prepare(
+          'SELECT 1 AS present FROM instructor_assessments WHERE id=? AND course_id=? AND head_revision_id=? AND evidence=?',
+        )
+        .bind(
+          input.assessmentId,
+          input.courseId,
+          input.revisionId,
+          input.evidence,
+        )
+        .first();
+      throw new BoundaryError(current ? 'RATE_LIMITED' : 'REVISION_CONFLICT');
+    }
+    if (
+      row.assessment_id !== input.assessmentId ||
+      row.revision_id !== input.revisionId ||
+      row.evidence !== input.evidence ||
+      row.include_references !== (input.includeReferences ? 1 : 0)
+    )
+      throw new BoundaryError('IDEMPOTENCY_CONFLICT');
+    return results[0].meta.changes === 1;
+  }
+  async recoverAIRequest(
+    assessmentId: string,
+    actorId: string,
+    revisionId: string,
+    evidence: string,
+    requestId?: string,
+  ) {
+    return this.db
+      .prepare(
+        `SELECT g.id,r.request_key,r.include_references FROM instructor_ai_requests r LEFT JOIN ai_gateway_requests g ON g.actor_id=r.actor_id AND g.course_id=r.course_id AND g.action='assessment-draft' AND g.idempotency_key=r.request_key WHERE r.assessment_id=? AND r.actor_id=? AND r.revision_id=? AND r.evidence=? AND (? IS NULL OR g.id=?) ORDER BY r.rowid DESC LIMIT 1`,
+      )
+      .bind(
+        assessmentId,
+        actorId,
+        revisionId,
+        evidence,
+        requestId ?? null,
+        requestId ?? null,
+      )
+      .first<{
+        id: string | null;
+        request_key: string;
+        include_references: number;
+      }>();
+  }
   async aiCandidate(
     assessmentId: string,
     actorId: string,

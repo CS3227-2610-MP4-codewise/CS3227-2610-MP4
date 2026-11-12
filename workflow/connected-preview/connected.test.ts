@@ -87,88 +87,161 @@ async function created() {
   });
 }
 describe('IAL-10 connected instructor composition', { timeout: 30000 }, () => {
-  it('generates, recovers and adopts a synthetic gateway draft through the connected workflow', async () => {
-    for (const migration of [
-      '0013_ai_gateway.sql',
-      '0014_assessment_ai_candidates.sql',
-    ]) {
-      const sql = await readFile(
-        'src/server/db/migrations/' + migration,
-        'utf8',
+  it(
+    'generates, recovers and adopts a synthetic gateway draft through the connected workflow',
+    { timeout: 120000 },
+    async () => {
+      for (const migration of [
+        '0013_ai_gateway.sql',
+        '0014_assessment_ai_candidates.sql',
+        '0016_instructor_ai_recovery.sql',
+      ]) {
+        const sql = await readFile(
+          'src/server/db/migrations/' + migration,
+          'utf8',
+        );
+        await db.db.batch(
+          sql
+            .split(/^-- statement\s*$/m)
+            .filter((s) => s.replace(/^--.*$/gm, '').trim())
+            .map((s) => db.db.prepare(s)),
+        );
+      }
+      const v = await created();
+      const path = '/api/instructor/assessments/' + v.head.id;
+      const run = (request: Request) =>
+        new AssessmentWorkflow(
+          request,
+          base,
+          assignments,
+          repo,
+          localSamples(assignments, request),
+          // Keep this successful-flow test away from real quota-window rollovers.
+          // Deadline and expiry behavior is covered separately by the gateway tests.
+          syntheticAssessmentGateway(db.db, () => 1_800_000_000_000),
+        ).handle();
+      await repo.bindAIRequest(
+        {
+          assessmentId: v.head.id,
+          actorId: f.principal.userId,
+          courseId: v.head.courseId,
+          revisionId: v.head.headRevisionId,
+          evidence: v.head.evidence,
+          requestKey: 'before_gateway_begin',
+          includeReferences: false,
+          createdAt: '2020-01-01T00:00:00.000Z',
+        },
+        f.principal,
       );
-      await db.db.batch(
-        sql
-          .split(/^-- statement\s*$/m)
-          .filter((s) => s.replace(/^--.*$/gm, '').trim())
-          .map((s) => db.db.prepare(s)),
+      const beforeBegin = await run(f.request(path + '/ai-candidate'));
+      expect(await beforeBegin.json()).toEqual({ status: 'pending' });
+      await expect(
+        repo.bindAIRequest(
+          {
+            assessmentId: v.head.id,
+            actorId: f.principal.userId,
+            courseId: v.head.courseId,
+            revisionId: v.head.headRevisionId,
+            evidence: v.head.evidence,
+            requestKey: 'overlapping_key',
+            includeReferences: false,
+            createdAt: new Date().toISOString(),
+          },
+          f.principal,
+        ),
+      ).rejects.toMatchObject({ code: 'RATE_LIMITED' });
+      const badOrigin = f.request(path + '/resume-ai', 'POST', {});
+      const denied = await run(
+        new Request(badOrigin, {
+          headers: { Cookie: badOrigin.headers.get('Cookie')! },
+        }),
       );
-    }
-    const v = await created();
-    const path = '/api/instructor/assessments/' + v.head.id;
-    const run = (request: Request) =>
-      new AssessmentWorkflow(
-        request,
-        base,
-        assignments,
-        repo,
-        localSamples(assignments, request),
-        // Keep this successful-flow test away from real quota-window rollovers.
-        // Deadline and expiry behavior is covered separately by the gateway tests.
-        syntheticAssessmentGateway(db.db, () => 1_800_000_000_000),
-      ).handle();
-    let response = await run(
-      f.request(path + '/generate-ai', 'POST', {
-        expectedRevisionId: v.head.headRevisionId,
-        requestKey: 'connected_ai',
-        includePrivateReferences: true,
-      }),
-    );
-    expect(response.status, JSON.stringify(await response.clone().json())).toBe(200);
-    const generated = (await response.json()) as {
-      status: string;
-      candidateId: string;
-      payload: { reviewFlags: string[] };
-    };
-    expect(generated.status).toBe('succeeded');
-    expect(generated.payload.reviewFlags[0]).toContain('Synthetic preview');
-    await db.db
-      .prepare(
-        "UPDATE course_memberships SET active=0 WHERE course_id=? AND user_id=? AND role='instructor'",
-      )
-      .bind(f.publication.courseId, f.principal.userId)
-      .run();
-    response = await run(f.request(path + '/ai-candidate'));
-    expect(response.status).toBe(403);
-    response = await run(
-      f.request(path + '/adopt-ai', 'POST', {
-        expectedRevisionId: v.head.headRevisionId,
+      expect(denied.status).toBe(403);
+      const resumed = await run(f.request(path + '/resume-ai', 'POST', {}));
+      expect(resumed.status).toBe(200);
+      expect(await resumed.json()).toMatchObject({ status: 'succeeded' });
+      let response = await run(
+        f.request(path + '/generate-ai', 'POST', {
+          expectedRevisionId: v.head.headRevisionId,
+          requestKey: 'connected_ai',
+          includePrivateReferences: true,
+        }),
+      );
+      expect(
+        response.status,
+        JSON.stringify(await response.clone().json()),
+      ).toBe(200);
+      const generated = (await response.json()) as {
+        status: string;
+        candidateId: string;
+        payload: { reviewFlags: string[] };
+      };
+      expect(generated.status).toBe('succeeded');
+      expect(generated.payload.reviewFlags[0]).toContain('Synthetic preview');
+      // Simulate Worker termination after gateway settlement but before candidate storage.
+      vi.spyOn(repo, 'saveAICandidate').mockRejectedValueOnce(
+        new Error('interrupted'),
+      );
+      response = await run(
+        f.request(path + '/generate-ai', 'POST', {
+          expectedRevisionId: v.head.headRevisionId,
+          requestKey: 'connected_ai_recovered',
+          includePrivateReferences: true,
+        }),
+      );
+      expect(response.status).toBe(503);
+      const saved = await db.db
+        .prepare(
+          "SELECT id FROM ai_gateway_requests WHERE idempotency_key='connected_ai_recovered' AND status='succeeded'",
+        )
+        .first<{ id: string }>();
+      expect(saved).not.toBeNull();
+      response = await run(f.request(path + '/ai-candidate'));
+      expect(await response.json()).toMatchObject({
+        status: 'succeeded',
+        candidateId: saved!.id,
+      });
+      generated.candidateId = saved!.id;
+
+      await db.db
+        .prepare(
+          "UPDATE course_memberships SET active=0 WHERE course_id=? AND user_id=? AND role='instructor'",
+        )
+        .bind(f.publication.courseId, f.principal.userId)
+        .run();
+      response = await run(f.request(path + '/ai-candidate'));
+      expect(response.status).toBe(403);
+      response = await run(
+        f.request(path + '/adopt-ai', 'POST', {
+          expectedRevisionId: v.head.headRevisionId,
+          candidateId: generated.candidateId,
+        }),
+      );
+      expect(response.status).toBe(403);
+      await db.db
+        .prepare(
+          "UPDATE course_memberships SET active=1 WHERE course_id=? AND user_id=? AND role='instructor'",
+        )
+        .bind(f.publication.courseId, f.principal.userId)
+        .run();
+      response = await run(f.request(path + '/ai-candidate'));
+      expect(await response.json()).toMatchObject({
+        status: 'succeeded',
         candidateId: generated.candidateId,
-      }),
-    );
-    expect(response.status).toBe(403);
-    await db.db
-      .prepare(
-        "UPDATE course_memberships SET active=1 WHERE course_id=? AND user_id=? AND role='instructor'",
-      )
-      .bind(f.publication.courseId, f.principal.userId)
-      .run();
-    response = await run(f.request(path + '/ai-candidate'));
-    expect(await response.json()).toMatchObject({
-      status: 'succeeded',
-      candidateId: generated.candidateId,
-    });
-    response = await run(
-      f.request(path + '/adopt-ai', 'POST', {
-        expectedRevisionId: v.head.headRevisionId,
-        candidateId: generated.candidateId,
-      }),
-    );
-    expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({
-      revision: { provenance: 'ai-assisted' },
-      head: { approvedRevisionId: null, currentReleaseVersion: null },
-    });
-  });
+      });
+      response = await run(
+        f.request(path + '/adopt-ai', 'POST', {
+          expectedRevisionId: v.head.headRevisionId,
+          candidateId: generated.candidateId,
+        }),
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        revision: { provenance: 'ai-assisted' },
+        head: { approvedRevisionId: null, currentReleaseVersion: null },
+      });
+    },
+  );
   it('lists real authorized assignments/publications and opens a pinned sample in the same service', async () => {
     let r = await workflow(
       f.request('/api/instructor/review?courseId=' + f.publication.courseId),

@@ -405,25 +405,35 @@ export function AssessmentWorkspace({
               </p>
             )}
             <p>Review suggestions before approval. Code is not executed.</p>
-            <label>
-              <input
-                type="checkbox"
-                checked={includePrivateReferences}
-                disabled={!!s.busy}
-                onChange={(event) =>
-                  setIncludePrivateReferences(event.target.checked)
-                }
-              />{' '}
-              Include instructor-only reference solutions
-            </label>
+            {s.aiPending ? (
+              <p>
+                Resuming may send the saved request to the AI provider if it has
+                not started. It uses the original reference selection and may
+                include instructor-only reference solutions.
+              </p>
+            ) : (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={includePrivateReferences}
+                  disabled={!!s.busy || s.aiPending}
+                  onChange={(event) =>
+                    setIncludePrivateReferences(event.target.checked)
+                  }
+                />
+                <span>Include instructor-only reference solutions</span>
+              </label>
+            )}
             <button
               className="cw-text-action"
-              disabled={!!s.busy || s.dirty || noteDirty}
+              disabled={!!s.busy || (!s.aiPending && (s.dirty || noteDirty))}
               onClick={() =>
-                void controller.generateAI(includePrivateReferences)
+                void (s.aiPending
+                  ? controller.checkAI()
+                  : controller.generateAI(includePrivateReferences))
               }
             >
-              Generate draft
+              {s.aiPending ? 'Resume or check draft' : 'Generate draft'}
             </button>
             {(s.dirty || noteDirty) && (
               <p>

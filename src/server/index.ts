@@ -28,6 +28,9 @@ import { studentReleasePort } from './student/release-port';
 import { D1OwnedAttemptReader } from './instructor/assessments/owned-attempt';
 import { releaseHandler } from './instructor/assessments/release-http';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
+import { instructorAIConfig } from './ai/runtime-config';
+import { SecureAIGateway } from './ai/gateway';
+import { GatewayStore } from './ai/store';
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -163,6 +166,16 @@ export function createApplication(ports: DevelopmentPorts = {}) {
               enforceAuthority: true,
             }),
             assignments = new AssignmentService(assignmentRepository, identity);
+          const aiConfig = instructorAIConfig(env);
+          const realGateway: AssessmentGatewayFactory | undefined = aiConfig
+            ? (resolve) =>
+                new SecureAIGateway(new GatewayStore(env.DB), {
+                  action: 'assessment-draft',
+                  ...aiConfig,
+                  secrets: env,
+                  resolve,
+                })
+            : undefined;
           return new AssessmentWorkflow(
             request,
             identity,
@@ -177,9 +190,9 @@ export function createApplication(ports: DevelopmentPorts = {}) {
               ports.localSubmissions
               ? ports.localSubmissions({ assignments, request })
               : new D1SubmissionCatalog(env.DB),
-            allowLocalSamples(env, request, config?.origin)
+            (allowLocalSamples(env, request, config?.origin)
               ? ports.localAssessmentGateway?.(env.DB)
-              : undefined,
+              : undefined) ?? realGateway,
             new D1OwnedAttemptReader(env.DB),
           );
         };

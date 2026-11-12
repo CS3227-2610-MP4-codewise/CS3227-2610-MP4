@@ -32,6 +32,7 @@ export default defineConfig({
         for (const name of [
           '0013_ai_gateway.sql',
           '0014_assessment_ai_candidates.sql',
+          '0016_instructor_ai_recovery.sql',
         ]) {
           const existing = await database.db
             .prepare('SELECT name FROM _assessment_migrations WHERE name=?')

@@ -9,6 +9,7 @@ export type AssessmentState = {
   busy: string | null;
   message: string;
   selectedRevision: string | null;
+  aiPending: boolean;
   candidate: {
     candidateId: string;
     payload: AssessmentDraft;
@@ -23,6 +24,7 @@ export class AssessmentController {
     busy: null,
     message: '',
     selectedRevision: null,
+    aiPending: false,
     candidate: null,
   };
   private keys = new Map<string, string>();
@@ -43,20 +45,38 @@ export class AssessmentController {
   }
   private error(e: unknown) {
     return e instanceof Error && e.message === 'AI_PENDING'
-      ? 'The AI request is still processing. Retry to check again.'
+      ? 'The AI request is still processing. Resume or check it, or continue manually.'
       : e instanceof Error && e.message === 'AI_FAILED'
         ? 'AI drafting failed or expired. You can retry or continue manually.'
-        : e instanceof BoundaryError && e.code === 'REVISION_CONFLICT'
-          ? 'This assessment changed. Your edits are still here. Reload to compare.'
-          : e instanceof BoundaryError && e.code === 'UNAUTHENTICATED'
-            ? 'Session expired. Your unsaved edits are still here.'
-            : e instanceof BoundaryError && e.code === 'FORBIDDEN'
-              ? 'Access is no longer available.'
-              : e instanceof BoundaryError && e.code === 'INVALID_CONTRACT'
-                ? 'Check scores, explanations and source observations.'
-                : e instanceof BoundaryError && e.code === 'STALE_EVIDENCE'
-                  ? 'Evidence changed or feedback was withdrawn. Reload before continuing.'
-                  : 'Could not complete the request. Retry when ready.';
+        : e instanceof BoundaryError && e.code === 'RATE_LIMITED'
+          ? 'Another AI draft may still be processing. Resume or check its status.'
+          : e instanceof BoundaryError && e.code === 'REVISION_CONFLICT'
+            ? 'This assessment changed. Your edits are still here. Reload to compare.'
+            : e instanceof BoundaryError && e.code === 'UNAUTHENTICATED'
+              ? 'Session expired. Your unsaved edits are still here.'
+              : e instanceof BoundaryError && e.code === 'FORBIDDEN'
+                ? 'Access is no longer available.'
+                : e instanceof BoundaryError && e.code === 'INVALID_CONTRACT'
+                  ? 'Check scores, explanations and source observations.'
+                  : e instanceof BoundaryError && e.code === 'STALE_EVIDENCE'
+                    ? 'Evidence changed or feedback was withdrawn. Reload before continuing.'
+                    : 'Could not complete the request. Retry when ready.';
+  }
+  private forgetAIKeys(view: Workspace) {
+    for (const include of [false, true]) {
+      const fingerprint = JSON.stringify([
+        'ai',
+        view.head.id,
+        view.head.headRevisionId,
+        include,
+      ]);
+      this.keys.delete(fingerprint);
+      try {
+        globalThis.sessionStorage?.removeItem('cw-ai-request:' + fingerprint);
+      } catch {
+        /* storage may be unavailable */
+      }
+    }
   }
   async open(id: string, revision?: string, cursor?: string) {
     const epoch = ++this.epoch;
@@ -65,6 +85,7 @@ export class AssessmentController {
       feedback: null,
       dirty: false,
       selectedRevision: revision ?? null,
+      aiPending: false,
       candidate: null,
       busy: 'Loading',
       message: '',
@@ -82,6 +103,7 @@ export class AssessmentController {
       if (!revision && this.api.recoverAI) {
         try {
           const candidate = await this.api.recoverAI(id);
+          if (epoch === this.epoch) this.forgetAIKeys(v);
           if (
             epoch === this.epoch &&
             candidate &&
@@ -90,8 +112,23 @@ export class AssessmentController {
             this.update({
               candidate: { ...candidate, revisionId: v.head.headRevisionId },
             });
-        } catch {
-          /* manual assessment remains available if AI recovery is unavailable */
+        } catch (error) {
+          const terminal =
+            error instanceof Error && error.message === 'AI_FAILED';
+          const disabled =
+            error instanceof BoundaryError && error.code === 'AI_DISABLED';
+          if (epoch === this.epoch) {
+            if (terminal) this.forgetAIKeys(v);
+            this.update({
+              aiPending: !terminal && !disabled,
+              message: disabled
+                ? 'AI drafting is unavailable. You can continue manually.'
+                : terminal ||
+                    (error instanceof Error && error.message === 'AI_PENDING')
+                  ? this.error(error)
+                  : 'Could not check the AI request. Check its status or continue manually.',
+            });
+          }
         }
       }
     } catch (e) {
@@ -107,7 +144,14 @@ export class AssessmentController {
   }
   async generateAI(includePrivateReferences: boolean) {
     const { view, busy, dirty, selectedRevision } = this.state;
-    if (!view || busy || dirty || selectedRevision || !this.api.generateAI)
+    if (
+      !view ||
+      busy ||
+      dirty ||
+      selectedRevision ||
+      this.state.aiPending ||
+      !this.api.generateAI
+    )
       return;
     const epoch = this.epoch,
       revisionId = view.head.headRevisionId;
@@ -162,10 +206,51 @@ export class AssessmentController {
       }
       if (epoch === this.epoch)
         this.update({
+          aiPending:
+            !(e instanceof Error && e.message === 'AI_FAILED') &&
+            !(e instanceof BoundaryError && e.code === 'AI_DISABLED'),
           message:
             e instanceof BoundaryError && e.code === 'AI_DISABLED'
               ? 'AI drafting is unavailable. You can continue manually.'
               : this.error(e),
+        });
+    } finally {
+      if (epoch === this.epoch) this.update({ busy: null });
+    }
+  }
+  async checkAI() {
+    const { view, busy, selectedRevision } = this.state;
+    if (!view || busy || selectedRevision || !this.api.recoverAI) return;
+    const epoch = this.epoch;
+    this.update({ busy: 'Checking AI draft', message: '' });
+    try {
+      const candidate = await (this.api.resumeAI ?? this.api.recoverAI)(
+        view.head.id,
+      );
+      if (epoch !== this.epoch) return;
+      this.forgetAIKeys(view);
+      this.update({
+        aiPending: false,
+        candidate: candidate
+          ? { ...candidate, revisionId: view.head.headRevisionId }
+          : null,
+        message: candidate
+          ? 'AI draft ready for review. Nothing has been approved or released.'
+          : 'No AI draft is available. You can continue manually.',
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === 'AI_FAILED')
+        this.forgetAIKeys(view);
+      if (epoch === this.epoch)
+        this.update({
+          aiPending:
+            !(error instanceof Error && error.message === 'AI_FAILED') &&
+            !(error instanceof BoundaryError && error.code === 'AI_DISABLED'),
+          message:
+            error instanceof Error &&
+            ['AI_PENDING', 'AI_FAILED'].includes(error.message)
+              ? this.error(error)
+              : 'Could not check the AI request. Check its status or continue manually.',
         });
     } finally {
       if (epoch === this.epoch) this.update({ busy: null });
