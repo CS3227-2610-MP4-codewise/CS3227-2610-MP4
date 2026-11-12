@@ -7,14 +7,15 @@
 - **Requirement IDs and OpenSpec change:** SF-01–SF-08; C-REL (K5, P4); UI-01/04/06/07/08 (`docs/ui/design.md`, `warm-workbook-v1`); AUTH-01–03; OPS-01; DEV-02/04. Change `openspec/changes/student-released-feedback` (strict-valid).
 - **Revisions** (branch `keith/student-released-feedback`):
 
-  | Revision  | Content                                                                         |
-  | --------- | ------------------------------------------------------------------------------- |
-  | `ed1483c` | Producer `ReleaseReadPort.attemptReleases`                                      |
-  | `4d0f0f8` | Consumer routes, history marker, attempt-view UI, `release-port.ts` composition |
-  | `1edbb16` | Conformance tests and shared composed test fixture                              |
-  | `2b2b7d3` | OPS-01 batched authorization and once-per-request session; **last code change** |
-  | `71800b9` | Final checks run                                                                |
-  | `8dd9d56` | Last evidence and decision commit before this handoff                           |
+  | Revision                                   | Content                                                                                                                                                             |
+  | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `ed1483c`                                  | Producer `ReleaseReadPort.attemptReleases`                                                                                                                          |
+  | `4d0f0f8`                                  | Consumer routes, history marker, attempt-view UI, `release-port.ts` composition                                                                                     |
+  | `1edbb16`                                  | Conformance tests and shared composed test fixture                                                                                                                  |
+  | `2b2b7d3`                                  | OPS-01 batched authorization and once-per-request session; **last code change**                                                                                     |
+  | `71800b9`                                  | Final checks run                                                                                                                                                    |
+  | `8dd9d56`                                  | Last evidence and decision commit before this handoff                                                                                                               |
+  | merge of `origin/main` (`f787176`, PR #33) | Conflicts resolved in `index.ts` and `Ownership.md`; `release-port.ts` adapted to Darryl's `ownedAttempts` port (`D1OwnedAttemptReader`); **current code revision** |
 
   Base: `origin/main` at the time of review.
 
@@ -56,6 +57,7 @@
 
 ## Verification (actual results)
 
+- **After the merge with `main` (2026-11-13):** `npm run check` exit 0 (58 files / 710 tests). Composed, conformance and producer tests pass. Conformance reads pre-release currentness on the producer side because of Darryl's release-existence rule (see conformance.md).
 - **Final run at `71800b9`:** `npx openspec validate student-released-feedback --strict` exit 0; `npm run check` exit 0 (openspec 18/18, 57 files / 700 tests, 4/4 deployment tests, build). See [final-checks.md](../evidence/student-released-feedback/final-checks.md).
 - **Composed local tests (real producer and instructor workflow on local D1, synthetic data):**
   - `src/server/student/release-port.test.ts` (4): own 200; foreign student and instructor 404; draft privacy; K5 sequence; revoked 404; mid-request revocation.
@@ -77,14 +79,16 @@
 
 [read-cost.md](../evidence/student-released-feedback/read-cost.md), on the Workers Free plan (50 D1 queries per invocation):
 
-| Request                | Local D1 calls | Production estimate |
-| ---------------------- | -------------: | ------------------: |
-| History page, any size |              2 |                 ~10 |
-| Released open          |             25 |                 ~33 |
+| Request                |           Local D1 calls |        Production estimate |
+| ---------------------- | -----------------------: | -------------------------: |
+| History page, any size |                        2 |                        ~10 |
+| Released open          | 14 (25 before the merge) | ~22 (~33 before the merge) |
 
 Before the fixes, both were over 50. Edge CPU time is not measured yet (task 6.3). Session token usage is in [the increment log](../../logs/keith/student-released-feedback.md) checkpoints. Counters marked unavailable there are not inferred.
 
 ## Blockers and next actions
+
+0. **Duplicate route, Keith and Darryl:** `main` now also serves Darryl's assessment-keyed `/api/student/released-feedback/...` (`release-http.ts`, PR #33). Keith's decision (2026-11-13) is to keep the attempt-keyed routes in this change and ask Darryl to retire or stop exposing his student route. Darryl's files are unchanged here.
 
 1. **5.3, Darryl:** fix `releaseContractSuite` to derive its later `availabilityRevision` values from the input snapshot rather than hard-coding 2, 3 and 4. Then Keith re-runs the suite on real values and ticks 5.3. This doesn't block merge review.
 2. **Merge, Keith and Darryl:** mark PR #32 ready, then get final merge review.

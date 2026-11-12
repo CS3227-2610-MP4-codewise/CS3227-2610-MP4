@@ -25,6 +25,8 @@ import { StudentWork } from './student/work';
 import { d1RateLimiter } from './student/rate-limit';
 import { D1SubmissionCatalog } from './student/catalog';
 import { studentReleasePort } from './student/release-port';
+import { D1OwnedAttemptReader } from './instructor/assessments/owned-attempt';
+import { releaseHandler } from './instructor/assessments/release-http';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
 
 const securityHeaders = {
@@ -178,9 +180,14 @@ export function createApplication(ports: DevelopmentPorts = {}) {
             allowLocalSamples(env, request, config?.origin)
               ? ports.localAssessmentGateway?.(env.DB)
               : undefined,
+            new D1OwnedAttemptReader(env.DB),
           );
         };
         if (pathname.startsWith('/api/auth/')) return auth.fetch(request);
+        if (pathname.startsWith('/api/student/released-feedback/')) {
+          const w = workflow();
+          return releaseHandler(request, w.base, w.service.consumer(request));
+        }
         if (pathname.startsWith('/api/student/')) {
           const work = new StudentWork(env.DB, Date.now, d1RateLimiter(store));
           return studentHandler(

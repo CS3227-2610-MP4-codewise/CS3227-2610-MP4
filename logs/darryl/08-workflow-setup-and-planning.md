@@ -694,3 +694,72 @@ Earlier workflow/setup questions are redacted summaries, not copies of private s
 
 - Deliver eight remaining prompts, keeping reset recovery and activation/integration boundaries explicit. Shared setup preserves branch isolation, existing implementations, per-prompt logging and release authorization. Keith wait applies to cross-role acceptance, not independent producer implementation.
 - No source/spec/skill changes, commit/push/deployment or messages to Keith. Required narrative log append only; all prior dirty changes preserved. Token reduction is an objective, not a measured result. No runtime checks run for this advice-only request.
+
+## Prompt LLM-SEQ-20261108-01 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Review current repo, regenerate remaining prompts and clarify actual LLM integration and synthetic/draft submission testing.
+
+### Agents spawned
+
+- New agents: None — bounded source/handoff review; delegation would duplicate the same status inspection.
+- Reused agents: None.
+- Main agent: /root; reviews existing gateway, application wiring, AI assessment and evaluation evidence. No implementation.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | 825,433 | 548,608 | 537 | 825,970 | turn-e932124b2c280b2f00d2a6c4 | Provisional; later calls/final excluded |
+| Children | 0 | 0 | 0 | 0 | None | No task child agents |
+
+- Private checkpoint: 2026-11-08T14:36:15.95Z; Codewise project scope verified; per_response_usage. Source group 01a18601-a793-7f90-8bfe-c3677cb20fb4/01a1bb95-dd3c-7352-b1c4-05f390842105. Per-prompt allocation unavailable if steering shares a turn; count group once. Cached/reasoning are subsets; unlinked approval reviews excluded. Finalize next checkpoint.
+- Preceding GROUP-20261108-01/02 shared group reconciliation: turn-30b5330355fe812fe80758ce completed; input 1,611,551, cached input 1,609,216, output 3,331, total 1,614,882. Supersedes earlier provisional count; count once for both prompts, not twice.
+
+### Experiment outcome
+
+- Fetched main: no new fetched commits; clean tracked main at 62eb11d, unrelated untracked worktrees preserved. Existing SecureAIGateway, SoCLaaS transport and instructor candidate/adoption code are implemented; normal application only supplies gateway behind loopback sample ports, so live model remains disabled. Key entries alone cannot activate it.
+- Clarify prior prompt series covered implementation but lacked a concrete activation/composition increment. Recommend actual verified local model wiring with synthetic immutable submitted attempts, then reviewed staging verification. Instructor assessment drafts are outputs; students' unsent source drafts are not authorized instructor evidence under current specs.
+- Existing AI/evaluation checks are synthetic; real provider, actual instructor review, relevant UI acceptance and Keith submission integration remain pending. Do not ask to rebuild existing gateway/assessment/evaluation harness. Include quota-pool cross-environment isolation and uncertain in-flight debt recovery as rollout constraints.
+- Checks: source/env/setup/task/handoff inspection and Git fetch/status only. No runtime tests, live calls, credentials reads, model discovery, migrations or deployment. Required member log append only; no controlled resource comparison. Next owner Darryl runs bounded live-local activation prompt, supplies secrets privately and human review; Keith supplies real submissions/consumers.
+
+## Prompt SEQUENCE-CORRECTION-20261108-01 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Ask why the remaining prompt list expanded after completing four of the original seven iterations.
+
+### Agents spawned
+
+- New agents: None — correcting sequencing and scope needs no delegation.
+- Reused agents: None.
+- Main agent: /root, explains prior packaging error and preserves completed implementation.
+
+### Token count
+
+- Main input/cached/output/total: unavailable for this prompt; no fresh checkpoint retrieved during this short correction. Current turn provisional; source group unavailable. No invented token figures.
+- Child agents: none; zero task child consumption. Detailed telemetry stays local. Reconcile this prompt and preceding provisional live-LLM sequencing entry at next recorder checkpoint; no duplicate turn totals.
+
+### Experiment outcome
+
+- Prior response mixed completed implementation, outstanding evidence and newly separated activation into a fresh seven-item backlog. Correct the interpretation: do not rerun completed four iterations; retain remaining original evaluation, cross-role integration and operational/release work as applicable, with live-provider composition as the one explicit missing technical increment.
+- Provider integration code exists, but normal application wiring remains disabled; activation can be handled as a bounded continuation of existing gateway/assessment changes rather than restarting them. Human acceptance and verification are completion criteria, not automatically separate feature iterations.
+- No application/spec/skill/Git/release actions. Required prompt-log append only. No runtime checks warranted or claimed for explanation; prior source inspection remains the evidence basis. No controlled token-efficiency comparison.
+
+## Prompt REMAINING-PROMPTS-20261108-01 — 2026-11-08 Asia/Singapore
+
+**Prompt (redacted):** Provide the copyable sequence to run from this point without restarting completed iterations.
+
+### Agents spawned
+
+- New agents: None — bounded sequencing correction uses the just-inspected implementation and handoffs.
+- Reused agents: None.
+- Main agent: /root prepares four continuation prompts; no feature implementation.
+
+### Token count
+
+- Main input/cached/output/total: unavailable at this checkpoint; current turn provisional, source group unavailable. No estimates supplied.
+- Child agents: none; zero task child consumption. Reconcile this and preceding SEQUENCE-CORRECTION prompt at the next recorder checkpoint; previous provisional measurements are not final or additive. Detailed telemetry stays outside Git.
+
+### Experiment outcome
+
+- Preserve completed gateway, instructor AI, authentication, publication and manual-assessment implementation. Remaining sequence: one live-local composition continuation, completion of existing evaluation, actual Keith producer/consumer integration, then operational/deliverable/release closure with separate authorization at live-operation boundaries.
+- Prompts require checking and skipping already-evidenced work, retain bounded review/acceptance and avoid another full new feature backlog. Keith wait only for actual cross-role integration; operational preparation can proceed while waiting.
+- Source basis: immediately preceding main62eb11d code/handoff/config inspection. No new external or current-main status claim, no runtime checks claimed, no application/spec/skill/Git/release action. Required member-log append only; no efficiency improvement claimed without measurement.

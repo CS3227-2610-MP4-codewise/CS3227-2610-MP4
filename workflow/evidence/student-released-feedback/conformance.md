@@ -13,6 +13,8 @@ Requirement IDs: SF-08, C-REL (K5, P4). Run on 2026-11-12 by Keith's root Coordi
 
 **Re-run after the batched-authorization amendment:** at `2b2b7d3` (producer `attemptReleases` batched, session resolved once per request in `studentReleasePort`), `release-conformance.test.ts` 4/4 and `release-port.test.ts` 4/4 pass, within `npm run check` exit 0 (57 files / 700 tests). The results below hold at both revisions.
 
+**Re-run after merging `main` (PR #33), 2026-11-13:** 4/4 pass. Darryl's consumer now answers `currentness` with NOT_FOUND before an assessment's first release. So the suite's single pre-release currentness read, used only to build the instructor's release command, is read on the producer side. The test asserts that the student consumer returns NOT_FOUND at that point. Every later read still goes through the student consumer and the HTTP cross-check.
+
 ## How it was run
 
 `npx vitest run src/server/student/release-conformance.test.ts` (also part of `npm run check`, exit 0, 57 files / 697 tests at `1edbb16`).

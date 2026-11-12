@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { principal } from './test-fixture';
 import { composedEnvironment, PRIVATE_MARKERS } from './composed-fixture';
+import { AssessmentRepository } from '../instructor/assessments/repository';
 import { verifyAssessmentProducer } from '../../../workflow/assessment-preview/conformance';
 import {
   assertCurrentRelease,
@@ -26,6 +27,8 @@ let result: Awaited<ReturnType<typeof verifyAssessmentProducer>>;
 let attempt = '';
 let assessmentId = '';
 let firstCurrent: Currentness | undefined;
+let released = false;
+let prereleaseReads = 0;
 let historicalTombstone: Release | Withdrawn | undefined;
 const reads: { version: number; state: string }[] = [];
 
@@ -52,6 +55,7 @@ beforeAll(async () => {
       const r = await env.instructor
         .service()
         .release(env.instructor.request('POST'), assessmentId, command);
+      released = true;
       if (r.releaseVersion === 1 && !firstCurrent)
         firstCurrent = await student().currentness(
           principal('s1'),
@@ -82,7 +86,23 @@ beforeAll(async () => {
         historicalTombstone ??= value;
       return value;
     },
-    currentness: () => student().currentness(principal('s1'), assessmentId),
+    // Before the first release, the student consumer correctly answers NOT_FOUND (Darryl's
+    // release-existence rule, PR #33), so the suite's pre-release currentness, used only to
+    // build the instructor's release command, is read on the producer side. Every
+    // currentness after a release goes through the student consumer.
+    currentness: async () => {
+      if (!released) {
+        await expect(
+          student().currentness(principal('s1'), assessmentId),
+        ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+        prereleaseReads++;
+        return new AssessmentRepository(env.db).currentness(
+          assessmentId,
+          new Date().toISOString(),
+        );
+      }
+      return student().currentness(principal('s1'), assessmentId);
+    },
   });
 }, 60000);
 afterAll(async () => {
@@ -92,6 +112,7 @@ afterAll(async () => {
 describe('C-REL producer conformance from the student consumer (5.3)', () => {
   it('passes verifyAssessmentProducer with reads through the student consumer', async () => {
     expect(result.first.releaseVersion).toBe(1);
+    expect(prereleaseReads).toBe(1);
     expect(result.correction.releaseVersion).toBe(2);
     expect(result.historicalWithdrawal.releaseVersion).toBe(1);
     expect(result.final).toMatchObject({

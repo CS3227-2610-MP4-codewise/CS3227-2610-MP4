@@ -1,33 +1,26 @@
-import { BoundaryError, id } from '../../shared/instructor-contracts/schema';
-import {
-  currentStudentGuard,
-  studentGuardBindings,
-} from '../courses/authority';
 import { AssessmentRepository } from '../instructor/assessments/repository';
 import { AssessmentService } from '../instructor/assessments/service';
+import { D1OwnedAttemptReader } from '../instructor/assessments/owned-attempt';
 import type {
   IdentityCoursePort,
-  SubmissionReadPort,
   TrustedPrincipal,
 } from '../instructor/ports/contracts';
 import type { StudentReleasePort } from './feedback';
 import type { StudentWork } from './work';
 
 /**
- * SF-01, C-REL (student-released-feedback 5.2; Darryl's go-ahead recorded 2026-11-12 in
- * workflow/Ownership.md): Darryl's real producer, `AssessmentService.consumer`, composed with
- * student read ports. The instructor workflow's object checks authorize instructors only, so
- * the student path supplies its own:
+ * SF-01, C-REL (student-released-feedback 5.2; Keith's extension in workflow/Ownership.md):
+ * Darryl's real producer, `AssessmentService.consumer`, for the student routes.
  *
- * - `requireObject` reads an `assessment` or `submission` only when it belongs to the caller's
- *   own attempt and the caller holds current Student membership in that attempt's course. The
- *   check is one SQL statement with `currentStudentGuard`; the assessment's attempt and course
- *   come from the producer's own `AssessmentRepository.scope`, and nothing else is read from
- *   assessment tables here. Writes are refused.
- * - `SubmissionReadPort` is `StudentWork.attempt`, the same guarded own-attempt read the
- *   student routes use; it produces the same attempt projection as the instructor catalog.
+ * - Content reads authorize through Darryl's `ownedAttempts` port (`D1OwnedAttemptReader`):
+ *   the caller's own attempt with current Student membership, checked in SQL, plus his evidence
+ *   check. `attemptReleases` authorizes its whole batch in one SQL check.
+ * - OPS-01: a production session check costs 4 D1 queries and a provider lookup, and the
+ *   producer re-resolves the session in every `authorize`. This port resolves it once per
+ *   request. Revocation is still caught at each step, because every attempt read embeds
+ *   `currentStudentGuard`, which re-checks the session row (revoked, expired, idle) in SQL.
+ * - One clock serves the student guard and the producer.
  *
- * Session, mutation-origin and course checks are the shared SH-AUTH/SH-ID ones, unchanged.
  * Real D1 only; loopback samples never reach this port.
  */
 export function studentReleasePort(
@@ -36,25 +29,6 @@ export function studentReleasePort(
   work: StudentWork,
   request: Request,
 ): StudentReleasePort {
-  const repository = new AssessmentRepository(db);
-  const ownAttemptCourse = async (
-    principal: TrustedPrincipal,
-    attemptId: string,
-  ) => {
-    const row = await db
-      .prepare(
-        `SELECT a.course_id FROM student_attempts a
-         WHERE a.id=?5 AND a.user_id=?4 AND ${currentStudentGuard('a.course_id')}`,
-      )
-      .bind(...studentGuardBindings(principal, work.clock()), attemptId)
-      .first<{ course_id: string }>();
-    if (!row) throw new BoundaryError('FORBIDDEN');
-    return row.course_id;
-  };
-  // OPS-01: a production session check costs 4 D1 queries and a provider lookup, and the
-  // producer re-resolves the session in every `authorize`. Resolve it once per request here.
-  // Revocation is still caught at each step: every object and attempt check below embeds
-  // `currentStudentGuard`, which re-checks the session row (revoked, expired, idle) in SQL.
   let session: Promise<TrustedPrincipal> | undefined;
   const studentIdentity: IdentityCoursePort = {
     ...identity,
@@ -62,31 +36,15 @@ export function studentReleasePort(
       r === request
         ? (session ??= identity.requireSession(r))
         : identity.requireSession(r),
-    async requireObject(principal, target, action) {
-      if (action !== 'read') throw new BoundaryError('FORBIDDEN');
-      const targetId = id(target.id, '$.id');
-      if (target.kind === 'submission')
-        return { courseId: await ownAttemptCourse(principal, targetId) };
-      if (target.kind === 'assessment') {
-        const meta = await repository.scope(targetId);
-        if (!meta) throw new BoundaryError('NOT_FOUND');
-        const courseId = await ownAttemptCourse(principal, meta.attemptId);
-        if (courseId !== meta.courseId) throw new BoundaryError('FORBIDDEN');
-        return { courseId };
-      }
-      throw new BoundaryError('NOT_FOUND');
-    },
   };
-  const submissions: SubmissionReadPort = {
-    getAuthorized: (principal, attemptId) => work.attempt(principal, attemptId),
-  };
-  // The consumer reads no publication, so no publication port is supplied.
-  // One clock for the student guard and the producer's currentness and session checks.
   return new AssessmentService(
-    repository,
+    new AssessmentRepository(db),
     studentIdentity,
-    submissions,
+    undefined,
     undefined,
     () => new Date(work.clock()),
+    undefined,
+    undefined,
+    new D1OwnedAttemptReader(db, work.clock),
   ).consumer(request);
 }

@@ -17,7 +17,23 @@ The project is on the Workers **Free** plan (Keith, 2026-11-12). Per [Cloudflare
 - **Production estimate.** The test session port makes no D1 calls. A production session check (`ManagedAuthRoutes.requireSession`) makes 4 D1 queries (session touch, session read, provider binding, owner status) and 1 external Firebase account lookup. So production D1 ≈ measured D1 calls + 4 × session checks, and external calls ≈ session checks. This is derived from the code, not measured against production.
 - **Setup:** one assignment version with 2 questions; student `s1`. The released attempt has v1 superseded and v2 current.
 
-## After the fixes (revision with this file; current)
+## After merging `main` with PR #33 (current)
+
+Darryl's real assessment integration (PR #33) changed the consumer's `authorize` to read the attempt through `ownedAttempts` (`D1OwnedAttemptReader`) instead of separate object and course checks. Keith's `studentReleasePort` now uses that reader and keeps the once-per-request session. Measured 2026-11-13 with the same script and setup:
+
+| Request (real producer)                    | D1 calls | Statements | Rows read | Session checks | Production D1 (est.) | External (est.) | Median ms | Max ms |
+| ------------------------------------------ | -------: | ---------: | --------: | -------------: | -------------------: | --------------: | --------: | -----: |
+| `GET .../feedback`: released (v2 current)  |       14 |         26 |       104 |              2 |               **22** |               2 |      69.8 |   73.0 |
+| `GET .../feedback/1`: superseded version   |       14 |         26 |       104 |              2 |               **22** |               2 |      65.2 |   71.0 |
+| `GET .../feedback`: assessed, not released |        2 |          6 |        24 |              2 |               **10** |               2 |      11.1 |   13.0 |
+| `GET .../feedback`: no assessment          |        2 |          6 |        22 |              2 |               **10** |               2 |      11.1 |   16.6 |
+| History page, 3 attempts                   |        2 |          6 |        62 |              2 |               **10** |               2 |      12.3 |   49.2 |
+| History page, 20 attempts                  |        2 |          6 |       280 |              2 |               **10** |               2 |      11.5 |   14.9 |
+| History page, 50 attempts (full page)      |        2 |          6 |       670 |              2 |               **10** |               2 |      12.9 |   15.3 |
+
+A released open is now an estimated 22 production D1 queries, a margin of 28 under the limit of 50. History is unchanged.
+
+## After the OPS-01 fixes, before the merge (`2b2b7d3`, superseded)
 
 Two changes:
 

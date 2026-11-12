@@ -64,6 +64,7 @@ export class AssessmentService {
     readonly clock: () => Date = () => new Date(),
     readonly nextId: () => string = () => crypto.randomUUID(),
     readonly ai?: AIGatewayPort<'assessment-draft', AssessmentDraft>,
+    readonly ownedAttempts?: SubmissionReadPort,
   ) {}
   async session(request: Request) {
     if (!this.identity) throw new BoundaryError('UNAUTHENTICATED');
@@ -794,15 +795,21 @@ export class AssessmentService {
   }
   consumer(request: Request): ReleaseReadPort {
     const authorize = async (principal: TrustedPrincipal, value: string) => {
-      const scope = await this.scope(request, value, false, true);
+      const current = await this.session(request);
+      const meta = await this.repository.scope(id(value, '$.assessmentId'));
+      if (!meta) throw new BoundaryError('NOT_FOUND');
+      const scope = { principal: current, ...meta };
       if (
         scope.principal.userId !== principal.userId ||
         scope.principal.sessionHandle !== principal.sessionHandle
       )
         throw new BoundaryError('FORBIDDEN');
-      if (!this.submissions) throw new BoundaryError('UPSTREAM_UNAVAILABLE');
+      if (!this.ownedAttempts) throw new BoundaryError('UPSTREAM_UNAVAILABLE');
       const attempt = attemptSchema.parse(
-        await this.submissions.getAuthorized(scope.principal, scope.attemptId),
+        await this.ownedAttempts.getAuthorized(
+          scope.principal,
+          scope.attemptId,
+        ),
       );
       if (
         attempt.attemptId !== scope.attemptId ||
@@ -882,6 +889,8 @@ export class AssessmentService {
       },
       currentness: async (p, value) => {
         await authorize(p, value);
+        if (!(await this.repository.hasRelease(value)))
+          throw new BoundaryError('NOT_FOUND');
         const current = await this.repository.currentness(
           value,
           this.clock().toISOString(),

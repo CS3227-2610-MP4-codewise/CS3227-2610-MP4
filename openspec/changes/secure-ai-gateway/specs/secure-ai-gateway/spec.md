@@ -21,6 +21,18 @@ The gateway SHALL validate output using the action's domain validator and reauth
 - **WHEN** a result is structurally valid but fails its action validator
 - **THEN** it SHALL NOT be exposed as usable success.
 
+#### Scenario: Reported component token overrun
+- **WHEN** reported input tokens exceed the verified input reservation or reported output tokens exceed the requested output cap, even if their combined total fits the reservation
+- **THEN** the result SHALL fail closed before domain validation or caching, without refunding its conservative reservation.
+
+#### Scenario: Unsafe combined usage
+- **WHEN** the sum of reported usage cannot be safely represented for accounting
+- **THEN** the gateway SHALL retain uncertainty debt and SHALL NOT expose a successful result.
+
+#### Scenario: Rejected content still reports valid usage
+- **WHEN** a bounded parsed provider envelope reports valid usage but generated content is malformed or truncated
+- **THEN** usage SHALL remain available for conservative accounting before safe failure, without exposing the rejected content.
+
 #### Scenario: Missing usage or revoked access
 - **WHEN** provider usage is absent or authorization is revoked
 - **THEN** usage SHALL be unavailable and a revoked actor SHALL NOT receive a cached or completed result.

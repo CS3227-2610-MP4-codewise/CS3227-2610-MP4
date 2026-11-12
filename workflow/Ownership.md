@@ -1,5 +1,9 @@
 # Ownership and integration agreement
 
+## Secure gateway readiness window — 2026-11-12
+
+Darryl/main is sole writer for the bounded `gateway-reported-bounds-01` repair in `src/server/ai/gateway.ts`, `transport.ts` and their tests, secure-ai-gateway artifacts/evidence/handoff, this coordination record, IntegrationContracts readiness note and log 21. `/root/gateway_readiness_review` is read-only. The transport scope follows its confirmed related usage-accounting finding. No shared DTO, route, schema or migration change is made. Existing writer windows and Keith's student/submission ownership remain intact. Future index/environment wiring or migration changes need a separately agreed exclusive window with exact producer/consumer revisions; none is inferred here. Darryl autoapproves this brief and waives human acceptance only; Keith exact-source review and provider activation are not approved.
+
 ## Local shell recovery window - approved 2026-11-11
 
 CI repair follow-up2026-11-12: under Darryl's current failing-PR request, main aligns only the shared-consumer expectations/fixture in `src/web/student/StudentWorkspace.dom.test.ts` on PR27. Two radio assertions now use the documented native switch; one request-count queue becomes server-phase responses for all session readers, retaining/strengthening sign-out recovery assertions. This is test compatibility for Darryl's changed shared producer, not student feature implementation or a transfer of Keith's ownership. Keith's source-specific review remains pending; no Keith approval is claimed. No student runtime, shared DTO/schema/API or PR26 edits.
@@ -142,13 +146,13 @@ Update 2026-11-09: Keith reported that Darryl reviewed and approved draft PR #25
 
 Keith reported on 2026-11-10 that Darryl approved all shared decisions for the student-drafts change (SW-01–SW-10, C-SUB), including this writer window. One writer per file, Darryl reviewing:
 
-| File | Writer |
-|------|--------|
-| `src/server/db/migrations/0015_student_submissions.sql` (number rechecked at creation) | Keith (domain Implementer agent on `keith/student-drafts`) |
-| `src/shared/student-work.ts` | Keith (domain Implementer agent) |
-| `currentStudentWriteGuard` addition in `src/server/courses/authority.ts` | Keith (domain Implementer agent) |
-| Student route wiring in `src/server/index.ts` | Keith (domain Implementer agent) |
-| Student workbook route wiring in `src/web/main.tsx` | Keith (one UI Implementer agent per variant branch `keith/student-drafts-ui-{a,b,c}`; only the variant Keith chooses at task 4.2 merges) |
+| File                                                                                   | Writer                                                                                                                                   |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/server/db/migrations/0015_student_submissions.sql` (number rechecked at creation) | Keith (domain Implementer agent on `keith/student-drafts`)                                                                               |
+| `src/shared/student-work.ts`                                                           | Keith (domain Implementer agent)                                                                                                         |
+| `currentStudentWriteGuard` addition in `src/server/courses/authority.ts`               | Keith (domain Implementer agent)                                                                                                         |
+| Student route wiring in `src/server/index.ts`                                          | Keith (domain Implementer agent)                                                                                                         |
+| Student workbook route wiring in `src/web/main.tsx`                                    | Keith (one UI Implementer agent per variant branch `keith/student-drafts-ui-{a,b,c}`; only the variant Keith chooses at task 4.2 merges) |
 
 Also in Keith's window: `src/server/student/`, `src/web/student/`, the change's artifacts, evidence, handoff and Keith log. `SubmissionCatalog` composition in place of the loopback samples (task 6.2) is not opened by this record. This record carries Keith's report; Darryl's direct review is not claimed. No push or deployment is authorized by it.
 
@@ -156,11 +160,11 @@ Also in Keith's window: `src/server/student/`, `src/web/student/`, the change's 
 
 Keith reported on 2026-11-12 that Darryl agreed Keith may edit, one writer per file with Darryl reviewing:
 
-| File | Writer |
-|------|--------|
-| `ratelimits` binding entry for each environment in `wrangler.json` (no other section) | Keith |
-| Rate-limit binding type in `src/server/environment.ts` (no other change) | Keith |
-| Limiter composition for the student handler in `src/server/index.ts` (already in the window above) | Keith |
+| File                                                                                               | Writer |
+| -------------------------------------------------------------------------------------------------- | ------ |
+| `ratelimits` binding entry for each environment in `wrangler.json` (no other section)              | Keith  |
+| Rate-limit binding type in `src/server/environment.ts` (no other change)                           | Keith  |
+| Limiter composition for the student handler in `src/server/index.ts` (already in the window above) | Keith  |
 
 Darryl's `AuthStore.rate` (`src/server/auth/store.ts`) is consumed unchanged, not edited. This record carries Keith's report; Darryl's direct review is not claimed. No deployment is authorized by it.
 
@@ -168,27 +172,37 @@ Darryl's `AuthStore.rate` (`src/server/auth/store.ts`) is consumed unchanged, no
 
 Keith reported on 2026-11-12 that he may apply the C-SUB composition himself: Keith is the writer for the `AssessmentWorkflow` submissions argument in `src/server/index.ts` (real `D1SubmissionCatalog` outside the loopback sample run; loopback samples stay exclusive when the connected-preview port supplies them). No other part of `index.ts` is opened. This record carries Keith's report; Darryl's direct review is not claimed.
 
+## Real assessment integration writer window — 2026-11-12
+
+Darryl is sole writer for `src/server/instructor/assessments/service.ts` consumer authorization, new `src/server/instructor/assessments/owned-attempt.ts` adapter, `src/server/instructor/assessments/workflow.ts` and `src/server/index.ts` composition, `workflow/connected-preview/real-submission.test.ts` integration verification, and related tasks, evidence, handoff and Darryl log. Instructor catalog and Keith student implementation remain unchanged. This records Darryl's explicit authorization, not Keith approval.
+
+Darryl also writes `src/server/instructor/assessments/release-http.ts` (read-only C-REL HTTP adapter) and the release-existence check in `src/server/instructor/assessments/repository.ts`; focused tests remain in `workflow/connected-preview/real-submission.test.ts`. This is an additive consumer of the existing contract and does not claim Keith approval.
+Darryl also writes `workflow/assessment-preview/fixture.ts` to supply the distinct synthetic owned-attempt port to existing lifecycle tests.
+Darryl also writes `src/web/instructor/assignments/InstructionEditor.interaction.test.ts` solely to investigate and, if confirmed, accommodate the lazy preview's local loading time while retaining the rendered-bold assertion.
+
 ## Student released feedback — Keith writer window in SH-REL, reported agreed 2026-11-12
 
 Keith reported on 2026-11-12 that Darryl agreed to the `attemptReleases` method shape in `openspec/changes/student-released-feedback/design.md` D1 (1..50 unique own attempt IDs; `null` for no assessment or no release; all-or-nothing authorization; version list including superseded and withdrawn versions) and granted Keith this writer window. Darryl remains the SH-REL producer owner and reviews Keith's producer change before composition (task 5.2).
 
-| File | Writer | Reviewer |
-|------|--------|----------|
-| `src/server/instructor/ports/contracts.ts`: additive `attemptReleases` on `ReleaseReadPort` only | Keith | Darryl |
-| `src/server/instructor/assessments/service.ts`: `attemptReleases` in `AssessmentService.consumer` only, reusing the existing `authorize` | Keith | Darryl |
-| `src/server/instructor/assessments/repository.ts`: one read mapping attempt IDs to assessment and release versions, if needed | Keith | Darryl |
-| Producer tests for the new method beside the existing assessment tests | Keith | Darryl |
-| `src/server/index.ts`: the `studentHandler` feedback-port composition only, after Darryl's review | Keith | Darryl |
+| File                                                                                                                                     | Writer | Reviewer |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------- |
+| `src/server/instructor/ports/contracts.ts`: additive `attemptReleases` on `ReleaseReadPort` only                                         | Keith  | Darryl   |
+| `src/server/instructor/assessments/service.ts`: `attemptReleases` in `AssessmentService.consumer` only, reusing the existing `authorize` | Keith  | Darryl   |
+| `src/server/instructor/assessments/repository.ts`: one read mapping attempt IDs to assessment and release versions, if needed            | Keith  | Darryl   |
+| Producer tests for the new method beside the existing assessment tests                                                                   | Keith  | Darryl   |
+| `src/server/index.ts`: the `studentHandler` feedback-port composition only, after Darryl's review                                        | Keith  | Darryl   |
 
 No other part of these files is opened, and no migration or release DTO change (`src/shared/instructor-contracts/release.ts`) is included. This record carries Keith's report; Darryl's direct review is not claimed. No deployment is authorized by it.
 
 **Extension — student read ports, reported agreed 2026-11-12.** Keith reported that Darryl gave the go-ahead for Keith to implement the student-side object authorization the producer needs. Production `AssessmentWorkflow` maps `assessment` and `submission` objects to instructor reads and `D1SubmissionCatalog` uses `currentInstructorGuard`, so `AssessmentService.consumer` composed as-is denies every student. The extension covers:
 
-| File | Writer | Reviewer |
-|------|--------|----------|
-| New `src/server/student/release-port.ts`: a student `IdentityCoursePort.requireObject` for `assessment`/`submission` read (own attempt plus current Student membership in SQL; assessment scope through `AssessmentRepository.scope`), a student `SubmissionReadPort` (`StudentWork.attempt`) and the `AssessmentService.consumer` it returns | Keith | Darryl |
-| `src/server/index.ts`: passing that port to `studentHandler` (real D1 only, never loopback samples) | Keith | Darryl |
+| File                                                                                                                                                                                                                                                                                                                                          | Writer | Reviewer |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------- |
+| New `src/server/student/release-port.ts`: a student `IdentityCoursePort.requireObject` for `assessment`/`submission` read (own attempt plus current Student membership in SQL; assessment scope through `AssessmentRepository.scope`), a student `SubmissionReadPort` (`StudentWork.attempt`) and the `AssessmentService.consumer` it returns | Keith  | Darryl   |
+| `src/server/index.ts`: passing that port to `studentHandler` (real D1 only, never loopback samples)                                                                                                                                                                                                                                           | Keith  | Darryl   |
 
 `AssessmentWorkflow`, `CourseAuthority` and the instructor ports are unchanged. Keith reported on 2026-11-12 that Darryl reviewed and accepted the 5.1 producer change and this adapter (PR #32; recorded in [the handoff](handoffs/student-released-feedback.md)). No deployment is authorized by it.
 
 **Amendment — batched authorization in `attemptReleases`, reported agreed 2026-11-12.** The OPS-01 measurement ([read-cost.md](evidence/student-released-feedback/read-cost.md)) showed about 3 D1 round trips per attempt, against the Workers Free limit of 50 D1 queries per invocation (a `db.batch` counts as one). Keith reported that Darryl agreed to replace the per-attempt `authorize` in `attemptReleases` only with one request-bound session check plus one `db.batch` that maps attempts and verifies, in SQL, that every attempt is the caller's own with current Student membership (`currentStudentGuard`). Authorization stays all-or-nothing. `getAuthorized` and `currentness` keep the full per-attempt `authorize` with the evidence check. Keith writes the change in `service.ts` (`attemptReleases` only) and `repository.ts` (its read) and moves its producer tests onto the composed local-D1 fixture. Darryl reviews.
+
+**Merge with `main` (2026-11-13).** Darryl's real assessment integration (PR #33, section above) changed consumer authorization to use an `ownedAttempts` port in place of the object and course checks. In merging it, Keith's `release-port.ts` (within the extension above) now supplies `ownedAttempts` and no longer overrides `requireObject`; it keeps the once-per-request session. Darryl's `/api/student/released-feedback/...` route and his files are unchanged by Keith.

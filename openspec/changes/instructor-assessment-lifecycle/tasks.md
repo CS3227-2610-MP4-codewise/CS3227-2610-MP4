@@ -44,6 +44,8 @@ Acceptance is a project decision, not evidence that all original checks passed. 
 
 - [ ] 6.1 Obtain actual Keith agreement on applicable K decisions/revised auth boundary and exact reviewed Darryl-owned SH-ID composition and Keith-owned SH-SUB producer revision, then run producer/consumer checks with real authorization and immutable submissions in a separately approved composition increment. [CON-05, IAL-01/07/09]
 
+2026-11-12 continuation: the later recorded C-SUB fingerprint/key-scope decision governs the earlier proposal; see `workflow/handoffs/submission-integration-conflict-review.md`. A real-producer assessment lifecycle test is drafted but Miniflare setup failed with loopback EACCES before its assertions. Student release composition, exact shared writer coordination and the full journey remain outstanding; 6.1 remains unchecked. The instructor attempt-list parser is locally aligned with the producer's 1,000-row bound. UI evidence and manual acceptance remain pending (`workflow/evidence/real-submission-assessment-integration/ui-review.md`). [SUB-03/04, GRADE-02–04, AUTH-01–03, UI-04/05/06/07/08, warm-workbook-v1]
+
 ## Workflow follow-up
 
 - Commit and rebase were separately authorized. Push/PR publication, merge and deployment require separate instruction.
@@ -66,3 +68,7 @@ Acceptance is a project decision, not evidence that all original checks passed. 
 - [x] 8.3 Independent source review, appropriate checks, actual browser evidence where available and honest manual acceptance checklist. [IAL-11, UI-01–08]
 
 IAL-11 manual follow-up: Darryl rejected the first UX pass; the navigation and grading-list repair and its limited browser evidence are recorded in the UI review. On 2026-11-08 Darryl accepted closure of the discussed remaining tasks with the above limitations; no additional manual walkthrough is claimed.
+
+## 9. Real submission integration
+
+- [ ] 9.1 Complete real-D1 lifecycle/security verification and independent review of the request-bound C-REL consumer; record exact results and outstanding human UI acceptance (GRADE-02–04, SUB-03/04, AUTH-01–03, UI-04–08, warm-workbook-v1).

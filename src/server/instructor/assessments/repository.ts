@@ -520,6 +520,15 @@ export class AssessmentRepository {
       }),
     };
   }
+  async hasRelease(id: string) {
+    const row = await this.db
+      .prepare(
+        'SELECT 1 AS present FROM instructor_assessment_releases WHERE assessment_id=? LIMIT 1',
+      )
+      .bind(id)
+      .first();
+    return !!row;
+  }
   async currentness(id: string, at: string) {
     const rows = await this.db.batch([
       this.db
