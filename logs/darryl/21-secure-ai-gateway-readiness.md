@@ -1,8 +1,8 @@
 # Secure AI gateway readiness
 
-Owner: Darryl. Requirements AI-01-05, CON-06, OPS-01. Local base af1bc90fa47ed0b8726a46084ce642992c807e15; uncommitted audit/repair. No new PR or live operation.
+Owner: Darryl. Requirements AI-01–05, CON-06, OPS-01. Local base af1bc90fa47ed0b8726a46084ce642992c807e15; uncommitted audit/repair. No new PR or live operation.
 
-## Prompt AI-READY-01 - 2026-11-12 Asia/Singapore (exact arrival time unavailable)
+## Prompt AI-READY-01 — 2026-11-12 Asia/Singapore (exact arrival time unavailable)
 
 **Prompt (redacted):** Audit current gateway/OpenSpec/evidence; distinguish verified behavior, defects and external gaps; repair locally justified defects with bounded review, automatic brief approval and human acceptance waiver; prepare normal-app/config/staging and Keith consumer packets; keep provider disabled and preserve existing data/dirty work.
 
@@ -19,19 +19,19 @@ Owner: Darryl. Requirements AI-01-05, CON-06, OPS-01. Local base af1bc90fa47ed0b
 | Children during this prompt | 0 | 0 | 0 | 0 | observed activity | none spawned in initial audit |
 
 - Shared-turn group: gateway-readiness-20261112; unavailable measurements must not be counted twice. No measured recorder data or source group IDs exposed; no invented totals. Previous LOCAL-04 post-CI checkpoint remains in log 20; its final usage is unavailable.
-- Reconciliation: initial audit was interrupted by "finish"; source inspection resumed without restarting or claiming the earlier audit complete.
+- Reconciliation: initial audit was interrupted by “finish”; source inspection resumed without restarting or claiming the earlier audit complete.
 
 ### Experiment outcome
 
 Initial inspection separated historical synthetic/local discovery from real activation evidence. Public provider guide does not establish account quota semantics. Found reported component bounds defect; no completion or live discovery was performed. See readiness audit/handoff for current outcomes. No controlled comparison or efficiency claim.
 
-## Prompt AI-READY-02 - 2026-11-12 Asia/Singapore
+## Prompt AI-READY-02 — 2026-11-12 Asia/Singapore
 
-**Prompt (redacted):** "finish" - continue and complete the preceding authorized gateway audit/repair and documentation.
+**Prompt (redacted):** “finish” — continue and complete the preceding authorized gateway audit/repair and documentation.
 
 ### Agents spawned
 
-- New: /root/gateway_readiness_review, independent read-only reviewer. Why: substantive bounds change requires independent judgment under the bounded iteration workflow. Assignment: gateway bounds/unsafe totals, surrounding accounting/authorization/cache security, AI-01-05/CON-06/OPS-01; no edits, live operations or child delegation.
+- New: /root/gateway_readiness_review, independent read-only reviewer. Why: substantive bounds change requires independent judgment under the bounded iteration workflow. Assignment: gateway bounds/unsafe totals, surrounding accounting/authorization/cache security, AI-01–05/CON-06/OPS-01; no edits, live operations or child delegation.
 - Reused: none. Main: /root, inspection, implementation, tests and reconciliation. No Keith review is claimed.
 
 ### Token count
@@ -51,7 +51,7 @@ Final checkpoint: reviewer found a related pre-existing defect, malformed conten
 
 Prepared exact-content source manifest, normal-app/private-config/staging-only plan and Keith progress/C-REL/submission handoff with proposed exclusive windows. No new interfaces/migrations or remote operations. Live readiness, real progress and exact consumer approval remain unresolved. Measured main/reviewer tokens and private source record IDs remain unavailable at final checkpoint; current-turn coverage provisional. No controlled comparison; independent review produced a concrete accounting repair and prevented an inaccurate integration claim.
 
-## Prompt AI-READY-03 - 2026-11-12 Asia/Singapore
+## Prompt AI-READY-03 — 2026-11-12 Asia/Singapore
 
 **Prompt (redacted):** Commit and push remaining work and create the PR.
 
@@ -74,7 +74,7 @@ User authorizes publication. Local Git metadata remains read-only; publish an ex
 
 Publication outcome: implementation commit `1920f91bb743a0f5325c03be8ce0024011e2686d` pushed on `codex/secure-ai-gateway-readiness`; [draft PR28](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/28) targets current main46830b6. Verified remote compare contains only the16 scoped gateway/docs/log files, with no student/index/schema changes or unrelated dirty files. CI run43094229275 started; result pending at this checkpoint. Local HEAD/index intentionally unchanged because Git metadata is read-only; publication used the GitHub connector. Task attachment was attempted but the Codex app returned an error; the PR exists and its direct link remains available. No merge, deployment, provider call or secret change. Current and prior prompt token measurements remain unavailable; later CI/final-response activity is outside this snapshot.
 
-## Prompt AI-READY-04 - 2026-11-12 Asia/Singapore
+## Prompt AI-READY-04 — 2026-11-12 Asia/Singapore
 
 **Prompt (redacted):** Commit changes, push and create the PR.
 
@@ -94,4 +94,3 @@ Total unavailable. AI-READY-03 final token measurement is unavailable; do not in
 ### Experiment outcome
 
 Confirmed draft PR #28 is open and mergeable at eda541c43bb78dab4b7f25bdca0556ea5c8a8838; GitHub CI run 43094481049 completed successfully. Existing workspace remains dirty because its local Git metadata was read-only and the scoped publication was created using GitHub; unrelated work remains untouched. No duplicate PR, provider call, deployment or merge. This entry is a local prompt record and is not included in the published commit.
-
