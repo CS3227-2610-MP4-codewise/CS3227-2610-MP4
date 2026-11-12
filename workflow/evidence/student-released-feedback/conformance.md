@@ -11,6 +11,8 @@ Requirement IDs: SF-08, C-REL (K5, P4). Run on 2026-11-12 by Keith's root Coordi
 | Consumer and test run                                                                                                          | `1edbb16`              | `src/server/student/release-conformance.test.ts`, `src/server/student/composed-fixture.ts`                                                    |
 | Suites                                                                                                                         | unchanged at `1edbb16` | `workflow/assessment-preview/conformance.ts`, `workflow/contracts/instructor-contracts.ts`                                                    |
 
+**Re-run after the batched-authorization amendment:** at `2b2b7d3` (producer `attemptReleases` batched, session resolved once per request in `studentReleasePort`), `release-conformance.test.ts` 4/4 and `release-port.test.ts` 4/4 pass, within `npm run check` exit 0 (57 files / 700 tests). The results below hold at both revisions.
+
 ## How it was run
 
 `npx vitest run src/server/student/release-conformance.test.ts` (also part of `npm run check`, exit 0, 57 files / 697 tests at `1edbb16`).

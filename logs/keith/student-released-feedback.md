@@ -178,3 +178,43 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 36351109; cached input subset 35819472; output 196746; reasoning output subset 44709; total 36547855.
 - Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:ops01-2026-11-12 -->
+<!-- experiment-turns:ops01-2026-11-12:9886f23a2d5c76f5,fd9e361968ba7a9d,15186d0af57af730 -->
+## Checkpoint `ops01-2026-11-12` — 2026-11-12T05:01:19.478897+00:00
+
+### Request
+
+We are on the Free plan: what fix is needed? Then Darryl agreed to the batched check; implement it.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents). Verified Cloudflare docs: Workers Free 50 D1 queries per invocation, batch counts as one. Recorded Darryl's agreed amendment in Ownership.md and IntegrationContracts.md. attemptReleases now authorizes with one session check plus one SQL ownership and current-Student check in its single D1 batch; the per-attempt authorizeAttempt helper is removed; content reads keep the full authorize. Found that production session checks cost 4 D1 plus 1 Firebase call each and the producer re-resolved them up to 6 times per open; studentReleasePort now resolves the session once per request (revocation still re-checked in SQL; new mid-request revocation test) and uses the student clock (a mismatch surfaced by tests). Result: history 2 local D1 calls at any page size (about 10 production, estimated); released open 25 (about 33 production, estimated); before, about 54 and about 150. Producer tests moved to the composed fixture (6, including a full page of 50); mutation check fails 2 as expected. npm run check exit 0, 57 files/700 tests. Conformance re-run passes.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-released-feedback/read-cost.md; workflow/evidence/student-released-feedback/conformance.md; workflow/Ownership.md.
+- Remaining limitations and next owner: Darryl reviews the amended attemptReleases and the session memo; Keith decides on sending the releaseContractSuite fix (5.3); then 4.4 UI review, 5.4, 6.1, 6.2..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T04:48:29.838Z | 2026-11-12T04:49:20.964Z | final | claude-opus-5-5 | medium | 3254 | 1928 | 3254 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T04:55:26.984Z | open | provisional | claude-opus-5-5 | medium | 23022 | 7380 | 23022 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T04:32:17.834Z | provisional | final | 29570 | 7194 | 29570 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 43568421; cached input subset 43000936; output 224028; reasoning output subset 54017; total 43792449.
+- Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
