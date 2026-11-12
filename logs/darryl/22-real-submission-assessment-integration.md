@@ -1,6 +1,6 @@
 # Darryl prompt experiment - real submission assessment integration
 
-Owner: Darryl. Change/requirements: real-submission-assessment-integration; SUB-03/04, GRADE-02-04, AUTH-01-03, UI-04/05/06/07/08. Branch: main, local checkout behind cached origin/main.
+Owner: Darryl. Change/requirements: real-submission-assessment-integration; SUB-03/04, GRADE-02–04, AUTH-01–03, UI-04/05/06/07/08. Branch: main, local checkout behind cached origin/main.
 
 ## Prompt RSAI-01 - 2026-11-12 (time unavailable)
 
@@ -230,6 +230,15 @@ Total and group unavailable; reconcile at an accessible later checkpoint without
 ### Agents spawned
 
 - New: none; delegation was not explicitly authorized. Reused: none. Main: /root; model unavailable. Independent review was not performed.
+- Git metadata remains read-only to this agent; prior stash attempt failed. No tests, deployment or live provider calls. No controlled comparison.
+
+## Prompt RSAI-10 - 2026-11-12 (time unavailable)
+
+**Prompt (redacted):** Clear or reconcile the files blocking the local pull.
+
+### Agents spawned
+
+- New: none; no delegation requested. Reused: none. Main: /root, model unavailable.
 
 ### Token count
 
@@ -379,3 +388,11 @@ Total and source group unavailable; reconcile at next checkpoint. Current turn i
 ### Experiment outcome
 
 - Darryl reports manual acceptance passed. Preparing a bounded integration commit and PR while preserving unrelated local logs, evidence and worktrees. Verification results and outstanding default parallel check failure are recorded in the handoff. No deployment or provider calls.
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; recorder EPERM |
+| Children | none | none | none | none | observed | no children |
+
+Total and group unavailable; reconcile when accessible. No controlled comparison.
+
+### Experiment outcome
+
+- User authorized clearing files blocking the pull. Preserve exact local files in a recovery directory first; nested worktrees are excluded. Git metadata remains read-only, so user must execute the final git pull after filesystem conflicts are removed. The previously published log branch preserves earlier records; this entry will be retained in the recovery copy.
