@@ -239,39 +239,45 @@ export function releaseContractSuite(
     it('rejects revoked currentness and historical withdrawal never clears a newer current release', () => {
       const f = make(),
         token = currentnessToken(f.current);
-      const corrected = { ...f.release, releaseVersion: 2 };
+      // Later snapshots derive from the input, so the checks hold for real producer snapshots
+      // as well as the synthetic fixture (student-released-feedback 5.3).
+      const v = f.release.releaseVersion,
+        rev = f.current.availabilityRevision;
+      const corrected = { ...f.release, releaseVersion: v + 1 };
       const newer = currentnessSchema.parse({
         ...f.current,
-        availabilityRevision: 2,
-        currentReleaseVersion: 2,
+        availabilityRevision: rev + 1,
+        currentReleaseVersion: v + 1,
       });
-      expect(assertCurrentRelease(corrected, newer).releaseVersion).toBe(2);
+      expect(assertCurrentRelease(corrected, newer).releaseVersion).toBe(v + 1);
       const historical = currentnessSchema.parse({
         ...newer,
-        availabilityRevision: 3,
-        withdrawnReleaseVersions: [1],
+        availabilityRevision: rev + 2,
+        withdrawnReleaseVersions: [v],
       });
       expect(assertCurrentRelease(corrected, historical).releaseVersion).toBe(
-        2,
+        v + 1,
       );
       expect(() =>
         assertCurrentRelease(f.release, historical, token),
       ).toThrow();
       const withdrawn = currentnessSchema.parse({
         ...historical,
-        availabilityRevision: 4,
+        availabilityRevision: rev + 3,
         currentReleaseVersion: null,
-        withdrawnReleaseVersions: [1, 2],
+        withdrawnReleaseVersions: [v, v + 1],
       });
       expect(() => assertCurrentRelease(corrected, withdrawn)).toThrow();
       expect(
-        currentnessSchema.safeParse({ ...newer, withdrawnReleaseVersions: [2] })
-          .success,
+        currentnessSchema.safeParse({
+          ...newer,
+          withdrawnReleaseVersions: [v + 1],
+        }).success,
       ).toBe(false);
       expect(() =>
         assertCurrentRelease(
           f.release,
-          { ...f.current, availabilityRevision: 2 },
+          { ...f.current, availabilityRevision: rev + 1 },
           token,
         ),
       ).toThrow();

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { principal } from './test-fixture';
 import { composedEnvironment, PRIVATE_MARKERS } from './composed-fixture';
+import { releaseContractSuite } from '../../../workflow/contracts/instructor-contracts';
 import { AssessmentRepository } from '../instructor/assessments/repository';
 import { verifyAssessmentProducer } from '../../../workflow/assessment-preview/conformance';
 import {
@@ -152,12 +153,23 @@ describe('C-REL producer conformance from the student consumer (5.3)', () => {
 });
 
 /**
- * The C-REL projection/currentness properties of `releaseContractSuite`, checked on the real
- * producer's values. The suite itself is not invoked with these values: it derives its "newer"
- * snapshots with hard-coded availabilityRevision 2/3/4, but the real producer also increments on
- * approval, so its first-release snapshot is already revision 2 and one stale-token precondition
- * cannot hold. Finding recorded for Darryl in workflow/evidence/student-released-feedback/conformance.md.
+ * Darryl's `releaseContractSuite`, invoked directly with the real producer's values (first
+ * release, its currentness and the real v1 tombstone), as read through the student consumer.
+ * Its later snapshots derive from the input since the 2026-11-13 fix (Keith, under Darryl's
+ * one-file grant). The explicit checks below remain as an additional consumer-side layer.
  */
+releaseContractSuite('Keith consumer over the composed producer', () => {
+  if (!firstCurrent || !historicalTombstone)
+    throw new Error('conformance run did not capture its values');
+  return {
+    release: result.first,
+    current: firstCurrent,
+    withdrawn: historicalTombstone,
+    project: projectRelease,
+  };
+});
+
+/** Explicit consumer-side checks on the same real values. */
 describe('C-REL projection and currentness properties on real producer values (5.3)', () => {
   it('projects private metadata away and keeps tombstones content-free', () => {
     const release = result.first;
