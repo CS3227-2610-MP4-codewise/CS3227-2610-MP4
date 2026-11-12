@@ -194,6 +194,9 @@ export interface AssessmentClient {
   recoverAI?(
     id: string,
   ): Promise<{ candidateId: string; payload: AssessmentDraft } | null>;
+  resumeAI?(
+    id: string,
+  ): Promise<{ candidateId: string; payload: AssessmentDraft } | null>;
   adoptAI?(
     id: string,
     revision: string,
@@ -255,6 +258,50 @@ export function assessmentClient(
         '/assessments/' + encodeURIComponent(assessmentId) + '/ai-candidate',
       );
       if ((value as { status?: unknown }).status === 'none') return null;
+      if (
+        ['pending', 'running'].includes(
+          String((value as { status?: unknown }).status),
+        )
+      )
+        throw new Error('AI_PENDING');
+      if (
+        ['failed', 'expired'].includes(
+          String((value as { status?: unknown }).status),
+        )
+      )
+        throw new Error('AI_FAILED');
+      const result = object(value, [
+        'status',
+        'candidateId',
+        'payload',
+        'promptVersion',
+        'modelVersion',
+      ]);
+      literal(result.status, 'succeeded', '$.status');
+      return {
+        candidateId: id(result.candidateId, '$.candidateId'),
+        payload: assessmentDraftSchema.parse(result.payload),
+      };
+    },
+    resumeAI: async (assessmentId) => {
+      const value = await send(
+        '/assessments/' + encodeURIComponent(assessmentId) + '/resume-ai',
+        'POST',
+        {},
+      );
+      if ((value as { status?: unknown }).status === 'none') return null;
+      if (
+        ['pending', 'running'].includes(
+          String((value as { status?: unknown }).status),
+        )
+      )
+        throw new Error('AI_PENDING');
+      if (
+        ['failed', 'expired'].includes(
+          String((value as { status?: unknown }).status),
+        )
+      )
+        throw new Error('AI_FAILED');
       const result = object(value, [
         'status',
         'candidateId',

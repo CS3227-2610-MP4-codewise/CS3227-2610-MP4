@@ -380,14 +380,29 @@ export class AssessmentService {
     const c = await this.context(request, value, true);
     if (c.head.headRevisionId !== cmd.expectedRevisionId)
       throw new BoundaryError('REVISION_CONFLICT');
+    if (c.attempt.answers.some((answer) => answer.source.trim().length === 0))
+      throw new BoundaryError('AI_DISABLED');
     if (!this.ai) throw new BoundaryError('AI_DISABLED');
+    await this.repository.bindAIRequest(
+      {
+        assessmentId: value,
+        actorId: c.principal.userId,
+        courseId: c.courseId,
+        revisionId: cmd.expectedRevisionId,
+        evidence: c.fingerprint,
+        requestKey: cmd.requestKey,
+        includeReferences: cmd.includePrivateReferences,
+        createdAt: this.clock().toISOString(),
+      },
+      c.principal,
+    );
     const outcome = await this.ai.request(c.principal, {
       schemaVersion: 1,
       action: 'assessment-draft',
       courseId: c.courseId,
       idempotencyKey: cmd.requestKey,
       evidenceRefs: [{ kind: 'submission', attemptId: c.attemptId }],
-      outputTokenLimit: 512,
+      outputTokenLimit: 1024,
       includePrivateReferences: cmd.includePrivateReferences,
     });
     const fresh = await this.context(request, value, true);
@@ -427,21 +442,54 @@ export class AssessmentService {
       modelVersion: outcome.modelVersion,
     };
   }
-  async recoverAI(request: Request, value: string) {
-    const c = await this.context(request, value);
+  async resumeAI(request: Request, value: string) {
+    const c = await this.context(request, value, true);
     if (!this.ai) throw new BoundaryError('AI_DISABLED');
-    const candidate = await this.repository.latestAICandidate(
+    const binding = await this.repository.recoverAIRequest(
       value,
       c.principal.userId,
       c.head.headRevisionId,
+      c.fingerprint,
     );
-    if (!candidate) return { status: 'none' as const };
-    const outcome = await this.ai.readAuthorized(c.principal, candidate.id);
+    if (!binding) return { status: 'none' as const };
+    return this.generateAI(request, value, {
+      expectedRevisionId: c.head.headRevisionId,
+      requestKey: binding.request_key,
+      includePrivateReferences: binding.include_references === 1,
+    });
+  }
+  async recoverAI(request: Request, value: string) {
+    const c = await this.context(request, value);
+    if (!this.ai) throw new BoundaryError('AI_DISABLED');
+    const recovered = await this.repository.recoverAIRequest(
+      value,
+      c.principal.userId,
+      c.head.headRevisionId,
+      c.fingerprint,
+    );
+    if (recovered && !recovered.id) return { status: 'pending' as const };
+    const candidate = recovered?.id
+      ? await this.repository.aiCandidate(
+          value,
+          c.principal.userId,
+          recovered.id,
+        )
+      : await this.repository.latestAICandidate(
+          value,
+          c.principal.userId,
+          c.head.headRevisionId,
+        );
+    if (!candidate && !recovered) return { status: 'none' as const };
+    const outcome = await this.ai.readAuthorized(
+      c.principal,
+      candidate?.id ?? recovered!.id!,
+    );
+    if (outcome.status !== 'succeeded') return { status: outcome.status };
     if (
-      outcome.status !== 'succeeded' ||
-      candidate.evidence !== c.fingerprint ||
-      outcome.promptVersion !== candidate.prompt_version ||
-      outcome.modelVersion !== candidate.model_version
+      candidate !== null &&
+      (candidate.evidence !== c.fingerprint ||
+        outcome.promptVersion !== candidate.prompt_version ||
+        outcome.modelVersion !== candidate.model_version)
     )
       throw new BoundaryError('STALE_EVIDENCE');
     const payload = await validateAssessmentDraft(
@@ -449,7 +497,7 @@ export class AssessmentService {
       c.publication,
       c.attempt,
     );
-    if (JSON.stringify(payload) !== candidate.payload)
+    if (candidate && JSON.stringify(payload) !== candidate.payload)
       throw new BoundaryError('STALE_EVIDENCE');
     const final = await this.context(request, value);
     if (
@@ -459,10 +507,10 @@ export class AssessmentService {
       throw new BoundaryError('STALE_EVIDENCE');
     return {
       status: 'succeeded' as const,
-      candidateId: candidate.id,
+      candidateId: outcome.requestId,
       payload,
-      promptVersion: candidate.prompt_version,
-      modelVersion: candidate.model_version,
+      promptVersion: outcome.promptVersion,
+      modelVersion: outcome.modelVersion,
     };
   }
   async adoptAI(request: Request, value: string, raw: unknown) {
@@ -476,18 +524,56 @@ export class AssessmentService {
     const c = await this.context(request, value, true);
     if (c.head.headRevisionId !== cmd.expectedRevisionId)
       throw new BoundaryError('REVISION_CONFLICT');
-    const candidate = await this.repository.aiCandidate(
+    let candidate = await this.repository.aiCandidate(
       value,
       c.principal.userId,
       cmd.candidateId,
     );
-    if (!candidate) throw new BoundaryError('NOT_FOUND');
+    if (!this.ai) throw new BoundaryError('AI_DISABLED');
+    if (!candidate) {
+      const binding = await this.repository.recoverAIRequest(
+        value,
+        c.principal.userId,
+        cmd.expectedRevisionId,
+        c.fingerprint,
+        cmd.candidateId,
+      );
+      if (!binding?.id) throw new BoundaryError('NOT_FOUND');
+      const recovered = await this.ai.readAuthorized(c.principal, binding.id);
+      if (recovered.status !== 'succeeded')
+        throw new BoundaryError('STALE_EVIDENCE');
+      const validated = await validateAssessmentDraft(
+        recovered.payload,
+        c.publication,
+        c.attempt,
+      );
+      await this.repository.saveAICandidate(
+        {
+          id: binding.id,
+          assessment_id: value,
+          actor_id: c.principal.userId,
+          expected_revision_id: cmd.expectedRevisionId,
+          evidence: c.fingerprint,
+          payload: JSON.stringify(validated),
+          prompt_version: recovered.promptVersion,
+          model_version: recovered.modelVersion,
+          created_at: this.clock().toISOString(),
+        },
+        c.courseId,
+        c.principal,
+      );
+      candidate = await this.repository.aiCandidate(
+        value,
+        c.principal.userId,
+        cmd.candidateId,
+      );
+    }
     if (
+      !candidate ||
       candidate.expected_revision_id !== cmd.expectedRevisionId ||
       candidate.evidence !== c.fingerprint
     )
       throw new BoundaryError('STALE_EVIDENCE');
-    if (!this.ai) throw new BoundaryError('AI_DISABLED');
     const outcome = await this.ai.readAuthorized(c.principal, candidate.id);
     if (outcome.status !== 'succeeded')
       throw new BoundaryError('STALE_EVIDENCE');

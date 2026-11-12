@@ -173,3 +173,27 @@ describe('AI-01–05 synthetic SoCLaaS transport', () => {
     ).rejects.toMatchObject({ kind: 'cancelled' });
   });
 });
+
+it('accepts one complete fenced JSON document and rejects added prose or multiple documents', async () => {
+  const response = (content: string, finish_reason = 'stop') =>
+    Response.json({ choices: [{ finish_reason, message: { content } }] });
+  expect(
+    (
+      await callSoclaas(request, async () =>
+        response('```json\n{"draft":"synthetic"}\n```'),
+      )
+    ).payload,
+  ).toEqual({ draft: 'synthetic' });
+  for (const content of [
+    'Commentary\n```json\n{"draft":1}\n```',
+    '```json\n{"draft":1}\n```\nextra',
+    '```json\n{"draft":1}\n```\n```json\n{"draft":2}\n```',
+    '```json\nnot-json\n```',
+  ])
+    await expect(
+      callSoclaas(request, async () => response(content)),
+    ).rejects.toMatchObject({ kind: 'invalid_response' });
+  await expect(
+    callSoclaas(request, async () => response('```json\n{}\n```', 'length')),
+  ).rejects.toMatchObject({ kind: 'invalid_response' });
+});

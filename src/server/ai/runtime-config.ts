@@ -1,0 +1,90 @@
+import type { Environment } from '../environment';
+import type { GatewayLimits, VerifiedAIProfile } from './config';
+
+/** Explicitly operator-verified, server-only configuration. Missing or malformed settings disable AI. */
+export function instructorAIConfig(
+  env: Environment,
+): { profile: VerifiedAIProfile; limits: GatewayLimits } | undefined {
+  if (
+    env.SOCLAAS_INSTRUCTOR_ENABLED !== 'true' ||
+    !env.SOCLAAS_INSTRUCTOR_API_KEY ||
+    !env.SOCLAAS_INSTRUCTOR_CONFIG
+  )
+    return undefined;
+  try {
+    const raw: unknown = JSON.parse(env.SOCLAAS_INSTRUCTOR_CONFIG);
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+    const v = raw as Record<string, unknown>;
+    const keys = [
+      'model',
+      'promptVersion',
+      'outputTokenLimit',
+      'inputTokenReservation',
+      'maxInputBytes',
+      'deadlineMs',
+      'cacheMs',
+      'userRequestLimit',
+      'providerRequestLimit',
+      'userTokenLimit',
+      'providerTokenLimit',
+      'concurrencyLimit',
+      'windowMs',
+    ];
+    if (Object.keys(v).length !== keys.length || keys.some((k) => !(k in v)))
+      return undefined;
+    if (
+      typeof v.model !== 'string' ||
+      !/^[A-Za-z0-9_.:/-]{1,160}$/.test(v.model) ||
+      typeof v.promptVersion !== 'string' ||
+      !/^[A-Za-z0-9_.-]{1,128}$/.test(v.promptVersion)
+    )
+      return undefined;
+    const integer = (key: string, min: number, max: number): number => {
+      const n = v[key];
+      if (
+        typeof n !== 'number' ||
+        !Number.isSafeInteger(n) ||
+        n < min ||
+        n > max
+      )
+        throw new Error('invalid configuration');
+      return n;
+    };
+    const profile: VerifiedAIProfile = {
+      verified: true,
+      model: v.model,
+      allowedModels: [v.model],
+      promptVersion: v.promptVersion,
+      outputTokenLimit: integer('outputTokenLimit', 1024, 8192),
+      inputTokenReservation: integer(
+        'inputTokenReservation',
+        1,
+        Number.MAX_SAFE_INTEGER,
+      ),
+      maxInputBytes: integer('maxInputBytes', 1, 100000),
+      deadlineMs: integer('deadlineMs', 1, 60000),
+      cacheMs: integer('cacheMs', 0, 86400000),
+    };
+    const limits: GatewayLimits = {
+      userRequestLimit: integer('userRequestLimit', 1, Number.MAX_SAFE_INTEGER),
+      providerRequestLimit: integer(
+        'providerRequestLimit',
+        1,
+        Number.MAX_SAFE_INTEGER,
+      ),
+      userTokenLimit: integer('userTokenLimit', 1, Number.MAX_SAFE_INTEGER),
+      providerTokenLimit: integer(
+        'providerTokenLimit',
+        1,
+        Number.MAX_SAFE_INTEGER,
+      ),
+      concurrencyLimit: integer('concurrencyLimit', 1, Number.MAX_SAFE_INTEGER),
+      windowMs: integer('windowMs', 1, 86400000),
+    };
+    if (!Number.isSafeInteger(profile.inputTokenReservation + 1024))
+      return undefined;
+    return { profile, limits };
+  } catch {
+    return undefined;
+  }
+}

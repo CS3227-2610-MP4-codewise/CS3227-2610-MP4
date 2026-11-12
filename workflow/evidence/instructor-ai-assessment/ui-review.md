@@ -32,3 +32,13 @@
 - Independent review returned provenance, recovery, synthetic composition, stale controls, reference choice and question-context findings; repairs reviewed. Browser navigation reset still needs human verification.
 - Intentional design departures: none recorded.
 - Outcome: pending checks and instructor acceptance; next owner Darryl.
+
+### Current worktree review — 2026-11-12
+
+- Owner: Darryl; base `f787176`, current uncommitted work. Design: `warm-workbook-v1`; UI-01/04/06/07/08 and AI-01–05. Existing workbook tokens and disclosure are reused; no intentional design departure.
+- The native button changes from Generate draft to Resume or check draft when the most recent bound request is pending or its state is unknown. A text explanation says resuming may send a saved request that has not started. The reference-selection checkbox is disabled while resuming; manual feedback remains editable. Controller coverage checks pending and network-failure states, with actual results to be recorded in verification.
+- Independent read-only `/root/ai_review` reviewed state transitions and identified duplicate-dispatch and stale-key issues; repairs include an idempotent server resume, guarded request binding and conservative unknown-state control. Final source review and integrated checks remain as recorded in verification.
+- Desktop/narrow screenshots, both appearances, 200% zoom, keyboard/touch and human acceptance remain unverified on this revision. Existing screenshots are not evidence for the new control. No live provider call or deployment.
+- Outcome: pending verification and manual acceptance; next owner Darryl.
+
+Correction for final control: while pending or the status is unknown, the reference checkbox is hidden rather than shown disabled. The disclosure warns that resume uses the original selection and may include instructor-only references. `/root/ai_review` re-reviewed that repair. The interactive preview was not started; human and visual acceptance remain unverified.

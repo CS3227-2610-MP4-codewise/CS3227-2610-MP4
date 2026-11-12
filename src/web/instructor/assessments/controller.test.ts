@@ -65,6 +65,52 @@ function setup() {
   return { api, c: new AssessmentController(api) };
 }
 describe('IAL-08 workbook acknowledgements and version context', () => {
+  it('resumes the server-bound request instead of creating a new key', async () => {
+    const { api, c } = setup();
+    api.recoverAI = vi.fn().mockRejectedValue(new Error('AI_PENDING'));
+    api.resumeAI = vi.fn().mockResolvedValue(null);
+    api.generateAI = vi.fn();
+    await c.open('assessment_demo');
+    await c.checkAI();
+    expect(api.resumeAI).toHaveBeenCalledWith('assessment_demo');
+    expect(api.generateAI).not.toHaveBeenCalled();
+    expect(c.state.aiPending).toBe(false);
+  });
+  it('keeps generation blocked when recovery status is unknown', async () => {
+    const { api, c } = setup();
+    api.recoverAI = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('network'))
+      .mockRejectedValueOnce(new Error('network'))
+      .mockResolvedValueOnce(null);
+    api.generateAI = vi.fn();
+    await c.open('assessment_demo');
+    expect(c.state.aiPending).toBe(true);
+    await c.checkAI();
+    expect(c.state.aiPending).toBe(true);
+    await c.generateAI(false);
+    expect(api.generateAI).not.toHaveBeenCalled();
+    await c.checkAI();
+    expect(c.state.aiPending).toBe(false);
+    expect(c.state.feedback).not.toBeNull();
+  });
+  it('checks a pending recovered request without dispatching another request', async () => {
+    const { api, c } = setup();
+    api.recoverAI = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('AI_PENDING'))
+      .mockRejectedValueOnce(new Error('AI_FAILED'));
+    api.generateAI = vi.fn();
+    await c.open('assessment_demo');
+    expect(c.state.aiPending).toBe(true);
+    await c.generateAI(false);
+    expect(api.generateAI).not.toHaveBeenCalled();
+    await c.checkAI();
+    expect(api.recoverAI).toHaveBeenCalledTimes(2);
+    expect(c.state.aiPending).toBe(false);
+    expect(c.state.message).toContain('failed or expired');
+    expect(c.state.feedback).not.toBeNull();
+  });
   it('preserves instructor edits made while an AI draft is generating', async () => {
     const { api, c } = setup();
     const pending = deferred<{

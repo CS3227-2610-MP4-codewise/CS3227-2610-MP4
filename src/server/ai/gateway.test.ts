@@ -15,8 +15,12 @@ import { callSoclaas, SoclaasTransportError } from './transport';
 import type { SoclaasInput } from './transport';
 import type { TrustedPrincipal } from '../instructor/ports/contracts';
 import type { AIRequestInput } from '../../shared/instructor-contracts/ai';
-import { BoundaryError } from '../../shared/instructor-contracts/schema';
+import {
+  BoundaryError,
+  sourceHash,
+} from '../../shared/instructor-contracts/schema';
 import { assessmentResolver } from './assessment';
+import { withoutAutomaticRetries } from '../../../workflow/ai-quality-evaluation/no-retry';
 import { examples } from '../../../workflow/fixtures/instructor-contracts/graph';
 import { publicationSchema } from '../../shared/instructor-contracts/publication';
 import { attemptSchema } from '../../shared/instructor-contracts/submission';
@@ -304,6 +308,20 @@ describe('AI gateway composed security boundaries', () => {
       .first();
     expect(row).toEqual({ reserved_tokens: 102, state: 'uncertain' });
   });
+  it('refuses an old candidate when the trusted prompt changes', async () => {
+    let system = 'old synthetic prompt';
+    const changedResolver: typeof resolve = async (principal, request) => ({
+      ...(await resolve(principal, request)),
+      system,
+    });
+    const gateway = setup({ resolve: changedResolver }).gateway;
+    const initial = await gateway.request(actor, input('prompt-change'));
+    expect(initial.status).toBe('succeeded');
+    system = 'new synthetic prompt';
+    await expect(
+      gateway.readAuthorized(actor, initial.requestId),
+    ).rejects.toMatchObject({ code: 'STALE_EVIDENCE' });
+  });
   it('never retries an uncertain call', async () => {
     const timeout = vi.fn(async () => {
       throw new SoclaasTransportError('timeout');
@@ -330,6 +348,21 @@ describe('AI gateway composed security boundaries', () => {
       retryAfterSeconds: expect.any(Number),
     });
     expect(transport).toHaveBeenCalledTimes(1);
+  });
+  it('stops after one definitive rate limit with the evaluation adapter', async () => {
+    const transport = vi.fn(async () => {
+      throw new SoclaasTransportError('rate_limited', 0);
+    });
+    const gateway = setup({
+      transport: withoutAutomaticRetries(transport),
+    }).gateway;
+    expect((await gateway.request(actor, input('eval-no-retry'))).status).toBe(
+      'failed',
+    );
+    expect(transport).toHaveBeenCalledTimes(1);
+    expect(
+      await db.prepare('SELECT COUNT(*) AS n FROM ai_gateway_attempts').first(),
+    ).toEqual({ n: 1 });
   });
   it('bounds eligible rate-limit retries to three admitted attempts', async () => {
     const transport = vi.fn(async () => {
@@ -442,6 +475,41 @@ describe('AI gateway composed security boundaries', () => {
     });
     expect(result.status).toBe('succeeded');
     expect(transport.mock.calls[0][0].apiKey).toBe('student-key');
+  });
+  it('refuses blank submitted source before loading references or dispatch', async () => {
+    const publication = publicationSchema.parse(examples[2]);
+    const original = attemptSchema.parse(examples[3]);
+    const attempt = {
+      ...original,
+      answers: await Promise.all(
+        original.answers.map(async (answer, index) =>
+          index === 0
+            ? {
+                ...answer,
+                source: '  \n',
+                sourceHash: await sourceHash('  \n'),
+              }
+            : answer,
+        ),
+      ),
+    };
+    const references = vi.fn(async () => []);
+    const resolver = assessmentResolver(
+      async () => ({ publication, attempt }),
+      references,
+    );
+    await expect(
+      resolver(actor, {
+        schemaVersion: 1,
+        action: 'assessment-draft',
+        courseId: attempt.courseId,
+        idempotencyKey: 'blank',
+        outputTokenLimit: 10,
+        evidenceRefs: [{ kind: 'submission', attemptId: attempt.attemptId }],
+        includePrivateReferences: true,
+      }),
+    ).rejects.toMatchObject({ code: 'AI_DISABLED' });
+    expect(references).not.toHaveBeenCalled();
   });
   it('assessment resolver omits student identity and rejects invalid rubric evidence', async () => {
     const publication = publicationSchema.parse(examples[2]),

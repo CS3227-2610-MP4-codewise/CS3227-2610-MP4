@@ -16,6 +16,8 @@ AUTH_MAIL_ENABLED=false
 BOOTSTRAP_OWNER_EMAIL=
 BOOTSTRAP_OWNER_PASSWORD=
 # Separate server-only credentials; empty values keep each action disabled.
-# The gateway is not wired into live routes and must not be activated without verified limits.
+# Explicitly disabled; supply verified server-only JSON configuration before enabling.
+SOCLAAS_INSTRUCTOR_ENABLED=false
+SOCLAAS_INSTRUCTOR_CONFIG=
 SOCLAAS_INSTRUCTOR_API_KEY=
 SOCLAAS_STUDENT_API_KEY=

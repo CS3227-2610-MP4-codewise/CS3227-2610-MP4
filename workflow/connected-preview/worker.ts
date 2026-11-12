@@ -15,7 +15,7 @@ export const syntheticAssessmentGateway =
         model: 'synthetic-preview',
         allowedModels: ['synthetic-preview'],
         promptVersion: 'synthetic-v1',
-        outputTokenLimit: 512,
+        outputTokenLimit: 1024,
         inputTokenReservation: 1024,
         maxInputBytes: 100000,
         deadlineMs: 60000,
