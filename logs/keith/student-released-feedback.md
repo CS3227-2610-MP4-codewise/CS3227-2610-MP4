@@ -385,3 +385,46 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 64712902; cached input subset 63643849; output 282633; reasoning output subset unavailable; total 64995535.
 - Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-released-feedback:merge-main-2026-11-13 -->
+<!-- experiment-turns:merge-main-2026-11-13:05bd943bf3f8ca24,85830755b0bfd2a7,87f3ac44de5540bc,fc184d496cf0abbd,1cefe82c5310bf6b,77d5f44c7c426d07 -->
+## Checkpoint `merge-main-2026-11-13` — 2026-11-12T16:23:59.781139+00:00
+
+### Request
+
+Explain the conformance suite; check whether main has the suite fix; weigh adopting Darryl's routes; keep own routes per recommendation.
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Owner: Keith (root coordinator, no agents). Suite fix not on main (releaseContractSuite unchanged since 6b4bd97); the suite file is Darryl's (Ownership.md line 69), so the fix needs his write or grant. Found main moved: PR #33 changed consumer authorization (ownedAttempts), added Darryl's assessment-keyed student route and a release-existence rule. Explained the hybrid option's cost; Keith kept the attempt-keyed routes. Merged origin/main: resolved index.ts and Ownership.md; release-port now uses D1OwnedAttemptReader with the session memo; conformance driver adapted. npm run check exit 0 (58 files/710 tests). Re-measured: released open 14 local D1 calls (~22 est production, was ~33), history 2 (~10). Updated read-cost.md, conformance.md, README and handoff.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: workflow/evidence/student-released-feedback/read-cost.md; workflow/evidence/student-released-feedback/conformance.md; workflow/handoffs/student-released-feedback.md.
+- Remaining limitations and next owner: Keith sends Darryl the note (duplicate route plus suite fix); Darryl merge-reviews PR #32; 6.3 after merge..
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:11:17.417Z | 2026-11-12T16:11:25.187Z | final | claude-opus-5-5 | medium | 700 | 0 | 700 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:12:12.969Z | 2026-11-12T16:12:22.842Z | final | claude-opus-5-5 | medium | 712 | 85 | 712 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:13:10.818Z | 2026-11-12T16:13:59.038Z | final | claude-opus-5-5 | medium | 3833 | 1769 | 3833 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:16:55.685Z | 2026-11-12T16:17:27.134Z | final | claude-opus-5-5 | medium | 2838 | 1646 | 2838 |
+| Coordinator / coordinator | a137a81a | root | 2026-11-12T16:19:36.361Z | open | provisional | claude-opus-5-5 | medium | 14173 | 2683 | 14173 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | a137a81a | 2026-11-12T16:07:29.478Z | provisional | final | 10527 | 525 | 10527 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 79743100; cached input subset 78629448; output 310270; reasoning output subset unavailable; total 80053370.
+- Coverage/status: partial; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
