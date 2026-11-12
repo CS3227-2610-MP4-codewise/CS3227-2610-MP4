@@ -189,4 +189,4 @@ No other part of these files is opened, and no migration or release DTO change (
 | New `src/server/student/release-port.ts`: a student `IdentityCoursePort.requireObject` for `assessment`/`submission` read (own attempt plus current Student membership in SQL; assessment scope through `AssessmentRepository.scope`), a student `SubmissionReadPort` (`StudentWork.attempt`) and the `AssessmentService.consumer` it returns | Keith | Darryl |
 | `src/server/index.ts`: passing that port to `studentHandler` (real D1 only, never loopback samples) | Keith | Darryl |
 
-`AssessmentWorkflow`, `CourseAuthority` and the instructor ports are unchanged. Darryl's review of the 5.1 producer change and of this adapter is still pending and is not claimed by this record. No deployment is authorized by it.
+`AssessmentWorkflow`, `CourseAuthority` and the instructor ports are unchanged. Keith reported on 2026-11-12 that Darryl reviewed and accepted the 5.1 producer change and this adapter (PR #32; recorded in [the handoff](handoffs/student-released-feedback.md)). No deployment is authorized by it.
