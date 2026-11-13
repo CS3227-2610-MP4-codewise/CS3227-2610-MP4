@@ -10,6 +10,7 @@ import { authViewSchema, type AuthView } from '../../shared/auth';
 import { BoundaryError } from '../../shared/instructor-contracts/schema';
 import type { Publication } from '../../shared/instructor-contracts/publication';
 import type { StudentAssignmentPage } from '../../shared/student-assignments';
+import type { AssignmentStatus } from '../../shared/student-work';
 import { authRequest } from '../auth/client';
 import { AccountMenu } from '../ui/account-menu';
 import { Brand, Icon } from '../ui/brand';
@@ -20,6 +21,7 @@ import {
   StudentRequestError,
   failureMessage,
   formatDeadline,
+  formatPoints,
   studentApi,
   studentPaths,
   type Failure,
@@ -64,6 +66,11 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
   const [view, setView] = useState<AuthView | null>(null);
   const [state, setState] = useState<State>({ phase: 'loading' });
   const [announcement, setAnnouncement] = useState('');
+  // AS-03: tags belong to one list page (course + cursor) and never block or replace the list.
+  const [tags, setTags] = useState<{
+    page: string;
+    status: ReadonlyMap<string, AssignmentStatus>;
+  } | null>(null);
   const generations = useRef(new RequestGenerations());
   const heading = useRef<HTMLHeadingElement>(null);
   const focused = useRef(false);
@@ -100,6 +107,22 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
         .then((loaded) => {
           if (!request.current()) return;
           setState({ phase: 'ready', loaded });
+          if (loaded.kind === 'assignments' && route.kind === 'assignments') {
+            const page = pageKey(route.courseId, route.cursor);
+            api
+              .status(
+                route.courseId,
+                loaded.data.items.map((item) => item.assignmentId),
+                request.signal,
+              )
+              .then((status) => {
+                if (request.current()) setTags({ page, status });
+              })
+              // A failed status read only means no tags (AS-03); the list stays as it is.
+              .catch(() => {
+                if (request.current()) setTags(null);
+              });
+          }
           // A successful read, including focus revalidation, ends any earlier failure.
           setAnnouncement((current) =>
             failureTexts.has(current) ? '' : current,
@@ -111,6 +134,7 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
             error instanceof StudentRequestError ? error.failure : 'network';
           // Clear protected content rather than presenting stale data as current.
           setState({ phase: 'failed', failure });
+          setTags(null);
           setAnnouncement(failureMessage[failure]);
         });
     },
@@ -265,6 +289,12 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
           <AssignmentList
             data={state.loaded.data}
             cursor={route?.kind === 'assignments' ? route.cursor : null}
+            status={
+              route?.kind === 'assignments' &&
+              tags?.page === pageKey(route.courseId, route.cursor)
+                ? tags.status
+                : undefined
+            }
           />
         )}
         {state.phase === 'ready' && state.loaded.kind === 'overview' && (
@@ -344,32 +374,60 @@ function CourseList({ data, after }: { data: Courses; after: string }) {
   );
 }
 
+const pageKey = (courseId: string, cursor: string | null) =>
+  JSON.stringify([courseId, cursor]);
+const tagText: Record<AssignmentStatus, string | null> = {
+  'feedback-released': 'Feedback released',
+  submitted: 'Submitted',
+  'due-soon': 'Due soon',
+  none: null,
+};
+
 export function AssignmentList({
   data,
   cursor,
+  status,
 }: {
   data: StudentAssignmentPage;
   /** The cursor of the page being shown; null on the first page. */
   cursor: string | null;
+  /** AS-01: server-derived status for this page; absent means no tags. */
+  status?: ReadonlyMap<string, AssignmentStatus>;
 }) {
   return (
     <>
       {data.items.length ? (
         <ul className="cw-course-list cw-student-assignments">
-          {data.items.map((item) => (
-            <li key={item.assignmentVersionId}>
-              <h2>{item.title}</h2>
-              <p className="cw-student-deadline">
-                Deadline{' '}
-                <time dateTime={item.deadlineAt}>
-                  {formatDeadline(item.deadlineAt)}
-                </time>
-              </p>
-              <a href={studentPaths.overview(item.assignmentVersionId, cursor)}>
-                Open {item.title} <Icon name="arrow-right" />
-              </a>
-            </li>
-          ))}
+          {data.items.map((item) => {
+            const tag = tagText[status?.get(item.assignmentId) ?? 'none'];
+            const tagId = 'cw-tag-' + item.assignmentVersionId;
+            return (
+              <li key={item.assignmentVersionId}>
+                {/* Instructor row pattern: details on the left, the row action at the far right. */}
+                <div>
+                  <h2>{item.title}</h2>
+                  <p className="cw-student-deadline">
+                    Deadline{' '}
+                    <time dateTime={item.deadlineAt}>
+                      {formatDeadline(item.deadlineAt)}
+                    </time>
+                  </p>
+                  {tag && (
+                    <span id={tagId} className="cw-student-tag">
+                      {tag}
+                    </span>
+                  )}
+                </div>
+                <a
+                  className="cw-row-action"
+                  href={studentPaths.overview(item.assignmentVersionId, cursor)}
+                  aria-describedby={tag ? tagId : undefined}
+                >
+                  Open {item.title} <Icon name="arrow-right" />
+                </a>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p>No assignments have been published in this course yet.</p>
@@ -478,7 +536,7 @@ export function Overview({ publication }: { publication: Publication }) {
                   <li key={criterion.criterionId}>
                     <span>{criterion.descriptor}</span>{' '}
                     <span className="cw-student-points">
-                      {criterion.minimumScore}–{criterion.maximumScore} points
+                      {formatPoints(criterion.maximumScore)}
                     </span>
                   </li>
                 ))}

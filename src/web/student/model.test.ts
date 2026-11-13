@@ -7,6 +7,7 @@ import {
   StudentRequestError,
   failureOf,
   formatDeadline,
+  formatPoints,
   parseStudentRoute,
   studentApi,
   studentPaths,
@@ -129,10 +130,43 @@ describe('student routes', () => {
     expect(studentPaths.courses('n1')).toBe('/student?after=n1');
   });
 
-  it('labels deadlines in UTC', () => {
-    expect(formatDeadline('2026-11-20T15:30:00.000Z')).toBe(
-      'Fri 20 Nov 2026, 15:30 UTC',
+  it('shows student times in Singapore time with a fixed layout (DR-01)', () => {
+    expect(formatDeadline('2026-11-13T06:05:09Z')).toBe(
+      '13/11/2026, 2:05:09 pm',
     );
+    expect(formatDeadline('2026-11-20T15:30:00.000Z')).toBe(
+      '20/11/2026, 11:30:00 pm',
+    );
+    expect(formatDeadline('2026-11-12T16:00:00Z')).toBe(
+      '13/11/2026, 12:00:00 am',
+    );
+    expect(formatDeadline('2026-11-13T04:00:00Z')).toBe(
+      '13/11/2026, 12:00:00 pm',
+    );
+    expect(formatDeadline('2026-12-31T16:00:00Z')).toBe(
+      '01/01/2027, 12:00:00 am',
+    );
+  });
+
+  it('does not depend on the viewer time zone (DR-01)', () => {
+    const tz = process.env.TZ;
+    // Node re-reads TZ when it changes; the formatter pins its own zone and locale.
+    process.env.TZ = 'America/New_York';
+    try {
+      expect(new Date('2026-11-13T06:05:09Z').getHours()).toBe(1);
+      expect(formatDeadline('2026-11-13T06:05:09Z')).toBe(
+        '13/11/2026, 2:05:09 pm',
+      );
+    } finally {
+      process.env.TZ = tz;
+    }
+  });
+
+  it('formats rubric points as the bracketed maximum (DR-02)', () => {
+    expect(formatPoints(2)).toBe('(2 points)');
+    expect(formatPoints(1)).toBe('(1 point)');
+    expect(formatPoints(2.5)).toBe('(2.5 points)');
+    expect(formatPoints(0.25)).toBe('(0.25 points)');
   });
 });
 
@@ -270,21 +304,41 @@ describe('student rendering', () => {
       }),
     );
     expect(html).toContain('Synthetic loops');
-    expect(html).toContain('Thu 1 Oct 2026, 12:00 UTC');
+    expect(html).toContain('01/10/2026, 8:00:00 pm');
     expect(html).toContain('href="/student/assignments/alpha-v2"');
     expect(html).toContain('Refresh list');
     for (const absent of ['Not started', 'Submitted', 'Graded', 'Feedback'])
       expect(html).not.toContain(absent);
   });
 
+  it('shows the maximum only, even with a non-zero minimum (DR-02)', () => {
+    const shifted = {
+      ...publication,
+      questions: publication.questions.map((q) => ({
+        ...q,
+        criteria: q.criteria.map((c) => ({
+          ...c,
+          minimumScore: 1,
+          maximumScore: 3,
+        })),
+      })),
+    };
+    const html = renderToStaticMarkup(
+      createElement(Overview, { publication: shifted }),
+    );
+    expect(html).toContain('(3 points)');
+    expect(html).not.toContain('1–3');
+  });
+
   it('renders a read-only exact-version overview', () => {
     const html = renderToStaticMarkup(createElement(Overview, { publication }));
     expect(html).toContain('Question 1: Sum a list');
     expect(html).toContain('(alpha-v1)');
-    expect(html).toContain('Fri 20 Nov 2026, 15:30 UTC');
+    expect(html).toContain('20/11/2026, 11:30:00 pm');
     expect(html).toContain('    result = 0');
     expect(html).toContain('aria-label="Starter code for question 1"');
-    expect(html).toContain('0–5 points');
+    expect(html).toContain('(5 points)');
+    expect(html).not.toContain('0–5');
     expect(html).toContain('<strong>loop</strong>');
     for (const absent of [
       '<textarea',
@@ -345,6 +399,25 @@ describe('student rendering', () => {
         if (/(^|\s)a(\s*$|[:.[]?)/.test(selector.trim().split(/\s+/).at(-1)!))
           expect(selector, 'link colour rule').toContain(':not(.cw-action)');
     }
+  });
+
+  it('lets course entries span the row so their action sits at the far right', async () => {
+    // The generic `.cw-student a` rule is inline-flex, which shrank the shared course entry to
+    // its content and pulled "View assignments" next to the course name.
+    const css = await readFile('src/web/student/student.css', 'utf8');
+    expect(css).toMatch(
+      /\.cw-student a\.cw-course-entry\s*\{\s*display:\s*flex;/,
+    );
+    expect(css).toMatch(
+      /\.cw-student-assignments > li\s*\{[^}]*justify-content:\s*space-between/,
+    );
+    // A long title in the Open action must wrap, not squeeze the details to one letter per line.
+    expect(css).toMatch(
+      /\.cw-student-assignments > li > a\.cw-row-action\s*\{[^}]*flex:\s*0 1 auto;[^}]*max-width:\s*16rem/,
+    );
+    expect(css).toMatch(
+      /\.cw-student-assignments > li > div\s*\{[^}]*min-width:\s*min\(16rem, 100%\)/,
+    );
   });
 
   it('never persists protected student data in durable browser storage', async () => {

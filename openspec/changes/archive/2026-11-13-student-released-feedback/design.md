@@ -107,6 +107,7 @@ There is no Service Worker, no `sessionStorage` and no module-level memo for fee
 - [Superseded content shown to students may surprise instructors] → This follows Decision 2 and P4 (history preserved, clearly labelled replaced). It is noted for Darryl's review in task 1.1.
 
 - [Feedback reads are not rate-limited; a released open costs about 33 production D1 queries and 2 provider lookups, so a scripted loop by a signed-in student could drain the Workers Free daily quotas] → Accepted by Keith on 2026-11-13 for the class deployment (6.1 finding S1). Revisit after the staging check (task 6.3), on real quota pressure, or in a shared student rate-limit change; the SW-11 per-account limiter can be reused.
+- [Edge CPU over the Workers Free 10 ms per-request limit] → Staging dashboard, whole Worker (task 6.3): P50 5.02 ms, P90 10.74 ms, P99 40.68 ms. Keith accepted occasional overruns on 2026-11-13 (class project, no real users expected). Revisit on Error 1102 or real usage.
 
 ## Migration Plan
 

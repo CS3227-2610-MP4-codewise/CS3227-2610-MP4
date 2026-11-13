@@ -218,7 +218,7 @@ describe('student assignment list', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
       'Synthetic course A',
     );
-    expect(screen.getByText('Mon 2 Nov 2026, 12:00 UTC')).toBeTruthy();
+    expect(screen.getByText('02/11/2026, 8:00:00 pm')).toBeTruthy();
     act(() => {
       window.dispatchEvent(new Event('focus'));
     });
@@ -329,6 +329,189 @@ describe('student assignment list', () => {
       }),
     ).toBeTruthy();
     expect(screen.queryByText('Assignment 0')).toBeNull();
+  });
+});
+
+describe('assignment status tags (AS-01/03)', () => {
+  const route = {
+    kind: 'assignments',
+    courseId: 'course-a',
+    cursor: null,
+  } as const;
+  const path = '/api/student/courses/course-a/assignments';
+  const statusPath = (ids: string[]) =>
+    '/api/student/courses/course-a/assignment-status?' +
+    ids.map((id) => 'id=' + id).join('&');
+  const statusBody = (entries: [string, string][]) => ({
+    schemaVersion: 1,
+    items: entries.map(([assignmentId, status]) => ({ assignmentId, status })),
+  });
+  const rowOf = (title: string) => screen.getByText(title).closest('li')!;
+
+  it('shows one text tag per status and none for none', async () => {
+    routes[path] = [{ status: 200, body: page(4) }];
+    routes[statusPath(['a0', 'a1', 'a2', 'a3'])] = [
+      {
+        status: 200,
+        body: statusBody([
+          ['a0', 'feedback-released'],
+          ['a1', 'submitted'],
+          ['a2', 'due-soon'],
+          ['a3', 'none'],
+        ]),
+      },
+    ];
+    show(route);
+    await screen.findByText('Feedback released');
+    expect(
+      rowOf('Assignment 0').querySelector('.cw-student-tag')?.textContent,
+    ).toBe('Feedback released');
+    expect(rowOf('Assignment 1').textContent).toContain('Submitted');
+    expect(rowOf('Assignment 2').textContent).toContain('Due soon');
+    expect(rowOf('Assignment 3').querySelector('.cw-student-tag')).toBeNull();
+    // Read with the title: after it in DOM order, and describing the row's Open action.
+    const row = rowOf('Assignment 1');
+    const heading = row.querySelector('h2')!;
+    const tag = row.querySelector('.cw-student-tag')!;
+    expect(
+      heading.compareDocumentPosition(tag) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    const open = screen.getByRole('link', { name: /Open Assignment 1/ });
+    expect(open.getAttribute('aria-describedby')).toBe(tag.id);
+    // Instructor row pattern: details (title, deadline, tag) first, the Open action last, at the right.
+    expect([...row.children].map((child) => child.tagName)).toEqual([
+      'DIV',
+      'A',
+    ]);
+    expect(row.lastElementChild).toBe(open);
+    expect(open.className).toBe('cw-row-action');
+    expect(
+      [...row.firstElementChild!.children].map(
+        (child) => child.className || child.tagName,
+      ),
+    ).toEqual(['H2', 'cw-student-deadline', 'cw-student-tag']);
+    expect(
+      screen
+        .getByRole('link', { name: /Open Assignment 3/ })
+        .getAttribute('aria-describedby'),
+    ).toBeNull();
+  });
+
+  it('shows no tags while status is pending or after it fails, and keeps the list', async () => {
+    let finish!: (reply: Reply) => void;
+    routes[path] = [{ status: 200, body: page(2) }];
+    routes[statusPath(['a0', 'a1'])] = [
+      () => new Promise<Reply>((resolve) => (finish = resolve)),
+    ];
+    show(route);
+    expect(await screen.findByText('Assignment 1')).toBeTruthy();
+    await waitFor(() => expect(finish).toBeTypeOf('function'));
+    expect(document.querySelector('.cw-student-tag')).toBeNull();
+    await act(async () => {
+      finish({ status: 503 });
+      await Promise.resolve();
+    });
+    expect(document.querySelector('.cw-student-tag')).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByText('Assignment 0')).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: /Open Assignment 0/ }),
+    ).toBeTruthy();
+  });
+
+  it('keeps the list on a 401 or malformed status response', async () => {
+    for (const reply of [
+      { status: 401 },
+      {
+        status: 200,
+        body: {
+          schemaVersion: 1,
+          items: [{ assignmentId: 'a0', status: 'graded' }],
+        },
+      },
+    ]) {
+      routes[path] = [{ status: 200, body: page(1) }];
+      routes[statusPath(['a0'])] = [reply];
+      show(route);
+      expect(await screen.findByText('Assignment 0')).toBeTruthy();
+      await waitFor(() => expect(calls).toContain(statusPath(['a0'])));
+      expect(document.querySelector('.cw-student-tag')).toBeNull();
+      expect(screen.queryByRole('alert')).toBeNull();
+      cleanup();
+      calls = [];
+    }
+  });
+
+  it('requests only the shown page and ignores a late result for an earlier page', async () => {
+    const cursor = encodeCursor('2026-11-03T12:00:00.000Z', 'a1');
+    const next = { ...route, cursor };
+    let finishFirst!: (reply: Reply) => void;
+    routes[path] = [{ status: 200, body: page(2, cursor) }];
+    routes[statusPath(['a0', 'a1'])] = [
+      () => new Promise<Reply>((resolve) => (finishFirst = resolve)),
+    ];
+    const secondPage = {
+      ...page(1),
+      items: [
+        {
+          ...page(1).items[0],
+          assignmentId: 'b0',
+          assignmentVersionId: 'w0',
+          title: 'Later 0',
+        },
+      ],
+    };
+    routes[path + '?cursor=' + cursor] = [{ status: 200, body: secondPage }];
+    routes[statusPath(['b0'])] = [
+      { status: 200, body: statusBody([['b0', 'submitted']]) },
+    ];
+    const view = show(route);
+    await waitFor(() => expect(finishFirst).toBeTypeOf('function'));
+    view.rerender(createElement(StudentWorkspace, { route: next }));
+    expect(await screen.findByText('Submitted')).toBeTruthy();
+    await act(async () => {
+      finishFirst({
+        status: 200,
+        body: statusBody([
+          ['a0', 'due-soon'],
+          ['a1', 'due-soon'],
+        ]),
+      });
+      await Promise.resolve();
+    });
+    expect(screen.queryByText('Due soon')).toBeNull();
+    expect(calls.filter((c) => c.includes('assignment-status'))).toEqual([
+      statusPath(['a0', 'a1']),
+      statusPath(['b0']),
+    ]);
+  });
+
+  it('requests status again when the list is refreshed on focus', async () => {
+    routes[path] = [{ status: 200, body: page(1) }];
+    routes[statusPath(['a0'])] = [
+      { status: 200, body: statusBody([['a0', 'due-soon']]) },
+      { status: 200, body: statusBody([['a0', 'submitted']]) },
+    ];
+    show(route);
+    expect(await screen.findByText('Due soon')).toBeTruthy();
+    act(() => {
+      window.dispatchEvent(new Event('focus'));
+    });
+    expect(await screen.findByText('Submitted')).toBeTruthy();
+    expect(calls.filter((c) => c.includes('assignment-status'))).toHaveLength(
+      2,
+    );
+  });
+
+  it('sends no status request for an empty course', async () => {
+    routes[path] = [{ status: 200, body: page(0) }];
+    show(route);
+    expect(
+      await screen.findByText(
+        'No assignments have been published in this course yet.',
+      ),
+    ).toBeTruthy();
+    expect(calls.some((c) => c.includes('assignment-status'))).toBe(false);
   });
 });
 

@@ -241,7 +241,9 @@ describe('released feedback on the attempt view', () => {
     const table = within(view).getByRole('table', {
       name: 'Scores for question 1',
     });
-    expect(table.textContent).toMatch(/Correct total.*4 of 5.*range 0–5/);
+    // DR-03: `Score: X / N`, with no minimum or range text.
+    expect(table.textContent).toMatch(/Correct total.*Score: 4 \/ 5/);
+    expect(table.textContent).not.toMatch(/range|0–5/);
     expect(within(view).getByText(/Current feedback, version 1/)).toBeTruthy();
   });
 
@@ -343,7 +345,7 @@ describe('released feedback on the attempt view', () => {
     await within(view).findByText(/Feedback version 2 was withdrawn on/);
     expect(within(view).queryByRole('table')).toBeNull();
     expect(within(view).queryByText(/Current feedback/)).toBeNull();
-    expect(view.textContent).not.toMatch(/explanation|of 5/);
+    expect(view.textContent).not.toMatch(/explanation|Score:/);
     // The source stays visible in the withdrawn state.
     expect(
       within(view).getByRole('region', {
@@ -356,7 +358,9 @@ describe('released feedback on the attempt view', () => {
     await within(view).findByText(
       /Replaced feedback \(not current\), version 1/,
     );
-    expect(within(view).getByRole('table').textContent).toContain('3 of 5');
+    expect(within(view).getByRole('table').textContent).toContain(
+      'Score: 3 / 5',
+    );
     expect(within(view).queryByText(/Current feedback/)).toBeNull();
   });
 

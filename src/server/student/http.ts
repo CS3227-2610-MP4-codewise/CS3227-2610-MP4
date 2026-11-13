@@ -11,6 +11,7 @@ import {
   MAX_SAVE_BODY_BYTES,
   MAX_SUBMIT_BODY_BYTES,
   draftSaveRequestSchema,
+  assignmentStatusIds,
   historyCursor,
   moveRequestSchema,
   submitRequestSchema,
@@ -49,6 +50,7 @@ const id = '([A-Za-z0-9_-]{1,128})';
 const route = (path: string) => new RegExp('^/api/student/' + path + '$');
 const routes = {
   listing: route(`courses/${id}/assignments`),
+  status: route(`courses/${id}/assignment-status`),
   overview: route(`publications/${id}`),
   work: route(`publications/${id}/work`),
   move: route(`publications/${id}/drafts/move`),
@@ -125,7 +127,8 @@ export async function studentHandler(
       routes[name].exec(url.pathname);
     const mutation = request.method !== 'GET';
     const listing = match('listing'),
-      overview = match('overview');
+      overview = match('overview'),
+      status = match('status');
     const workRoute = match('work'),
       move = match('move'),
       attempts = match('attempts'),
@@ -137,6 +140,7 @@ export async function studentHandler(
       (request.method === 'GET' &&
         (listing ||
           overview ||
+          status ||
           workRoute ||
           attempts ||
           attempt ||
@@ -198,6 +202,22 @@ export async function studentHandler(
       );
       const result = await work.submit(principal, attempts[1], body);
       return json(result, result.replayed ? 200 : 201);
+    }
+    if (status) {
+      // AS-02: session (above), then course membership in SQL; only repeated `id` keys.
+      assert(
+        keys.length > 0 && keys.every((key) => key === 'id'),
+        '$',
+        'query',
+      );
+      const ids = assignmentStatusIds(url.searchParams.getAll('id'));
+      const port = feedback?.(request);
+      const releases = new StudentFeedback(work);
+      return json(
+        await work.assignmentStatus(principal, status[1], ids, (attemptIds) =>
+          releases.released(principal, attemptIds, port),
+        ),
+      );
     }
     if (attempts) {
       assert(
