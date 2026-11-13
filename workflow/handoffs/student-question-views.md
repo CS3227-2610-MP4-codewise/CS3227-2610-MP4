@@ -77,6 +77,10 @@ No server, shared DTO, schema, migration, dependency or shared-shell change. No 
 - **Overview cost:** one extra bounded history read per overview load.
 - **Hosted staging:** no check yet.
 
+## Post-merge fixes
+
+PR #44 merged as `11fdc88`. Codex review found three P2 issues: a cross-assignment attempt rendered under the wrong assignment; Back/Forward kept the summary on screen; and a theoretical stale feedback render. They are fixed with tests in `keith/student-question-views-fixes`. See [verification.md](../evidence/student-question-views/verification.md#post-merge-review-fixes-pr-44-codex-findings-2026-11-13).
+
 ## Next owner
 
 - **Darryl:** review the PR.

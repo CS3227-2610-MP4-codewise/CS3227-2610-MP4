@@ -446,6 +446,9 @@ function Ready({
       );
       if (r?.kind !== 'work' || r.versionId !== route.versionId) return;
       pushNext.current = false;
+      // The summary and review pages add no history entry, so an address restored by Back or
+      // Forward always names a question: show it rather than keep the page that was open.
+      setMode('question');
       setPosition(r.position);
       setAnswerView(r.view ?? 'work');
       if (r.view) setHistoryOpened(true);

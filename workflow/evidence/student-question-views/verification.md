@@ -50,3 +50,15 @@ Branch `keith/student-question-views` from `64a9159`. The changes are uncommitte
 - **Task 6.2:** the manual UI review (keyboard, focus and announcement, 44 px, light/dark, 320–1440 px, 200 % zoom) has not been run.
 - **Hosted staging:** no check yet.
 - **`package-lock.json`:** a local `npm install` modified it (removed `libc` fields). This is unrelated to this increment and must not be committed with it.
+
+## Post-merge review fixes (PR #44 Codex findings, 2026-11-13)
+
+Branch `keith/student-question-views-fixes` from `11fdc88`.
+
+| Finding (P2)                                                                               | Assessment                                                                                                                     | Fix                                                                                                                                                                               | Test                                                |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| An own attempt for another assignment, named in the address, renders under this assignment | Confirmed. The server authorizes any attempt the student owns.                                                                 | `loadAttempt` requires the attempt's `courseId` and the pinned publication's `assignmentId`/`courseId` to match the workbook's; otherwise the uniform unavailable state is shown. | Fails without the fix, passes with it.              |
+| Back/Forward from the Attempt summary keeps the summary on screen                          | Confirmed.                                                                                                                     | A valid workbook `popstate` resets `mode` to `question` (this also covers Review).                                                                                                | Fails without the fix, passes with it.              |
+| The previous attempt's feedback state could render beside a newly selected attempt         | Not reproducible in the per-question views: a new selection always renders a loading state, which unmounts the feedback panel. | `AttemptFeedback` is keyed by attempt ID (hardening).                                                                                                                             | Passes before and after the fix (regression guard). |
+
+- **`npm run check`:** exit 0. 21 specs. Vitest: 66 files passed and 2 skipped; 805 tests passed and 2 skipped. Deployment tests 4/4. Build succeeded.
