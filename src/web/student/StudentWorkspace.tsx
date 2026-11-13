@@ -47,6 +47,11 @@ const Workbook = lazy(() =>
   import('./Workbook').then((m) => ({ default: m.Workbook })),
 );
 
+// student-progress SP-09: the progress page is its own chunk too.
+const ProgressPage = lazy(() =>
+  import('./Progress').then((m) => ({ default: m.ProgressPage })),
+);
+
 const api = studentApi();
 const failureTexts = new Set(Object.values(failureMessage));
 
@@ -56,6 +61,12 @@ export function StudentWorkspace({ route }: { route: StudentRoute | null }) {
     return (
       <Suspense fallback={<p role="status">Loading your work…</p>}>
         <Workbook route={route} />
+      </Suspense>
+    );
+  if (route?.kind === 'progress')
+    return (
+      <Suspense fallback={<p role="status">Loading your progress…</p>}>
+        <ProgressPage courseId={route.courseId} />
       </Suspense>
     );
   return <StudentBrowse route={route} />;
@@ -103,6 +114,9 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
               request.signal,
             ),
           };
+        // Progress and work routes render their own pages and never reach this loader.
+        if (route.kind !== 'overview')
+          throw new StudentRequestError('unavailable');
         return {
           kind: 'overview',
           data: await api.overview(route.versionId, request.signal),
@@ -278,6 +292,17 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
         <h1 tabIndex={-1} ref={heading}>
           {title}
         </h1>
+        {route?.kind === 'assignments' &&
+          state.phase === 'ready' &&
+          state.loaded.kind === 'assignments' && (
+            // SP-09: a plain text link in the course header; no analytics card.
+            <a
+              className="cw-student-progress-link"
+              href={studentPaths.progress(route.courseId)}
+            >
+              View my progress <Icon name="arrow-right" />
+            </a>
+          )}
         {/* Failures are announced here and shown once, visibly, in the notice below. */}
         <p
           role="status"

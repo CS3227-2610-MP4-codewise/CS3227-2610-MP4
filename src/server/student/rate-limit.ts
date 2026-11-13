@@ -4,10 +4,12 @@ import { BoundaryError } from '../../shared/instructor-contracts/schema';
  * SW-11 / decision 13: per-student request rate. A rate, not an attempt cap (SW-07 keeps
  * unlimited attempts). Keyed by the authenticated account and the action, never the IP.
  */
-export type StudentAction = 'save' | 'submit';
+export type StudentAction = 'save' | 'submit' | 'progress';
 export const STUDENT_RATE_LIMITS: Record<StudentAction, number> = {
   save: 12,
   submit: 3,
+  // student-progress SP-04: at most one model call per POST; the gateway adds provider quotas.
+  progress: 3,
 };
 export const STUDENT_RATE_WINDOW_MS = 60_000;
 export const STUDENT_RETRY_AFTER_SECONDS = 60;

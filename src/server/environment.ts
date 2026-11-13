@@ -22,4 +22,7 @@ export interface Environment {
   SOCLAAS_INSTRUCTOR_CONFIG?: string;
   SOCLAAS_INSTRUCTOR_API_KEY?: string;
   SOCLAAS_STUDENT_API_KEY?: string;
+  // student-progress D7: separate student switch and verified configuration (disabled by default).
+  SOCLAAS_STUDENT_ENABLED?: string;
+  SOCLAAS_STUDENT_CONFIG?: string;
 }

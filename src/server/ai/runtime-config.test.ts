@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Environment } from '../environment';
-import { instructorAIConfig } from './runtime-config';
+import { instructorAIConfig, studentAIConfig } from './runtime-config';
 
 const config = {
   model: 'fixture-model',
@@ -56,5 +56,31 @@ describe('instructor AI server configuration', () => {
       providerRequestLimit: 4,
       windowMs: 60000,
     });
+  });
+});
+
+/** student-progress D7: the student switch is independent and validated identically. */
+describe('student AI server configuration', () => {
+  const student = (overrides: Record<string, unknown> = {}) =>
+    ({
+      SOCLAAS_STUDENT_ENABLED: 'true',
+      SOCLAAS_STUDENT_API_KEY: 'synthetic-student-key',
+      SOCLAAS_STUDENT_CONFIG: JSON.stringify(config),
+      ...overrides,
+    }) as unknown as Environment;
+  it('fails closed unless the student switch, key and config are all valid', () => {
+    for (const overrides of [
+      { SOCLAAS_STUDENT_ENABLED: undefined },
+      { SOCLAAS_STUDENT_ENABLED: 'false' },
+      { SOCLAAS_STUDENT_API_KEY: '' },
+      { SOCLAAS_STUDENT_CONFIG: '{' },
+      { SOCLAAS_STUDENT_CONFIG: JSON.stringify({ ...config, extra: 1 }) },
+    ])
+      expect(studentAIConfig(student(overrides))).toBeUndefined();
+  });
+  it('is independent of the instructor switch in both directions', () => {
+    expect(studentAIConfig(env())).toBeUndefined();
+    expect(instructorAIConfig(student())).toBeUndefined();
+    expect(studentAIConfig(student())?.profile.model).toBe('fixture-model');
   });
 });
