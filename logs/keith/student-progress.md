@@ -253,3 +253,42 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 44327326; cached input subset 43961478; output 210797; reasoning output subset 46336; total 44538123.
 - Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-progress:sp-pr-01 -->
+<!-- experiment-turns:sp-pr-01:7af44de180e98018,e592cbd040c9a48e -->
+## Checkpoint `sp-pr-01` — 2026-11-13T05:13:37.341722+00:00
+
+### Request
+
+Mark 6.2 manual checks complete; commit and open PR
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Recorded Keith's reported manual checks (not itemized) and ticked 6.2; refreshed ui-review and handoff. Final checks: prettier, typecheck, lint, strict validate; affected suites 505 passed, 2 skipped. Verified the student key is not in any committed file. Commits b40e223 (feat) and 3b9a4ab (docs) on keith/student-progress; PR #47 opened, asking Darryl to review the shared wiring and quota pool. The docs commit message miscounts tasks (19/23); the PR states the correct 21/24.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/pull/47.
+- Remaining limitations and next owner: Darryl: review PR #47 shared wiring; Keith: optional 3.9 live matrix; 6.1/6.5 after the ledger test is fixed.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 140dd212 | root | 2026-11-13T05:11:44.808Z | open | provisional | claude-opus-5-5 | medium | 8206 | 1025 | 8206 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 140dd212 | 2026-11-13T05:10:45.558Z | provisional | final | 2650 | 651 | 2650 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 48657709; cached input subset 48279114; output 219452; reasoning output subset 47361; total 48877161.
+- Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
