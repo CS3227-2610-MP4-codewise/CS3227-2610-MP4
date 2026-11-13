@@ -203,6 +203,11 @@ export function buildProductSite() {
   rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
   cpSync(source, out, { recursive: true });
+  // Guide figures: docs/UserGuide.md references images/…, which resolves the
+  // same way next to the rendered site-dist/*.html pages.
+  cpSync(resolve(root, 'docs/images'), resolve(out, 'images'), {
+    recursive: true,
+  });
   for (const guide of guides)
     writeFileSync(resolve(out, guide.page), renderGuide(guide));
   return out;

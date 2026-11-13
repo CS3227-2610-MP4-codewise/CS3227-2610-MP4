@@ -284,6 +284,13 @@ nav a[aria-current='page'] {
   padding: 0;
   overflow-wrap: normal;
 }
+.guide img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
 .guide pre.mermaid {
   text-align: center;
   background: var(--page);
