@@ -456,7 +456,7 @@ export function ReviewWorkspace() {
                         >
                           {attempt.sample
                             ? 'Assess sample'
-                            : 'Assess submission'}
+                            : 'Review submission'}
                           <Icon name="arrow-right" />
                         </button>
                       </li>

@@ -404,6 +404,10 @@ export function AssignmentWorkspace({
         {!editorPage && (
           <section aria-label="Assignment list" className="ia-list">
             <div className="ia-list-toolbar">
+              <p className="ia-hint">
+                Create a draft, add questions and a rubric, then review before
+                publishing.
+              </p>
               <Action
                 pending={!!state.pending}
                 onClick={() =>
@@ -443,6 +447,10 @@ export function AssignmentWorkspace({
                 {!listing && rows.length === 0 && (
                   <div className="ia-empty">
                     <h2>No assignments yet.</h2>
+                    <p className="ia-hint">
+                      Start with a draft. Students see it only after you
+                      publish.
+                    </p>
                   </div>
                 )}
                 <ul>
@@ -692,7 +700,13 @@ export function AssignmentWorkspace({
                   aria-label="Assignment questions"
                 >
                   <div className="ia-section-title">
-                    <h2>Questions</h2>
+                    <div>
+                      <h2>Questions</h2>
+                      <p className="ia-hint">
+                        Write clear instructions and define how each answer
+                        earns points.
+                      </p>
+                    </div>
                   </div>
                   {payload.questions.length > 0 ? (
                     <aside
@@ -700,9 +714,10 @@ export function AssignmentWorkspace({
                       aria-label="Question list"
                     >
                       <p className="ia-hint">
-                        {readOnly
-                          ? 'Questions'
-                          : 'Drag the handle to reorder. Keyboard: Space, arrow keys, Space.'}
+                        {payload.questions.length}{' '}
+                        {payload.questions.length === 1
+                          ? 'question'
+                          : 'questions'}
                       </p>
                       <ol className="ia-question-list">
                         {payload.questions.map((q, i) => (
@@ -803,6 +818,15 @@ export function AssignmentWorkspace({
                           </li>
                         ))}
                       </ol>
+                      {!readOnly && (
+                        <details className="ia-reorder-help">
+                          <summary>Reorder questions</summary>
+                          <p className="ia-hint">
+                            Drag a handle, or focus it and press Space, arrow
+                            keys, then Space to drop.
+                          </p>
+                        </details>
+                      )}
                       <p className="ia-hint" role="status" aria-live="polite">
                         {reorderStatus}
                       </p>
@@ -904,7 +928,10 @@ export function AssignmentWorkspace({
                               source={question.starterCode}
                             />
                           ) : (
-                            <Field label="Starter code (Python)">
+                            <Field
+                              label="Starter code (Python)"
+                              hint="Optional. Students receive this code with the question."
+                            >
                               <PythonEditor
                                 label="Starter code (Python)"
                                 readOnly={locked}
@@ -951,6 +978,10 @@ export function AssignmentWorkspace({
                           </details>
                           <div className="ia-rubric-heading">
                             <h3>Marking rubric</h3>
+                            <p className="ia-hint">
+                              Define specific criteria so students and AI
+                              suggestions can be assessed consistently.
+                            </p>
                           </div>
                           {question.criteria.length === 0 && (
                             <p className="ia-hint">

@@ -127,20 +127,20 @@
 }
 .assessment-sheet {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr);
   background: var(--cw-page);
   border-block: 1px solid var(--cw-rule);
 }
 .assessment-question,
 .assessment-work {
-  padding: 28px;
+  padding: 24px;
   min-width: 0;
 }
 .assessment-question {
-  border-right: 1px solid var(--cw-rule);
+  border-left: 1px solid var(--cw-rule);
 }
 .assessment-app h2 {
-  font-size: 23px;
+  font-size: 21px;
   font-weight: 400;
   line-height: 1.35;
 }
@@ -231,19 +231,18 @@
 .assessment-line {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
-  min-height: 44px;
+  min-height: 30px;
   align-items: start;
 }
 .assessment-line code {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  line-height: 2.7;
+  white-space: pre;
+  line-height: 1.8;
 }
 .assessment-number {
   color: var(--cw-secondary);
   text-align: center;
   font-size: 12px;
-  padding-top: 5px;
+  padding-top: 0;
 }
 .assessment-line button {
   border: 0;
@@ -354,6 +353,7 @@
     padding: 20px 16px;
   }
   .assessment-question {
+    border-left: 0;
     border-right: 0;
     border-bottom: 1px solid var(--cw-rule);
   }
@@ -374,5 +374,211 @@
   }
   .assessment-pagination button {
     padding-inline: 8px;
+  }
+}
+
+/* Instructor refresh, warm-workbook-v1: task first, optional detail second. */
+.assessment-title {
+  padding-block: 24px 8px;
+}
+.assessment-app .assessment-reload {
+  border-color: var(--cw-rule);
+}
+.assessment-ai {
+  border: 1px solid var(--cw-rule);
+  background: var(--cw-page);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.assessment-ai-toolbar,
+.assessment-ai-score,
+.assessment-ai-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.assessment-app .assessment-ai h2,
+.assessment-app .assessment-ai h3 {
+  font: 600 16px/1.5 var(--cw-font-ui);
+  margin: 0;
+}
+.assessment-ai-toolbar > div:first-child {
+  flex: 1;
+}
+.assessment-ai-options {
+  margin-top: 8px;
+}
+.assessment-app .assessment-ai-options > summary {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--cw-secondary);
+}
+.assessment-app .assessment-ai-options p {
+  max-width: 65ch;
+  margin-bottom: 8px;
+}
+.assessment-ai-review {
+  border-top: 1px solid var(--cw-rule);
+  margin-top: 12px;
+  padding-top: 16px;
+}
+.assessment-ai-question-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.assessment-app .assessment-ai-question-picker label {
+  margin: 0;
+  flex-shrink: 0;
+}
+.assessment-app .assessment-ai-question-picker select {
+  margin: 0;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+.assessment-ai-criteria {
+  display: grid;
+  gap: 12px;
+}
+.assessment-ai-criterion {
+  border-left: 3px solid var(--cw-accent);
+  padding: 8px 16px;
+  background: var(--cw-canvas);
+}
+.assessment-ai-score strong {
+  white-space: nowrap;
+  font-size: 20px;
+}
+.assessment-ai-score strong span {
+  color: var(--cw-secondary);
+  font-size: 14px;
+  font-weight: 400;
+}
+.assessment-ai-criterion summary,
+.assessment-ai-notes summary {
+  font-size: 14px;
+}
+.assessment-ai-criterion p {
+  max-width: 80ch;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.assessment-ai-notes {
+  margin-top: 8px;
+}
+.assessment-ai-notes article {
+  padding: 12px 0;
+  border-top: 1px solid var(--cw-rule);
+}
+.assessment-ai-notes pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 12px;
+  background: var(--cw-canvas);
+}
+.assessment-ai-notes p,
+.assessment-ai-notes li {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.assessment-ai-footer {
+  border-top: 1px solid var(--cw-rule);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.assessment-ai-footer p {
+  max-width: 62ch;
+  color: var(--cw-secondary);
+  font-size: 13px;
+}
+.assessment-ai-footer button {
+  flex-shrink: 0;
+}
+.assessment-app .assessment-context summary {
+  color: var(--cw-secondary);
+  font-size: 13px;
+  font-weight: 400;
+}
+.assessment-question .assessment-brief {
+  margin: 12px 0 20px;
+}
+.assessment-app .assessment-question h3 {
+  font: 600 15px/1.5 var(--cw-font-ui);
+  margin-bottom: 12px;
+}
+.assessment-app .assessment-question fieldset {
+  margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--cw-rule);
+}
+.assessment-app .assessment-question legend {
+  padding: 0 8px 0 0;
+  font-size: 14px;
+}
+.assessment-app .assessment-question input[type='number'] {
+  max-width: 104px;
+}
+.assessment-app .assessment-question textarea {
+  min-height: 96px;
+}
+.assessment-work > .assessment-secondary {
+  margin: 8px 0 12px;
+}
+.assessment-source {
+  margin-bottom: 12px;
+}
+.assessment-source-heading h2 {
+  margin: 0;
+}
+.assessment-line button {
+  min-height: 44px;
+}
+.assessment-observations h2 {
+  font: 600 15px/1.5 var(--cw-font-ui);
+}
+.assessment-review {
+  gap: 16px;
+  padding: 20px 0;
+}
+.assessment-review > div:first-child {
+  max-width: 62ch;
+}
+.assessment-review p {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+.assessment-history {
+  margin-top: 24px;
+}
+.assessment-history > summary {
+  font-size: 14px;
+}
+@media (max-width: 760px) {
+  .assessment-ai {
+    padding: 16px;
+  }
+  .assessment-ai-toolbar,
+  .assessment-ai-footer,
+  .assessment-ai-question-picker {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .assessment-ai-footer button {
+    width: 100%;
+  }
+  .assessment-app .assessment-ai-question-picker select {
+    width: 100%;
+  }
+  .assessment-ai-toolbar .assessment-actions button {
+    flex: 1;
+  }
+  .assessment-review .assessment-actions button {
+    flex: 1;
   }
 }

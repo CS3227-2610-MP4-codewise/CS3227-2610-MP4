@@ -199,7 +199,11 @@ export function WorkspaceSwitch({
   useEffect(() => {
     mounted.current = true;
     let current = true;
+    let leftWindow = false;
     const refresh = () => {
+      // Coalesce simultaneous foreground events. A focus restored after our own
+      // authorization mask must not start another hide/check/focus cycle.
+      if (busyRef.current) return;
       const request = ++epoch.current;
       if (!busyRef.current) rememberFocus();
       busyRef.current = true;
@@ -228,13 +232,33 @@ export function WorkspaceSwitch({
     const restore = (event: PageTransitionEvent) => {
       if (event.persisted) refresh();
     };
-    window.addEventListener('focus', refresh);
+    const blur = (event: FocusEvent) => {
+      if (event.target === event.currentTarget) leftWindow = true;
+    };
+    const focus = (event: FocusEvent) => {
+      if (event.target !== event.currentTarget || !leftWindow) return;
+      leftWindow = false;
+      refresh();
+    };
+    const visibility = () => {
+      if (document.visibilityState === 'hidden') leftWindow = true;
+      else if (leftWindow) {
+        leftWindow = false;
+        refresh();
+      }
+    };
+    window.addEventListener('blur', blur);
+    window.addEventListener('focus', focus);
+    document.addEventListener('visibilitychange', visibility);
     window.addEventListener('pageshow', restore);
     return () => {
       current = false;
       mounted.current = false;
       ++epoch.current;
-      window.removeEventListener('focus', refresh);
+      busyRef.current = false;
+      window.removeEventListener('blur', blur);
+      window.removeEventListener('focus', focus);
+      document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('pageshow', restore);
     };
   }, [role, courseId, courseIds, csrf, expectedIdentity]);

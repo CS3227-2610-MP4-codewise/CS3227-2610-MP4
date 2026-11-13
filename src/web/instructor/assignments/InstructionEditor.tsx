@@ -245,8 +245,8 @@ export function InstructionEditor({
         />
       )}
       <p className="ia-hint">
-        Formatting is saved as Markdown. The preview shows the intended styling;
-        student-side formatted rendering is not integrated yet.
+        Use Preview to check headings, lists and code examples before
+        publishing.
       </p>
       {message && <p role="status">{message}</p>}
     </div>

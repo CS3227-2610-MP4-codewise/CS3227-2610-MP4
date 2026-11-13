@@ -527,8 +527,69 @@
 }
 .ia-list-toolbar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 16px;
+}
+.ia-list-toolbar > p {
+  max-width: 56ch;
+}
+.ia-reorder-help {
+  margin-block: 8px 16px;
+  font-size: 13px;
+}
+.ia-reorder-help summary {
+  min-height: 44px;
+  display: list-item;
+  padding-block: 12px;
+  cursor: pointer;
+}
+.ia-workspace .cw-workbook-brief,
+.ia-workspace .cw-workbook-work {
+  padding: 24px;
+}
+.ia-rubric-heading > p {
+  max-width: 56ch;
+}
+.ia-question-toolbar {
+  position: sticky;
+  top: 96px;
+}
+.ia-criterion .ia-field {
+  margin-block: 12px;
+}
+.ia-criterion .ia-remove {
+  font-size: 13px;
+}
+@media (min-width: 721px) and (max-width: 1100px) {
+  .ia-questions {
+    display: block;
+  }
+  .ia-question-toolbar {
+    position: static;
+  }
+  .ia-question-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+  }
+  .ia-question-list li {
+    flex: 0 0 200px;
+  }
+}
+@media (max-width: 720px) {
+  .ia-list-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .ia-question-toolbar {
+    position: static;
+  }
+  .ia-workspace .cw-workbook-brief,
+  .ia-workspace .cw-workbook-work {
+    padding: 20px 16px;
+  }
 }
 .ia-list ul,
 .ia-history ul {

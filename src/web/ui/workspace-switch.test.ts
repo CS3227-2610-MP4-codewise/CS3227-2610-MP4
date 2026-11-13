@@ -96,6 +96,7 @@ const control = async () => {
 };
 const focus = () =>
   act(() => {
+    window.dispatchEvent(new Event('blur'));
     window.dispatchEvent(new Event('focus'));
   });
 const hidden = () =>
@@ -113,6 +114,34 @@ function deferred() {
   });
   return { promise, resolve };
 }
+
+it('does not recheck on internal focus or repeated focus without leaving the window', async () => {
+  show({ role: 'instructor' });
+  const input = await control();
+  const count = calls.length;
+  act(() => {
+    input.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
+    window.dispatchEvent(new Event('focus'));
+    window.dispatchEvent(new Event('focus'));
+  });
+  expect(calls).toHaveLength(count);
+  visible();
+});
+
+it('coalesces overlapping foreground checks and still hides revoked data', async () => {
+  show({ role: 'instructor' });
+  await control();
+  const pending = deferred();
+  sessionResponse = () => pending.promise;
+  const count = calls.length;
+  focus();
+  focus();
+  expect(calls.length - count).toBe(2);
+  hidden();
+  await act(async () => pending.resolve(json({}, 401)));
+  expect(await screen.findByText('Sign in to continue')).toBeTruthy();
+  hidden();
+});
 
 it.each(['student', 'instructor'] as const)(
   'uses one native switch with checked state bound to %s, not optimistic navigation',
@@ -276,7 +305,7 @@ it('rejects a removed target without navigation, while the current authorized pa
   visible();
 });
 
-it('ignores an older refresh failure after a newer successful refresh', async () => {
+it('does not supersede an outstanding authorization check with another foreground event', async () => {
   show();
   await control();
   const old = deferred();
@@ -284,12 +313,12 @@ it('ignores an older refresh failure after a newer successful refresh', async ()
   focus();
   respond = async () => json(contexts());
   focus();
-  await control();
+  hidden();
   await act(async () => {
     old.resolve(json({}, 401));
   });
-  expect(screen.queryByRole('link', { name: 'Sign in' })).toBeNull();
-  visible();
+  expect(await screen.findByRole('link', { name: 'Sign in' })).toBeTruthy();
+  hidden();
 });
 
 it('ignores selection responses after unmount and removes its shell guard', async () => {
@@ -444,6 +473,7 @@ it.each(['student', 'instructor'] as const)(
     screen.getByTestId('protected').appendChild(editor);
     editor.focus();
     act(() => {
+      window.dispatchEvent(new Event('blur'));
       window.dispatchEvent(new Event('focus'));
       editor.blur(); // Emulate native focus loss while its page is display:none.
     });
