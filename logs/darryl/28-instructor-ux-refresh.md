@@ -63,3 +63,27 @@ Total/source group unavailable. This steering prompt shares the active turn with
 - The warning is stale: StudentWorkspace.tsx and Workbook.tsx both render question instructions using shared ui/instruction-text.tsx, which sanitizes formatted content. PR37 already replaces the warning with guidance to use Preview before publishing. No extra student feature or student source edits are needed for this correction.
 - Verification: source inspection; full earlier suite included instruction renderer coverage, subsequent InstructionEditor and student DOM regressions passed in the 85-test focused run. No new test run needed for this explanatory steering prompt; no live deployment claimed.
 - No controlled comparison; next owner Darryl for PR/staging acceptance.
+
+## Prompt INSTRUCTOR-UX-03 — 2026-11-13 Asia/Singapore
+
+**Prompt (redacted):** Requested commit, push and creation of a PR if the branch was not already linked to one.
+
+### Agents spawned
+
+- New agents: None; repository/PR verification and log checkpoint need no delegation.
+- Reused agents: None.
+- Main agent: /root, gpt-6.1-sol.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; current turn incomplete |
+| Children | 0 | 0 | 0 | 0 | observed current activity | none |
+
+Total/source group unavailable; recorder scope/refresh not established, earlier prompt reconciliation unavailable. Later calls/final response excluded. Reconcile next checkpoint; no invented usage.
+
+### Experiment outcome
+
+- Verified clean implementation worktree, local HEAD and upstream both cb16201. Live GitHub metadata confirms draft PR37 is open, unmerged, mergeable and points to the same branch/head. No duplicate PR needed. This prompt-log checkpoint is the only new change and is committed/pushed to that existing PR.
+- Verification: git status/log/ref checks and GitHub PR metadata. Product tests not repeated for a log-only checkpoint; earlier outcomes remain in evidence. No merge or deployment. No controlled comparison; next owner Darryl for review.
