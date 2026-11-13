@@ -1,6 +1,10 @@
 # Cloudflare deployment runbook
 
-Status (verified 2026-11-05): foundation deployed successfully to staging and production through GitHub Actions run [41799944040](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/41799944040) at `281cc1392b722e873bc58fd806913c5f2121eeec`, with recorded production approval. Both live smoke checks passed. See [readiness evidence](../workflow/evidence/project-readiness/verification.md) for scope and remaining gates. No deployment was initiated by the readiness review.
+Historical foundation status (verified 2026-11-05): foundation deployed successfully to staging and production through GitHub Actions run [41799944040](https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/actions/runs/41799944040) at `281cc1392b722e873bc58fd806913c5f2121eeec`, with recorded production approval. Both live smoke checks passed. See [readiness evidence](../workflow/evidence/project-readiness/verification.md) for scope and remaining gates. No deployment was initiated by the readiness review.
+
+## Current source versus historical deployment evidence
+
+As of 13 November 2026, source includes Firebase/Gmail authentication, courses, publication, submissions and assessment/release. The historical foundation evidence below does not certify the current deployed feature revision. See [submission verification](../workflow/evidence/final-submission/verification.md) and [Developer Guide](DeveloperGuide.md) for current composition and release gaps. Statements below saying features/provider integration are unimplemented refer to the dated foundation checkpoint.
 
 ## Verified environment setup
 
@@ -101,7 +105,7 @@ Artifacts expire after 14 days. If absent, produce a new successful staging run.
 
 ## GitHub Pages product website
 
-The product-site workflow publishes src/product-site/ separately. In repository Settings -> Pages, select GitHub Actions as the build source. The website initially states the foundation status and must be updated with real app URLs/features once released.
+The product-site workflow publishes src/product-site/ separately. In repository Settings -> Pages, select GitHub Actions as the build source. The website now links the guides and app URLs and distinguishes source implementation from hosted readiness. Record its successful Pages deployment after the reviewed main-branch workflow runs.
 
 ## Sources
 
