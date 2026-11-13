@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { createHash } from 'node:crypto';
-import { createElement } from 'react';
+import { createElement, useState } from 'react';
 import {
   cleanup,
   fireEvent,
@@ -15,7 +15,9 @@ import type {
   Release,
   Withdrawn,
 } from '../../shared/instructor-contracts/release';
-import { AttemptsPanel } from './Attempts';
+import type { Attempt } from '../../shared/instructor-contracts/submission';
+import { AttemptPicker, AttemptView, useAttemptContext } from './Attempts';
+import { AttemptFeedback } from './Feedback';
 import { workApi } from './work-model';
 
 /** SF-02–SF-07, SUB-04, UI-04/06/08: feedback panel DOM behaviour against a synthetic API. */
@@ -176,17 +178,27 @@ const fetcher = async (input: RequestInfo | URL) => {
   return a ? reply(200, attemptBody(a)) : reply(404, {});
 };
 
-function show(openId: string | null) {
+function show(openId: string) {
   return render(
-    createElement(AttemptsPanel, {
+    createElement(AttemptView, {
       api: workApi(fetcher as typeof fetch),
-      versionId: 'v1',
-      publication: pub,
-      reloadKey: 0,
-      openId,
-      onOpen: () => {},
+      attemptId: openId,
+      current: pub,
+      onBack: () => {},
     }),
   );
+}
+/** The attempt selector over the shared attempt context (SQ-02, SF-07). */
+function Picker() {
+  const [api] = useState(() => workApi(fetcher as typeof fetch));
+  const ctx = useAttemptContext({
+    api,
+    versionId: 'v1',
+    publication: pub,
+    reloadKey: 0,
+    enabled: true,
+  });
+  return createElement(AttemptPicker, { ctx, onReturn: () => {} });
 }
 const article = () =>
   screen.findByRole('article', { name: 'Submitted attempt' });
@@ -448,13 +460,304 @@ describe('history marker (SF-07)', () => {
       earlier,
       { ...earlier, id: 'att-third', at: '2026-11-08T10:00:00.000Z' },
     ];
-    show(null);
-    const items = await screen.findAllByRole('listitem');
+    render(createElement(Picker));
+    const select = await screen.findByLabelText('Attempt');
+    const options = within(select).getAllByRole('option');
     expect(
-      items.map((li) => /Feedback released/.test(li.textContent!)),
+      options.map((o) => /Feedback released/.test(o.textContent!)),
     ).toEqual([false, true, false]);
     await waitFor(() =>
       expect(document.body.textContent).not.toMatch(/of 5|score/i),
     );
+  });
+});
+
+/** SQ-04, SF-03/04/05, UI-06: the same release shown one question at a time. */
+describe('per-question released feedback (SQ-04)', () => {
+  const two: Publication = {
+    ...pub,
+    questions: [
+      pub.questions[0],
+      {
+        ...pub.questions[0],
+        questionId: 'q2',
+        questionVersionId: 'qv2',
+        title: 'Product',
+        rubricId: 'r2',
+        rubricVersionId: 'rv2',
+        criteria: [
+          {
+            criterionId: 'c2',
+            comparisonKey: 'k2',
+            descriptor: 'Correct product',
+            minimumScore: 0,
+            maximumScore: 3,
+          },
+        ],
+      },
+    ],
+  };
+  const att: Att = {
+    id: 'att-two',
+    at: '2026-11-10T10:00:00.000Z',
+    source: '',
+  };
+  const attempt: Attempt = {
+    schemaVersion: 1,
+    attemptId: att.id,
+    assignmentVersionId: 'v1',
+    courseId: 'course-a',
+    submittedByUserId: 'user-1',
+    submittedAt: att.at,
+    answers: [
+      ['qv1', 'rv1', 'total = 0\nprint(total)\n'],
+      ['qv2', 'rv2', 'prod = 1\nprint(prod)\n'],
+    ].map(([qv, rv, source], i) => ({
+      submittedAnswerId: `${att.id}-a${i}`,
+      questionVersionId: qv,
+      rubricVersionId: rv,
+      draftRevision: 1,
+      source,
+      sourceHash: sha(source),
+    })),
+  };
+  const criterion = (qv: string, rv: string, c: string, max: number) => ({
+    questionVersionId: qv,
+    rubricVersionId: rv,
+    criterionId: c,
+    comparisonKey: 'k' + c.slice(1),
+    minimumScore: 0,
+    maximumScore: max,
+    score: 2,
+    explanation: `Explains ${c}.`,
+  });
+  const annotation = (
+    index: number,
+    qv: string,
+    rv: string,
+    c: string,
+    excerpt: string,
+    explanation: string,
+  ) => ({
+    submittedAnswerId: `${att.id}-a${index}`,
+    questionVersionId: qv,
+    rubricVersionId: rv,
+    criterionId: c,
+    startLine: 1,
+    endLine: 1,
+    excerpt,
+    explanation,
+  });
+  const full = (
+    version: number,
+    state: 'released' | 'superseded',
+    over: Partial<Release> = {},
+  ): Release => ({
+    ...release(att, version, state, [
+      annotation(0, 'qv1', 'rv1', 'c1', 'total = 0', 'Note for one.'),
+      annotation(1, 'qv2', 'rv2', 'c2', 'prod = 1', 'Note for two.'),
+      annotation(1, 'qv2', 'rv2', 'c2', 'prod = 9', 'Stale for two.'),
+    ]),
+    criteria: [
+      criterion('qv1', 'rv1', 'c1', 5),
+      criterion('qv2', 'rv2', 'c2', 3),
+    ],
+    ...over,
+  });
+  const summaryOf = (r: Release, listed: number[] = [r.releaseVersion]) => ({
+    status: 200,
+    body: {
+      schemaVersion: 1,
+      state: 'released',
+      currentness: currentness(att, r.releaseVersion, [], 1),
+      versions: listed.map((n, i) => ({
+        releaseVersion: n,
+        state: i === 0 ? 'released' : 'superseded',
+      })),
+      release: r,
+    },
+  });
+  const api = workApi(fetcher as typeof fetch);
+  const props = (questionVersionId: string) => ({
+    api,
+    attempt,
+    pub: two,
+    questionVersionId,
+  });
+  const summaryCalls = () => requests.filter((r) => r.endsWith('/feedback'));
+
+  it('shows only the current question’s criteria, markers and unavailable evidence', async () => {
+    feedback.set(att.id, summaryOf(full(1, 'released')));
+    const { rerender } = render(createElement(AttemptFeedback, props('qv2')));
+    await screen.findByText(/Current feedback, version 1/);
+    const table = screen.getByRole('table', { name: 'Scores for question 2' });
+    expect(table.textContent).toContain('Correct product');
+    expect(table.textContent).not.toContain('Correct total');
+    expect(screen.queryByRole('table', { name: /question 1/ })).toBeNull();
+    const source = screen.getByRole('region', {
+      name: 'Submitted source for question 2',
+    });
+    expect(source.textContent).toContain('prod = 1');
+    expect(source.textContent).not.toContain('total = 0');
+    // Markers restart at A for the question shown, even though question 1 has a note too.
+    expect(
+      within(source).getByRole('button', { name: /Observation A, line 1/ }),
+    ).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Observation B/ })).toBeNull();
+    expect(screen.queryByText('Note for one.')).toBeNull();
+    // SF-04: the mismatched note is listed, but only on its own question.
+    const unavailable = screen.getByRole('region', {
+      name: 'Observations that could not be shown on source',
+    });
+    expect(unavailable.textContent).toContain('Stale for two.');
+    rerender(createElement(AttemptFeedback, props('qv1')));
+    await screen.findByRole('table', { name: 'Scores for question 1' });
+    expect(screen.queryByText(/Stale for two/)).toBeNull();
+    expect(
+      screen.queryByRole('region', {
+        name: 'Observations that could not be shown on source',
+      }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('region', { name: 'Submitted source for question 1' })
+        .textContent,
+    ).not.toContain('prod');
+    expect(
+      screen.getByRole('button', { name: /Observation A, line 1/ }),
+    ).toBeTruthy();
+  });
+
+  it('fetches the summary again for every question shown', async () => {
+    feedback.set(att.id, summaryOf(full(1, 'released')));
+    const { rerender } = render(createElement(AttemptFeedback, props('qv1')));
+    await screen.findByRole('table', { name: 'Scores for question 1' });
+    expect(summaryCalls()).toHaveLength(1);
+    rerender(createElement(AttemptFeedback, props('qv2')));
+    await screen.findByRole('table', { name: 'Scores for question 2' });
+    expect(summaryCalls()).toHaveLength(2);
+  });
+
+  it('says a question has no released feedback in this version and still shows its source', async () => {
+    const r = full(1, 'released');
+    feedback.set(
+      att.id,
+      summaryOf({
+        ...r,
+        criteria: r.criteria.slice(0, 1),
+        annotations: r.annotations.slice(0, 1),
+      }),
+    );
+    render(createElement(AttemptFeedback, props('qv2')));
+    await screen.findByText(/Current feedback, version 1/);
+    expect(
+      screen.getByText(
+        'This question has no released feedback in this version.',
+      ),
+    ).toBeTruthy();
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(
+      screen.getByRole('region', { name: 'Submitted source for question 2' })
+        .textContent,
+    ).toContain('prod = 1');
+    expect(
+      document.querySelectorAll('.cw-fb-line[data-annotated]'),
+    ).toHaveLength(0);
+  });
+
+  it('keeps a chosen replaced version across questions and refetches it', async () => {
+    feedback.set(att.id, summaryOf(full(2, 'released'), [2, 1]));
+    versions.set(`${att.id}:1`, {
+      status: 200,
+      body: full(1, 'superseded'),
+    });
+    const { rerender } = render(createElement(AttemptFeedback, props('qv1')));
+    await screen.findByText(/Current feedback, version 2/);
+    fireEvent.change(screen.getByLabelText('Feedback version'), {
+      target: { value: '1' },
+    });
+    await screen.findByText(/Replaced feedback \(not current\), version 1/);
+    const before = requests.filter((r) => r.endsWith('/feedback/1')).length;
+    rerender(createElement(AttemptFeedback, props('qv2')));
+    await screen.findByRole('table', { name: 'Scores for question 2' });
+    expect(
+      screen.getByText(/Replaced feedback \(not current\), version 1/),
+    ).toBeTruthy();
+    expect(screen.queryByText(/Current feedback/)).toBeNull();
+    expect(requests.filter((r) => r.endsWith('/feedback/1')).length).toBe(
+      before + 1,
+    );
+  });
+
+  /** A stand-in for the attempt context, which outlives the feedback view. */
+  const holder = () => {
+    const h = {
+      chosen: null as number | null,
+      choose: (v: number | null) => {
+        h.chosen = v;
+      },
+    };
+    return h;
+  };
+
+  it('keeps a chosen version held by the attempt context after the view is left and reopened', async () => {
+    feedback.set(att.id, summaryOf(full(2, 'released'), [2, 1]));
+    versions.set(`${att.id}:1`, {
+      status: 200,
+      body: full(1, 'superseded'),
+    });
+    const version = holder();
+    const first = render(
+      createElement(AttemptFeedback, { ...props('qv1'), version }),
+    );
+    await screen.findByText(/Current feedback, version 2/);
+    fireEvent.change(screen.getByLabelText('Feedback version'), {
+      target: { value: '1' },
+    });
+    expect(version.chosen).toBe(1);
+    first.unmount();
+    render(createElement(AttemptFeedback, { ...props('qv2'), version }));
+    await screen.findByText(/Replaced feedback \(not current\), version 1/);
+    expect(screen.queryByText(/Current feedback/)).toBeNull();
+  });
+
+  it('resets a chosen version that is no longer listed, with an announcement', async () => {
+    feedback.set(att.id, summaryOf(full(2, 'released'), [2]));
+    const version = holder();
+    version.chosen = 1;
+    render(createElement(AttemptFeedback, { ...props('qv1'), version }));
+    await screen.findByText(/Current feedback, version 2/);
+    // The reset and its announcement follow the refreshed summary in an effect.
+    await screen.findByText(
+      'Feedback version 1 is no longer available. Showing the default version.',
+    );
+    expect(version.chosen).toBeNull();
+    expect(screen.queryByText(/Replaced feedback/)).toBeNull();
+  });
+
+  it('shows the tombstone, not an earlier release, when the current release is withdrawn between questions', async () => {
+    feedback.set(att.id, summaryOf(full(2, 'released'), [2, 1]));
+    const { rerender } = render(createElement(AttemptFeedback, props('qv1')));
+    await screen.findByText(/Current feedback, version 2/);
+    feedback.set(att.id, {
+      status: 200,
+      body: {
+        schemaVersion: 1,
+        state: 'withdrawn',
+        currentness: currentness(att, null, [2], 2),
+        versions: [
+          { releaseVersion: 2, state: 'withdrawn' },
+          { releaseVersion: 1, state: 'superseded' },
+        ],
+      },
+    });
+    versions.set(`${att.id}:2`, { status: 200, body: tomb(att, 2) });
+    rerender(createElement(AttemptFeedback, props('qv2')));
+    await screen.findByText(/Feedback version 2 was withdrawn on/);
+    expect(screen.queryByText(/Current feedback/)).toBeNull();
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(
+      screen.getByRole('region', { name: 'Submitted source for question 2' })
+        .textContent,
+    ).toContain('prod = 1');
   });
 });

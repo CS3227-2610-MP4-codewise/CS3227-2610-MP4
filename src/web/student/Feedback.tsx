@@ -11,6 +11,7 @@ import { Action } from '../ui/primitives';
 import { formatDeadline } from './model';
 import {
   feedbackReducer,
+  markerFor,
   matchAnnotations,
   sourceLines,
   type AnnotationMatch,
@@ -40,21 +41,31 @@ export function AttemptFeedback({
   api,
   attempt,
   pub,
+  questionVersionId,
+  version,
 }: {
   api: WorkApi;
   attempt: Attempt;
   pub: Publication | null;
+  /** SQ-04: show only this question of the attempt. Matching still runs on the whole attempt. */
+  questionVersionId?: string;
+  /**
+   * SF-05 (modified): the chosen release version, held by the attempt context so it applies to
+   * every question of the attempt and survives leaving the view. Uncontrolled when omitted.
+   */
+  version?: { chosen: number | null; choose: (v: number | null) => void };
 }) {
   const [state, dispatch] = useReducer(feedbackReducer, { kind: 'loading' });
   const [retry, setRetry] = useState(0);
-  const [chosen, setChosen] = useState<number | null>(null);
+  const [ownChosen, setOwnChosen] = useState<number | null>(null);
+  const chosen = version ? version.chosen : ownChosen;
+  const setChosen = version ? version.choose : setOwnChosen;
   const [view, setView] = useState<VersionView>({ p: 'idle' });
   const [selected, setSelected] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
     dispatch({ type: 'load' });
-    setChosen(null);
     setView({ p: 'idle' });
     setSelected(null);
     api
@@ -64,7 +75,13 @@ export function AttemptFeedback({
     return () => {
       active = false;
     };
-  }, [api, attempt.attemptId, retry]);
+    // SQ-04: the summary is fetched again for every question shown, never reused from another.
+  }, [api, attempt.attemptId, questionVersionId, retry]);
+
+  // Uncontrolled use (the attempt summary): the chosen version resets when another attempt is shown.
+  useEffect(() => {
+    setOwnChosen(null);
+  }, [attempt.attemptId]);
 
   // The version to show: the chosen one, or by default the current release, or for a
   // withdrawn current the newest version's tombstone (SF-05).
@@ -72,13 +89,28 @@ export function AttemptFeedback({
     state.kind === 'released' || state.kind === 'withdrawn'
       ? state.summary
       : null;
-  const shown =
-    chosen ??
-    (summary
+  // A chosen version that the refetched summary no longer lists falls back to the default.
+  const chosenListed =
+    chosen !== null &&
+    !!summary?.versions.some((v) => v.releaseVersion === chosen);
+  const chosenDropped = chosen !== null && !!summary && !chosenListed;
+  const [dropNotice, setDropNotice] = useState('');
+  // SF-05 (modified): a chosen version the refreshed list no longer has resets to the default,
+  // announced politely; an earlier release is never presented as current.
+  useEffect(() => {
+    if (!chosenDropped) return;
+    setDropNotice(
+      `Feedback version ${chosen} is no longer available. Showing the default version.`,
+    );
+    setChosen(null);
+  }, [chosenDropped, chosen, setChosen]);
+  const shown = chosenListed
+    ? chosen
+    : summary
       ? summary.state === 'released'
         ? summary.release.releaseVersion
         : summary.versions[0].releaseVersion
-      : null);
+      : null;
   const inline =
     summary?.state === 'released' && shown === summary.release.releaseVersion
       ? summary.release
@@ -114,8 +146,13 @@ export function AttemptFeedback({
     inline ?? (view.p === 'ready' ? view.value : null);
   const release =
     displayed && displayed.state !== 'withdrawn' ? displayed : null;
+  // SF-04 checks run on the whole attempt; the result is then scoped to the question shown, with
+  // its markers lettered from A for that question.
   const match: AnnotationMatch | null = release
-    ? matchAnnotations(release.annotations, attempt)
+    ? scopeMatch(
+        matchAnnotations(release.annotations, attempt),
+        questionVersionId,
+      )
     : null;
   const selectedNote = match?.matched.find((m) => m.index === selected) ?? null;
   const failure =
@@ -126,6 +163,10 @@ export function AttemptFeedback({
       .find((q) => q.questionVersionId === questionVersionId)
       ?.criteria.find((c) => c.criterionId === criterionId)?.descriptor ??
     criterionId;
+  const answers = questionVersionId
+    ? attempt.answers.filter((a) => a.questionVersionId === questionVersionId)
+    : attempt.answers;
+  const unavailable = match?.unavailable ?? [];
   const describe = (m: MatchedAnnotation) =>
     `Observation ${m.marker}, ${lineRange(m.annotation)}, ${criterionName(m.annotation.questionVersionId, m.annotation.criterionId)}`;
 
@@ -158,6 +199,7 @@ export function AttemptFeedback({
                 value={String(shown)}
                 onChange={(e) => {
                   setSelected(null);
+                  setDropNotice('');
                   setChosen(Number(e.target.value));
                 }}
               >
@@ -178,9 +220,12 @@ export function AttemptFeedback({
       <p className="cw-sr-only" role="status" aria-live="polite">
         {selectedNote
           ? `${describe(selectedNote)} selected. ${selectedNote.annotation.explanation}`
-          : ''}
+          : dropNotice}
       </p>
-      {attempt.answers.map((answer, index) => {
+      {questionVersionId && answers.length === 0 && (
+        <p>No answer was submitted for this question in this attempt.</p>
+      )}
+      {answers.map((answer, index) => {
         const q = pub?.questions.find(
           (x) => x.questionVersionId === answer.questionVersionId,
         );
@@ -194,12 +239,21 @@ export function AttemptFeedback({
             (c) => c.questionVersionId === answer.questionVersionId,
           ) ?? [];
         const here = selectedNote && notes.includes(selectedNote);
+        const noFeedback =
+          !!release &&
+          !!questionVersionId &&
+          criteria.length === 0 &&
+          notes.length === 0 &&
+          unavailable.length === 0;
         return (
           <section key={answer.submittedAnswerId} className="cw-fb-question">
             <h4>
               Question {n}
               {q ? `: ${q.title}` : ''}
             </h4>
+            {noFeedback && (
+              <p>This question has no released feedback in this version.</p>
+            )}
             {release && criteria.length > 0 && (
               <table className="cw-fb-criteria">
                 <caption>Scores for question {n}</caption>
@@ -299,7 +353,7 @@ export function AttemptFeedback({
           </section>
         );
       })}
-      {match && match.unavailable.length > 0 && (
+      {unavailable.length > 0 && (
         <section className="cw-fb-unavailable" aria-labelledby="cw-fb-unav">
           <h4 id="cw-fb-unav">
             Observations that could not be shown on source
@@ -309,7 +363,7 @@ export function AttemptFeedback({
             are not attached to any line.
           </p>
           <ul>
-            {match.unavailable.map(({ index, annotation }) => (
+            {unavailable.map(({ index, annotation }) => (
               <li key={index}>
                 <strong>
                   {criterionName(
@@ -326,6 +380,22 @@ export function AttemptFeedback({
       )}
     </>
   );
+}
+
+/** SQ-04: keep only the shown question's observations and letter its markers from A. */
+function scopeMatch(
+  match: AnnotationMatch,
+  questionVersionId: string | undefined,
+): AnnotationMatch {
+  if (!questionVersionId) return match;
+  const here = (a: { questionVersionId: string }) =>
+    a.questionVersionId === questionVersionId;
+  return {
+    matched: match.matched
+      .filter((m) => here(m.annotation))
+      .map((m, i) => ({ ...m, marker: markerFor(i) })),
+    unavailable: match.unavailable.filter((u) => here(u.annotation)),
+  };
 }
 
 type Failure = 'stale' | 'expired' | 'network' | 'unavailable';

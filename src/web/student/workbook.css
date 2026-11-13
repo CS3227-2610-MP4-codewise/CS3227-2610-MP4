@@ -61,7 +61,7 @@
 /* Answer views: equal targets with an active underline. */
 .cw-wb-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border-bottom: 1px solid var(--cw-rule);
   margin-bottom: 16px;
 }
@@ -70,9 +70,11 @@
   background: transparent;
   border: 0;
   border-bottom: 2px solid transparent;
-  padding: 8px 12px;
+  padding: 8px 8px;
   color: var(--cw-secondary);
   font-size: 0.9375rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 .cw-wb-tabs [role='tab'][aria-selected='true'] {
   color: var(--cw-ink);

@@ -16,13 +16,19 @@ import { Brand, Icon } from '../ui/brand';
 import { InstructionText } from '../ui/instruction-text';
 import { Action, QuestionNavigation } from '../ui/primitives';
 import { WorkspaceSwitch } from '../ui/workspace-switch';
-import { AttemptsPanel } from './Attempts';
+import {
+  AttemptView,
+  FeedbackPanel,
+  SubmittedPanel,
+  useAttemptContext,
+} from './Attempts';
 import { CodeEditor, type CodeEditorHandle } from './CodeEditor';
 import { ConflictWindow } from './ConflictWindow';
 import { Review } from './Review';
 import {
   formatDeadline,
   formatPoints,
+  parseStudentRoute,
   studentPaths,
   type StudentRoute,
 } from './model';
@@ -346,14 +352,24 @@ function Ready({
   useSyncExternalStore(ctl.subscribe, ctl.getVersion);
   const count = pub.questions.length;
   const clamp = (n: number) => Math.min(Math.max(n, 1), count);
-  const [position, setPosition] = useState(clamp(route.position));
-  const [mode, setMode] = useState<'question' | 'review'>('question');
-  const [tab, setTab] = useState<'work' | 'attempts'>('work');
-  const [openAttempt, setOpenAttempt] = useState<string | null>(null);
-  const [attemptsKey, setAttemptsKey] = useState(0);
-  const [block, setBlock] = useState<null | { target: number | 'review' }>(
-    null,
+  // Unclamped (1–20, from the address): a historical view clamps it to the attempt's own pinned
+  // publication, the working copy to the route's (SQ-06).
+  const [position, setPosition] = useState(route.position);
+  const [mode, setMode] = useState<'question' | 'review' | 'summary'>(
+    'question',
   );
+  // SQ-05: the view and attempt start from the address and are re-authorized by every read.
+  const [answerView, setAnswerView] = useState<AnswerView>(
+    route.view ?? 'work',
+  );
+  const [historyOpened, setHistoryOpened] = useState(false);
+  // SQ-05/UI-05: the next address write is a new history entry (a student action) rather than a
+  // replacement (latest-attempt resolution, clamping, dropping a damaged query).
+  const pushNext = useRef(false);
+  const [attemptsKey, setAttemptsKey] = useState(0);
+  const [block, setBlock] = useState<null | {
+    target: number | 'review' | 'summary';
+  }>(null);
   const [move, setMove] = useState<MoveState>({ phase: 'idle' });
   const [navPending, setNavPending] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -369,8 +385,48 @@ function Ready({
   }, []);
   const now = useNow();
 
-  const question = pub.questions[position - 1];
-  const item = ctl.get(question.questionVersionId);
+  // SQ-01/06: the attempt selection lives above the views so it survives view switches. History
+  // is read only once a historical view has been opened.
+  const attemptCtx = useAttemptContext({
+    api,
+    versionId: route.versionId,
+    publication: pub,
+    reloadKey: attemptsKey,
+    enabled: historyOpened || answerView !== 'work',
+    initial: route.attempt ?? null,
+  });
+  const showView = (next: AnswerView) => {
+    pushNext.current = true;
+    setAnswerView(next);
+    if (next !== 'work') setHistoryOpened(true);
+  };
+  // The panels' selector is a student action, so it pushes; programmatic selection does not.
+  const panelCtx = {
+    ...attemptCtx,
+    select: (id: string | null) => {
+      pushNext.current = true;
+      attemptCtx.select(id);
+    },
+  };
+  const historical = answerView !== 'work';
+  // In a historical view the question pane, position and Previous/Next follow the selected
+  // attempt's own pinned publication; the working copy always follows the route's.
+  const viewPub = historical && attemptCtx.pub ? attemptCtx.pub : pub;
+  const viewCount = viewPub.questions.length;
+  const workPos = clamp(position);
+  const shownPos = historical
+    ? Math.min(Math.max(position, 1), viewCount)
+    : workPos;
+  const question = viewPub.questions[shownPos - 1];
+  const workQuestion = pub.questions[workPos - 1];
+  const histPending = historical && attemptCtx.pending;
+  const otherVersion =
+    historical &&
+    attemptCtx.pub &&
+    attemptCtx.pub.assignmentVersionId !== pub.assignmentVersionId
+      ? attemptCtx.pub
+      : null;
+  const item = ctl.get(workQuestion.questionVersionId);
   const deadlinePassed = now >= Date.parse(work.deadlineAt);
   const stale = work.latestAssignmentVersionId !== work.assignmentVersionId;
 
@@ -381,52 +437,82 @@ function Ready({
     }
   });
 
-  // Browser Back/Forward between questions keeps the address truthful.
+  // SQ-05, UI-05: Back/Forward restore the question, view and attempt from the address.
   useEffect(() => {
     const pop = () => {
-      const m = /\/work\/(\d+)$/.exec(window.location.pathname);
-      if (m) setPosition(clamp(Number(m[1])));
+      const r = parseStudentRoute(
+        window.location.pathname,
+        window.location.search,
+      );
+      if (r?.kind !== 'work' || r.versionId !== route.versionId) return;
+      pushNext.current = false;
+      setPosition(r.position);
+      setAnswerView(r.view ?? 'work');
+      if (r.view) setHistoryOpened(true);
+      attemptCtx.select(r.attempt ?? null);
+      focusHeading.current = true;
     };
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);
   });
 
-  const commit = (target: number | 'review') => {
+  // SQ-05: the address always names what is shown. Student actions push; resolving the latest
+  // attempt, clamping to the attempt's question count and dropping damaged values replace. Nothing
+  // is written while the attempt's pinned publication (and so its question count) is loading.
+  useEffect(() => {
+    if (mode !== 'question' || histPending) return;
+    const path = historical
+      ? studentPaths.work(route.versionId, shownPos, {
+          view: answerView,
+          attempt: attemptCtx.selectedId,
+        })
+      : studentPaths.work(route.versionId, workPos);
+    const push = pushNext.current;
+    pushNext.current = false;
+    if (window.location.pathname + window.location.search === path) return;
+    if (push) window.history.pushState(null, '', path);
+    else window.history.replaceState(null, '', path);
+  });
+
+  const commit = (target: number | 'review' | 'summary') => {
     setBlock(null);
     focusHeading.current = true;
-    if (target === 'review') {
-      setMode('review');
+    if (target === 'review' || target === 'summary') {
+      setMode(target);
       return;
     }
     setMode('question');
-    setTab('work');
     setPosition(target);
-    const path = studentPaths.work(route.versionId, target);
-    if (window.location.pathname !== path)
-      window.history.pushState(null, '', path);
+    // The address effect writes the new question (with the view and attempt) as a new entry.
+    pushNext.current = true;
     announceQuestion(target);
   };
   const [live, setLive] = useState('');
   const announceQuestion = (target: number) => {
-    const q = pub.questions[target - 1];
-    setLive(`Question ${target} of ${count}: ${q.title}`);
+    const q = viewPub.questions[target - 1];
+    // UI-05: in a historical view the announcement also names the view being kept.
+    const view =
+      answerView === 'submitted'
+        ? ', Submitted attempt'
+        : answerView === 'feedback'
+          ? ', Released feedback'
+          : '';
+    setLive(`Question ${target} of ${viewCount}${view}: ${q.title}`);
   };
 
   /** Previous/Next/Review: save first; a failed or conflicting save offers a choice, never silent loss. */
-  const go = async (target: number | 'review') => {
+  const go = async (target: number | 'review' | 'summary') => {
     if (navPending) return;
     setNavPending(true);
     try {
-      if (mode === 'question' && tab === 'work')
-        await ctl.flush(question.questionVersionId);
-      const it = ctl.get(question.questionVersionId);
-      if (
-        mode === 'question' &&
-        it &&
-        (it.status === 'failed' || it.status === 'conflict')
-      ) {
-        setBlock({ target });
-        return;
+      // Historical views never save or block: they leave the working copy alone (SQ-01, SQ-06).
+      if (mode === 'question' && answerView === 'work') {
+        await ctl.flush(workQuestion.questionVersionId);
+        const it = ctl.get(workQuestion.questionVersionId);
+        if (it && (it.status === 'failed' || it.status === 'conflict')) {
+          setBlock({ target });
+          return;
+        }
       }
       commit(target);
     } finally {
@@ -547,9 +633,9 @@ function Ready({
     }
   };
 
-  const hintId = 'cw-editor-hint-' + position;
-  const statusId = 'cw-save-status-' + position;
-  const label = `Python answer for question ${position}: ${question.title}`;
+  const hintId = 'cw-editor-hint-' + workPos;
+  const statusId = 'cw-save-status-' + workPos;
+  const label = `Python answer for question ${workPos}: ${workQuestion.title}`;
 
   const newer = stale && (
     <section className="cw-wb-newer" aria-label="Newer version">
@@ -680,7 +766,10 @@ function Ready({
             setMode('question');
             void go(n);
           }}
-          onSubmitted={() => setAttemptsKey((k) => k + 1)}
+          onSubmitted={() => {
+            setAttemptsKey((k) => k + 1);
+            attemptCtx.select(null);
+          }}
           onMove={() => {
             setMode('question');
             setMove({ phase: 'confirm' });
@@ -691,55 +780,97 @@ function Ready({
           onSession={onSession}
           onViewAttempt={(id) => {
             setMode('question');
-            setTab('attempts');
-            setOpenAttempt(id);
+            setHistoryOpened(true);
+            attemptCtx.select(id);
+            pushNext.current = true;
+            setAnswerView('submitted');
           }}
         />
+      ) : mode === 'summary' ? (
+        attemptCtx.selectedId ? (
+          <AttemptView
+            api={api}
+            attemptId={attemptCtx.selectedId}
+            current={pub}
+            backLabel={`Back to question ${shownPos}`}
+            onBack={() => {
+              focusHeading.current = true;
+              setMode('question');
+            }}
+          />
+        ) : (
+          <Action
+            variant="secondary"
+            onClick={() => {
+              focusHeading.current = true;
+              setMode('question');
+            }}
+          >
+            {`Back to question ${shownPos}`}
+          </Action>
+        )
       ) : (
         <div className="cw-wb-panes">
-          <section className="cw-wb-question" aria-labelledby="cw-q-h">
-            <p className="cw-ordinal">Question {position}</p>
-            <h2 id="cw-q-h" tabIndex={-1} ref={heading}>
-              {question.title}
-            </h2>
-            <details className="cw-wb-brief" open>
-              <summary>Question text</summary>
-              <InstructionText
-                value={question.instructions}
-                codeLabel={'Code example in question ' + position}
-              />
-            </details>
-            <details className="cw-wb-rubric">
-              <summary>Rubric guidance</summary>
-              <ul className="cw-student-rubric">
-                {question.criteria.map((c) => (
-                  <li key={c.criterionId}>
-                    {c.descriptor}{' '}
-                    <span className="cw-student-points">
-                      {formatPoints(c.maximumScore)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </details>
+          <section
+            className="cw-wb-question"
+            aria-labelledby={histPending ? undefined : 'cw-q-h'}
+            aria-label={histPending ? 'Question' : undefined}
+          >
+            {histPending ? (
+              // Never show the route's question beside a historical attempt that is still loading.
+              <p role="status">Loading the selected attempt…</p>
+            ) : (
+              <>
+                <p className="cw-ordinal">Question {shownPos}</p>
+                <h2 id="cw-q-h" tabIndex={-1} ref={heading}>
+                  {question.title}
+                </h2>
+                {otherVersion && (
+                  <p className="cw-student-meta-line" role="note">
+                    This attempt was submitted on a different version of this
+                    assignment, published{' '}
+                    <time dateTime={otherVersion.publishedAt}>
+                      {formatDeadline(otherVersion.publishedAt)}
+                    </time>
+                    . The question and its order follow that version.
+                  </p>
+                )}
+                <details className="cw-wb-brief" open>
+                  <summary>Question text</summary>
+                  <InstructionText
+                    value={question.instructions}
+                    codeLabel={'Code example in question ' + shownPos}
+                  />
+                </details>
+                <details className="cw-wb-rubric">
+                  <summary>Rubric guidance</summary>
+                  <ul className="cw-student-rubric">
+                    {question.criteria.map((c) => (
+                      <li key={c.criterionId}>
+                        {c.descriptor}{' '}
+                        <span className="cw-student-points">
+                          {formatPoints(c.maximumScore)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </>
+            )}
           </section>
 
           <section className="cw-wb-work" aria-label="Answer">
-            <Tabs
-              tab={tab}
-              onChange={(next) => {
-                setTab(next);
-                if (next === 'work') setOpenAttempt(null);
-              }}
-            />
+            <Tabs tab={answerView} onChange={showView} />
+            {/* The editor stays mounted while a historical view is shown, so its text and save
+                state are untouched by view switches. */}
             <div
               role="tabpanel"
               id="cw-panel-work"
               aria-labelledby="cw-tab-work"
-              hidden={tab !== 'work'}
+              hidden={answerView !== 'work'}
               tabIndex={-1}
             >
-              {tab === 'work' && item && (
+              {item && (
                 <>
                   <div className="cw-wb-savebar">
                     <p
@@ -784,7 +915,7 @@ function Ready({
                   ) : (
                     <>
                       <CodeEditor
-                        id={'cw-editor-' + position}
+                        id={'cw-editor-' + workPos}
                         handle={editorMounted}
                         label={label}
                         value={item.source}
@@ -803,7 +934,7 @@ function Ready({
                   {block && (
                     <div className="cw-student-notice" role="alert">
                       <p>
-                        Question {position} is not saved ({saveLabel(item)}).
+                        Question {workPos} is not saved ({saveLabel(item)}).
                         Your text stays on this page and in this tab&apos;s
                         backup.
                       </p>
@@ -838,19 +969,33 @@ function Ready({
             </div>
             <div
               role="tabpanel"
-              id="cw-panel-attempts"
-              aria-labelledby="cw-tab-attempts"
-              hidden={tab !== 'attempts'}
+              id="cw-panel-submitted"
+              aria-labelledby="cw-tab-submitted"
+              hidden={answerView !== 'submitted'}
               tabIndex={-1}
             >
-              {tab === 'attempts' && (
-                <AttemptsPanel
+              {answerView === 'submitted' && (
+                <SubmittedPanel
+                  ctx={panelCtx}
+                  question={question}
+                  position={shownPos}
+                  onReturn={() => showView('work')}
+                />
+              )}
+            </div>
+            <div
+              role="tabpanel"
+              id="cw-panel-feedback"
+              aria-labelledby="cw-tab-feedback"
+              hidden={answerView !== 'feedback'}
+              tabIndex={-1}
+            >
+              {answerView === 'feedback' && (
+                <FeedbackPanel
                   api={api}
-                  versionId={route.versionId}
-                  publication={pub}
-                  reloadKey={attemptsKey}
-                  openId={openAttempt}
-                  onOpen={setOpenAttempt}
+                  ctx={panelCtx}
+                  question={question}
+                  onReturn={() => showView('work')}
                 />
               )}
             </div>
@@ -860,12 +1005,15 @@ function Ready({
 
       {mode === 'question' && (
         <QuestionNavigation
-          index={position - 1}
-          count={count}
-          pending={navPending}
-          onPrevious={() => void go(position - 1)}
+          index={shownPos - 1}
+          count={viewCount}
+          pending={navPending || histPending}
+          finalLabel={historical ? 'Attempt summary' : 'Review assignment'}
+          onPrevious={() => void go(shownPos - 1)}
           onNext={() =>
-            void (position === count ? go('review') : go(position + 1))
+            void (shownPos === viewCount
+              ? go(historical ? 'summary' : 'review')
+              : go(shownPos + 1))
           }
         />
       )}
@@ -918,9 +1066,11 @@ function WorkRefresh({
   return null;
 }
 
+type AnswerView = 'work' | 'submitted' | 'feedback';
 const TABS = [
   { id: 'work', label: 'Working copy' },
-  { id: 'attempts', label: 'Submitted attempts' },
+  { id: 'submitted', label: 'Submitted attempt' },
+  { id: 'feedback', label: 'Released feedback' },
 ] as const;
 
 /** Accessible tab pattern: roving tabindex, arrow keys, Home and End. */
@@ -928,8 +1078,8 @@ function Tabs({
   tab,
   onChange,
 }: {
-  tab: 'work' | 'attempts';
-  onChange: (tab: 'work' | 'attempts') => void;
+  tab: AnswerView;
+  onChange: (tab: AnswerView) => void;
 }) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
   const onKey = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -966,7 +1116,16 @@ function Tabs({
           onClick={() => onChange(t.id)}
           onKeyDown={onKey}
         >
-          <Icon name={t.id === 'work' ? 'code' : 'history'} /> {t.label}
+          <Icon
+            name={
+              t.id === 'work'
+                ? 'code'
+                : t.id === 'submitted'
+                  ? 'history'
+                  : 'message'
+            }
+          />{' '}
+          {t.label}
         </button>
       ))}
     </div>

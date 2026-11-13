@@ -480,9 +480,10 @@ describe('API error mapping and routes', () => {
     });
     expect(parseStudentRoute('/student/assignments/v1/work/0', '')).toBeNull();
     expect(parseStudentRoute('/student/assignments/v1/work/21', '')).toBeNull();
-    expect(
-      parseStudentRoute('/student/assignments/v1/work/1', '?x=1'),
-    ).toBeNull();
+    // SQ-05: an unknown query key no longer rejects the route; it opens the Working copy.
+    expect(parseStudentRoute('/student/assignments/v1/work/1', '?x=1')).toEqual(
+      { kind: 'work', versionId: 'v1', position: 1 },
+    );
   });
 });
 
