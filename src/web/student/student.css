@@ -28,11 +28,57 @@
   margin: 16px 0;
 }
 .cw-student-assignments > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 32px;
+  padding: 20px 0;
+}
+.cw-student-assignments > li > div {
   display: grid;
+  justify-items: start;
   gap: 4px;
+  /* Long titles wrap by word in a readable column; they never collapse to one letter per line. */
+  flex: 1 1 auto;
+  min-width: min(16rem, 100%);
+}
+/* The shared row action never shrinks (short instructor labels); here its text includes the
+   title, so let it wrap inside a capped width instead of taking the whole row. */
+.cw-student-assignments > li > a.cw-row-action {
+  flex: 0 1 auto;
+  max-width: 16rem;
+  overflow-wrap: normal;
 }
 .cw-student-assignments h2 {
   margin: 0;
+}
+/* Rows match the instructor lists: the course entry spans the row so its action sits far right,
+   and row actions keep the shared accent (the generic student link rule above would shrink and
+   recolour them). */
+.cw-student a.cw-course-entry {
+  display: flex;
+}
+.cw-student a.cw-row-action:not(.cw-action) {
+  color: var(--cw-accent);
+}
+@media (max-width: 600px) {
+  .cw-student-assignments > li {
+    flex-wrap: wrap;
+  }
+  .cw-student-assignments > li > a.cw-row-action {
+    max-width: none;
+  }
+}
+/* AS-01/03: the status tag sits under the deadline; the Open action is at the row's right. */
+.cw-student-tag {
+  display: inline-block;
+  padding: 0 8px;
+  border: 1px solid var(--cw-ink);
+  border-radius: 4px;
+  color: var(--cw-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 .cw-student-deadline,
 .cw-student-meta,

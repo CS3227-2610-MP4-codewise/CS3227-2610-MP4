@@ -294,6 +294,9 @@ describe('route, entry and states (UI-08)', () => {
       screen.getByRole('heading', { level: 2, name: 'Question title 1' }),
     ).toBeTruthy();
     expect(screen.getByText('Instructions 1')).toBeTruthy();
+    // DR-02: only the bracketed maximum, never the range.
+    expect(screen.getByText('(1 point)')).toBeTruthy();
+    expect(document.body.textContent).not.toContain('0–1');
     expect(ta.value).toBe(STARTER);
     expect(
       document.querySelector('.cw-editor-layer .token.keyword')?.textContent,

@@ -214,11 +214,7 @@ export function AttemptFeedback({
                         {criterionName(c.questionVersionId, c.criterionId)}
                       </th>
                       <td>
-                        {c.score} of {c.maximumScore}
-                        <span className="cw-fb-bounds">
-                          {' '}
-                          (range {c.minimumScore}–{c.maximumScore})
-                        </span>
+                        Score: {c.score} / {c.maximumScore}
                       </td>
                       <td>{c.explanation}</td>
                     </tr>
