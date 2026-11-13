@@ -439,3 +439,45 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 72068520; cached input subset 70899793; output 409413; reasoning output subset 99208; total 72477933.
 - Coverage/status: partial; 9 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-question-views:archive-01 -->
+<!-- experiment-turns:archive-01:aae0a9f637ab34fd,d83a78d7ee4c0164,5ecdaca732b947fc,111a9b4cca49422e,8d355efc03a9ff46 -->
+## Checkpoint `archive-01` — 2026-11-13T03:30:28.941707+00:00
+
+### Request
+
+Archive the change; fix PR #44 review findings first
+
+### Results
+
+- Owner: Keith.
+- Changes and why: PR #44 merged (11fdc88); staging succeeded, production awaits approval. Three Codex P2 findings: two confirmed and fixed with failing-first tests, one hardened. Change archived to 2026-11-13-student-question-views with main specs synced; SF-03/05 tightened for strict validation. npm run check exit 0 (805 passed, 2 skipped). PR #45 open.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Verification](../../workflow/evidence/student-question-views/verification.md), [Handoff](../../workflow/handoffs/student-question-views.md).
+- Remaining limitations and next owner: Darryl: review PR #45 and post-merge review of #44; Keith: stop recording.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:12:37.938Z | 2026-11-13T03:15:43.754Z | final | claude-opus-5-5 | medium | 9852 | 1209 | 9852 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:21:39.732Z | 2026-11-13T03:22:49.322Z | final | claude-opus-5-5 | medium | 751 | 285 | 751 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:22:51.420Z | 2026-11-13T03:23:19.479Z | final | claude-opus-5-5 | medium | 2259 | 839 | 2259 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:24:04.526Z | open | provisional | claude-opus-5-5 | medium | 20710 | 4819 | 20710 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 84b02526 | 2026-11-13T03:08:41.064Z | provisional | final | 6931 | 551 | 6931 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 89331368; cached input subset 88101638; output 443684; reasoning output subset 106371; total 89775052.
+- Coverage/status: partial; 9 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

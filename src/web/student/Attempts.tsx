@@ -38,7 +38,10 @@ export type LoadedAttempt = { attempt: Attempt; pub: Publication };
 
 /**
  * Reads one attempt and its own pinned publication. A publication that cannot be read is a
- * failure: titles and question order must never fall back to the current version.
+ * failure: titles and question order must never fall back to the current version. The attempt
+ * must also belong to this workbook's assignment and course: the server authorizes any attempt
+ * the student owns, so an address naming an attempt for another assignment is shown as
+ * unavailable rather than rendered under this one (SQ-05).
  */
 async function loadAttempt(
   api: WorkApi,
@@ -46,11 +49,16 @@ async function loadAttempt(
   current: Publication,
 ): Promise<LoadedAttempt> {
   const attempt = await api.attempt(attemptId);
+  if (attempt.courseId !== current.courseId) throw new ApiError('unavailable');
   const pub =
     attempt.assignmentVersionId === current.assignmentVersionId
       ? current
       : await api.publication(attempt.assignmentVersionId);
-  if (pub.assignmentVersionId !== attempt.assignmentVersionId)
+  if (
+    pub.assignmentVersionId !== attempt.assignmentVersionId ||
+    pub.assignmentId !== current.assignmentId ||
+    pub.courseId !== current.courseId
+  )
     throw new ApiError('unavailable');
   return { attempt, pub };
 }
@@ -407,6 +415,8 @@ export function FeedbackPanel({
       <AttemptLoad ctx={ctx}>
         {({ attempt, pub }) => (
           <AttemptFeedback
+            // Fresh feedback state per attempt: one attempt's scores never render beside another's source.
+            key={attempt.attemptId}
             api={api}
             attempt={attempt}
             pub={pub}
@@ -468,6 +478,7 @@ export function AttemptView({
             This snapshot cannot be edited. Your working copy is unchanged.
           </p>
           <AttemptFeedback
+            key={state.data.attempt.attemptId}
             api={api}
             attempt={state.data.attempt}
             pub={state.data.pub}

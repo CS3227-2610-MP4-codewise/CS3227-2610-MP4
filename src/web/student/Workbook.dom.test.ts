@@ -1574,6 +1574,80 @@ describe('three answer views per question (student-question-views)', () => {
     }
   });
 
+  it('shows an own attempt for another assignment as unavailable, never under this one (PR #44 review)', async () => {
+    seedAttempt(
+      'attempt-b',
+      '2026-11-09T10:00:00.000Z',
+      'other assignment\n',
+      'b1',
+    );
+    overrides['GET /api/student/publications/b1'] = () => ({
+      status: 200,
+      body: {
+        ...publication('b1'),
+        assignmentId: 'beta',
+        questions: [
+          { ...publication('b1').questions[0], title: 'Beta question' },
+        ],
+      },
+    });
+    await openAt(`${base}/1?view=submitted&attempt=attempt-b`);
+    expect(
+      await screen.findByText('This is not available to you.'),
+    ).toBeTruthy();
+    expect(screen.queryByText('Beta question')).toBeNull();
+    expect(document.body.textContent).not.toContain('other assignment');
+    expect(document.body.textContent).not.toContain('Attempt ID');
+    expect(feedbackCalls()).toHaveLength(0);
+  });
+
+  it('leaves the Attempt summary when Back or Forward restores a question (PR #44 review)', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one of nine\n');
+    await openAt(`${base}/2?view=submitted&attempt=attempt-9`);
+    await waitFor(() => expect(sourceOf(2)).toContain('second of attempt-9'));
+    click('Attempt summary');
+    await screen.findByRole('article', { name: 'Submitted attempt' });
+    window.history.pushState(
+      null,
+      '',
+      `${base}/1?view=submitted&attempt=attempt-9`,
+    );
+    await act(async () => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await screen.findByRole('heading', { level: 2, name: 'Question title 1' });
+    expect(
+      screen.queryByRole('article', { name: 'Submitted attempt' }),
+    ).toBeNull();
+    expect(tabSelected('Submitted attempt')).toBe('true');
+    await waitFor(() => expect(sourceOf(1)).toContain('one of nine'));
+  });
+
+  it('never shows one attempt’s feedback beside another attempt’s source (PR #44 review)', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
+    seedAttempt('attempt-8', '2026-11-08T10:00:00.000Z', 'eight\n');
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    overrides['GET /api/student/attempts/attempt-8/feedback'] = async () => {
+      await gate;
+      return undefined;
+    };
+    await openAt(`${base}/1?view=feedback&attempt=attempt-9`);
+    await screen.findByText(/Feedback has not been released/);
+    fireEvent.change(screen.getByLabelText('Attempt'), {
+      target: { value: 'attempt-8' },
+    });
+    await waitFor(() => expect(sourceOf(1)).toContain('eight'));
+    // Attempt 8's summary is still pending: the panel is loading, with no state carried from 9.
+    expect(screen.getByText('Loading released feedback…')).toBeTruthy();
+    expect(screen.queryByText(/Feedback has not been released/)).toBeNull();
+    await act(async () => {
+      release();
+      await gate;
+    });
+    await screen.findByText(/Feedback has not been released/);
+  });
+
   it('shows only the unavailable state for a forged attempt ID in the address', async () => {
     seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
     overrides['GET /api/student/attempts/attempt-other'] = () => ({

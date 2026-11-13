@@ -4,7 +4,7 @@
 
 ### Requirement: SF-03 Feedback against the exact submitted source
 
-The Released feedback view SHALL show, for the current question, each released criterion's score in the DR-03 format (`Score: X / N`, with no minimum or range text) and its explanation, and each annotation beside that attempt's own submitted lines for that question, never the working copy, another attempt, another question or a newer publication. Annotated lines SHALL carry a non-colour marker, mirrored by a labelled observation list. Selecting either SHALL highlight the exact logical range, show and announce the note and keep focus on the trigger. Opening feedback SHALL NOT change the working copy.
+For the current question, the Released feedback view SHALL show each released criterion's score (DR-03 `Score: X / N`) and explanation, and each annotation beside that attempt's own submitted lines, never the working copy or another attempt, question or publication. Annotated lines SHALL carry a non-colour marker mirrored by a labelled observation list; selecting either SHALL highlight the exact range and announce the note without moving focus. Opening feedback SHALL NOT alter the working copy.
 
 #### Scenario: Earlier attempt opened
 
@@ -28,7 +28,7 @@ The Released feedback view SHALL show, for the current question, each released c
 
 ### Requirement: SF-05 Release history and withdrawals
 
-The Released feedback view SHALL list the selected attempt's releases newest first. The current release is shown by default. Earlier superseded releases SHALL be readable on request, labelled as replaced with their release time, and SHALL NOT be presented as current. A withdrawn release SHALL show only its tombstone (version and withdrawal time), with no scores, annotations or reason. Withdrawing the current release SHALL NOT cause any earlier release to be shown as current. The chosen release version SHALL apply to every question of that attempt until another attempt is selected.
+The Released feedback view SHALL list the selected attempt's releases newest first, current by default. Superseded releases SHALL be readable on request, labelled as replaced with their release time, never as current. A withdrawn release SHALL show only its tombstone: version and withdrawal time, no scores, annotations or reason. Withdrawing the current release SHALL NOT make an earlier one current. The chosen version SHALL apply to all questions of the attempt until another attempt is selected.
 
 #### Scenario: Correction released
 

@@ -1,6 +1,6 @@
 # Handoff: student-question-views
 
-**Status:** implementation and local owner acceptance are complete, and all 13 tasks are done. The work is committed and pushed, and the PR is open for Darryl's review. After that come the hosted staging check through the reviewed release workflow, then archiving.
+**Status:** complete. PR #44 merged as `11fdc88`. The staging deploy for that revision succeeded (run 43358135628: CI checks, secrets scan and deploy all passed); production awaits its approval gate. Codex review findings are fixed and the change is archived in a follow-up PR.
 
 - **Human owner:** Keith (student features). Reviewer: Darryl.
 - **Agent role / model / configuration:**
@@ -9,7 +9,7 @@
   - **Implementations:** it then spawned three **general-purpose** subagents (Sonnet 5.5), each implementing one proposal in its own git worktree.
   - **Choice:** Keith chose A. The Coordinator applied A, then made the fixes and the remaining tasks itself, without further agents.
   - **Records:** the proposals are kept in [`proposals/`](../evidence/student-question-views/proposals/). The worktrees for A, B and C have been removed.
-- **Requirement IDs and OpenSpec change:** SQ-01–07; SW-08 (modified); SF-02–06 (SF-03/05 modified, with SF-03 aligned to DR-03 `Score: X / N`); UI-04/05/06/07/08 (`docs/ui/design.md`, `warm-workbook-v1`); AUTH-02; SD-03; DEV-02/04. Change `openspec/changes/student-question-views` (strict-valid).
+- **Requirement IDs and OpenSpec change:** SQ-01–07; SW-08 (modified); SF-02–06 (SF-03/05 modified, with SF-03 aligned to DR-03 `Score: X / N`); UI-04/05/06/07/08 (`docs/ui/design.md`, `warm-workbook-v1`); AUTH-02; SD-03; DEV-02/04. Change archived as `openspec/changes/archive/2026-11-13-student-question-views`; main specs synced (`student-question-views` new, `student-feedback` SF-03/05, `student-submissions` SW-08).
 - **Revisions:** base `64a9159` (main). Branch `keith/student-question-views`: `8479197` (increment), then `b1c5418` (merge of `origin/main` with PR #43 icons; `Attempts.tsx` conflict resolved and icons carried to the new controls; `npm run check` exit 0 on the merged tree, 802 passed and 2 skipped).
 
 ## Owned files
@@ -72,12 +72,16 @@ No server, shared DTO, schema, migration, dependency or shared-shell change. No 
 
 ## Limitations and open items
 
-- **Unverified UI rows:** real-browser 320–1440 px widths, 200 % zoom, light/dark contrast measurement, a real screen reader, touch input, and withdrawn/replaced/earlier-version cases with real local data. These are covered by synthetic DOM tests only.
+- **UI verification:** Keith manually checked 320/768/1024/1440 px, 200 % zoom, keyboard operation and dark mode, with no issues found. Still unverified: contrast ratio measurement, a real screen reader, touch input, and withdrawn/replaced/earlier-version cases with real local data (synthetic DOM tests only).
 - **Local preview setup:** sign-in is rejected on Vite ports while `AUTH_ORIGIN` is `http://127.0.0.1:8787`. Use the build served on 8787, or point `AUTH_ORIGIN` at 5173 for local live reload.
 - **Overview cost:** one extra bounded history read per overview load.
 - **Hosted staging:** no check yet.
 
+## Post-merge fixes
+
+PR #44 merged as `11fdc88`. Codex review found three P2 issues: a cross-assignment attempt rendered under the wrong assignment; Back/Forward kept the summary on screen; and a theoretical stale feedback render. They are fixed with tests in `keith/student-question-views-fixes`. See [verification.md](../evidence/student-question-views/verification.md#post-merge-review-fixes-pr-44-codex-findings-2026-11-13).
+
 ## Next owner
 
-- **Darryl:** review the PR.
-- **After merge:** the hosted staging check through the release workflow, then archive the change. Do not archive before acceptance.
+- **Darryl:** PR #44 was merged by Keith before Darryl's review (only the automated Codex review ran). A post-merge review of #44 is still pending.
+- **Darryl:** review the follow-up PR (review fixes and archive). Production approval follows the reviewed release workflow.
