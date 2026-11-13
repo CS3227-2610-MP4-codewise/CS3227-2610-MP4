@@ -46,7 +46,9 @@ export function AIDraftPanel({
     >
       <div className="assessment-ai-toolbar">
         <div>
-          <h2 id="ai-draft-heading">AI-assisted grading</h2>
+          <h2 id="ai-draft-heading">
+            <Icon name="sparkles" /> AI-assisted grading
+          </h2>
           <p className="assessment-secondary">
             {candidate
               ? 'Draft ready · Private until you review and release it.'
@@ -61,6 +63,7 @@ export function AIDraftPanel({
               aria-controls="ai-draft-review"
               onClick={() => setExpanded(!expanded)}
             >
+              <Icon name={expanded ? 'eye-off' : 'eye'} />
               {expanded ? 'Hide suggestions' : 'Review suggestions'}
             </button>
           )}
@@ -70,7 +73,7 @@ export function AIDraftPanel({
             disabled={busy || (!pending && blocked)}
             onClick={() => (pending ? onResume() : onGenerate(references))}
           >
-            <Icon name={pending || candidate ? 'refresh' : 'edit'} />
+            <Icon name={pending || candidate ? 'refresh' : 'sparkles'} />
             {busy
               ? 'Working…'
               : pending

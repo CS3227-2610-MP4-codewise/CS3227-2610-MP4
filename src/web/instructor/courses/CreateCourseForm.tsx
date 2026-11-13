@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Course } from '../../../shared/courses';
 import { Action } from '../../ui/primitives';
+import { Icon } from '../../ui/brand';
 import { courseClient } from './client';
 import { CreationController, type CreationState } from './controller';
 import './styles.css';
@@ -66,6 +67,7 @@ export function CreateCourseForm({
       <div className="cw-create-actions">
         {['editing', 'pending', 'uncertain'].includes(state.phase) && (
           <Action type="submit" pending={state.phase === 'pending'}>
+            <Icon name={state.phase === 'uncertain' ? 'refresh' : 'plus'} />
             {state.phase === 'uncertain'
               ? 'Retry course creation'
               : state.phase === 'pending'
@@ -75,7 +77,7 @@ export function CreateCourseForm({
         )}
         {controller.canCancel && (
           <Action variant="secondary" onClick={onCancel}>
-            Cancel
+            <Icon name="close" /> Cancel
           </Action>
         )}
         {state.phase === 'denied' && <a href="/sign-in">Sign in</a>}

@@ -17,8 +17,22 @@
   margin: clamp(32px, 8vh, 88px) auto;
 }
 .auth-main--wide {
-  max-width: 52rem;
-  margin-top: 40px;
+  max-width: 56rem;
+  margin: 32px auto;
+}
+.auth-main--wide .auth-panel {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+.auth-main--wide .auth-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.auth-main--wide .auth-heading > .cw-icon {
+  margin: 0;
 }
 .auth-panel {
   min-width: 0;
@@ -137,7 +151,8 @@
   gap: 8px;
 }
 .auth-invite-form {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(9rem, 11rem) auto;
   align-items: end;
   gap: 12px;
   margin: 24px 0 32px;
@@ -148,6 +163,7 @@
 }
 .auth-invite-form > .cw-action {
   min-height: 48px;
+  white-space: nowrap;
 }
 .auth-list-heading {
   display: flex;
@@ -174,6 +190,12 @@
   gap: 16px;
   padding: 20px 0;
   border-bottom: 1px solid var(--cw-rule);
+}
+.auth-invites li > div:first-child {
+  min-width: 0;
+}
+.auth-invites .auth-actions {
+  flex-shrink: 0;
 }
 .auth-invites strong {
   font-size: 0.875rem;
@@ -208,7 +230,7 @@
   }
   .auth-invite-form {
     align-items: stretch;
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
   }
   .auth-invites li {
     align-items: start;
@@ -222,6 +244,18 @@
     width: auto;
     margin-left: auto;
     gap: 12px;
+  }
+}
+@media (min-width: 521px) and (max-width: 760px) {
+  .auth-invite-form {
+    grid-template-columns: minmax(0, 1fr) 10rem;
+  }
+  .auth-invite-form > .cw-action {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+  .auth-invites li {
+    flex-wrap: wrap;
   }
 }
 .auth-account-email {

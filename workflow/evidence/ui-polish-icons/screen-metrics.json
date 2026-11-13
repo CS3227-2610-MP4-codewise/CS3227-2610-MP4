@@ -1,0 +1,394 @@
+[
+  {
+    "path": "/workspace?role=instructor",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 5,
+    "viewport": 1440
+  },
+  {
+    "path": "/auth/invitations?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1425,
+    "icons": 13,
+    "viewport": 1440
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 9,
+    "viewport": 1440
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo&assignment=assignment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1425,
+    "icons": 16,
+    "viewport": 1440
+  },
+  {
+    "path": "/instructor/review?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 7,
+    "viewport": 1440
+  },
+  {
+    "path": "/instructor/assessments/assessment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1425,
+    "icons": 19,
+    "viewport": 1440
+  },
+  {
+    "path": "/workspace?role=instructor",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 5,
+    "viewport": 320
+  },
+  {
+    "path": "/auth/invitations?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 305,
+    "icons": 13,
+    "viewport": 320
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 305,
+    "icons": 9,
+    "viewport": 320
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo&assignment=assignment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 305,
+    "icons": 16,
+    "viewport": 320
+  },
+  {
+    "path": "/instructor/review?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 7,
+    "viewport": 320
+  },
+  {
+    "path": "/instructor/assessments/assessment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 305,
+    "icons": 19,
+    "viewport": 320
+  },
+  {
+    "path": "/workspace?role=instructor",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 5,
+    "viewport": 768
+  },
+  {
+    "path": "/auth/invitations?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 753,
+    "icons": 13,
+    "viewport": 768
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 9,
+    "viewport": 768
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo&assignment=assignment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 753,
+    "icons": 16,
+    "viewport": 768
+  },
+  {
+    "path": "/instructor/review?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 7,
+    "viewport": 768
+  },
+  {
+    "path": "/instructor/assessments/assessment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 753,
+    "icons": 19,
+    "viewport": 768
+  },
+  {
+    "path": "/workspace?role=instructor",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 5,
+    "viewport": 1024
+  },
+  {
+    "path": "/auth/invitations?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1009,
+    "icons": 13,
+    "viewport": 1024
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 9,
+    "viewport": 1024
+  },
+  {
+    "path": "/instructor/assignments?courseId=course_demo&assignment=assignment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1009,
+    "icons": 16,
+    "viewport": 1024
+  },
+  {
+    "path": "/instructor/review?courseId=course_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 7,
+    "viewport": 1024
+  },
+  {
+    "path": "/instructor/assessments/assessment_demo",
+    "allIconsDecorative": true,
+    "contentWidth": 1009,
+    "icons": 19,
+    "viewport": 1024
+  },
+  {
+    "path": "/",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 2,
+    "viewport": 1440
+  },
+  {
+    "path": "/sign-in",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 4,
+    "viewport": 1440
+  },
+  {
+    "path": "/auth/forgot",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 4,
+    "viewport": 1440
+  },
+  {
+    "path": "/student",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 4,
+    "viewport": 1440
+  },
+  {
+    "path": "/student/courses/course_demo/assignments",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 6,
+    "viewport": 1440
+  },
+  {
+    "path": "/student/assignments/assignment_v1",
+    "allIconsDecorative": true,
+    "contentWidth": 1425,
+    "icons": 7,
+    "viewport": 1440
+  },
+  {
+    "path": "/student/assignments/assignment_v1/work/1",
+    "allIconsDecorative": true,
+    "contentWidth": 1425,
+    "icons": 8,
+    "viewport": 1440
+  },
+  {
+    "path": "/preview/conflict",
+    "allIconsDecorative": true,
+    "contentWidth": 1440,
+    "icons": 2,
+    "viewport": 1440
+  },
+  {
+    "path": "/",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 2,
+    "viewport": 320
+  },
+  {
+    "path": "/sign-in",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 4,
+    "viewport": 320
+  },
+  {
+    "path": "/auth/forgot",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 4,
+    "viewport": 320
+  },
+  {
+    "path": "/student",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 4,
+    "viewport": 320
+  },
+  {
+    "path": "/student/courses/course_demo/assignments",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 6,
+    "viewport": 320
+  },
+  {
+    "path": "/student/assignments/assignment_v1",
+    "allIconsDecorative": true,
+    "contentWidth": 305,
+    "icons": 7,
+    "viewport": 320
+  },
+  {
+    "path": "/student/assignments/assignment_v1/work/1",
+    "allIconsDecorative": true,
+    "contentWidth": 305,
+    "icons": 8,
+    "viewport": 320
+  },
+  {
+    "path": "/preview/conflict",
+    "allIconsDecorative": true,
+    "contentWidth": 320,
+    "icons": 2,
+    "viewport": 320
+  },
+  {
+    "path": "/",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 2,
+    "viewport": 768
+  },
+  {
+    "path": "/sign-in",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 4,
+    "viewport": 768
+  },
+  {
+    "path": "/auth/forgot",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 4,
+    "viewport": 768
+  },
+  {
+    "path": "/student",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 4,
+    "viewport": 768
+  },
+  {
+    "path": "/student/courses/course_demo/assignments",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 6,
+    "viewport": 768
+  },
+  {
+    "path": "/student/assignments/assignment_v1",
+    "allIconsDecorative": true,
+    "contentWidth": 753,
+    "icons": 7,
+    "viewport": 768
+  },
+  {
+    "path": "/student/assignments/assignment_v1/work/1",
+    "allIconsDecorative": true,
+    "contentWidth": 753,
+    "icons": 8,
+    "viewport": 768
+  },
+  {
+    "path": "/preview/conflict",
+    "allIconsDecorative": true,
+    "contentWidth": 768,
+    "icons": 2,
+    "viewport": 768
+  },
+  {
+    "path": "/",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 2,
+    "viewport": 1024
+  },
+  {
+    "path": "/sign-in",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 4,
+    "viewport": 1024
+  },
+  {
+    "path": "/auth/forgot",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 4,
+    "viewport": 1024
+  },
+  {
+    "path": "/student",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 4,
+    "viewport": 1024
+  },
+  {
+    "path": "/student/courses/course_demo/assignments",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 6,
+    "viewport": 1024
+  },
+  {
+    "path": "/student/assignments/assignment_v1",
+    "allIconsDecorative": true,
+    "contentWidth": 1009,
+    "icons": 7,
+    "viewport": 1024
+  },
+  {
+    "path": "/student/assignments/assignment_v1/work/1",
+    "allIconsDecorative": true,
+    "contentWidth": 1009,
+    "icons": 8,
+    "viewport": 1024
+  },
+  {
+    "path": "/preview/conflict",
+    "allIconsDecorative": true,
+    "contentWidth": 1024,
+    "icons": 2,
+    "viewport": 1024
+  }
+]

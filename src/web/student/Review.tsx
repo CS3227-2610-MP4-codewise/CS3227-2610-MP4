@@ -1,3 +1,4 @@
+import { Icon } from '../ui/brand';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Publication } from '../../shared/instructor-contracts/publication';
 import type { SubmitResponse } from '../../shared/student-work';
@@ -289,7 +290,7 @@ export function Review({
   return (
     <section aria-labelledby="cw-review-h" className="cw-wb-review">
       <h2 id="cw-review-h" tabIndex={-1} ref={heading}>
-        Review assignment
+        <Icon name="list" /> Review assignment
       </h2>
       <p>Nothing is submitted until you confirm on the next step.</p>
       {disabledReason && (
@@ -333,7 +334,7 @@ export function Review({
                   setSubmit({ phase: 'idle' });
                 }}
               >
-                Reload my saved answers
+                <Icon name="refresh" /> Reload my saved answers
               </Action>
             )}
             {problem.phase === 'stale' && (
@@ -352,7 +353,9 @@ export function Review({
           role="group"
           aria-labelledby="cw-confirm-h"
         >
-          <h3 id="cw-confirm-h">Confirm submission</h3>
+          <h3 id="cw-confirm-h">
+            <Icon name="publish" /> Confirm submission
+          </h3>
           <p>This will snapshot these revisions as one new attempt:</p>
           <ul>
             {shown.current.map((row) => (
@@ -373,7 +376,7 @@ export function Review({
               disabled={!!disabledReason}
               onClick={confirm}
             >
-              Confirm and submit
+              <Icon name="publish" /> Confirm and submit
             </Action>
             <Action
               variant="secondary"
@@ -394,7 +397,7 @@ export function Review({
             aria-describedby={disabledReason ? 'cw-submit-why' : undefined}
             onClick={open}
           >
-            Submit assignment…
+            <Icon name="publish" /> Submit assignment…
           </Action>
           <Action
             variant="secondary"

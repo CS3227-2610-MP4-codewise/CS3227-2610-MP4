@@ -1,3 +1,4 @@
+import { Icon } from '../ui/brand';
 import { useEffect, useReducer, useState } from 'react';
 import type { Attempt } from '../../shared/instructor-contracts/submission';
 import type { Publication } from '../../shared/instructor-contracts/publication';
@@ -131,7 +132,9 @@ export function AttemptFeedback({
   return (
     <>
       <section className="cw-fb" aria-labelledby="cw-fb-heading">
-        <h4 id="cw-fb-heading">Released feedback</h4>
+        <h4 id="cw-fb-heading">
+          <Icon name="message" /> Released feedback
+        </h4>
         {state.kind === 'loading' && (
           <p role="status">Loading released feedback…</p>
         )}
@@ -394,6 +397,7 @@ function FeedbackFailure({
       )}
       {(kind === 'stale' || kind === 'network') && (
         <Action variant="secondary" onClick={onRetry}>
+          <Icon name="refresh" />{' '}
           {kind === 'stale' ? 'Load feedback again' : 'Try again'}
         </Action>
       )}

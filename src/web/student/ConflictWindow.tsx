@@ -1,3 +1,4 @@
+import { Icon } from '../ui/brand';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Action } from '../ui/primitives';
 import { diffLines, type DiffRow, type ServerDraft } from './work-model';
@@ -148,14 +149,14 @@ export function ConflictWindow({
       {confirm === null ? (
         <div className="cw-wb-actions" ref={choices}>
           <Action onClick={() => choose('keep')} disabled={pending}>
-            Keep my version
+            <Icon name="edit" /> Keep my version
           </Action>
           <Action
             variant="secondary"
             onClick={() => choose('use')}
             disabled={pending}
           >
-            Use saved version
+            <Icon name="undo" /> Use saved version
           </Action>
         </div>
       ) : (
@@ -175,7 +176,7 @@ export function ConflictWindow({
           </p>
           <div className="cw-wb-actions">
             <Action variant="secondary" onClick={copy}>
-              Copy other version
+              <Icon name="copy" /> Copy other version
             </Action>
             <Action
               pending={pending}

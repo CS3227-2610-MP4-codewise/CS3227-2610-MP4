@@ -221,7 +221,7 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
             href={studentPaths.courses()}
             aria-current={route?.kind === 'courses' ? 'page' : undefined}
           >
-            Courses
+            <Icon name="folder" /> Courses
           </a>
           {view && (
             <AccountMenu
@@ -464,7 +464,11 @@ function Pager({
   return (
     <nav className="cw-course-actions cw-student-pager" aria-label={label}>
       {first && <a href={first}>First page</a>}
-      {refresh && !first && <a href={refresh}>Refresh list</a>}
+      {refresh && !first && (
+        <a href={refresh}>
+          <Icon name="refresh" /> Refresh list
+        </a>
+      )}
       {next && (
         <a className="cw-action" href={next}>
           {nextLabel} <Icon name="arrow-right" />
@@ -522,7 +526,9 @@ export function Overview({ publication }: { publication: Publication }) {
                   codeLabel={'Code example in question ' + (index + 1)}
                 />
               </div>
-              <h3>Starter code (Python)</h3>
+              <h3>
+                <Icon name="code" /> Starter code (Python)
+              </h3>
               <pre
                 className="cw-student-source"
                 tabIndex={0}
@@ -530,7 +536,9 @@ export function Overview({ publication }: { publication: Publication }) {
               >
                 <code>{question.starterCode}</code>
               </pre>
-              <h3>Rubric guidance</h3>
+              <h3>
+                <Icon name="list" /> Rubric guidance
+              </h3>
               <ul className="cw-student-rubric">
                 {question.criteria.map((criterion) => (
                   <li key={criterion.criterionId}>

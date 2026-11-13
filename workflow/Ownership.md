@@ -1,5 +1,9 @@
 # Ownership and integration agreement
 
+## Instructor polish and app-wide icons — requested 2026-11-13
+
+Darryl requests instructor cleanup and icons across ALL screens. Sole writer /root on codex/ui-polish-icons, base4e65c32: shared src/web/ui/brand.tsx, primitives.tsx, course-navigation.tsx and styles.css; main.tsx, auth/App.tsx/styles.css; instructor Workspace.tsx, courses/CreateCourseForm.tsx/styles.css, assignments/AssignmentWorkspace.tsx/styles.css and assessments/ReviewWorkspace.tsx/AssessmentWorkspace.tsx/AIDraftPanel.tsx/styles.css. Student icons only in StudentWorkspace.tsx, Workbook.tsx, Attempts.tsx, Feedback.tsx, Review.tsx and ConflictWindow.tsx, preserving Keith's behavior/accessibility. Associated previews, OpenSpec/evidence/log/handoff files included. No backend, DTO/schema, migration, student business logic, account/provider or deployment edits. No Keith review claimed. One writer; no agents spawned. warm-workbook-v1, UI-01–08; preserve labels and save/approve/release boundaries.
+
 ## Secure gateway readiness window — 2026-11-12
 
 Darryl/main is sole writer for the bounded `gateway-reported-bounds-01` repair in `src/server/ai/gateway.ts`, `transport.ts` and their tests, secure-ai-gateway artifacts/evidence/handoff, this coordination record, IntegrationContracts readiness note and log 21. `/root/gateway_readiness_review` is read-only. The transport scope follows its confirmed related usage-accounting finding. No shared DTO, route, schema or migration change is made. Existing writer windows and Keith's student/submission ownership remain intact. Future index/environment wiring or migration changes need a separately agreed exclusive window with exact producer/consumer revisions; none is inferred here. Darryl autoapproves this brief and waives human acceptance only; Keith exact-source review and provider activation are not approved.

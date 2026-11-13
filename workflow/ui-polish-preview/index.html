@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Codewise · Synthetic UI review</title>
+  </head>
+  <body>
+    <aside
+      style="
+        padding: 8px 16px;
+        background: #f4e5db;
+        color: #2c3029;
+        font:
+          13px/1.5 Arial,
+          sans-serif;
+      "
+    >
+      Synthetic UI review · no real accounts, email or AI calls.
+      <label
+        >Preview theme
+        <select id="preview-theme">
+          <option value="light dark">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select></label
+      >
+    </aside>
+    <div id="root"></div>
+    <script type="module" src="/preview.mjs"></script>
+  </body>
+</html>

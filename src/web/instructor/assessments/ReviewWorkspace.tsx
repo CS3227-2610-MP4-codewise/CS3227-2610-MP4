@@ -250,6 +250,9 @@ export function ReviewWorkspace() {
     );
   return (
     <div className="assessment-app">
+      <a className="cw-skip-link" href="#grading-content">
+        Skip to grading
+      </a>
       <header className="assessment-top">
         <Brand href="/workspace" />
         <nav className="cw-app-nav" aria-label="Main navigation">
@@ -261,7 +264,9 @@ export function ReviewWorkspace() {
               beforeLeave={() => !busy}
             />
           )}
-          <a href="/workspace">Courses</a>
+          <a href="/workspace">
+            <Icon name="folder" /> Courses
+          </a>
           {view && (
             <AccountMenu email={view.email} busy={busy} onSignOut={logout} />
           )}
@@ -270,7 +275,7 @@ export function ReviewWorkspace() {
       {view && course && (
         <CourseNavigation courseId={course} active="grading" />
       )}
-      <main className="cw-grading-page">
+      <main id="grading-content" className="cw-grading-page">
         <div className="assessment-title">
           <div>
             <p className="assessment-eyebrow">Instructor</p>
@@ -305,17 +310,20 @@ export function ReviewWorkspace() {
                   Choose an assignment to review submitted work.
                 </p>
                 {items.length === 0 ? (
-                  <p>
-                    No assignments yet.{' '}
-                    <a
-                      href={
-                        '/instructor/assignments?courseId=' +
-                        encodeURIComponent(course)
-                      }
-                    >
-                      Create an assignment
-                    </a>
-                  </p>
+                  <div className="cw-empty-state">
+                    <Icon name="list" />
+                    <p>
+                      No assignments yet.{' '}
+                      <a
+                        href={
+                          '/instructor/assignments?courseId=' +
+                          encodeURIComponent(course)
+                        }
+                      >
+                        Create an assignment
+                      </a>
+                    </p>
+                  </div>
                 ) : (
                   <ul className="cw-work-list">
                     {items.map((item) => (
@@ -382,12 +390,13 @@ export function ReviewWorkspace() {
             ) : (
               <section>
                 <a
+                  className="cw-text-action"
                   href={
                     '/instructor/assignments/' +
                     encodeURIComponent(assignmentId)
                   }
                 >
-                  Edit assignment
+                  <Icon name="edit" /> Edit assignment
                 </a>
                 {versions.length === 0 ? (
                   <p>Publish the assignment before reviewing submitted work.</p>
@@ -433,11 +442,14 @@ export function ReviewWorkspace() {
                     </p>
                   )}
                   {attempts.length === 0 && (
-                    <p>
-                      {available
-                        ? 'No submitted attempts.'
-                        : 'Submission integration is not available yet.'}
-                    </p>
+                    <div className="cw-empty-state">
+                      <Icon name="list" />
+                      <p>
+                        {available
+                          ? 'No submitted attempts.'
+                          : 'Submission integration is not available yet.'}
+                      </p>
+                    </div>
                   )}
                   <ul className="cw-work-list">
                     {attempts.map((attempt) => (
@@ -446,7 +458,15 @@ export function ReviewWorkspace() {
                           <h3>{attempt.label}</h3>
                           <p>
                             Submitted{' '}
-                            {new Date(attempt.submittedAt).toLocaleString()}
+                            {new Date(attempt.submittedAt).toLocaleString(
+                              'en-SG',
+                              {
+                                timeZone: 'Asia/Singapore',
+                                dateStyle: 'medium',
+                                timeStyle: 'short',
+                              },
+                            )}{' '}
+                            SGT
                           </p>
                         </div>
                         <button
