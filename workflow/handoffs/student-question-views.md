@@ -1,6 +1,6 @@
 # Handoff: student-question-views
 
-**Status:** implementation and local owner acceptance are complete, and all 13 tasks are done. The work is committed and pushed, and the PR is open for Darryl's review. After that come the hosted staging check through the reviewed release workflow, then archiving.
+**Status:** complete. PR #44 merged as `11fdc88`. The staging deploy for that revision succeeded (run 43358135628: CI checks, secrets scan and deploy all passed); production awaits its approval gate. Codex review findings are fixed and the change is archived in a follow-up PR.
 
 - **Human owner:** Keith (student features). Reviewer: Darryl.
 - **Agent role / model / configuration:**
@@ -9,7 +9,7 @@
   - **Implementations:** it then spawned three **general-purpose** subagents (Sonnet 5.5), each implementing one proposal in its own git worktree.
   - **Choice:** Keith chose A. The Coordinator applied A, then made the fixes and the remaining tasks itself, without further agents.
   - **Records:** the proposals are kept in [`proposals/`](../evidence/student-question-views/proposals/). The worktrees for A, B and C have been removed.
-- **Requirement IDs and OpenSpec change:** SQ-01–07; SW-08 (modified); SF-02–06 (SF-03/05 modified, with SF-03 aligned to DR-03 `Score: X / N`); UI-04/05/06/07/08 (`docs/ui/design.md`, `warm-workbook-v1`); AUTH-02; SD-03; DEV-02/04. Change `openspec/changes/student-question-views` (strict-valid).
+- **Requirement IDs and OpenSpec change:** SQ-01–07; SW-08 (modified); SF-02–06 (SF-03/05 modified, with SF-03 aligned to DR-03 `Score: X / N`); UI-04/05/06/07/08 (`docs/ui/design.md`, `warm-workbook-v1`); AUTH-02; SD-03; DEV-02/04. Change archived as `openspec/changes/archive/2026-11-13-student-question-views`; main specs synced (`student-question-views` new, `student-feedback` SF-03/05, `student-submissions` SW-08).
 - **Revisions:** base `64a9159` (main). Branch `keith/student-question-views`: `8479197` (increment), then `b1c5418` (merge of `origin/main` with PR #43 icons; `Attempts.tsx` conflict resolved and icons carried to the new controls; `npm run check` exit 0 on the merged tree, 802 passed and 2 skipped).
 
 ## Owned files
@@ -83,5 +83,5 @@ PR #44 merged as `11fdc88`. Codex review found three P2 issues: a cross-assignme
 
 ## Next owner
 
-- **Darryl:** review the PR.
-- **After merge:** the hosted staging check through the release workflow, then archive the change. Do not archive before acceptance.
+- **Darryl:** PR #44 was merged by Keith before Darryl's review (only the automated Codex review ran). A post-merge review of #44 is still pending.
+- **Darryl:** review the follow-up PR (review fixes and archive). Production approval follows the reviewed release workflow.

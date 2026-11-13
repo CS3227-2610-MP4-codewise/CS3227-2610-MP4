@@ -112,7 +112,7 @@ Each submit SHALL carry a client key scoped to the user and logical assignment, 
 - **THEN** authorization fails first and no attempt data is returned.
 
 ### Requirement: SW-08 Submission history and submitted attempt view
-A student SHALL be able to list their own attempts for an assignment, newest first, and open any of them read-only. The view SHALL show the server time, attempt ID, pinned version and submitted source, and SHALL offer no editing. Opening an attempt SHALL NOT change the working copy. [SUB-04, UI-04/05]
+A student SHALL be able to choose among their own attempts for an assignment, newest first, and view any of them read-only, one question at a time in the workbook's Submitted attempt view and in full in a read-only attempt summary. Each view SHALL show the server time, attempt ID, pinned version and submitted source, and SHALL offer no editing or submission. Viewing an attempt SHALL NOT change the working copy. [SUB-04, UI-04/05, SQ-02/03/06]
 
 #### Scenario: Edit after submitting
 - **WHEN** the student edits the working copy and then opens an earlier attempt
@@ -121,6 +121,10 @@ A student SHALL be able to list their own attempts for an assignment, newest fir
 #### Scenario: No attempts yet
 - **WHEN** the student has not submitted
 - **THEN** the history shows an honest empty state without invented status.
+
+#### Scenario: Attempt summary
+- **WHEN** the student opens the attempt summary of a selected attempt
+- **THEN** every question's submitted source for that attempt is shown read only, with no submit or Review assignment action.
 
 ### Requirement: SW-09 C-SUB producer for assessment
 The system SHALL supply attempts to authorized instructors through the C-SUB contract only. It SHALL return complete attempts that pass validation by ID, and list, per publication, each student whose latest committed attempt for the assignment is on that publication, with that attempt as the attempt to assess. Drafts SHALL NOT be returned, and stored data that fails the contract SHALL be reported as unavailable. [C-SUB, SUB-03/04, AUTH-02]

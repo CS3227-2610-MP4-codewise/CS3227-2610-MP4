@@ -56,7 +56,7 @@ The system SHALL display a release as current only when it is in the `released` 
 
 ### Requirement: SF-03 Feedback against the exact submitted source
 
-The attempt view SHALL show each released criterion's score, bounds and explanation, and each annotation beside that attempt's own submitted lines, never the working copy, another attempt or a newer publication. Annotated lines SHALL carry a non-colour marker, mirrored by a labelled observation list. Selecting either SHALL highlight the exact logical range, show and announce the note and keep focus on the trigger. Opening feedback SHALL NOT change the working copy.
+For the current question, the Released feedback view SHALL show each released criterion's score (DR-03 `Score: X / N`) and explanation, and each annotation beside that attempt's own submitted lines, never the working copy or another attempt, question or publication. Annotated lines SHALL carry a non-colour marker mirrored by a labelled observation list; selecting either SHALL highlight the exact range and announce the note without moving focus. Opening feedback SHALL NOT alter the working copy.
 
 #### Scenario: Earlier attempt opened
 
@@ -72,6 +72,11 @@ The attempt view SHALL show each released criterion's score, bounds and explanat
 
 - **WHEN** a released question has criterion scores but no annotations
 - **THEN** the scores and explanations are shown and no line is marked
+
+#### Scenario: Annotation for another question
+
+- **WHEN** a release has an annotation on question 1 and the student views question 2
+- **THEN** the annotation is neither listed nor marked on question 2
 
 ### Requirement: SF-04 Unmatched annotations shown as unavailable
 
@@ -94,7 +99,7 @@ Before display, the system SHALL check each annotation against the attempt's sub
 
 ### Requirement: SF-05 Release history and withdrawals
 
-The attempt view SHALL list the attempt's releases newest first. The current release is shown by default. Earlier superseded releases SHALL be readable on request, labelled as replaced with their release time, and SHALL NOT be presented as current. A withdrawn release SHALL show only its tombstone (version and withdrawal time), with no scores, annotations or reason. Withdrawing the current release SHALL NOT cause any earlier release to be shown as current.
+The Released feedback view SHALL list the selected attempt's releases newest first, current by default. Superseded releases SHALL be readable on request, labelled as replaced with their release time, never as current. A withdrawn release SHALL show only its tombstone: version and withdrawal time, no scores, annotations or reason. Withdrawing the current release SHALL NOT make an earlier one current. The chosen version SHALL apply to all questions of the attempt until another attempt is selected.
 
 #### Scenario: Correction released
 
@@ -110,6 +115,11 @@ The attempt view SHALL list the attempt's releases newest first. The current rel
 
 - **WHEN** v1 is withdrawn while v2 remains current
 - **THEN** v2 is shown as current and v1 shows only its tombstone
+
+#### Scenario: Replaced version kept across questions
+
+- **WHEN** a student chooses replaced v1 on question 1 and then chooses Next
+- **THEN** question 2 shows v1, still labelled as replaced
 
 ### Requirement: SF-06 Truthful feedback states
 
