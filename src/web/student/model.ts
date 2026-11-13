@@ -8,6 +8,10 @@ import {
   studentCursor,
   type StudentAssignmentPage,
 } from '../../shared/student-assignments';
+import {
+  assignmentStatusPageSchema,
+  type AssignmentStatus,
+} from '../../shared/student-work';
 
 /** SD-04/05: browser state is presentation only; every value here is re-authorized per request. */
 export type StudentRoute =
@@ -92,27 +96,33 @@ export const studentPaths = {
     position,
 };
 
-/** UTC is the explicit display timezone; no course timezone is invented. */
+// DR-01: built from parts, so ICU punctuation, spacing and AM/PM casing never change the text.
+const singaporeTime = new Intl.DateTimeFormat('en-SG', {
+  timeZone: 'Asia/Singapore',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: true,
+});
+
+/**
+ * DR-01: every student time is the server instant in Singapore time, `DD/MM/YYYY, h:mm:ss am/pm`,
+ * with no zone label, whatever the viewer's locale or time zone. `datetime` attributes keep ISO.
+ */
 export function formatDeadline(isoValue: string): string {
-  const d = new Date(isoValue);
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  const pad = (n: number) => String(n).padStart(2, '0');
-  // Locale-independent so every browser shows the same deadline text.
-  return `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}, ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
+  const part: Partial<Record<Intl.DateTimeFormatPartTypes, string>> = {};
+  for (const { type, value } of singaporeTime.formatToParts(new Date(isoValue)))
+    part[type] = value;
+  const hour = String(Number(part.hour) || 12);
+  return `${part.day}/${part.month}/${part.year}, ${hour}:${part.minute}:${part.second} ${(part.dayPeriod ?? '').toLowerCase()}`;
+}
+
+/** DR-02: rubric guidance shows only the attainable maximum, in brackets. */
+export function formatPoints(maximum: number): string {
+  return `(${String(maximum)} ${maximum === 1 ? 'point' : 'points'})`;
 }
 
 export type Failure = 'session' | 'unavailable' | 'invalid' | 'network';
@@ -185,6 +195,32 @@ export function studentApi(fetcher: Fetcher = (...a) => fetch(...a)) {
         nextCursor: student.nextCursor,
         roles: contexts.workspaces.map((item) => item.role),
       };
+    },
+    /**
+     * AS-01/03: one status per listed assignment, keyed by assignment ID. Only IDs that were asked
+     * for are kept; an empty page sends no request.
+     */
+    async status(
+      courseId: string,
+      assignmentIds: readonly string[],
+      signal: AbortSignal,
+    ): Promise<ReadonlyMap<string, AssignmentStatus>> {
+      if (!assignmentIds.length) return new Map();
+      const body = await getJson(
+        fetcher,
+        '/api/student/courses/' +
+          encodeURIComponent(courseId) +
+          '/assignment-status?' +
+          assignmentIds.map((id) => 'id=' + encodeURIComponent(id)).join('&'),
+        signal,
+      );
+      const page = parsed(() => assignmentStatusPageSchema.parse(body));
+      const asked = new Set(assignmentIds);
+      return new Map(
+        page.items
+          .filter((item) => asked.has(item.assignmentId))
+          .map((item) => [item.assignmentId, item.status]),
+      );
     },
     async assignments(
       courseId: string,

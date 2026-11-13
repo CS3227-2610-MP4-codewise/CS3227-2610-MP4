@@ -11,9 +11,13 @@ import {
 } from '../../shared/instructor-contracts/schema';
 import type { Attempt } from '../../shared/instructor-contracts/submission';
 import {
+  DUE_SOON_MS,
   STUDENT_ATTEMPT_PAGE,
   answersFingerprint,
+  assignmentStatusPageSchema,
   attemptHistorySchema,
+  type AssignmentStatus,
+  type AssignmentStatusPage,
   draftSaveResponseSchema,
   workResponseSchema,
   type AttemptHistory,
@@ -597,6 +601,73 @@ export class StudentWork {
         })),
         nextCursor:
           rows.length > STUDENT_ATTEMPT_PAGE ? String(page.at(-1)!.seq) : null,
+      }),
+    );
+  }
+
+  /**
+   * AS-01/02: one status per requested assignment of a course where the caller is a current
+   * Student. Only the caller's own attempts are read; IDs outside the course get no entry, so
+   * nothing is enumerable. Release currentness comes from the injected batch (SF-07's hint, where a
+   * failing producer yields no Feedback released), and Due soon uses the server clock.
+   */
+  async assignmentStatus(
+    principal: TrustedPrincipal,
+    courseId: string,
+    assignmentIds: readonly string[],
+    released: (attemptIds: string[]) => Promise<ReadonlySet<string>>,
+  ): Promise<AssignmentStatusPage> {
+    const now = this.clock();
+    const bind = [
+      ...studentGuardBindings(principal, now),
+      courseId,
+      JSON.stringify(assignmentIds),
+    ];
+    const [course, list] = await this.db.batch<Record<string, unknown>>([
+      this.db
+        .prepare(
+          `SELECT c.id FROM courses c WHERE c.id=?5 AND c.active=1 AND ${currentStudentGuard('c.id')}`,
+        )
+        .bind(...bind.slice(0, 5)),
+      this.db
+        .prepare(
+          `SELECT r.key AS position, r.value AS assignment_id,
+             (SELECT p.deadline_at FROM ${PUBLICATIONS} p WHERE p.assignment_id=r.value AND p.course_id=?5
+               ORDER BY p.publication_number DESC LIMIT 1) AS deadline_at,
+             (SELECT a.id FROM student_attempts a WHERE a.user_id=?4 AND a.assignment_id=r.value AND a.course_id=?5
+               ORDER BY a.submitted_at DESC, a.seq DESC LIMIT 1) AS attempt_id
+           FROM json_each(?6) r
+           WHERE ${currentStudentGuard('?5')}
+             AND EXISTS (SELECT 1 FROM ${PUBLICATIONS} q WHERE q.assignment_id=r.value AND q.course_id=?5)
+           ORDER BY r.key`,
+        )
+        .bind(...bind),
+    ]);
+    if (!course.results.length) throw new BoundaryError('NOT_FOUND');
+    const rows = list.results as {
+      assignment_id: string;
+      deadline_at: string;
+      attempt_id: string | null;
+    }[];
+    const attempts = rows.flatMap((r) => (r.attempt_id ? [r.attempt_id] : []));
+    const current = attempts.length
+      ? await released(attempts)
+      : new Set<string>();
+    const statusOf = (r: (typeof rows)[number]): AssignmentStatus => {
+      if (r.attempt_id && current.has(r.attempt_id)) return 'feedback-released';
+      if (r.attempt_id) return 'submitted';
+      const deadline = Date.parse(r.deadline_at);
+      return deadline > now && deadline <= now + DUE_SOON_MS
+        ? 'due-soon'
+        : 'none';
+    };
+    return stored(() =>
+      assignmentStatusPageSchema.parse({
+        schemaVersion: 1,
+        items: rows.map((r) => ({
+          assignmentId: r.assignment_id,
+          status: statusOf(r),
+        })),
       }),
     );
   }

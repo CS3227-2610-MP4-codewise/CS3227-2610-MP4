@@ -459,10 +459,6 @@
   padding: 8px;
   border-bottom: 1px solid var(--cw-rule);
 }
-.cw-fb-bounds {
-  color: var(--cw-secondary);
-  font-size: 0.8125rem;
-}
 .cw-fb-source {
   font-family: var(--cw-font-code);
   font-size: 15px;

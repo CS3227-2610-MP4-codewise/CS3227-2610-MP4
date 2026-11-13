@@ -20,7 +20,12 @@ import { AttemptsPanel } from './Attempts';
 import { CodeEditor, type CodeEditorHandle } from './CodeEditor';
 import { ConflictWindow } from './ConflictWindow';
 import { Review } from './Review';
-import { formatDeadline, studentPaths, type StudentRoute } from './model';
+import {
+  formatDeadline,
+  formatPoints,
+  studentPaths,
+  type StudentRoute,
+} from './model';
 import {
   ApiError,
   BackupStore,
@@ -709,7 +714,7 @@ function Ready({
                   <li key={c.criterionId}>
                     {c.descriptor}{' '}
                     <span className="cw-student-points">
-                      {c.minimumScore}–{c.maximumScore} points
+                      {formatPoints(c.maximumScore)}
                     </span>
                   </li>
                 ))}

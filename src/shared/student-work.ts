@@ -11,9 +11,13 @@ import {
   unique,
   canonicalizeSource,
   source,
+  oneOf,
   type Infer,
 } from './instructor-contracts/schema';
-import { routeIdentifier } from './student-assignments';
+import {
+  routeIdentifier,
+  STUDENT_ASSIGNMENT_PAGE,
+} from './student-assignments';
 import { feedbackReleasedFlag } from './student-feedback';
 
 /**
@@ -304,4 +308,57 @@ export async function answersFingerprint(
   return Array.from(new Uint8Array(digest), (x) =>
     x.toString(16).padStart(2, '0'),
   ).join('');
+}
+
+/**
+ * AS-01/02: one learner-status value per assignment of a course list page. The server derives it
+ * from the caller's own attempts, current releases and its own clock; it never carries attempt IDs,
+ * times, scores or release content.
+ */
+export const ASSIGNMENT_STATUSES = [
+  'feedback-released',
+  'submitted',
+  'due-soon',
+  'none',
+] as const;
+export type AssignmentStatus = (typeof ASSIGNMENT_STATUSES)[number];
+/** AS-01: Due soon covers deadlines after now and at most this far ahead. */
+export const DUE_SOON_MS = 24 * 60 * 60 * 1000;
+
+export const assignmentStatusPageSchema = schema((v) => {
+  const o = object(v, ['schemaVersion', 'items']);
+  const items = array(
+    o.items,
+    (x, p) => {
+      const i = object(x, ['assignmentId', 'status'], p);
+      return {
+        assignmentId: id(i.assignmentId, p + '.assignmentId'),
+        status: oneOf(i.status, ASSIGNMENT_STATUSES, p + '.status'),
+      };
+    },
+    '$.items',
+    0,
+    STUDENT_ASSIGNMENT_PAGE,
+  );
+  unique(
+    items.map((i) => i.assignmentId),
+    '$.items',
+  );
+  return { schemaVersion: version(o.schemaVersion, '$.schemaVersion'), items };
+});
+export type AssignmentStatusPage = Infer<typeof assignmentStatusPageSchema>;
+
+/**
+ * AS-02: the repeated `id` query values of a status request: one list page at most, unique, each a
+ * valid assignment ID. Any other key is rejected by the caller.
+ */
+export function assignmentStatusIds(values: readonly string[]): string[] {
+  assert(
+    values.length >= 1 && values.length <= STUDENT_ASSIGNMENT_PAGE,
+    '$.id',
+    'length',
+  );
+  const ids = values.map((value, index) => id(value, `$.id[${index}]`));
+  unique(ids, '$.id');
+  return ids;
 }
