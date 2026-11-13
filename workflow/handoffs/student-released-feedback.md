@@ -84,7 +84,7 @@
 | History page, any size |                        2 |                        ~10 |
 | Released open          | 14 (25 before the merge) | ~22 (~33 before the merge) |
 
-Before the fixes, both were over 50. Edge CPU time is not measured yet (task 6.3). Session token usage is in [the increment log](../../logs/keith/student-released-feedback.md) checkpoints. Counters marked unavailable there are not inferred.
+Before the fixes, both were over 50. Edge CPU (task 6.3): staging dashboard, whole Worker, P50 5.02 ms, P90 10.74 ms, P99 40.68 ms against the Free 10 ms limit; occasional overruns accepted by Keith ([staging-cpu.md](../evidence/student-released-feedback/staging-cpu.md)). Session token usage is in [the increment log](../../logs/keith/student-released-feedback.md) checkpoints. Counters marked unavailable there are not inferred.
 
 ## Blockers and next actions
 
@@ -92,9 +92,9 @@ Before the fixes, both were over 50. Edge CPU time is not measured yet (task 6.3
 
 1. **5.3: done** (`81a27f2`). Keith fixed `releaseContractSuite` under Darryl's one-file grant; the suite passes on real producer values (7/7) and on its fixtures. **Darryl reviews the suite change.**
 2. **Merge, Keith and Darryl:** mark PR #32 ready, then get final merge review.
-3. **6.3, Keith, after merge:** on staging, through the reviewed release workflow, measure per-request CPU time and D1 query counts against the Free plan limits before production.
+3. **6.3: done (2026-11-13)**, on aggregate dashboard CPU by Keith's decision; occasional overruns accepted. Production had already shipped via run `43334000493` (`af10461`) before this was recorded. See [staging-cpu.md](../evidence/student-released-feedback/staging-cpu.md).
 4. **Follow-up change, Keith:** per-question Submitted and Released feedback views (UI-04).
-5. **Archive:** only after 6.3 is done.
+5. **Archive:** 6.3 is done; the change can be archived.
 
 **Next owner:** Keith, with Darryl for 5.3 and the merge review.
 
@@ -114,4 +114,4 @@ The agent privacy and security review (6.1) is recorded separately in [final-che
 - UI: accepted by Keith after his manual pass;
 - this handoff as a whole: awaiting Darryl's merge review.
 
-No deployment was requested or performed.
+No deployment was performed from this session. The change reached production through the reviewed workflow (run `43334000493`).
