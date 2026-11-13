@@ -185,3 +185,133 @@ footer {
     padding-block: 2rem;
   }
 }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 0.75rem;
+}
+.actions .action {
+  margin-block: 0;
+}
+.action.secondary {
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--ink);
+}
+nav a[aria-current='page'] {
+  color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+
+/* Guide pages rendered from docs/*.md by workflow/scripts/build-product-site.mjs */
+.guide-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  padding-block: 2rem 3rem;
+}
+@media (min-width: 60rem) {
+  .guide-layout {
+    grid-template-columns: 14rem minmax(0, 1fr);
+  }
+  .toc {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+}
+.toc ol {
+  margin: 0;
+  padding-left: 1.75rem;
+  font-size: 0.92rem;
+}
+.toc li + li {
+  margin-top: 0.4rem;
+}
+.toc .eyebrow {
+  margin-top: 0;
+}
+.guide {
+  min-width: 0;
+}
+.guide h1 {
+  max-width: none;
+  margin-top: 0;
+}
+.guide h2 {
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  border-top: 1px solid var(--rule);
+}
+.guide h3 {
+  margin-top: 1.75rem;
+}
+.guide li + li {
+  margin-top: 0.3rem;
+}
+.guide li,
+.guide blockquote {
+  max-width: 65ch;
+}
+.guide blockquote {
+  margin-inline: 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--accent);
+  background: var(--canvas);
+}
+.guide code {
+  font:
+    0.9em ui-monospace,
+    'Cascadia Code',
+    Consolas,
+    monospace;
+  background: var(--canvas);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+}
+.guide pre {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--canvas);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+.guide pre code {
+  padding: 0;
+  overflow-wrap: normal;
+}
+.guide pre.mermaid {
+  text-align: center;
+  background: var(--page);
+}
+.table-scroll {
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+.table-scroll:focus-visible {
+  outline: 3px solid var(--accent);
+}
+.guide table {
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  min-width: 100%;
+}
+.guide th,
+.guide td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+.guide th {
+  border-bottom-width: 2px;
+}
+.source-note {
+  margin-top: 3rem;
+  color: var(--secondary);
+  font-size: 0.9rem;
+}

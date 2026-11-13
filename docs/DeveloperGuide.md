@@ -36,7 +36,7 @@ flowchart LR
 | `src/server/ai/`                                | Server-only transport, admission/accounting, context resolution and validation          |
 | `src/shared/`                                   | DTOs and closed runtime schemas; parsing is not authorization                           |
 | `src/server/db/migrations/`                     | Ordered shared SQL migrations; one active schema writer                                 |
-| `src/product-site/`                             | GitHub Pages website, separate from application hosting                                 |
+| `src/product-site/`                             | GitHub Pages website source; guides are rendered in at build time                       |
 
 Read [Ownership](../workflow/Ownership.md) and [IntegrationContracts](../workflow/IntegrationContracts.md) before shared-service edits. Both members review composed boundaries; policy agreement does not replace exact-revision consumer acceptance. These diagrams describe source composition, not completion of all historical OpenSpec gates.
 
@@ -136,7 +136,7 @@ sequenceDiagram
   participant DB as D1
   Student->>UI: Edit answer
   UI->>API: Save source with baseRevision
-  API->>DB: Check identity, membership and revision; persist
+  API->>DB: Check identity, membership and revision, then persist
   alt Revision conflict
     DB-->>API: Current saved revision
     API-->>UI: Conflict and saved copy
@@ -189,16 +189,16 @@ sequenceDiagram
   W->>W: Authorize and pin publication / attempt / prompt
   W->>G: Resolve selected immutable evidence
   alt Disabled, blank source or admission refused
-    G-->>W: Unavailable / refused; manual grading remains
+    G-->>W: Unavailable or refused (manual grading remains)
   else Admitted
     G->>D: Reserve bounded request and resources
     G->>P: Server-only bounded request
     P-->>G: Untrusted output and usage
-    G->>G: Parse closed schema; validate scores and source evidence
+    G->>G: Parse closed schema, validate scores and source evidence
     G->>D: Record outcome and settle or retain accounting
     G-->>W: Valid private candidate or failure
     W->>W: Recheck authority and evidence on read / adoption
-    W-->>Instructor: Review suggestion; explicit adoption
+    W-->>Instructor: Review suggestion, then explicit adoption
   end
 ```
 
@@ -275,7 +275,7 @@ Darryl logs every prompt with its own Agents spawned and Token count sections. K
 
 `.github/workflows/deploy-staging.yml` runs main-push CI and staging deployment/smoke, then protected production approval with the same run's artifact/trust checks. Follow [Deployment](Deployment.md); no ad hoc production migrations or development-data publication. Record commit, Actions run, smoke and authenticated acceptance before claiming feature-release readiness. Historical foundation deployment is not the current release manifest.
 
-`.github/workflows/product-site.yml` uploads `src/product-site/` and deploys it through `github-pages` on main. Settings → Pages must use **GitHub Actions**. Documentation links target repository-rendered Markdown because the Pages artifact does not contain the checkout. The [User Guide](UserGuide.md) links the website. Site changes become public after the reviewed workflow succeeds; this audit prepares files without claiming a fresh remote publication.
+`.github/workflows/product-site.yml` runs `npm run site:build` (`workflow/scripts/build-product-site.mjs`), which copies `src/product-site/` and renders this guide and the [User Guide](UserGuide.md) into `site-dist/user-guide.html` and `site-dist/developer-guide.html` (GitHub-style heading anchors, browser-rendered Mermaid, guide-to-guide links kept on the site, other repository links sent to GitHub). It uploads `site-dist/` and deploys it through `github-pages` on main. Settings → Pages must use **GitHub Actions**. The site's primary app link is the production sign-in. Site changes become public after the reviewed workflow succeeds; this audit prepares files without claiming a fresh remote publication.
 
 ## Acknowledgements
 
