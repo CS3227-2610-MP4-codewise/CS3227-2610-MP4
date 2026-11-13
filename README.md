@@ -1,50 +1,39 @@
 # Codewise
 
-Programming learning and assessment platform for CS3227 MP4.
+A programming workbook for CS3227 MP4, built by Darryl and Keith.
 
-**Current status (2026-11-05):** foundation deployed to staging and production at `281cc13`. The app shell and health endpoint work. Authentication, assignments, editor/submissions and AI features are not implemented. See [readiness evidence](workflow/evidence/project-readiness/verification.md) for the exact release and limits.
+**Submission documentation — 13 November 2026:** implemented source includes invitation-based authentication, courses, publication, student drafts/attempts and instructor-reviewed feedback. Hosted revision/configuration and peer-test access must be verified separately. Optional AI suggestions remain subject to evaluation findings and activation gates.
 
-Staging preview: https://codewise-staging.codewise-cs3227-2610.workers.dev. See docs/Deployment.md for verified deployment evidence and release instructions.
+- [User Guide](docs/UserGuide.md): current features, test access and 12 manual screenshot placeholders.
+- [Developer Guide](docs/DeveloperGuide.md): architecture, UML, setup, workflow catalogue and acknowledgements.
+- [Reflections](docs/Reflections.md): member contributions and evidence-based experiment analysis.
+- [Interaction summaries](logs/INDEX.md) and [workflow file inventory](workflow/FILE-INDEX.md).
+- [Submission verification and remaining actions](workflow/evidence/final-submission/verification.md).
+- [Product website](https://cs3227-2610-mp4-codewise.github.io/CS3227-2610-MP4/) · [staging sign-in](https://codewise-staging.codewise-cs3227-2610.workers.dev/sign-in).
 
-## Team
+## Local setup
 
-| Owner  | Feature set                                                                                            |
-| ------ | ------------------------------------------------------------------------------------------------------ |
-| Darryl | Instructor assignments/rubrics, assessment suggestions, annotation review and feedback release         |
-| Keith  | Student editor/drafts, submissions, released feedback and progress explanations                        |
-| Both   | Shared review; named implementation writers and dependency gates in [Ownership](workflow/Ownership.md) |
-
-## Start locally
-
-Use Node.js 22.12+ (CI uses Node 22). In Windows PowerShell, use npm.cmd if script execution is disabled.
+Use Node.js 22.12+ (CI uses Node 22). In PowerShell use `.cmd` wrappers if script execution policy requires them.
 
 ```powershell
 npm.cmd ci
 npm.cmd run build
 npm.cmd run db:local
-npm.cmd run dev
+npm.cmd run dev:api
 ```
 
-Open http://127.0.0.1:5173. The frontend proxies /api to the local Worker at port 8787. Initial frontend build provides Wrangler's assets directory. Vite updates the frontend during development. No Cloudflare login or SoCLaaS key is needed for local foundation checks.
+Open http://127.0.0.1:8787. Configure the approved Firebase and exact AUTH_ORIGIN in ignored `.dev.vars` before authenticated use; see [Developer Guide](docs/DeveloperGuide.md#local-setup). No model key is required for synthetic tests or manual grading. There are no default credentials or public registration. For frontend iteration `npm.cmd run dev` also starts Vite at 5173; authenticated tests should use the configured single origin.
 
 ```powershell
 npm.cmd run check
+npm.cmd run format:check
+node workflow/scripts/submission-audit.mjs
 ```
 
-## Working independently
+## Development and release
 
-Read docs/DeveloperGuide.md and workflow/Ownership.md. Develop on feature branches and review through PRs. Shared contracts and migrations need both owners' review. Keep openspec/changes/codewise-mvp/ as the in-flight system plan; it is not a finished product baseline.
+Darryl owns instructor features and shared authentication/course authority; Keith owns student features and submissions. Review [ownership](workflow/Ownership.md), [integration contracts](workflow/IntegrationContracts.md), `AGENTS.md`, and relevant OpenSpec artifacts before changes. Keep one authoritative store and one writer for shared schema/API edits.
 
-## Deployment and documents
+Product code is in `src/`; workflow tooling/evidence in `workflow/`; conventional OpenSpec artifacts in `openspec/`; guides in `docs/`; redacted summaries in `logs/`. Do not commit credentials, real learner code or raw private prompts.
 
-- docs/Deployment.md: account setup and staging-to-production release.
-- docs/DeveloperGuide.md: architecture, API boundary and contribution workflow.
-- docs/UserGuide.md: currently available behaviour only.
-- docs/PlanningDecisions.md: assumptions and provider-access evidence.
-- docs/Reflections.md: experiment template, not invented results.
-- logs/darryl/ and logs/keith/: member summaries; see logs/README.md.
-- workflow/: agent instructions, shared contracts, handoffs, evidence, templates and deployment scripts.
-
-The required product website is published separately on GitHub Pages. It is not the application hosting environment.
-
-Release flow: merge a reviewed PR to main -> Actions deploys staging -> test the stable staging link -> in that same run choose Review deployments / production / Approve and deploy -> test the stable production link. Production waits for approval; no staging run ID needs to be copied. See docs/Deployment.md for cancellation, stale-source and database recovery details.
+[Deployment runbook](docs/Deployment.md): reviewed main changes run CI and staging, then production waits for protected approval in the same release run. GitHub Pages publishes `src/product-site/` separately through `.github/workflows/product-site.yml`. Source preparation is not proof that the revised website/application has been deployed. Record successful workflows and exact deployed revisions before final submission.

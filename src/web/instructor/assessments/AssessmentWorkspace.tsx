@@ -358,7 +358,9 @@ export function AssessmentWorkspace({
               courseId={v?.head.courseId}
               beforeLeave={() => !s.busy}
             />
-            <a href="/workspace">Courses</a>
+            <a href="/workspace">
+              <Icon name="folder" /> Courses
+            </a>
             {account && (
               <AccountMenu
                 email={account.email}
@@ -474,7 +476,9 @@ export function AssessmentWorkspace({
                 aria-label="Submitted source and observations"
               >
                 <div className="assessment-source-heading">
-                  <h2>Submitted source</h2>
+                  <h2>
+                    <Icon name="code" /> Submitted source
+                  </h2>
                   <span>Read only</span>
                 </div>
                 {!historical && (
@@ -559,7 +563,7 @@ export function AssessmentWorkspace({
                       }
                       onClick={commentOnSelection}
                     >
-                      Comment on selection
+                      <Icon name="message" /> Comment on selection
                     </button>
                     <span
                       className="assessment-secondary"
@@ -734,7 +738,9 @@ export function AssessmentWorkspace({
                   <summary>Question instructions</summary>
                   <p className="assessment-instructions">{q.instructions}</p>
                 </details>
-                <h3>Feedback &amp; scores</h3>
+                <h3>
+                  <Icon name="message" /> Feedback &amp; scores
+                </h3>
                 {q.criteria.map((c) => {
                   const index = feedback.criteria.findIndex(
                       (f) =>
@@ -1002,7 +1008,9 @@ export function AssessmentWorkspace({
             )}
             <details className="assessment-history">
               <summary>History & corrections</summary>
-              <h3>Releases</h3>
+              <h3>
+                <Icon name="publish" /> Releases
+              </h3>
               {v.releases.length === 0 ? (
                 <p>No released feedback.</p>
               ) : (
@@ -1090,7 +1098,9 @@ export function AssessmentWorkspace({
                   </div>
                 </section>
               )}
-              <h3>Saved revisions</h3>
+              <h3>
+                <Icon name="history" /> Saved revisions
+              </h3>
               <ul>
                 {v.history.map((r) => (
                   <li key={r.id}>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Icon } from '../ui/brand';
 import type { Attempt } from '../../shared/instructor-contracts/submission';
 import type { Publication } from '../../shared/instructor-contracts/publication';
 import type { AttemptHistory } from '../../shared/student-work';
@@ -228,7 +229,7 @@ function Failure({
       <p>{failureText[kind]}</p>
       {kind === 'network' && (
         <Action variant="secondary" onClick={onRetry}>
-          Try again
+          <Icon name="refresh" /> Try again
         </Action>
       )}
       {kind === 'session' && <a href="/sign-in">Sign in</a>}
@@ -284,7 +285,7 @@ export function AttemptPicker({
       </label>
       {more.cursor && (
         <Action variant="secondary" pending={more.pending} onClick={more.load}>
-          Show older attempts
+          <Icon name="history" /> Show older attempts
         </Action>
       )}
       {more.error && (

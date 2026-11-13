@@ -1,5 +1,9 @@
 # Warm workbook UI proposal
 
+## Cross-screen polish continuation — 2026-11-13
+
+User requests another instructor UX review and purposeful SVGs on all screens. Extend existing currentColor icons with visible labels and decorative aria-hidden graphics. Refine instructor course/list/People/authoring/grading hierarchy, alignment, responsive wrapping and empty/action states. Student changes are presentation-only icons; no business/data/security changes or dependencies. UI-01–UI-08, warm-workbook-v1; synthetic browser checks remain distinct from human/live acceptance.
+
 ## Why
 
 Codewise needs a consistent interface grounded in learning and reviewing source, rather than generic dashboard styling. Darryl selected Workbook's layout with Margin's palette and requested a real role switch, sign-in page and Previous/Next navigation, which the samples did not fully specify.

@@ -207,7 +207,7 @@ export function InstructorWorkspace() {
             />
           )}
           <a href="/workspace" aria-current="page">
-            Courses
+            <Icon name="folder" /> Courses
           </a>
           {view && (
             <AccountMenu
@@ -221,10 +221,26 @@ export function InstructorWorkspace() {
           )}
         </nav>
       </header>
-      <main id="main-content" className="cw-home">
-        <h1 tabIndex={-1} ref={heading}>
-          {role === 'student' ? 'Student workspace' : 'Your courses'}
-        </h1>
+      <main id="main-content" className="cw-home cw-course-home">
+        <div className="cw-course-heading">
+          <div>
+            <p className="cw-kicker">
+              {role === 'student' ? 'Student' : 'Instructor'} workspace
+            </p>
+            <h1 tabIndex={-1} ref={heading}>
+              {role === 'student' ? 'Student workspace' : 'Your courses'}
+            </h1>
+          </div>
+          {ready && view && canCreate && !assignment && !creating && (
+            <button
+              ref={createButton}
+              className="cw-action cw-action--primary"
+              onClick={() => setCreating(true)}
+            >
+              <Icon name="plus" /> Create course
+            </button>
+          )}
+        </div>
         {status && <p role="status">{status}</p>}
         {role === 'student' && (
           <a className="cw-action" href="/workspace?role=student">
@@ -232,31 +248,28 @@ export function InstructorWorkspace() {
           </a>
         )}
         {creationStatus && <p role="status">{creationStatus}</p>}
-        {ready &&
-          view &&
-          canCreate &&
-          !assignment &&
-          (creating ? (
-            <CreateCourseForm
-              csrf={view.csrfToken}
-              onPhaseChange={setCreationPhase}
-              onCreated={openCreated}
-              onCancel={() => {
-                setCreating(false);
-                requestAnimationFrame(() => createButton.current?.focus());
-              }}
-            />
-          ) : (
-            <button
-              ref={createButton}
-              className="cw-action cw-action--primary"
-              onClick={() => setCreating(true)}
-            >
-              Create course
-            </button>
-          ))}
+        {ready && view && canCreate && !assignment && creating && (
+          <CreateCourseForm
+            csrf={view.csrfToken}
+            onPhaseChange={setCreationPhase}
+            onCreated={openCreated}
+            onCancel={() => {
+              setCreating(false);
+              requestAnimationFrame(() => createButton.current?.focus());
+            }}
+          />
+        )}
         {ready && view && role === 'instructor' && !courses.length && (
-          <p>You do not have a course workspace yet.</p>
+          <div className="cw-empty-state">
+            <Icon name="folder" />
+            <h2>No courses yet</h2>
+            <p>You do not have a course workspace yet.</p>
+            {canCreate && (
+              <p>
+                Create a course to organize assignments and invite your class.
+              </p>
+            )}
+          </div>
         )}
         {ready &&
           view &&

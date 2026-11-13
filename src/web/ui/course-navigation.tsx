@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Icon } from './brand';
 export type CourseSection = 'assignments' | 'grading' | 'students';
 const sections = [
   { key: 'assignments', label: 'Assignments', path: '/instructor/assignments' },
@@ -61,6 +62,15 @@ export function CourseNavigation({
             href={section.path + '?courseId=' + encodeURIComponent(courseId)}
             aria-current={active === section.key ? 'page' : undefined}
           >
+            <Icon
+              name={
+                section.key === 'assignments'
+                  ? 'list'
+                  : section.key === 'grading'
+                    ? 'check-circle'
+                    : 'users'
+              }
+            />
             {section.label}
           </a>
         ))}

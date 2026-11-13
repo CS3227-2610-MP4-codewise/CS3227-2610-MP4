@@ -1169,7 +1169,7 @@ describe('three answer views per question (student-question-views)', () => {
     seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one\n');
     await open();
     const tabs = screen.getAllByRole('tab');
-    expect(tabs.map((t) => t.textContent)).toEqual([
+    expect(tabs.map((t) => t.textContent?.trim())).toEqual([
       'Working copy',
       'Submitted attempt',
       'Released feedback',

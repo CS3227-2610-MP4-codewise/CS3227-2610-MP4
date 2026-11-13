@@ -3,36 +3,149 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Codewise · CS3227 MP4</title>
+    <meta
+      name="description"
+      content="Codewise: a programming workbook for Python assignments, immutable submissions and instructor-reviewed feedback. CS3227 MP4."
+    />
+    <title>Codewise · Your programming workbook</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main>
-      <h1>Codewise</h1>
-      <p>
-        A programming learning and assessment platform for students and
-        instructors.
-      </p>
-      <p>
-        <strong>Status:</strong> foundation under development. Role features and
-        AI integration are not released yet.
-      </p>
-      <h2>Planned workspaces</h2>
-      <ul>
-        <li>
-          Students: write and submit solutions, view reviewed feedback, and
-          understand progress.
-        </li>
-        <li>
-          Instructors: create rubrics, review AI assessment suggestions, and
-          release feedback.
-        </li>
-      </ul>
-      <p>Built by Darryl and Keith for CS3227 MP4.</p>
-      <p>
+    <a class="skip" href="#main">Skip to content</a>
+    <header>
+      <a class="brand" href="#main">Codewise</a>
+      <nav aria-label="Project navigation">
+        <a href="#features">Features</a>
+        <a href="#guides">Guides</a>
         <a href="https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4"
-          >Source repository and documentation</a
+          >Source</a
+        >
+      </nav>
+    </header>
+    <main id="main">
+      <section class="intro" aria-labelledby="title">
+        <p class="eyebrow">CS3227 · MP4 · Darryl &amp; Keith</p>
+        <h1 id="title">Your programming workbook.</h1>
+        <p class="lead">
+          Keep Python assignments, submitted code and reviewed feedback
+          together, with a clear record of each version.
+        </p>
+        <a
+          class="action"
+          href="https://codewise-staging.codewise-cs3227-2610.workers.dev/sign-in"
+          >Open staging app <span aria-hidden="true">→</span></a
+        >
+        <p class="note">
+          Access is by course invitation. Ask the team for a synthetic test
+          course and the deployed revision. This website hosts project
+          information; the application runs separately.
+        </p>
+      </section>
+      <section id="features" aria-labelledby="features-title">
+        <p class="eyebrow">The workflow</p>
+        <h2 id="features-title">From question to reviewed feedback</h2>
+        <div class="feature">
+          <span class="number" aria-hidden="true">01</span>
+          <div>
+            <h3>Publish with context</h3>
+            <p>
+              Instructors create courses, invite members, and publish versioned
+              questions, starter code and rubrics. Private reference solutions
+              stay separate from the student view.
+            </p>
+          </div>
+        </div>
+        <div class="feature">
+          <span class="number" aria-hidden="true">02</span>
+          <div>
+            <h3>Write, save, then submit</h3>
+            <p>
+              Students work in a Python editor with automatic saves and conflict
+              recovery, review their answers, and confirm an immutable
+              submission. Later edits leave submitted attempts unchanged.
+            </p>
+          </div>
+        </div>
+        <div class="feature">
+          <span class="number" aria-hidden="true">03</span>
+          <div>
+            <h3>Review before release</h3>
+            <p>
+              Instructors score rubric criteria and add source observations.
+              Saving, approving and releasing are separate steps. Students see
+              released feedback against their exact submitted source.
+            </p>
+          </div>
+        </div>
+        <aside aria-label="Release and AI limitations">
+          <h3>Testing and AI availability</h3>
+          <p>
+            These features describe the audited source, dated 13 November 2026.
+            Hosted access depends on the team's deployed revision and provider
+            configuration. Codewise does not execute submitted code.
+          </p>
+          <p>
+            Optional AI suggestions require server configuration and instructor
+            review. Recorded evaluation found incorrect scores that passed
+            validation; AI remains subject to repair and acceptance. Manual
+            assessment is available. Student AI progress chat is not included.
+          </p>
+        </aside>
+      </section>
+      <section id="guides" aria-labelledby="guides-title">
+        <p class="eyebrow">Explore the project</p>
+        <h2 id="guides-title">Guides and evidence</h2>
+        <ul class="links">
+          <li>
+            <a
+              href="https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/blob/main/docs/UserGuide.md"
+              >User Guide
+              <span>Access, walkthroughs and troubleshooting</span></a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/blob/main/docs/DeveloperGuide.md"
+              >Developer Guide
+              <span>Architecture, UML and development workflow</span></a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/blob/main/docs/Reflections.md"
+              >Reflections
+              <span>Coordination, context and resource experiments</span></a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/blob/main/logs/INDEX.md"
+              >Interaction summaries
+              <span>Member logs and coverage limits</span></a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4/blob/main/workflow/evidence/final-submission/verification.md"
+              >Submission checklist
+              <span>Verification and outstanding team actions</span></a
+            >
+          </li>
+        </ul>
+      </section>
+    </main>
+    <footer>
+      <p>
+        Built by Darryl and Keith for CS3227 MP4.
+        <a
+          href="https://codewise-production.codewise-cs3227-2610.workers.dev/sign-in"
+          >Production app</a
+        >
+        ·
+        <a href="https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4"
+          >Repository</a
         >
       </p>
-    </main>
+    </footer>
   </body>
 </html>

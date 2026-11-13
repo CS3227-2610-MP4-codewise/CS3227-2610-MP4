@@ -47,3 +47,10 @@ Planning artifacts and repository guidance were delivered first. The user's subs
 ## Course-onboarding follow-up
 
 - [ ] 7.1 Verify the planned first-admin/course creation, account-aware invite/join states and top dual-role switch against COU-01–07 and UI-01/02/03/04/07/08 using actual desktop/narrow/light/dark/keyboard/zoom/async evidence. Darryl supplies shared/instructor UI; Keith supplies student dashboard consumer. Planning alone does not complete this task.
+
+## 8. Instructor polish and app-wide icons — 2026-11-13
+
+- [x] 8.1 Inspect current instructor and shared/student screens using real components and synthetic data; identify usability findings and the scoped writer window (UI-01–UI-08).
+- [x] 8.2 Extend existing SVG system and add purposeful labelled icons across shared/auth, instructor and student screens; preserve behavior/accessibility and no dependency (UI-01/02/03/05/06/07/08).
+- [x] 8.3 Repair instructor hierarchy, alignment, spacing, responsive action wrapping and empty states found in review; retain authorization/version/approval/release boundaries (UI-01/04/06/07/08).
+- [x] 8.4 Verify affected regressions, npm run check and representative desktop/narrow/light/dark/keyboard/2× visual zoom presentation. Record exact outcomes and limitations in the PR; user waived separate notes and handoff. Broader native-zoom, assistive-technology, human and hosted acceptance remain separate (UI-01–UI-08).

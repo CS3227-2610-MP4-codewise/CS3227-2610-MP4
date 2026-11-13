@@ -17,6 +17,23 @@
   color: var(--cw-secondary);
   font-size: 13px;
 }
+/* Grading form controls must not override the shared header switch. */
+.assessment-app .cw-role-switch label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font: inherit;
+}
+.assessment-app .cw-role-switch input {
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.assessment-app .cw-role-track {
+  flex-shrink: 0;
+}
 .assessment-title,
 .assessment-review {
   display: flex;
@@ -29,6 +46,30 @@
   font-size: 30px;
   margin: 6px 0;
   font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.cw-grading-page {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+.cw-grading-page .cw-version-picker {
+  display: grid;
+  gap: 8px;
+  max-width: 28rem;
+  margin: 16px 0 24px;
+  font-size: 14px;
+}
+.cw-grading-page .cw-version-picker select {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 12px;
+  color: var(--cw-ink);
+  background: var(--cw-page);
+  border: 1px solid var(--cw-secondary);
+  border-radius: 3px;
+}
+.assessment-submissions {
+  margin-top: 24px;
 }
 .assessment-eyebrow {
   text-transform: uppercase;

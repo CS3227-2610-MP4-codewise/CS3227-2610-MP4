@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { Icon } from './brand';
 
 type ActionProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary';
@@ -37,7 +38,10 @@ export function StatusMessage({
 }) {
   return (
     <p className={`cw-status cw-status--${tone}`} role="status">
-      {children}
+      {tone !== 'neutral' && (
+        <Icon name={tone === 'error' ? 'alert' : 'check-circle'} />
+      )}
+      <span>{children}</span>
     </p>
   );
 }
@@ -78,7 +82,7 @@ export function QuestionNavigation({
         disabled={index === 0 || pending}
         onClick={onPrevious}
       >
-        Previous question
+        <Icon name="arrow-left" /> Previous question
       </Action>
       <p
         className="cw-navigation-position"
@@ -90,6 +94,7 @@ export function QuestionNavigation({
       </p>
       <Action disabled={pending} onClick={onNext}>
         {index === count - 1 ? finalLabel : 'Next question'}
+        <Icon name={index === count - 1 ? 'list' : 'arrow-right'} />
       </Action>
     </nav>
   );

@@ -17,7 +17,11 @@
   scroll-margin-top: 12rem;
 }
 .ia-page-title > .cw-action {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
+}
+.ia-page-title {
+  padding-top: 24px;
+  padding-bottom: 16px;
 }
 .ia-page-title .cw-kicker {
   margin-top: 8px;

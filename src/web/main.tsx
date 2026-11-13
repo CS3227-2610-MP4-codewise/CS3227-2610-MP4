@@ -26,10 +26,7 @@ function App() {
         </a>
         <details>
           <summary>About Codewise</summary>
-          <p>
-            Access is by instructor invitation. Course workspaces are still
-            being connected.
-          </p>
+          <p>Access is by course invitation from your instructor.</p>
         </details>
       </main>
     </div>
