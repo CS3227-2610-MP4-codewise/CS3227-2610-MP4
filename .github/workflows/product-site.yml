@@ -8,6 +8,9 @@ on:
       - 'docs/UserGuide.md'
       - 'docs/DeveloperGuide.md'
       - 'workflow/scripts/build-product-site.mjs'
+      - '.nvmrc'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/product-site.yml'
   workflow_dispatch:
 
