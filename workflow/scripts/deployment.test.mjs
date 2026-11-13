@@ -17,6 +17,7 @@ const inputs = {
 
 test('OPS-01: generated config contains only the selected environment and database', () => {
   const config = prepareConfig(base, inputs);
+  assert.equal(config.keep_vars, true);
   assert.deepEqual(Object.keys(config.env), ['staging']);
   assert.equal(
     config.env.staging.d1_databases[0].database_id,
@@ -29,6 +30,7 @@ test('OPS-01: generated config contains only the selected environment and databa
     DEPLOY_ENV: 'production',
   });
   assert.deepEqual(Object.keys(production.env), ['production']);
+  assert.equal(production.keep_vars, true);
   assert.equal(
     production.env.production.d1_databases[0].database_id,
     inputs.PRODUCTION_D1_DATABASE_ID,
