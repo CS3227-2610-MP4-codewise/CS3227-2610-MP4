@@ -2,7 +2,7 @@ name: Product website
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - 'src/product-site/**'
       - 'docs/UserGuide.md'
@@ -41,7 +41,7 @@ jobs:
           path: site-dist
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     permissions:

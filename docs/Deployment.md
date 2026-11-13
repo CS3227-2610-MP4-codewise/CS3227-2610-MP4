@@ -15,7 +15,7 @@ As of 13 November 2026, source includes Firebase/Gmail authentication, courses, 
 - Tested revision: 281cc1392b722e873bc58fd806913c5f2121eeec. Earlier staging evidence: run 41783663340 at c4354ace256b1c6d27a7d74fb4989a9ddcfea00f.
 - Separate remote staging and production D1 databases were provisioned; both foundation deployments passed migration-readiness smoke checks. This does not verify future domain tables or recovery.
 - GitHub environment APP_URL values, repository database/account IDs, and environment deployment tokens are configured. The saved token name is CLOUDFARE_API_TOKEN; workflows accept that alias as well as CLOUDFLARE_API_TOKEN. Token values are not recorded.
-- Both environments restrict deployments to main. Production requires owner review. Main requires checks and secrets (the names emitted on pull requests), one approving PR review, and resolved conversations. Administrator bypass is retained for repository maintenance.
+- Both environments restrict deployments to master. Production requires owner review. Master requires checks and secrets (the names emitted on pull requests), one approving PR review, and resolved conversations. Administrator bypass is retained for repository maintenance.
 - Online CI checks, secret scan, staging migration/deployment, artifact upload and smoke checks passed. A separate live smoke run confirmed database readiness, exact revision, app HTML and JSON API 404 behaviour. Full role features and AI integration remain unimplemented.
 
 ## Architecture
@@ -47,7 +47,7 @@ Create/activate the account's workers.dev subdomain in Cloudflare Workers & Page
 
 Canonical repository: https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4
 
-Under Settings -> Environments create staging and production. Restrict both to main deployments. Production MUST have a required reviewer configured before enabling this workflow: the protected environment supplies the human approval gate. Naming an environment alone does not pause for approval. The public repository already has owner approval configured; retain it.
+Under Settings -> Environments create staging and production. Restrict both to master deployments. Production MUST have a required reviewer configured before enabling this workflow: the protected environment supplies the human approval gate. Naming an environment alone does not pause for approval. The public repository already has owner approval configured; retain it.
 
 Repository Actions variables (Settings -> Secrets and variables -> Actions -> Variables):
 
@@ -70,29 +70,29 @@ Application credentials (such as future SOCLAAS_API_KEY) belong in each Worker's
 
 ## 4. Push and protect the repository
 
-Review git status and verify there are no credentials before the initial commit/push. The git remote is already set. Push main to create the workflows, then configure branch protection/rules to require PR review and the CI checks/secrets jobs. Require both owners to review shared-contract or migration changes.
+Review git status and verify there are no credentials before the initial commit/push. The git remote is already set. Push master to create the workflows, then configure branch protection/rules to require PR review and the CI checks/secrets jobs. Require both owners to review shared-contract or migration changes.
 
 The first push starts staging automatically; it will fail clearly if account variables/secrets have not been configured. Do not turn off failing checks just to obtain a deployment.
 
 ## 5. Staging pipeline
 
-There is no automatic branch/PR preview deployment. A PR runs checks; merging it to main starts **Deploy staging and production** and updates the stable staging URL above. After staging succeeds, production waits for approval in that same run. Publishing a feature branch alone does not update staging.
+There is no automatic branch/PR preview deployment. A PR runs checks; merging it to master starts **Deploy staging and production** and updates the stable staging URL above. After staging succeeds, production waits for approval in that same run. Publishing a feature branch alone does not update staging.
 
-Push/merge main -> reusable CI (strict specs, types, lint, tests, build, dependency audit, secret scan, Worker dry run) -> download that commit's checked frontend -> isolated config generation -> D1 migrations -> Worker deployment -> smoke checks -> immutable staging-release artifact.
+Push/merge master -> reusable CI (strict specs, types, lint, tests, build, dependency audit, secret scan, Worker dry run) -> download that commit's checked frontend -> isolated config generation -> D1 migrations -> Worker deployment -> smoke checks -> immutable staging-release artifact.
 
 Smoke checks verify the environment name, exact Git commit, database migration readiness, JSON 404 for unknown API paths, and application HTML. They do not yet verify login or feature behaviour because those features do not exist. Extend the checks as feature services are implemented.
 
 ## 6. Production promotion
 
-1. Merge the reviewed feature PR into main and open Actions -> Deploy staging and production -> that merge's run.
+1. Merge the reviewed feature PR into master and open Actions -> Deploy staging and production -> that merge's run.
 2. Wait for CI and staging deployment/smoke checks to pass. Open the stable staging link from the staging summary and test the changes.
 3. In the same run's Summary page, click **Review deployments**, select **production**, and click **Approve and deploy**. This is GitHub's pending-environment approval banner, not a custom executable button inside Markdown. It appears only after staging succeeds and the production job reaches its gate.
-4. Production downloads the saved artifact from this exact run and checks its source/run IDs plus current main head before production migrations or deployment.
+4. Production downloads the saved artifact from this exact run and checks its source/run IDs plus current master head before production migrations or deployment.
 5. After production deployment and smoke checks pass, open the stable production link from its summary and test the release.
 
 No run ID needs to be copied and no separate Deploy production workflow is manually started. Reject the deployment or cancel the run if staging fails manual testing. The old standalone production-dispatch workflow is removed. No production approval is granted automatically by the agent.
 
-Artifacts expire after 14 days. If absent, produce a new successful staging run. Do not substitute a different build. The workflow rebuilds the Worker bundle from the exact staged source and lockfile and promotes the original tested frontend artifact. The complete release workflow is serialized with cancellation disabled. A waiting approval holds the release slot; approve, reject or cancel before the next release proceeds. If main advances during the wait, the old release is rejected before migrations: cancel it and test the newer release.
+Artifacts expire after 14 days. If absent, produce a new successful staging run. Do not substitute a different build. The workflow rebuilds the Worker bundle from the exact staged source and lockfile and promotes the original tested frontend artifact. The complete release workflow is serialized with cancellation disabled. A waiting approval holds the release slot; approve, reject or cancel before the next release proceeds. If master advances during the wait, the old release is rejected before migrations: cancel it and test the newer release.
 
 ## Failure handling and recovery
 
@@ -105,7 +105,7 @@ Artifacts expire after 14 days. If absent, produce a new successful staging run.
 
 ## GitHub Pages product website
 
-The product-site workflow builds the site with `npm run site:build` (static pages from src/product-site/ plus the User and Developer Guides rendered from docs/) and publishes site-dist/ separately. In repository Settings -> Pages, select GitHub Actions as the build source. The website now links the guides and app URLs and distinguishes source implementation from hosted readiness. Record its successful Pages deployment after the reviewed main-branch workflow runs.
+The product-site workflow builds the site with `npm run site:build` (static pages from src/product-site/ plus the User and Developer Guides rendered from docs/) and publishes site-dist/ separately. In repository Settings -> Pages, select GitHub Actions as the build source. The website now links the guides and app URLs and distinguishes source implementation from hosted readiness. Record its successful Pages deployment after the reviewed master-branch workflow runs.
 
 ## Sources
 

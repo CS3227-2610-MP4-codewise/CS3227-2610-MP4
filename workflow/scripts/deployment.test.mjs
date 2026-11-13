@@ -89,7 +89,7 @@ test('OPS-02: production is a dependent approval-gated job, never a PR deploymen
       'utf8',
     ),
   );
-  assert.deepEqual(workflow.on.push.branches, ['main']);
+  assert.deepEqual(workflow.on.push.branches, ['master']);
   assert.equal(workflow.on.pull_request, undefined);
   assert.equal(workflow.concurrency['cancel-in-progress'], false);
   assert.equal(workflow.jobs.deploy.needs, 'ci');
@@ -98,7 +98,7 @@ test('OPS-02: production is a dependent approval-gated job, never a PR deploymen
   assert.match(workflow.jobs.production.if, /github\.event_name == 'push'/);
   assert.match(
     workflow.jobs.production.if,
-    /github\.ref == 'refs\/heads\/main'/,
+    /github\.ref == 'refs\/heads\/master'/,
   );
   const steps = workflow.jobs.production.steps;
   const artifact = steps.find((step) =>
@@ -108,7 +108,7 @@ test('OPS-02: production is a dependent approval-gated job, never a PR deploymen
   assert.equal(artifact.with['run-id'], undefined);
   const verify = steps.findIndex(
     (step) =>
-      step.name === 'Verify exact staging artifact and current main revision',
+      step.name === 'Verify exact staging artifact and current master revision',
   );
   const migrate = steps.findIndex(
     (step) => step.name === 'Apply reviewed production migrations',
