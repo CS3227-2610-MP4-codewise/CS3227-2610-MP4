@@ -111,6 +111,7 @@ const required = [
   'docs/Reflections.md',
   'src/product-site/index.html',
   '.github/workflows/product-site.yml',
+  'workflow/scripts/build-product-site.mjs',
   'workflow/FILE-INDEX.md',
   'logs/INDEX.md',
 ];
@@ -152,8 +153,11 @@ const dg = readFileSync(resolve(root, 'docs/DeveloperGuide.md'), 'utf8');
 if ((dg.match(/```mermaid/g) ?? []).length < 5)
   problems.push('Developer Guide diagram coverage missing');
 const html = readFileSync(resolve(root, 'src/product-site/index.html'), 'utf8');
+// Guide pages are generated from docs/ by workflow/scripts/build-product-site.mjs.
+const generatedPages = ['user-guide.html', 'developer-guide.html'];
 for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
   if (/^(https?:|#)/.test(href)) continue;
+  if (generatedPages.includes(href.split('#')[0])) continue;
   if (!existsSync(resolve(root, 'src/product-site', href)))
     problems.push(`Missing site asset: ${href}`);
 }

@@ -105,7 +105,7 @@ Artifacts expire after 14 days. If absent, produce a new successful staging run.
 
 ## GitHub Pages product website
 
-The product-site workflow publishes src/product-site/ separately. In repository Settings -> Pages, select GitHub Actions as the build source. The website now links the guides and app URLs and distinguishes source implementation from hosted readiness. Record its successful Pages deployment after the reviewed main-branch workflow runs.
+The product-site workflow builds the site with `npm run site:build` (static pages from src/product-site/ plus the User and Developer Guides rendered from docs/) and publishes site-dist/ separately. In repository Settings -> Pages, select GitHub Actions as the build source. The website now links the guides and app URLs and distinguishes source implementation from hosted readiness. Record its successful Pages deployment after the reviewed main-branch workflow runs.
 
 ## Sources
 
