@@ -10,6 +10,7 @@ import {
 } from '../../shared/student-assignments';
 import {
   assignmentStatusPageSchema,
+  attemptHistorySchema,
   type AssignmentStatus,
 } from '../../shared/student-work';
 
@@ -18,7 +19,17 @@ export type StudentRoute =
   | { kind: 'courses'; after: string }
   | { kind: 'assignments'; courseId: string; cursor: string | null }
   | { kind: 'overview'; versionId: string; from: string | null }
-  | { kind: 'work'; versionId: string; position: number };
+  | {
+      kind: 'work';
+      versionId: string;
+      position: number;
+      /** SQ-05: a historical answer view; absent means Working copy. */
+      view?: HistoricalView;
+      /** SQ-05: the attempt shown in `view`; absent means the latest. Re-authorized by the server. */
+      attempt?: string;
+    };
+
+export type HistoricalView = 'submitted' | 'feedback';
 
 const routeId = /^[A-Za-z0-9_-]{1,128}$/;
 const contextCursor = /^[A-Za-z0-9_-]{1,128}$/;
@@ -63,8 +74,17 @@ export function parseStudentRoute(
   );
   if (work) {
     const position = Number(work[2]);
-    if (!routeId.test(work[1]) || position > 20 || keys.length) return null;
-    return { kind: 'work', versionId: work[1], position };
+    if (!routeId.test(work[1]) || position > 20) return null;
+    const base = { kind: 'work', versionId: work[1], position } as const;
+    // SQ-05: a closed query. Any extra or repeated key, unknown view, malformed attempt, or an
+    // attempt without a view opens the Working copy of the same question with the values dropped.
+    if (!keys.length || !only(['view', 'attempt'])) return base;
+    const view = params.get('view');
+    const attempt = params.get('attempt');
+    if (view !== 'submitted' && view !== 'feedback') return base;
+    if (attempt === null) return { ...base, view };
+    if (!routeId.test(attempt)) return base;
+    return { ...base, view, attempt };
   }
   const overview = /^\/student\/assignments\/([^/]+)$/.exec(pathname);
   if (overview) {
@@ -89,11 +109,20 @@ export const studentPaths = {
     '/student/assignments/' +
     encodeURIComponent(versionId) +
     (from ? '?from=' + encodeURIComponent(from) : ''),
-  work: (versionId: string, position = 1) =>
+  work: (
+    versionId: string,
+    position = 1,
+    ctx?: { view: HistoricalView; attempt?: string | null },
+  ) =>
     '/student/assignments/' +
     encodeURIComponent(versionId) +
     '/work/' +
-    position,
+    position +
+    (ctx
+      ? '?view=' +
+        ctx.view +
+        (ctx.attempt ? '&attempt=' + encodeURIComponent(ctx.attempt) : '')
+      : ''),
 };
 
 // DR-01: built from parts, so ICU punctuation, spacing and AM/PM casing never change the text.
@@ -257,6 +286,30 @@ export function studentApi(fetcher: Fetcher = (...a) => fetch(...a)) {
       if (publication.assignmentVersionId !== versionId)
         throw new StudentRequestError('unavailable');
       return publication;
+    },
+    /**
+     * SQ-07: the student's latest attempt for the assignment (first history page, newest first),
+     * or null with none. Server-authorized own-attempt read; nothing is cached.
+     */
+    async latestAttempt(
+      versionId: string,
+      signal: AbortSignal,
+    ): Promise<{ attemptId: string; feedbackReleased: boolean } | null> {
+      const body = await getJson(
+        fetcher,
+        '/api/student/publications/' +
+          encodeURIComponent(versionId) +
+          '/attempts',
+        signal,
+      );
+      const page = parsed(() => attemptHistorySchema.parse(body));
+      const latest = page.items[0];
+      return latest
+        ? {
+            attemptId: latest.attemptId,
+            feedbackReleased: latest.feedbackReleased,
+          }
+        : null;
     },
   };
 }

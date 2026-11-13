@@ -286,3 +286,156 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 31676381; cached input subset 31334041; output 130363; reasoning output subset 22094; total 31806744.
 - Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-question-views:apply-01 -->
+<!-- experiment-turns:apply-01:098cd2fbc34f8942,b6cd52533ab7c563,31ff6ac08a777c48,8b0a2d38c6d59718,c17ebf0972f229af,7b34f873c4e393da,ae25e2895127725e,8807320dfff9634e,f7a129421853297b,a3d95764b7b9e5bb,e57910c3e66420f4,06a401740558e2c4,0014543ed41ad7d6,343de14a5c10fbe6,445aa64751c68248,f6afe464747881bb,7905c5e34417be6f,629b8dbbc298a33b,0f8e218a7ce3be52,98ff12c324c814d9,f75cb56080c9f27e,b892b4e923d602d1,0682427cafffd74b,f4b32a2311e05aee,8be00b9958c96747,d914eca76841fe96,1af00cde708b0edb -->
+## Checkpoint `apply-01` — 2026-11-13T02:45:05.589869+00:00
+
+### Request
+
+Compare three independent Sonnet proposals and worktree implementations for the per-question views; adopt A with fixes
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Three Plan proposals (A/B/C) and three worktree implementations produced. Keith chose A. Applied A plus fixes (per-question markers, attempt-held release version with reset announcement, view in announcement, extra failure/refetch/race tests). npm run check exit 0 (789 passed, 2 skipped). Tasks 2.1, 2.2, 3.1, 3.2, 4.2 ticked; 2.3/4.1 partial pending SQ-05. B/C worktrees removed. Local sign-in on Vite ports blocked by AUTH_ORIGIN; preview via 8787 build workaround.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Verification](../../workflow/evidence/student-question-views/verification.md), [Proposals](../../workflow/evidence/student-question-views/proposals/).
+- Remaining limitations and next owner: Keith: manual review at 127.0.0.1:8787; decide whether SQ-05/SQ-07 join this PR; then commit/PR with Darryl as reviewer.
+
+### Agents spawned
+
+- Coordinator turn started 2026-11-13T01:59:30.719Z spawned Plan / Plan (ab5994cd).
+- Coordinator turn started 2026-11-13T01:59:30.719Z spawned Plan / Plan (ad2a342a).
+- Coordinator turn started 2026-11-13T01:59:30.719Z spawned Plan / Plan (a2148d0f).
+- Coordinator turn started 2026-11-13T02:06:12.006Z spawned general-purpose / general-purpose (a9d2a26f).
+- Coordinator turn started 2026-11-13T02:06:12.006Z spawned general-purpose / general-purpose (a8fbd157).
+- Coordinator turn started 2026-11-13T02:06:12.006Z spawned general-purpose / general-purpose (a6eab888).
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 7cb88687 | root | 2026-11-13T01:50:44.196Z | 2026-11-13T01:52:12.848Z | final | claude-opus-5-5 | medium | 2876 | 189 | 2876 |
+| Coordinator / coordinator | 7cb88687 | root | 2026-11-13T01:55:22.068Z | 2026-11-13T01:55:30.474Z | final | claude-opus-5-5 | medium | 512 | 0 | 512 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T01:56:03.726Z | 2026-11-13T01:56:21.030Z | final | claude-opus-5-5 | medium | 1108 | 26 | 1108 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T01:57:23.271Z | 2026-11-13T01:57:42.451Z | partial | claude-opus-5-5 | medium | 1013 | 99 | 1013 (partial) |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T01:59:30.719Z | 2026-11-13T02:00:06.380Z | final | claude-opus-5-5 | medium | 3888 | 765 | 28484 |
+| Plan / Plan | ab5994cd | Coordinator (84b02526) / 58dd1c78 | 2026-11-13T01:59:57.333Z | open | provisional | claude-sonnet-5-5 | high | 9178 | 5221 | 9178 |
+| Plan / Plan | ad2a342a | Coordinator (84b02526) / 58dd1c78 | 2026-11-13T01:59:57.350Z | open | provisional | claude-sonnet-5-5 | high | 8574 | 4563 | 8574 |
+| Plan / Plan | a2148d0f | Coordinator (84b02526) / 58dd1c78 | 2026-11-13T01:59:57.380Z | open | provisional | claude-sonnet-5-5 | high | 6844 | 3425 | 6844 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:00:55.415Z | 2026-11-13T02:00:57.234Z | final | claude-opus-5-5 | medium | 53 | 18 | 53 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:01:08.505Z | 2026-11-13T02:01:10.225Z | final | claude-opus-5-5 | medium | 24 | 0 | 24 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:01:14.064Z | 2026-11-13T02:01:43.345Z | final | claude-opus-5-5 | medium | 2746 | 916 | 2746 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:03:37.384Z | 2026-11-13T02:04:28.596Z | final | claude-opus-5-5 | medium | 7002 | 360 | 7002 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:06:12.006Z | 2026-11-13T02:06:51.876Z | final | claude-opus-5-5 | medium | 4311 | 917 | 151851 |
+| general-purpose / general-purpose | a8fbd157 | Coordinator (84b02526) / 82bb362f | 2026-11-13T02:06:43.303Z | open | provisional | claude-sonnet-5-5 | high | 65392 | 23584 | 65392 |
+| general-purpose / general-purpose | a6eab888 | Coordinator (84b02526) / 82bb362f | 2026-11-13T02:06:43.308Z | open | provisional | claude-sonnet-5-5 | high | 36029 | 7307 | 36029 |
+| general-purpose / general-purpose | a9d2a26f | Coordinator (84b02526) / 82bb362f | 2026-11-13T02:06:43.309Z | open | provisional | claude-sonnet-5-5 | high | 46119 | 10985 | 46119 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:11:59.026Z | 2026-11-13T02:12:01.731Z | final | claude-opus-5-5 | medium | 159 | 0 | 159 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:12:01.749Z | 2026-11-13T02:12:03.287Z | final | claude-opus-5-5 | medium | 27 | 0 | 27 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:13:04.165Z | 2026-11-13T02:13:07.444Z | final | claude-opus-5-5 | medium | 216 | 0 | 216 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:13:07.454Z | 2026-11-13T02:13:08.967Z | final | claude-opus-5-5 | medium | 22 | 0 | 22 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:15:43.917Z | 2026-11-13T02:16:33.995Z | final | claude-opus-5-5 | medium | 2717 | 572 | 2717 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:25:09.063Z | 2026-11-13T02:26:24.383Z | final | claude-opus-5-5 | medium | 5524 | 2241 | 5524 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:27:19.081Z | 2026-11-13T02:27:24.150Z | final | claude-opus-5-5 | medium | 409 | 29 | 409 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:32:32.268Z | 2026-11-13T02:32:39.781Z | final | claude-opus-5-5 | medium | 709 | 28 | 709 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:38:10.173Z | 2026-11-13T02:38:18.999Z | final | claude-opus-5-5 | medium | 731 | 107 | 731 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:38:47.808Z | open | provisional | claude-opus-5-5 | medium | 20187 | 5089 | 20187 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 7cb88687 | 2026-11-13T01:47:04.588Z | provisional | final | 10401 | 2187 | 10401 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 55342327; cached input subset 54253860; output 357485; reasoning output subset 88591; total 55699812.
+- Coverage/status: partial; 9 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-question-views:apply-02 -->
+<!-- experiment-turns:apply-02:c61e88210f99a5a1,68e03b0b0ae72fd4,1151a09e4ef3aa4c,d1ac079493eb811a,43d5c06f76fbdc13 -->
+## Checkpoint `apply-02` — 2026-11-13T02:59:49.258062+00:00
+
+### Request
+
+Implement SQ-05 URL state and SQ-07 overview link in this PR, then verify
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Tasks 1.1, 1.2, 2.3, 4.1, 5.1, 6.1 done by the coordinator without subagents. npm run check exit 0 (802 passed, 2 skipped); strict validation valid. A vacuous race test was found and corrected. Unrelated package-lock.json churn flagged for exclusion.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Verification](../../workflow/evidence/student-question-views/verification.md).
+- Remaining limitations and next owner: Keith: 6.2 manual UI review at 8787; then 6.3 handoff, SF-03/DR-03 wording reconciliation, commit and PR (Darryl reviews).
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:48:45.892Z | 2026-11-13T02:48:52.983Z | final | claude-opus-5-5 | medium | 648 | 58 | 648 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:49:57.425Z | 2026-11-13T02:50:10.573Z | final | claude-opus-5-5 | medium | 1060 | 294 | 1060 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:52:56.587Z | 2026-11-13T02:53:14.408Z | final | claude-opus-5-5 | medium | 1710 | 402 | 1710 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T02:53:46.655Z | open | provisional | claude-opus-5-5 | medium | 29239 | 6867 | 29239 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 84b02526 | 2026-11-13T02:38:47.808Z | provisional | final | 22440 | 5253 | 22440 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 64765726; cached input subset 63624224; output 392395; reasoning output subset 96376; total 65158121.
+- Coverage/status: partial; 9 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-question-views:handoff-01 -->
+<!-- experiment-turns:handoff-01:7143305100e64897,5f0ead00dcbc2b76,9a57cb417010e76a,36c18f190ed0b231,bdce28991d091623 -->
+## Checkpoint `handoff-01` — 2026-11-13T03:10:37.617059+00:00
+
+### Request
+
+Finish the increment: 6.2 as owner MVP acceptance, SF-03/DR-03 wording, housekeeping and 6.3 handoff
+
+### Results
+
+- Owner: Keith.
+- Changes and why: All 13 tasks complete. 6.2 marked complete by Keith as suitable for MVP; ui-review.md records unverified rows. SF-03 and SQ-04 deltas aligned to DR-03 Score: X / N. package-lock.json churn reverted; worktree A removed. Handoff written. npm run check exit 0 (802 passed, 2 skipped); strict validation valid. Uncommitted.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: [Handoff](../../workflow/handoffs/student-question-views.md), [Verification](../../workflow/evidence/student-question-views/verification.md), [UI review](../../workflow/evidence/student-question-views/ui-review.md).
+- Remaining limitations and next owner: Keith: approve commit and PR; Darryl: review; then hosted staging, archive and stop recording.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:03:16.241Z | 2026-11-13T03:04:25.927Z | final | claude-opus-5-5 | medium | 5313 | 1983 | 5313 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:05:09.784Z | 2026-11-13T03:05:22.289Z | final | claude-opus-5-5 | medium | 1004 | 101 | 1004 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:07:22.903Z | 2026-11-13T03:08:00.699Z | final | claude-opus-5-5 | medium | 3585 | 208 | 3585 |
+| Coordinator / coordinator | 84b02526 | root | 2026-11-13T03:08:41.064Z | open | provisional | claude-opus-5-5 | medium | 6232 | 540 | 6232 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 84b02526 | 2026-11-13T02:53:46.655Z | provisional | final | 30123 | 6867 | 30123 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 72068520; cached input subset 70899793; output 409413; reasoning output subset 99208; total 72477933.
+- Coverage/status: partial; 9 linked sessions, 3 bounded runs. Only admitted turns count; legacy unbounded records are excluded.

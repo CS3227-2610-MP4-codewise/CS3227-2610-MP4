@@ -591,6 +591,141 @@ describe('student overview', () => {
   });
 });
 
+describe('overview latest-attempt link (SQ-07)', () => {
+  const pubPath = '/api/student/publications/alpha-v1';
+  const historyPath = '/api/student/publications/alpha-v1/attempts';
+  const history = (
+    items: { id: string; released: boolean; version?: string }[],
+  ) => ({
+    status: 200,
+    body: {
+      schemaVersion: 1,
+      items: items.map((i, n) => ({
+        attemptId: i.id,
+        assignmentVersionId: i.version ?? 'alpha-v1',
+        submittedAt: `2026-11-1${9 - n}T10:00:00.000Z`,
+        answerCount: 1,
+        feedbackReleased: i.released,
+      })),
+      nextCursor: null,
+    },
+  });
+  const openOverview = async () => {
+    routes[pubPath] = [
+      { status: 200, body: publication('alpha-v1', 'Alpha one') },
+    ];
+    show({ kind: 'overview', versionId: 'alpha-v1', from: null });
+    await screen.findByRole('heading', { level: 1, name: 'Alpha one' });
+  };
+  const openWork = () =>
+    screen.getByRole('link', { name: /Open my work/ }).getAttribute('href');
+  const extraLink = () =>
+    screen.queryByRole('link', {
+      name: /View latest submission|View released feedback/,
+    });
+
+  it('shows no link without attempts and keeps Open my work', async () => {
+    routes[historyPath] = [history([])];
+    await openOverview();
+    await waitFor(() =>
+      expect(calls.filter((c) => c === historyPath)).toHaveLength(1),
+    );
+    await act(async () => undefined);
+    expect(extraLink()).toBeNull();
+    expect(openWork()).toBe('/student/assignments/alpha-v1/work/1');
+  });
+
+  it('links the latest attempt without a release to its Submitted attempt view', async () => {
+    routes[historyPath] = [
+      history([
+        { id: 'att-2', released: false },
+        { id: 'att-1', released: true },
+      ]),
+    ];
+    await openOverview();
+    const link = await screen.findByRole('link', {
+      name: 'View latest submission',
+    });
+    expect(link.getAttribute('href')).toBe(
+      '/student/assignments/alpha-v1/work/1?view=submitted&attempt=att-2',
+    );
+    expect(
+      screen.queryByRole('link', { name: 'View released feedback' }),
+    ).toBeNull();
+    expect(openWork()).toBe('/student/assignments/alpha-v1/work/1');
+  });
+
+  it('links the latest attempt with a current release to its Released feedback view', async () => {
+    routes[historyPath] = [history([{ id: 'att-3', released: true }])];
+    await openOverview();
+    const link = await screen.findByRole('link', {
+      name: 'View released feedback',
+    });
+    expect(link.getAttribute('href')).toBe(
+      '/student/assignments/alpha-v1/work/1?view=feedback&attempt=att-3',
+    );
+  });
+
+  it('leaves the overview intact without a link when the history fails on the network or with 401', async () => {
+    for (const reply of [
+      () => Promise.reject(new TypeError('offline')),
+      { status: 401 },
+    ] as const) {
+      routes[historyPath] = [reply as never];
+      await openOverview();
+      await waitFor(() =>
+        expect(calls.filter((c) => c === historyPath).length).toBeGreaterThan(
+          0,
+        ),
+      );
+      await act(async () => undefined);
+      expect(extraLink()).toBeNull();
+      expect(
+        screen.getByRole('heading', { level: 1, name: 'Alpha one' }),
+      ).toBeTruthy();
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(openWork()).toBe('/student/assignments/alpha-v1/work/1');
+      cleanup();
+      calls = [];
+    }
+  });
+
+  it('ignores a late history result after navigating to another overview', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    routes[historyPath] = [
+      async () => {
+        await gate;
+        return history([{ id: 'att-old', released: true }]);
+      },
+    ];
+    routes['/api/student/publications/alpha-v2'] = [
+      { status: 200, body: publication('alpha-v2', 'Alpha two') },
+    ];
+    routes['/api/student/publications/alpha-v2/attempts'] = [history([])];
+    routes[pubPath] = [
+      { status: 200, body: publication('alpha-v1', 'Alpha one') },
+    ];
+    const r = show({ kind: 'overview', versionId: 'alpha-v1', from: null });
+    await screen.findByRole('heading', { level: 1, name: 'Alpha one' });
+    await waitFor(() =>
+      expect(calls.filter((c) => c === historyPath)).toHaveLength(1),
+    );
+    // Navigate within the same workspace: the pending history read belongs to the old overview.
+    r.rerender(
+      createElement(StudentWorkspace, {
+        route: { kind: 'overview', versionId: 'alpha-v2', from: null },
+      }),
+    );
+    await screen.findByRole('heading', { level: 1, name: 'Alpha two' });
+    await act(async () => {
+      release();
+      await gate;
+    });
+    expect(extraLink()).toBeNull();
+  });
+});
+
 describe('/workspace entry choice', () => {
   it('keeps Instructor-first fallback and honours only valid preferences', () => {
     expect(chooseWorkspace(null, ['student'])).toBe('student');

@@ -118,6 +118,91 @@ describe('student routes', () => {
       expect(parseStudentRoute(path, search), path + search).toBeNull();
   });
 
+  it('parses the closed view/attempt query of the workbook route (SQ-05)', () => {
+    const path = '/student/assignments/v1/work/3';
+    const base = { kind: 'work', versionId: 'v1', position: 3 };
+    expect(parseStudentRoute(path, '')).toEqual(base);
+    expect(parseStudentRoute(path, '?view=submitted&attempt=att_9')).toEqual({
+      ...base,
+      view: 'submitted',
+      attempt: 'att_9',
+    });
+    expect(parseStudentRoute(path, '?attempt=att-9&view=feedback')).toEqual({
+      ...base,
+      view: 'feedback',
+      attempt: 'att-9',
+    });
+    // A view without an attempt means the latest attempt, resolved later.
+    expect(parseStudentRoute(path, '?view=feedback')).toEqual({
+      ...base,
+      view: 'feedback',
+    });
+    // Damaged queries still open the work: the Working copy of the same question, values dropped.
+    for (const search of [
+      '?attempt=att-9',
+      '?view=work&attempt=att-9',
+      '?view=Submitted',
+      '?view=submitted&attempt=a%2Fb',
+      '?view=submitted&attempt=' + 'a'.repeat(129),
+      '?view=submitted&attempt=',
+      '?view=submitted&view=feedback',
+      '?view=submitted&attempt=a&attempt=b',
+      '?view=submitted&attempt=a&role=instructor',
+      '?cursor=x',
+    ])
+      expect(parseStudentRoute(path, search), search).toEqual(base);
+    // Position bounds are unchanged by the query.
+    for (const p of ['0', '21', '01', 'x'])
+      expect(
+        parseStudentRoute(
+          `/student/assignments/v1/work/${p}`,
+          '?view=feedback',
+        ),
+        p,
+      ).toBeNull();
+    expect(
+      parseStudentRoute('/student/assignments/v1/work/20', '?view=feedback'),
+    ).toEqual({
+      kind: 'work',
+      versionId: 'v1',
+      position: 20,
+      view: 'feedback',
+    });
+    expect(
+      parseStudentRoute('/student/assignments/a%2Fb/work/1', '?view=feedback'),
+    ).toBeNull();
+  });
+
+  it('round-trips workbook paths with and without a view', () => {
+    const cases = [
+      [
+        studentPaths.work('v1', 2),
+        { kind: 'work', versionId: 'v1', position: 2 },
+      ],
+      [
+        studentPaths.work('v1', 2, { view: 'submitted' }),
+        { kind: 'work', versionId: 'v1', position: 2, view: 'submitted' },
+      ],
+      [
+        studentPaths.work('v1', 4, { view: 'feedback', attempt: 'att-1' }),
+        {
+          kind: 'work',
+          versionId: 'v1',
+          position: 4,
+          view: 'feedback',
+          attempt: 'att-1',
+        },
+      ],
+    ] as const;
+    for (const [path, route] of cases) {
+      const url = new URL(path, 'http://x');
+      expect(parseStudentRoute(url.pathname, url.search), path).toEqual(route);
+    }
+    expect(
+      studentPaths.work('v1', 4, { view: 'feedback', attempt: null }),
+    ).toBe('/student/assignments/v1/work/4?view=feedback');
+  });
+
   it('builds encoded local paths', () => {
     expect(studentPaths.assignments('c1', 'abc')).toBe(
       '/student/courses/c1/assignments?cursor=abc',

@@ -13,6 +13,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Publication } from '../../shared/instructor-contracts/publication';
+import { formatDeadline, parseStudentRoute } from './model';
 import { StudentWorkspace } from './StudentWorkspace';
 import { Workbook } from './Workbook';
 
@@ -1081,55 +1082,547 @@ describe('review, submit, deadline and history (SW-05–SW-08, task 5.3)', () =>
     expect(postAttempts()).toHaveLength(0);
   });
 
-  it('shows an honest empty history', async () => {
+  it('shows an honest empty history in both historical views', async () => {
     await open();
-    click('Submitted attempts', 'tab');
+    for (const tab of ['Submitted attempt', 'Released feedback']) {
+      click(tab, 'tab');
+      expect(
+        await screen.findByText('You have not submitted this assignment yet.'),
+      ).toBeTruthy();
+      expect(screen.queryByLabelText('Attempt')).toBeNull();
+      expect(screen.queryByText(/Feedback released/)).toBeNull();
+      expect(
+        screen.getByRole('button', { name: 'Back to working copy' }),
+      ).toBeTruthy();
+    }
+    click('Back to working copy');
     expect(
-      await screen.findByText('You have not submitted this assignment yet.'),
-    ).toBeTruthy();
-    expect(document.querySelector('.cw-wb-attempt-list')).toBeNull();
+      screen
+        .getByRole('tab', { name: 'Working copy' })
+        .getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(editor().value).toBe(STARTER);
   });
+});
 
-  it('opens a submitted attempt read-only and leaves the working copy unchanged', async () => {
-    drafts.set('qv-v1-1', { revision: 2, source: 'edited later\n' });
+/** SQ-01–SQ-04, SQ-06, SW-08, UI-04/05/07: per-question answer views. */
+describe('three answer views per question (student-question-views)', () => {
+  const seedAttempt = (
+    id: string,
+    at: string,
+    first: string,
+    version = 'v1',
+    count = 2,
+  ) =>
     attempts.push({
-      attemptId: 'attempt-9',
-      version: 'v1',
-      submittedAt: '2026-11-09T10:00:00.000Z',
-      answers: [
-        {
-          questionVersionId: 'qv-v1-1',
-          draftRevision: 1,
-          source: 'original submitted\n',
-        },
-        { questionVersionId: 'qv-v1-2', draftRevision: 1, source: STARTER },
-      ],
+      attemptId: id,
+      version,
+      submittedAt: at,
+      answers: [1, 2].slice(0, count).map((n) => ({
+        questionVersionId: `qv-${version}-${n}`,
+        draftRevision: 1,
+        source: n === 1 ? first : `second of ${id}\n`,
+      })),
     });
+  const tabSelected = (name: string) =>
+    screen.getByRole('tab', { name }).getAttribute('aria-selected');
+  const sourceOf = (n: number) =>
+    screen.getByRole('region', {
+      name: `Submitted source for question ${n}`,
+    }).textContent;
+  const feedbackCalls = () =>
+    calls.filter((c) => /\/attempts\/[^/]+\/feedback$/.test(c.key));
+
+  it('opens the latest attempt read-only for the current question and leaves the working copy unchanged', async () => {
+    drafts.set('qv-v1-1', { revision: 2, source: 'edited later\n' });
+    seedAttempt(
+      'attempt-9',
+      '2026-11-09T10:00:00.000Z',
+      'original submitted\n',
+    );
     await open();
     type('edited again\n');
     const puts = putCalls().length;
-    click('Submitted attempts', 'tab');
-    fireEvent.click(
-      await screen.findByRole('button', { name: /Open attempt submitted/ }),
-    );
-    const article = await screen.findByRole('article', {
-      name: 'Submitted attempt',
-    });
-    await within(article).findByText(/original submitted/);
-    expect(within(article).getByText('attempt-9')).toBeTruthy();
-    expect(within(article).queryByRole('textbox')).toBeNull();
-    expect(article.querySelector('textarea, input')).toBeNull();
+    click('Submitted attempt', 'tab');
+    const panel = screen.getByRole('tabpanel', { name: 'Submitted attempt' });
+    await within(panel).findByText(/original submitted/);
+    expect(sourceOf(1)).not.toContain('edited');
+    expect(within(panel).getByText('attempt-9')).toBeTruthy();
+    expect(within(panel).getByText('v1')).toBeTruthy();
+    expect(within(panel).queryByRole('textbox')).toBeNull();
+    expect(panel.querySelector('textarea, input')).toBeNull();
     expect(
-      within(article)
-        .getAllByRole('button')
-        .map((b) => b.textContent),
-    ).toEqual(['Back to submitted attempts']);
+      within(panel).getByText(/This snapshot cannot be edited/),
+    ).toBeTruthy();
+    // The question pane still shows the same question.
     expect(
-      within(article).getByText(/This snapshot cannot be edited/),
+      screen.getByRole('heading', { level: 2, name: 'Question title 1' }),
     ).toBeTruthy();
     click('Working copy', 'tab');
     expect(editor().value).toBe('edited again\n');
     expect(putCalls().length).toBe(puts);
+    expect(postAttempts()).toHaveLength(0);
     expect(drafts.get('qv-v1-1')!.source).toBe('edited later\n');
+  });
+
+  it('operates the three views from the keyboard with synchronized state and panels', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one\n');
+    await open();
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs.map((t) => t.textContent)).toEqual([
+      'Working copy',
+      'Submitted attempt',
+      'Released feedback',
+    ]);
+    tabs[0].focus();
+    fireEvent.keyDown(tabs[0], { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(tabs[1]);
+    expect(tabSelected('Submitted attempt')).toBe('true');
+    expect(
+      screen.getByRole('tabpanel', { name: 'Submitted attempt' }),
+    ).toBeTruthy();
+    expect(screen.queryByRole('tabpanel', { name: 'Working copy' })).toBeNull();
+    fireEvent.keyDown(tabs[1], { key: 'End' });
+    expect(document.activeElement).toBe(tabs[2]);
+    expect(tabSelected('Released feedback')).toBe('true');
+    expect(
+      screen.getByRole('tabpanel', { name: 'Released feedback' }),
+    ).toBeTruthy();
+    fireEvent.keyDown(tabs[2], { key: 'ArrowRight' });
+    expect(tabSelected('Working copy')).toBe('true');
+    expect(screen.getByRole('tabpanel', { name: 'Working copy' })).toBeTruthy();
+    fireEvent.keyDown(tabs[0], { key: 'ArrowLeft' });
+    expect(tabSelected('Released feedback')).toBe('true');
+  });
+
+  it('keeps the editor mounted with its text and save state and sends nothing on a view switch', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one\n');
+    await open();
+    vi.useFakeTimers();
+    type('typed\n');
+    await tick(1500);
+    expect(screen.getByText('Saved. Revision 1.')).toBeTruthy();
+    const before = editor();
+    const puts = putCalls().length;
+    vi.useRealTimers();
+    click('Submitted attempt', 'tab');
+    await screen.findByText(/Submitted attempt \(read only\)/);
+    // Hidden, not unmounted: the very same node keeps its text.
+    expect(document.body.contains(before)).toBe(true);
+    expect(before.value).toBe('typed\n');
+    click('Released feedback', 'tab');
+    await screen.findByText(/Feedback has not been released/);
+    expect(document.body.contains(before)).toBe(true);
+    click('Working copy', 'tab');
+    expect(editor()).toBe(before);
+    expect(before.value).toBe('typed\n');
+    expect(screen.getByText('Saved. Revision 1.')).toBeTruthy();
+    expect(putCalls()).toHaveLength(puts);
+    expect(postAttempts()).toHaveLength(0);
+  });
+
+  it('defaults to the latest attempt, selects an earlier one and pages older attempts without moving the selection', async () => {
+    seedAttempt('attempt-3', '2026-11-10T10:00:00.000Z', 'third\n');
+    seedAttempt('attempt-2', '2026-11-09T10:00:00.000Z', 'second\n');
+    seedAttempt('attempt-1', '2026-11-08T10:00:00.000Z', 'first\n');
+    const item = (a: any) => ({
+      attemptId: a.attemptId,
+      assignmentVersionId: a.version,
+      submittedAt: a.submittedAt,
+      answerCount: 2,
+      feedbackReleased: a.attemptId === 'attempt-2',
+    });
+    overrides['GET /api/student/publications/v1/attempts'] = () => ({
+      status: 200,
+      body: {
+        schemaVersion: 1,
+        items: attempts.slice(0, 2).map(item),
+        nextCursor: '2',
+      },
+    });
+    overrides['GET /api/student/publications/v1/attempts?cursor=2'] = () => ({
+      status: 200,
+      body: {
+        schemaVersion: 1,
+        items: attempts.slice(2).map(item),
+        nextCursor: null,
+      },
+    });
+    await open();
+    click('Submitted attempt', 'tab');
+    const select = await screen.findByLabelText('Attempt');
+    const chosen = () => (select as unknown as { value: string }).value;
+    await waitFor(() => expect(sourceOf(1)).toContain('third'));
+    expect(chosen()).toBe('attempt-3');
+    expect(
+      within(select)
+        .getAllByRole('option')
+        .map((o) => o.textContent),
+    ).toEqual([
+      `Submitted ${formatDeadline('2026-11-10T10:00:00.000Z')}`,
+      `Submitted ${formatDeadline('2026-11-09T10:00:00.000Z')} · Feedback released`,
+    ]);
+    fireEvent.change(select, { target: { value: 'attempt-2' } });
+    await waitFor(() => expect(sourceOf(1)).toContain('second'));
+    click('Show older attempts');
+    await waitFor(() =>
+      expect(
+        within(select)
+          .getAllByRole('option')
+          .map((o) => o.getAttribute('value')),
+      ).toEqual(['attempt-3', 'attempt-2', 'attempt-1']),
+    );
+    expect(chosen()).toBe('attempt-2');
+    expect(sourceOf(1)).toContain('second');
+    expect(
+      screen.queryByRole('button', { name: 'Show older attempts' }),
+    ).toBeNull();
+    // The selection survives a round trip through the other historical view.
+    click('Released feedback', 'tab');
+    await screen.findByText(/Feedback has not been released/);
+    expect(
+      (screen.getByLabelText('Attempt') as unknown as { value: string }).value,
+    ).toBe('attempt-2');
+  });
+
+  it('keeps the view and attempt on Next and ends in an Attempt summary without submit or Review', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one of nine\n');
+    await open();
+    click('Released feedback', 'tab');
+    await screen.findByText(/Feedback has not been released/);
+    expect(sourceOf(1)).toContain('one of nine');
+    const before = feedbackCalls().length;
+    click('Next question');
+    await screen.findByRole('heading', { level: 2, name: 'Question title 2' });
+    expect(tabSelected('Released feedback')).toBe('true');
+    await waitFor(() => expect(sourceOf(2)).toContain('second of attempt-9'));
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 2, name: 'Question title 2' }),
+    );
+    expect(screen.getByText('Question 2 of 2')).toBeTruthy();
+    expect(
+      screen.getByText('Question 2 of 2, Released feedback: Question title 2'),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Review assignment' }),
+    ).toBeNull();
+    // One summary request per question shown (SF-02, SQ-04).
+    await waitFor(() => expect(feedbackCalls().length).toBe(before + 1));
+    expect(putCalls()).toHaveLength(0);
+    click('Attempt summary');
+    const summary = await screen.findByRole('article', {
+      name: 'Submitted attempt',
+    });
+    await within(summary).findByText(/one of nine/);
+    expect(summary.textContent).toContain('second of attempt-9');
+    expect(
+      screen.queryByRole('button', { name: /Submit|Review assignment/ }),
+    ).toBeNull();
+    fireEvent.click(
+      within(summary).getByRole('button', { name: 'Back to question 2' }),
+    );
+    await screen.findByRole('heading', { level: 2, name: 'Question title 2' });
+    expect(tabSelected('Released feedback')).toBe('true');
+    expect(postAttempts()).toHaveLength(0);
+  });
+
+  it('follows an earlier version pinned to fewer questions, never mixing it with the current one', async () => {
+    seedAttempt(
+      'attempt-5',
+      '2026-11-05T10:00:00.000Z',
+      'older one\n',
+      'v2',
+      1,
+    );
+    overrides['GET /api/student/publications/v2'] = () => {
+      const p = publication('v2');
+      return {
+        status: 200,
+        body: {
+          ...p,
+          questions: [{ ...p.questions[0], title: 'Pinned earlier title' }],
+        },
+      };
+    };
+    await open(2);
+    click('Submitted attempt', 'tab');
+    await screen.findByRole('heading', {
+      level: 2,
+      name: 'Pinned earlier title',
+    });
+    expect(screen.queryByText('Question title 2')).toBeNull();
+    expect(screen.getByText('Question 1 of 1')).toBeTruthy();
+    expect(
+      screen.getByText(/different version of this assignment/),
+    ).toBeTruthy();
+    expect(sourceOf(1)).toContain('older one');
+    // The last (only) question of the pinned version offers the summary, not Review.
+    expect(
+      screen.getByRole('button', { name: 'Attempt summary' }),
+    ).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Next question' })).toBeNull();
+    // Back on the working copy the route's own publication and question return.
+    click('Working copy', 'tab');
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Question title 2' }),
+    ).toBeTruthy();
+    expect(screen.getByText('Question 2 of 2')).toBeTruthy();
+    expect(editor(2)).toBeTruthy();
+  });
+
+  const historyKey = 'GET /api/student/publications/v1/attempts';
+  const historyCalls = () => calls.filter((c) => c.key === historyKey);
+
+  it('shows a retryable network failure when the history cannot be read', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one\n');
+    overrides[historyKey] = () => ({ status: 503 });
+    await open();
+    click('Submitted attempt', 'tab');
+    expect(
+      await screen.findByText(
+        'This could not be loaded. Check your connection and try again.',
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('region', { name: /Submitted source/ }),
+    ).toBeNull();
+    delete overrides[historyKey];
+    click('Try again');
+    await waitFor(() => expect(sourceOf(1)).toContain('one'));
+  });
+
+  it('asks the student to sign in again when the history read returns 401', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one\n');
+    overrides[historyKey] = () => ({ status: 401 });
+    await open();
+    click('Released feedback', 'tab');
+    expect(
+      await screen.findByText(
+        'Your session has ended. Sign in again to continue.',
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('region', { name: /Submitted source/ }),
+    ).toBeNull();
+  });
+
+  it('refetches the history after a submit and selects the new latest attempt', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'before submit\n');
+    drafts.set('qv-v1-1', { revision: 2, source: 'answer one\n' });
+    await open();
+    click('Submitted attempt', 'tab');
+    await waitFor(() => expect(sourceOf(1)).toContain('before submit'));
+    const before = historyCalls().length;
+    click('Working copy', 'tab');
+    click('Next question');
+    await screen.findByRole('textbox', { name: /question 2/ });
+    click('Review assignment');
+    await screen.findByRole('heading', { name: 'Review assignment' });
+    click('Submit assignment…');
+    click('Confirm and submit');
+    await screen.findByRole('heading', { name: 'Assignment submitted' });
+    click('Keep editing');
+    await screen.findByRole('heading', { level: 2, name: 'Question title 1' });
+    click('Submitted attempt', 'tab');
+    await waitFor(() => expect(sourceOf(1)).toContain('answer one'));
+    expect(historyCalls().length).toBe(before + 1);
+    expect(sourceOf(1)).not.toContain('before submit');
+  });
+
+  it('ignores a slow attempt response once another attempt is selected', async () => {
+    // History is newest first in seed order.
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
+    seedAttempt('attempt-8', '2026-11-08T10:00:00.000Z', 'eight\n');
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    overrides['GET /api/student/attempts/attempt-9'] = async () => {
+      await gate;
+      return undefined;
+    };
+    await open();
+    click('Submitted attempt', 'tab');
+    const select = (await screen.findByLabelText(
+      'Attempt',
+    )) as unknown as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: 'attempt-8' } });
+    await waitFor(() => expect(sourceOf(1)).toContain('eight'));
+    await act(async () => {
+      release();
+      await gate;
+    });
+    expect(sourceOf(1)).toContain('eight');
+    expect(sourceOf(1)).not.toContain('nine');
+  });
+
+  /** Opens the workbook from an address, as a reload or a link does (SQ-05). */
+  const openAt = async (address: string) => {
+    window.history.replaceState(null, '', address);
+    const route = parseStudentRoute(
+      window.location.pathname,
+      window.location.search,
+    );
+    if (route?.kind !== 'work') throw new Error('not a work route');
+    render(createElement(Workbook, { route }));
+    await screen.findByRole('tab', { name: 'Working copy' });
+    await act(async () => undefined);
+  };
+  const address = () => window.location.pathname + window.location.search;
+  const base = '/student/assignments/v1/work';
+  const attemptReads = () =>
+    calls.filter((c) => /^GET \/api\/student\/attempts\/[^/]+$/.test(c.key));
+
+  it('restores the question, view and attempt on reload and fetches the feedback again', async () => {
+    // History is newest first in seed order.
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
+    seedAttempt('attempt-8', '2026-11-08T10:00:00.000Z', 'eight\n');
+    await openAt(`${base}/2?view=feedback&attempt=attempt-8`);
+    expect(tabSelected('Released feedback')).toBe('true');
+    await waitFor(() => expect(sourceOf(2)).toContain('second of attempt-8'));
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Question title 2' }),
+    ).toBeTruthy();
+    expect(feedbackCalls().some((c) => c.key.includes('attempt-8'))).toBe(true);
+    expect(address()).toBe(`${base}/2?view=feedback&attempt=attempt-8`);
+  });
+
+  it('resolves a view without an attempt to the latest attempt by replacing the address', async () => {
+    // History is newest first in seed order.
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
+    seedAttempt('attempt-8', '2026-11-08T10:00:00.000Z', 'eight\n');
+    await openAt(`${base}/1?view=submitted`);
+    const length = window.history.length;
+    await waitFor(() => expect(sourceOf(1)).toContain('nine'));
+    await waitFor(() =>
+      expect(address()).toBe(`${base}/1?view=submitted&attempt=attempt-9`),
+    );
+    expect(window.history.length).toBe(length);
+  });
+
+  it('pushes view, attempt and question changes and restores them on Back/Forward', async () => {
+    // History is newest first in seed order.
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
+    seedAttempt('attempt-8', '2026-11-08T10:00:00.000Z', 'eight\n');
+    await openAt(`${base}/1`);
+    const start = window.history.length;
+    click('Submitted attempt', 'tab');
+    await waitFor(() =>
+      expect(address()).toBe(`${base}/1?view=submitted&attempt=attempt-9`),
+    );
+    fireEvent.change(screen.getByLabelText('Attempt'), {
+      target: { value: 'attempt-8' },
+    });
+    await waitFor(() =>
+      expect(address()).toBe(`${base}/1?view=submitted&attempt=attempt-8`),
+    );
+    click('Next question');
+    await waitFor(() =>
+      expect(address()).toBe(`${base}/2?view=submitted&attempt=attempt-8`),
+    );
+    expect(window.history.length).toBe(start + 3);
+    // Back: question 1 of the same view and attempt.
+    await act(async () => {
+      window.history.back();
+      await new Promise((r) =>
+        window.addEventListener('popstate', r, { once: true }),
+      );
+    });
+    await screen.findByRole('heading', { level: 2, name: 'Question title 1' });
+    expect(tabSelected('Submitted attempt')).toBe('true');
+    await waitFor(() => expect(sourceOf(1)).toContain('eight'));
+    // Back twice more: the latest attempt, then the Working copy.
+    await act(async () => {
+      window.history.back();
+      await new Promise((r) =>
+        window.addEventListener('popstate', r, { once: true }),
+      );
+    });
+    await waitFor(() => expect(sourceOf(1)).toContain('nine'));
+    await act(async () => {
+      window.history.back();
+      await new Promise((r) =>
+        window.addEventListener('popstate', r, { once: true }),
+      );
+    });
+    await waitFor(() => expect(tabSelected('Working copy')).toBe('true'));
+    expect(address()).toBe(`${base}/1`);
+    // Forward returns to the Submitted attempt view.
+    await act(async () => {
+      window.history.forward();
+      await new Promise((r) =>
+        window.addEventListener('popstate', r, { once: true }),
+      );
+    });
+    await waitFor(() => expect(tabSelected('Submitted attempt')).toBe('true'));
+    expect(putCalls()).toHaveLength(0);
+    expect(postAttempts()).toHaveLength(0);
+  });
+
+  it('opens the Working copy for a damaged query, sends nothing with it and cleans the address', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
+    for (const search of [
+      '?view=bogus&attempt=attempt-9',
+      '?view=submitted&attempt=a%2Fb',
+      '?attempt=attempt-9',
+    ]) {
+      cleanup();
+      calls.length = 0;
+      await openAt(`${base}/2${search}`);
+      expect(tabSelected('Working copy'), search).toBe('true');
+      await waitFor(() => expect(address(), search).toBe(`${base}/2`));
+      expect(attemptReads(), search).toHaveLength(0);
+      expect(calls.some((c) => c.key.includes('a/b'))).toBe(false);
+    }
+  });
+
+  it('shows only the unavailable state for a forged attempt ID in the address', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'nine\n');
+    overrides['GET /api/student/attempts/attempt-other'] = () => ({
+      status: 404,
+    });
+    await openAt(`${base}/1?view=feedback&attempt=attempt-other`);
+    expect(
+      await screen.findByText('This is not available to you.'),
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toContain('Attempt ID');
+    expect(document.body.textContent).not.toContain('Pinned version');
+    expect(
+      screen.queryByRole('region', { name: /Submitted source/ }),
+    ).toBeNull();
+    expect(feedbackCalls()).toHaveLength(0);
+  });
+
+  it('clamps to the attempt’s own question count with a replace, and restores the route question on Working copy', async () => {
+    seedAttempt('attempt-5', '2026-11-05T10:00:00.000Z', 'older\n', 'v2', 1);
+    overrides['GET /api/student/publications/v2'] = () => {
+      const p = publication('v2');
+      return {
+        status: 200,
+        body: { ...p, questions: [p.questions[0]] },
+      };
+    };
+    await openAt(`${base}/2?view=submitted&attempt=attempt-5`);
+    const length = window.history.length;
+    await waitFor(() =>
+      expect(address()).toBe(`${base}/1?view=submitted&attempt=attempt-5`),
+    );
+    expect(window.history.length).toBe(length);
+    expect(screen.getByText('Question 1 of 1')).toBeTruthy();
+    click('Working copy', 'tab');
+    await waitFor(() => expect(address()).toBe(`${base}/2`));
+    expect(screen.getByText('Question 2 of 2')).toBeTruthy();
+  });
+
+  it('shows only the unavailable state for an attempt that cannot be read', async () => {
+    seedAttempt('attempt-9', '2026-11-09T10:00:00.000Z', 'one\n');
+    overrides['GET /api/student/attempts/attempt-9'] = () => ({ status: 404 });
+    await open();
+    click('Submitted attempt', 'tab');
+    expect(
+      await screen.findByText('This is not available to you.'),
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toContain('Attempt ID');
+    expect(
+      screen.queryByRole('region', { name: /Submitted source/ }),
+    ).toBeNull();
   });
 });

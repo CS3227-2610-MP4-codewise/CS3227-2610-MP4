@@ -71,6 +71,11 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
     page: string;
     status: ReadonlyMap<string, AssignmentStatus>;
   } | null>(null);
+  // SQ-07: the overview's latest-attempt link, bound to the version it was read for.
+  const [latest, setLatest] = useState<{
+    versionId: string;
+    attempt: { attemptId: string; feedbackReleased: boolean };
+  } | null>(null);
   const generations = useRef(new RequestGenerations());
   const heading = useRef<HTMLHeadingElement>(null);
   const focused = useRef(false);
@@ -121,6 +126,20 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
               // A failed status read only means no tags (AS-03); the list stays as it is.
               .catch(() => {
                 if (request.current()) setTags(null);
+              });
+          }
+          if (loaded.kind === 'overview' && route.kind === 'overview') {
+            const versionId = route.versionId;
+            api
+              .latestAttempt(versionId, request.signal)
+              .then((attempt) => {
+                if (request.current())
+                  setLatest(attempt ? { versionId, attempt } : null);
+              })
+              // No attempts, or any failure (including 401), only means no link (SQ-07); the
+              // overview's own session handling covers expiry.
+              .catch(() => {
+                if (request.current()) setLatest(null);
               });
           }
           // A successful read, including focus revalidation, ends any earlier failure.
@@ -298,7 +317,14 @@ function StudentBrowse({ route }: { route: StudentRoute | null }) {
           />
         )}
         {state.phase === 'ready' && state.loaded.kind === 'overview' && (
-          <Overview publication={state.loaded.data} />
+          <Overview
+            publication={state.loaded.data}
+            latest={
+              latest?.versionId === state.loaded.data.assignmentVersionId
+                ? latest.attempt
+                : null
+            }
+          />
         )}
       </main>
     </div>
@@ -474,7 +500,14 @@ function Pager({
   );
 }
 
-export function Overview({ publication }: { publication: Publication }) {
+export function Overview({
+  publication,
+  latest = null,
+}: {
+  publication: Publication;
+  /** SQ-07: the latest attempt, when the history could be read and has one. */
+  latest?: { attemptId: string; feedbackReleased: boolean } | null;
+}) {
   return (
     <article className="cw-student-overview">
       <dl className="cw-student-meta">
@@ -501,13 +534,28 @@ export function Overview({ publication }: { publication: Publication }) {
       <p className="cw-student-readonly">
         This is a read-only view of this published version.
       </p>
-      <p>
+      <p className="cw-student-overview-actions">
         <a
           className="cw-action cw-action--primary"
           href={studentPaths.work(publication.assignmentVersionId, 1)}
         >
           Open my work <Icon name="arrow-right" />
         </a>
+        {latest && (
+          <>
+            <a
+              className="cw-action cw-action--secondary"
+              href={studentPaths.work(publication.assignmentVersionId, 1, {
+                view: latest.feedbackReleased ? 'feedback' : 'submitted',
+                attempt: latest.attemptId,
+              })}
+            >
+              {latest.feedbackReleased
+                ? 'View released feedback'
+                : 'View latest submission'}
+            </a>
+          </>
+        )}
       </p>
       <ol className="cw-student-questions">
         {publication.questions.map((question, index) => (

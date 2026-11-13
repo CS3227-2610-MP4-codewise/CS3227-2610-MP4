@@ -153,3 +153,18 @@
 .cw-student-rubric li {
   margin: 6px 0;
 }
+
+/* SQ-07, UI-07: overview actions are equal-height 44px link buttons. A link is inline by default,
+   so it needs an explicit box; the row wraps at narrow widths. */
+.cw-student-overview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.cw-student-overview-actions > .cw-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}

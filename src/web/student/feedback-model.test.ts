@@ -81,6 +81,40 @@ describe('matchAnnotations (SF-04)', () => {
     ]);
   });
 
+  it('attributes every match to its own question so a per-question view can filter without re-matching (SQ-04)', () => {
+    const m = matchAnnotations(
+      [
+        note({}),
+        note({
+          submittedAnswerId: 'answer_two',
+          questionVersionId: 'question_v2',
+          rubricVersionId: 'rubric_v2',
+          excerpt: 'print(1)',
+        }),
+        // Names question 2 but quotes question 1's text: unavailable, and only on question 2.
+        note({
+          submittedAnswerId: 'answer_two',
+          questionVersionId: 'question_v2',
+          rubricVersionId: 'rubric_v2',
+          excerpt: 'total = 0',
+        }),
+      ],
+      attempt,
+    );
+    const forQuestion = (qv: string) => ({
+      matched: m.matched.filter((x) => x.annotation.questionVersionId === qv),
+      unavailable: m.unavailable.filter(
+        (x) => x.annotation.questionVersionId === qv,
+      ),
+    });
+    expect(forQuestion('question_v1').matched.map((x) => x.index)).toEqual([0]);
+    expect(forQuestion('question_v1').unavailable).toEqual([]);
+    expect(forQuestion('question_v2').matched.map((x) => x.index)).toEqual([1]);
+    expect(forQuestion('question_v2').unavailable.map((x) => x.index)).toEqual([
+      2,
+    ]);
+  });
+
   it('treats the final LF as the end of the last line, not a new line', () => {
     expect(sourceLines(attempt.answers[0].source)).toHaveLength(4);
     expect(sourceLines('print(1)')).toEqual(['print(1)']);
