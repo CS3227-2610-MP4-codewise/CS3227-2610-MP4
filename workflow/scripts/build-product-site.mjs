@@ -21,6 +21,7 @@ const source = resolve(root, 'src/product-site');
 const out = resolve(root, 'site-dist');
 const repository =
   'https://github.com/CS3227-2610-MP4-codewise/CS3227-2610-MP4';
+const defaultBranch = 'master';
 const mermaidModule =
   'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
 
@@ -102,7 +103,7 @@ function rewriteHref(href, markdownPath) {
   const target = posix.normalize(posix.join(posix.dirname(markdownPath), path));
   const guide = guides.find((g) => g.markdown === target);
   if (guide) return guide.page + (hash ? `#${hash}` : '');
-  return `${repository}/blob/main/${target}${hash ? `#${hash}` : ''}`;
+  return `${repository}/blob/${defaultBranch}/${target}${hash ? `#${hash}` : ''}`;
 }
 
 const header = (current) => `<a class="skip" href="#main">Skip to content</a>
@@ -171,8 +172,8 @@ ${toc.map((t) => `            <li><a href="#${t.id}">${escapeHtml(t.text)}</a></
 ${body}
         <p class="source-note">
           Rendered from
-          <a href="${repository}/blob/main/${guide.markdown}">${guide.markdown}</a>
-          on the main branch.
+          <a href="${repository}/blob/${defaultBranch}/${guide.markdown}">${guide.markdown}</a>
+          on the ${defaultBranch} branch.
         </p>
       </article>
     </main>

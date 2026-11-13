@@ -13,7 +13,14 @@ Codewise is a programming workbook. Instructors publish Python assignments and r
 | Production app  | <https://codewise-production.codewise-cs3227-2610.workers.dev/sign-in> | Team-managed release                                  |
 | Local app       | <http://127.0.0.1:8787/sign-in>                                        | Requires developer setup                              |
 
-**Peer-test access:** ask Darryl or Keith for an invitation to a synthetic test course and the environment/revision to test. There is no public registration, shared password in this repository, or ability to grant yourself Instructor access. Use synthetic data only. If the team has not supplied an invitation and configured deployment, authenticated testing is not ready. See the [submission release checklist](../workflow/evidence/final-submission/verification.md); older foundation evidence does not verify current feature flows.
+**Reviewer test account:** reviewers can sign in on the [production app](https://codewise-production.codewise-cs3227-2610.workers.dev/sign-in) with this shared Instructor account:
+
+| Field    | Value                  |
+| -------- | ---------------------- |
+| Email    | `instructor@u.nus.edu` |
+| Password | `12345678`             |
+
+Use it to create a course and to add Instructor or Student users from **People** (see [Instructor: courses and People](#instructor-courses-and-people)). Invitations are emailed, so invite NUS addresses you can receive mail at, then accept them to create those accounts. Do not change this account's password. There is no public registration, and you cannot grant yourself Instructor access from another account. Use synthetic data only. See the [submission release checklist](../workflow/evidence/final-submission/verification.md); older foundation evidence does not verify current feature flows.
 
 For local testing, a developer must configure Firebase/password and email integration in the ignored local environment file. See [developer setup](DeveloperGuide.md#local-setup). Installation without credentials can run automated tests and display the public page, but cannot provide a complete sign-in test. Use the configured single origin `127.0.0.1:8787` for authenticated testing.
 
@@ -177,4 +184,4 @@ The explanation is AI-generated, is labelled as such, and never changes a grade.
 
 ## Peer-test walkthrough
 
-Use two invited synthetic accounts (Instructor and Student) in the same course. Publish two questions with a future deadline. The student edits both, waits for saved states, confirms submission and records the attempt ID. The instructor opens **Grading**, reviews that exact attempt, grades manually, saves, approves and releases. The student opens the **Released feedback** tab for the same attempt and checks the feedback. Edit the working copy afterwards and confirm the **Submitted attempt** tab still shows the original source. Test conflicts, a newer publication, corrections and withdrawal separately. AI grading and progress explanations need separately verified provider configuration and budget; the manual walkthrough does not need them.
+Sign in with the [reviewer test account](#access-and-testing), create a course and invite a Student account you control. Use the two accounts (Instructor and Student) in the same course. Publish two questions with a future deadline. The student edits both, waits for saved states, confirms submission and records the attempt ID. The instructor opens **Grading**, reviews that exact attempt, grades manually, saves, approves and releases. The student opens the **Released feedback** tab for the same attempt and checks the feedback. Edit the working copy afterwards and confirm the **Submitted attempt** tab still shows the original source. Test conflicts, a newer publication, corrections and withdrawal separately. AI grading and progress explanations need separately verified provider configuration and budget; the manual walkthrough does not need them.

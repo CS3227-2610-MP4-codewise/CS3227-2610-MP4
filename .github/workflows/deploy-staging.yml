@@ -2,7 +2,7 @@ name: Deploy staging and production
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 permissions:
   contents: read
@@ -72,7 +72,7 @@ jobs:
 
   production:
     needs: deploy
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -100,13 +100,13 @@ jobs:
         with:
           name: staging-release-${{ github.sha }}
           path: dist
-      - name: Verify exact staging artifact and current main revision
+      - name: Verify exact staging artifact and current master revision
         uses: actions/github-script@v7
         with:
           script: |
             const { readFileSync } = await import('node:fs');
             const { assertReleaseArtifact } = await import(`${process.env.GITHUB_WORKSPACE}/workflow/scripts/release-gate.mjs`);
-            const { data: main } = await github.rest.repos.getCommit({...context.repo, ref: 'main'});
+            const { data: main } = await github.rest.repos.getCommit({...context.repo, ref: 'master'});
             assertReleaseArtifact(JSON.parse(readFileSync('dist/release.json', 'utf8')), {
               sha: context.sha,
               runId: String(context.runId),
