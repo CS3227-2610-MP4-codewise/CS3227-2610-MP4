@@ -1,3 +1,20 @@
+# Current authentication setup — 13 November 2026
+
+The active Worker uses **Firebase passwords/proof links and Gmail delivery**, composed with Darryl's course authority. Google/OIDC instructions below are preserved history; do not follow them to configure the current app. Sources: src/server/index.ts, auth/managed-routes.ts, auth/firebase.ts, auth/owner.ts and .dev.vars.example.
+
+1. Copy .dev.vars.example to ignored .dev.vars. Set exact AUTH_ORIGIN=http://127.0.0.1:8787 for local authenticated testing.
+2. Supply approved server-only FIREBASE_PROJECT_ID, FIREBASE_API_KEY, FIREBASE_SERVICE_ACCOUNT_EMAIL and FIREBASE_PRIVATE_KEY. Follow the example's PEM formatting. The team must configure its approved Firebase password service; missing configuration fails closed.
+3. For real email proof delivery configure GMAIL_SENDER_EMAIL, GMAIL_APP_PASSWORD and explicitly enable AUTH_MAIL_ENABLED only in the approved environment. Never use a normal Gmail password or commit credentials.
+4. A fresh local database needs an approved starting owner: set explicit BOOTSTRAP_OWNER_EMAIL and BOOTSTRAP_OWNER_PASSWORD privately, then sign in using them. There are no default credentials. Bootstrap establishes a reserved owner identity, not arbitrary course memberships. Existing accounts use their existing passwords; do not casually reset a shared provider identity.
+5. Run npm.cmd run build, npm.cmd run db:local and npm.cmd run dev:api. Open the exact origin above. Eligible users create courses and invite NUS recipients through the app; validated acceptance grants the selected Student/Instructor role. No public registration.
+6. Leave SoCLaaS disabled for manual tests. See [Developer Guide](../../docs/DeveloperGuide.md) and [User Guide](../../docs/UserGuide.md). Synthetic previews do not verify Firebase credentials, email delivery or hosted readiness.
+
+No remote provisioning or production migration is performed by this setup. Use reviewed release procedures for hosted changes.
+
+---
+
+## Historical Google/OIDC producer record
+
 # SH-AUTH producer and local operation
 
 Darryl owns this slice (AUTH-01–03, CON-03/07, UI-01/02/07/08; warm-workbook-v1). Keith owns courses, memberships and object authorization. See [handoff](../handoffs/shared-authentication.md) for exact source identity, evidence and pending integration. This directory contains local helpers, never a deployed alternate identity store/provider.

@@ -1,3 +1,5 @@
+> Historical evaluation-planning checkpoint. Later live results and current conclusions are linked from [Reflections](Reflections.md); the pending-real-model wording below belongs to the earlier checkpoint.
+
 # Reflections
 
 Status: initial synthetic control completed; real-model and instructor review remain pending.
