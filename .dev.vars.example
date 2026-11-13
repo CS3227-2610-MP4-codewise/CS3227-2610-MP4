@@ -21,3 +21,7 @@ SOCLAAS_INSTRUCTOR_ENABLED=false
 SOCLAAS_INSTRUCTOR_CONFIG=
 SOCLAAS_INSTRUCTOR_API_KEY=
 SOCLAAS_STUDENT_API_KEY=
+# Student progress explanations (student-progress): explicitly disabled. The config uses the same
+# keys as SOCLAAS_INSTRUCTOR_CONFIG; its six limit values must equal the instructor's (one shared pool).
+SOCLAAS_STUDENT_ENABLED=false
+SOCLAAS_STUDENT_CONFIG=

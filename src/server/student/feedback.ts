@@ -39,7 +39,7 @@ type Entry = {
  * share the uniform 404, a currentness change is STALE_FEEDBACK (409) and any other failure,
  * including a producer contract breach, is 503. Producer issue details never reach the response.
  */
-async function producer<T>(call: () => Promise<T>): Promise<T> {
+export async function producer<T>(call: () => Promise<T>): Promise<T> {
   try {
     return await call();
   } catch (error) {
@@ -56,7 +56,7 @@ async function producer<T>(call: () => Promise<T>): Promise<T> {
 }
 
 /** Checks one producer entry belongs to `attemptId` and is internally consistent. */
-function checkEntry(attemptId: string, raw: unknown): Entry | null {
+export function checkEntry(attemptId: string, raw: unknown): Entry | null {
   if (raw === null) return null;
   if (raw === undefined || typeof raw !== 'object')
     throw new BoundaryError('UPSTREAM_UNAVAILABLE');

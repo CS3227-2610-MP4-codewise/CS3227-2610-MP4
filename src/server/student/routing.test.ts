@@ -24,6 +24,8 @@ describe('student work routing in the composed Worker', () => {
       ['POST', '/api/student/publications/p/attempts'],
       ['GET', '/api/student/publications/p/attempts'],
       ['GET', '/api/student/attempts/a'],
+      ['GET', '/api/student/courses/c/progress'],
+      ['POST', '/api/student/courses/c/progress'],
     ]) {
       const res = await app.fetch(
         new Request('https://app.example.test' + path, { method }),

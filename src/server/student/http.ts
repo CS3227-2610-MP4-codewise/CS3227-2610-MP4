@@ -21,6 +21,11 @@ import type { TrustedPrincipal } from '../instructor/ports/contracts';
 import type { StudentAssignments } from './repository';
 import { StudentWorkError, type StudentWork } from './work';
 import { StudentFeedback, type StudentReleasePort } from './feedback';
+import { ProgressFailure, type StudentProgress } from './progress';
+import {
+  MAX_PROGRESS_REQUEST_BYTES,
+  progressRequestSchema,
+} from '../../shared/student-progress';
 
 /** Minimal session port so the handler depends only on trusted SH-AUTH resolution. */
 export interface StudentSessions {
@@ -42,7 +47,8 @@ const statusOf = (code: string) =>
               code === 'STALE_PUBLICATION' ||
               code === 'DEADLINE_PASSED' ||
               code === 'STALE_FEEDBACK' ||
-              code === 'IDEMPOTENCY_MISMATCH'
+              code === 'IDEMPOTENCY_MISMATCH' ||
+              code === 'IDEMPOTENCY_CONFLICT'
             ? 409
             : 503;
 
@@ -59,6 +65,7 @@ const routes = {
   attempt: route(`attempts/${id}`),
   feedback: route(`attempts/${id}/feedback`),
   feedbackVersion: route(`attempts/${id}/feedback/([1-9][0-9]{0,8})`),
+  progress: route(`courses/${id}/progress`),
 };
 
 /** Reads at most `max` bytes of a JSON body; larger bodies fail before parsing. */
@@ -109,7 +116,10 @@ export async function studentHandler(
   work?: StudentWork,
   /** SF-01, design D3: the composed C-REL producer for this request; absent means 503. */
   feedback?: (request: Request) => StudentReleasePort,
+  /** student-progress SP-01–SP-09: the per-request progress service; absent means 404. */
+  progress?: (request: Request) => StudentProgress,
 ): Promise<Response> {
+  let retryAfter = STUDENT_RETRY_AFTER_SECONDS;
   const json = (body: unknown, status = 200) =>
     Response.json(body, {
       status,
@@ -117,7 +127,7 @@ export async function studentHandler(
         status === 429
           ? {
               ...authHeaders,
-              'Retry-After': String(STUDENT_RETRY_AFTER_SECONDS),
+              'Retry-After': String(retryAfter),
             }
           : authHeaders,
     });
@@ -135,7 +145,8 @@ export async function studentHandler(
       draft = match('draft'),
       attempt = match('attempt'),
       feedbackRoute = match('feedback'),
-      feedbackVersion = match('feedbackVersion');
+      feedbackVersion = match('feedbackVersion'),
+      progressRoute = match('progress');
     const known =
       (request.method === 'GET' &&
         (listing ||
@@ -145,9 +156,10 @@ export async function studentHandler(
           attempts ||
           attempt ||
           feedbackRoute ||
-          feedbackVersion)) ||
+          feedbackVersion ||
+          progressRoute)) ||
       (request.method === 'PUT' && draft) ||
-      (request.method === 'POST' && (move || attempts));
+      (request.method === 'POST' && (move || attempts || progressRoute));
     if (!known) throw new BoundaryError('NOT_FOUND');
     if (mutation) {
       if (!sessions.requireMutationOrigin)
@@ -171,6 +183,26 @@ export async function studentHandler(
       return json(await reads.publication(principal, overview[1]));
     }
     if (!work) throw new BoundaryError('NOT_FOUND');
+    if (progressRoute) {
+      // SP-02: session (above), then the SQL course guard inside the service; no query string.
+      assert(keys.length === 0, '$', 'query');
+      if (!progress) throw new BoundaryError('NOT_FOUND');
+      const service = progress(request);
+      if (!mutation)
+        return json(await service.view(principal, progressRoute[1]));
+      const body = await boundedJson(
+        request,
+        MAX_PROGRESS_REQUEST_BYTES,
+        progressRequestSchema,
+      );
+      return json(
+        await service.generate(
+          principal,
+          progressRoute[1],
+          body.idempotencyKey,
+        ),
+      );
+    }
     if (workRoute) {
       assert(keys.length === 0, '$', 'query');
       return json(await work.work(principal, workRoute[1]));
@@ -255,7 +287,22 @@ export async function studentHandler(
     }
     assert(keys.length === 0, '$', 'query');
     return json(await work.attempt(principal, attempt![1]));
-  } catch (error) {
+  } catch (caught) {
+    // A stale gateway evidence check is the student's stale-feedback conflict (409).
+    const error =
+      caught instanceof BoundaryError && caught.code === 'STALE_EVIDENCE'
+        ? new StudentWorkError('STALE_FEEDBACK')
+        : caught;
+    if (error instanceof ProgressFailure) {
+      // SP-04: only the gateway's safe code (and wait) reaches the browser.
+      if (error.retryAfterSeconds !== undefined)
+        retryAfter = error.retryAfterSeconds;
+      return json(
+        toSafeError(new BoundaryError(error.code), crypto.randomUUID()),
+        // A rejected model output is the provider's failure, never the student's bad request.
+        error.code === 'RATE_LIMITED' ? 429 : 503,
+      );
+    }
     if (error instanceof StudentWorkError) {
       const requestId = crypto.randomUUID();
       const base = {

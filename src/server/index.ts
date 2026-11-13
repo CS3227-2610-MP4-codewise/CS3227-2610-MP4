@@ -28,7 +28,13 @@ import { studentReleasePort } from './student/release-port';
 import { D1OwnedAttemptReader } from './instructor/assessments/owned-attempt';
 import { releaseHandler } from './instructor/assessments/release-http';
 import { BoundaryError } from '../shared/instructor-contracts/schema';
-import { instructorAIConfig } from './ai/runtime-config';
+import { instructorAIConfig, studentAIConfig } from './ai/runtime-config';
+import {
+  ProgressEvidence,
+  ProgressRepository,
+  StudentProgress,
+  progressResolver,
+} from './student/progress';
 import { SecureAIGateway } from './ai/gateway';
 import { GatewayStore } from './ai/store';
 
@@ -203,19 +209,42 @@ export function createApplication(ports: DevelopmentPorts = {}) {
         }
         if (pathname.startsWith('/api/student/')) {
           const work = new StudentWork(env.DB, Date.now, d1RateLimiter(store));
+          // SF-01, C-REL: Darryl's real producer with student read ports; never loopback samples.
+          const releasePort = (r: Request) =>
+            studentReleasePort(
+              env.DB,
+              composeIdentityCourse(auth, courses),
+              work,
+              r,
+            );
+          // student-progress D7 (Keith; Darryl review pending): the progress gateway exists only
+          // with a valid, explicitly enabled student configuration; otherwise AI_DISABLED.
+          const studentAI = studentAIConfig(env);
+          const progress = (r: Request) => {
+            const repo = new ProgressRepository(env.DB, work.clock);
+            const evidence = new ProgressEvidence(repo, releasePort(r));
+            return new StudentProgress(
+              repo,
+              evidence,
+              studentAI
+                ? new SecureAIGateway(new GatewayStore(env.DB), {
+                    action: 'progress-explanation',
+                    ...studentAI,
+                    secrets: env,
+                    resolve: progressResolver((p, c) => evidence.select(p, c)),
+                  })
+                : undefined,
+              studentAI?.profile.outputTokenLimit ?? 1024,
+              d1RateLimiter(store),
+            );
+          };
           return studentHandler(
             request,
             auth,
             new StudentAssignments(env.DB),
             work,
-            // SF-01, C-REL: Darryl's real producer with student read ports; never loopback samples.
-            (r) =>
-              studentReleasePort(
-                env.DB,
-                composeIdentityCourse(auth, courses),
-                work,
-                r,
-              ),
+            releasePort,
+            progress,
           );
         }
         if (pathname === '/api/courses' || pathname.startsWith('/api/courses/'))

@@ -1,18 +1,39 @@
 import type { Environment } from '../environment';
 import type { GatewayLimits, VerifiedAIProfile } from './config';
 
+type AIConfig = { profile: VerifiedAIProfile; limits: GatewayLimits };
+
 /** Explicitly operator-verified, server-only configuration. Missing or malformed settings disable AI. */
-export function instructorAIConfig(
-  env: Environment,
-): { profile: VerifiedAIProfile; limits: GatewayLimits } | undefined {
-  if (
-    env.SOCLAAS_INSTRUCTOR_ENABLED !== 'true' ||
-    !env.SOCLAAS_INSTRUCTOR_API_KEY ||
-    !env.SOCLAAS_INSTRUCTOR_CONFIG
-  )
-    return undefined;
+export function instructorAIConfig(env: Environment): AIConfig | undefined {
+  return parseAIConfig(
+    env.SOCLAAS_INSTRUCTOR_ENABLED,
+    env.SOCLAAS_INSTRUCTOR_API_KEY,
+    env.SOCLAAS_INSTRUCTOR_CONFIG,
+  );
+}
+
+/**
+ * student-progress D7 (Keith; Darryl review pending): the same validation for the separate
+ * student credential. Both actions share the one `soclaas-shared` D1 quota pool, whose policy is
+ * pinned on first admission, so the six limit values must equal the instructor's while both are
+ * enabled; a different policy fails closed in the gateway store.
+ */
+export function studentAIConfig(env: Environment): AIConfig | undefined {
+  return parseAIConfig(
+    env.SOCLAAS_STUDENT_ENABLED,
+    env.SOCLAAS_STUDENT_API_KEY,
+    env.SOCLAAS_STUDENT_CONFIG,
+  );
+}
+
+function parseAIConfig(
+  enabled: string | undefined,
+  key: string | undefined,
+  json: string | undefined,
+): AIConfig | undefined {
+  if (enabled !== 'true' || !key || !json) return undefined;
   try {
-    const raw: unknown = JSON.parse(env.SOCLAAS_INSTRUCTOR_CONFIG);
+    const raw: unknown = JSON.parse(json);
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
     const v = raw as Record<string, unknown>;
     const keys = [

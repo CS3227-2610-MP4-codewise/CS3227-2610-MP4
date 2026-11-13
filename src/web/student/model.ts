@@ -19,6 +19,8 @@ export type StudentRoute =
   | { kind: 'courses'; after: string }
   | { kind: 'assignments'; courseId: string; cursor: string | null }
   | { kind: 'overview'; versionId: string; from: string | null }
+  /** student-progress SP-09: one course's progress page. */
+  | { kind: 'progress'; courseId: string }
   | {
       kind: 'work';
       versionId: string;
@@ -68,6 +70,11 @@ export function parseStudentRoute(
     if (!validCursor(cursor)) return null;
     return { kind: 'assignments', courseId: list[1], cursor };
   }
+  const progress = /^\/student\/courses\/([^/]+)\/progress$/.exec(pathname);
+  if (progress) {
+    if (!routeId.test(progress[1]) || keys.length) return null;
+    return { kind: 'progress', courseId: progress[1] };
+  }
   // SW-04, UI-04/05: workbook; `position` is the 1-based question number.
   const work = /^\/student\/assignments\/([^/]+)\/work\/([1-9][0-9]?)$/.exec(
     pathname,
@@ -105,6 +112,8 @@ export const studentPaths = {
     encodeURIComponent(courseId) +
     '/assignments' +
     (cursor ? '?cursor=' + encodeURIComponent(cursor) : ''),
+  progress: (courseId: string) =>
+    '/student/courses/' + encodeURIComponent(courseId) + '/progress',
   overview: (versionId: string, from?: string | null) =>
     '/student/assignments/' +
     encodeURIComponent(versionId) +
