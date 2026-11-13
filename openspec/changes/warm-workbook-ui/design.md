@@ -1,5 +1,9 @@
 # Warm workbook implementation design
 
+## Cross-screen polish — 2026-11-13
+
+Use the existing 24-unit outline SVG system for navigation/actions and meaningful empty states. Retain labels, native keyboard behavior, aria-hidden decorative graphics, 44px targets, currentColor and reduced-motion support; no icon dependency. Keep source-first grading and distinct save/approve/release/version/visibility semantics. Inspect real components using clearly labelled local synthetic fixtures, without live Firebase/SoCLaaS requests or account/data operations. Student changes add icons only to current Keith revisions. Review desktop/narrow/light/dark and representative keyboard/zoom states; leave broader historical integration tasks unchecked.
+
 ## Context
 
 See [proposal.md](proposal.md) for motivation and [docs/ui/design.md](../../../docs/ui/design.md) for the selected visual/interaction contract. Current implementation is a React foundation shell in `src/web/main.tsx` and placeholder CSS in `src/web/styles.css`. No application login, role service, workbook, persistence-backed editor or assessment UI exists. The new UI-01–UI-08 scenarios complement the in-flight MVP's domain/security requirements; canonical specs remain empty.

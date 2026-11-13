@@ -1,3 +1,4 @@
+import { Icon } from '../ui/brand';
 import { useEffect, useState } from 'react';
 import type { Attempt } from '../../shared/instructor-contracts/submission';
 import type { Publication } from '../../shared/instructor-contracts/publication';
@@ -93,7 +94,9 @@ export function AttemptsPanel({
   const items = [...list.data.items, ...extra];
   return (
     <div className="cw-wb-attempts">
-      <h3>Submitted attempts</h3>
+      <h3>
+        <Icon name="history" /> Submitted attempts
+      </h3>
       {items.length === 0 ? (
         <p>You have not submitted this assignment yet.</p>
       ) : (
@@ -114,7 +117,7 @@ export function AttemptsPanel({
                   <>
                     {' '}
                     <span className="cw-wb-feedback-marker">
-                      Feedback released
+                      <Icon name="message" /> Feedback released
                     </span>
                   </>
                 )}
@@ -124,7 +127,7 @@ export function AttemptsPanel({
                 onClick={() => onOpen(item.attemptId)}
                 aria-label={`Open attempt submitted ${formatDeadline(item.submittedAt)}`}
               >
-                Open attempt
+                <Icon name="eye" /> Open attempt
               </Action>
             </li>
           ))}

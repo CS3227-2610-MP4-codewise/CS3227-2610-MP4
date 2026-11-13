@@ -4,6 +4,7 @@
   padding: 24px 0;
   border-block: 1px solid var(--cw-rule);
   margin: 24px 0;
+  max-width: 40rem;
 }
 .cw-create-course input {
   width: 100%;

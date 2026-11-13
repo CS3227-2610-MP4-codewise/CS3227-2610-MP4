@@ -331,7 +331,9 @@ export function AuthApp() {
                 beforeLeave={() => !pending}
               />
             )}
-            <a href="/workspace">Courses</a>
+            <a href="/workspace">
+              <Icon name="folder" /> Courses
+            </a>
             <AccountMenu
               email={view.email}
               busy={pending}
@@ -363,7 +365,7 @@ export function AuthApp() {
             <Icon
               name={
                 invitations
-                  ? 'mail'
+                  ? 'users'
                   : view
                     ? 'book'
                     : done
@@ -1023,7 +1025,7 @@ export function AuthApp() {
                           </select>
                         </div>
                         <Action type="submit" pending={pending}>
-                          <Icon name="plus" />
+                          <Icon name="user-plus" />
                           Send invitation
                         </Action>
                       </form>
@@ -1047,7 +1049,11 @@ export function AuthApp() {
                           People could not be loaded. Try refreshing.
                         </p>
                       ) : items.length === 0 ? (
-                        <p className="auth-empty">No people yet.</p>
+                        <div className="auth-empty cw-empty-state">
+                          <Icon name="users" />
+                          <p>No people yet.</p>
+                          <p>Invite your class using their NUS email.</p>
+                        </div>
                       ) : (
                         <ul className="auth-invites">
                           {items.map((i) => (
@@ -1074,6 +1080,7 @@ export function AuthApp() {
                                   )}
                                   {i.pendingRoles.length > 0 && (
                                     <p>
+                                      <Icon name="clock" />{' '}
                                       {i.pendingRoles
                                         .map((role) =>
                                           role === 'student'
@@ -1086,6 +1093,13 @@ export function AuthApp() {
                                   )}
                                   {i.pendingRoles.length > 0 && (
                                     <p>
+                                      <Icon
+                                        name={
+                                          i.sendState === 'failed'
+                                            ? 'alert'
+                                            : 'mail'
+                                        }
+                                      />{' '}
                                       {i.sendState === 'queued'
                                         ? 'Email queued'
                                         : i.sendState === 'failed'

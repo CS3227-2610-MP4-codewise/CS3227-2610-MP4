@@ -241,7 +241,9 @@ export function Workbook({ route }: { route: WorkRoute }) {
         <Brand />
         <nav className="cw-app-nav" aria-label="Main navigation">
           {view && <WorkspaceSwitch role="student" />}
-          <a href={studentPaths.courses()}>Courses</a>
+          <a href={studentPaths.courses()}>
+            <Icon name="folder" /> Courses
+          </a>
           {view && <AccountMenu email={view.email} onSignOut={signOut} />}
         </nav>
       </header>
@@ -964,7 +966,7 @@ function Tabs({
           onClick={() => onChange(t.id)}
           onKeyDown={onKey}
         >
-          {t.label}
+          <Icon name={t.id === 'work' ? 'code' : 'history'} /> {t.label}
         </button>
       ))}
     </div>
@@ -1036,7 +1038,8 @@ function MoveChoices({
               version, currently revision {item.targetRevision}
             </label>
             <Action variant="secondary" onClick={() => void copyText(item)}>
-              Copy newer version of question {item.position}
+              <Icon name="copy" /> Copy newer version of question{' '}
+              {item.position}
             </Action>
             {copy?.id === item.id && !copy.denied && (
               <p role="status">

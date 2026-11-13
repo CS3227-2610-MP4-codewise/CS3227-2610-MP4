@@ -323,7 +323,9 @@ export function AssignmentWorkspace({
               courseId={courseId}
               beforeLeave={() => !state.pending}
             />
-            <a href="/workspace">Courses</a>
+            <a href="/workspace">
+              <Icon name="folder" /> Courses
+            </a>
             {account && (
               <AccountMenu
                 email={account.email}
@@ -438,7 +440,7 @@ export function AssignmentWorkspace({
                   pending={listing}
                   onClick={() => void list()}
                 >
-                  Try again
+                  <Icon name="refresh" /> Try again
                 </Action>
               </div>
             ) : (
@@ -446,6 +448,7 @@ export function AssignmentWorkspace({
                 {listing && <StatusMessage>Loading assignments…</StatusMessage>}
                 {!listing && rows.length === 0 && (
                   <div className="ia-empty">
+                    <Icon name="list" className="cw-empty-icon" />
                     <h2>No assignments yet.</h2>
                     <p className="ia-hint">
                       Start with a draft. Students see it only after you
