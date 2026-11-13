@@ -163,3 +163,35 @@ Final documentation checkpoint: all 10 local reference links resolve; all three 
 - Refreshed origin/main to af104619 under approved sandbox escalation, inventoried dirty paths/worktrees and compared normalized Git blob hashes with main and reachable history. Numerous AI integration/evaluation files match main; instructor ReviewWorkspace/styles and workspace-render test match older merged revisions. The index/repository/service differences omit Keith's newer released-feedback integration; those local versions are stale. Recent PRs 35/36/37 provide the newer assessment and UI changes.
 - Unique or partly unique prompt logs and evidence notes remain, including log 19 appendices and logs 24/27/28. Do not irreversibly delete this history. Clear the checkout using a named local recovery stash including untracked files, excluding separate worktrees, after the reflection is published. Keep .worktrees intact and locally excluded; no repository-wide ignore rule or worktree removal required.
 - Publication remains restricted to the four reflection/index/notes/log files. All other local leftovers are retained in recovery storage rather than published or assumed valueless. Final main fast-forward and clean-status verification follow publication. No product tests repeated for repository housekeeping; previous exact check failures remain recorded. No provider calls or deployment.
+
+### Publication and cleanup checkpoint — 2026-11-13
+
+- Published exactly four scoped documentation/log files as commit 5e784316ab7146acd59bc3dbd5dd0831f6d6c7c8 on codex/darryl-mp4-reflection and opened PR #38. Remote compare confirmed one commit ahead and no unrelated file changes. PR is mergeable; CI was running at this checkpoint, with secret scan passing. User has explicitly authorized merge; no deployment requested.
+- Saved recovery stash 3b2ccd6eabf6b8fe2c4eecc8b659b6f0af95fee1 (`stash@{0}` at creation). The first stash command saved the backup but exited 1 because its excluded .worktrees path was also ignored, leaving changes staged. Verified normalized blob hashes for all 54 changed files against the stash's tracked and untracked trees, then cleared the checkout with git restore --source=HEAD --staged --worktree -- . under approved escalation. No backup was dropped.
+- Added /.worktrees/ only to local .git/info/exclude; all five in-repository worktrees and the existing patch remained intact. Ignored credentials and development data were not cleaned. git status was clean after restoration. git pull --ff-only origin main then succeeded, fast-forwarding f787176 to af104619; final pull after the reflection merge remains necessary.
+- CI/merge result and final local HEAD will be verified before the response. Current token measurements remain unavailable/provisional; no final usage inferred.
+
+## Prompt REFLECTION-07 — 2026-11-13 Asia/Singapore
+
+**Prompt (redacted):** Continue the authorized reflection merge and checkout cleanup.
+
+### Agents spawned
+
+- New agents: None; sequential publication and repository verification need no delegation.
+- Reused agents: None.
+- Main agent: /root; model identifier unavailable.
+
+### Token count
+
+| Agent | Input | Cached input (subset) | Output | Total tokens | Source record | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Main | unavailable | unavailable | unavailable | unavailable | unavailable | provisional; active turn incomplete |
+| Children | 0 | 0 | 0 | 0 | observed activity | none spawned or reused |
+
+- Current total/source group and prior prompt final reconciliation unavailable. Recorder refresh previously failed EPERM; no newly attributable usage established. Later calls/final response excluded; count shared groups once and reconcile at next checkpoint.
+
+### Experiment outcome
+
+- Rechecked PR #38 and local repository: PR remains open at head 5e784316; CI run 43336194702 completed successfully. Local main is clean at af104619 and recovery stash remains available.
+- Previous attempt to append the publication checkpoint was not executed because automatic approval review hit a usage limit. This was a review-service failure, not a safety determination; do not bypass it. Retry only the same bounded documentation update under the user's continuation and normal review.
+- No application changes, provider calls or deployment. Merge and final pull remain authorized; final branch/content checks follow.
