@@ -42,7 +42,9 @@ This change makes student times, points and assignment status clear and consiste
 
 ### Modified Capabilities
 
-None in `openspec/specs/`. SF-03's "score, bounds" is met by the displayed maximum. DR-03 adds the exact score format without rewriting SF-03, because `student-question-views` also modifies SF-03. See the open items.
+- `student-assignment-dashboard`: SD-02's "UTC-labelled deadline" becomes a deadline shown in Singapore time as DR-01 specifies (added 2026-11-13 at archive, after the dashboard change archived).
+
+SF-03's "score, bounds" is met by the displayed maximum. DR-03 adds the exact score format without rewriting SF-03, because `student-question-views` also modifies SF-03. See the open items.
 
 ## Impact
 
@@ -57,4 +59,5 @@ None in `openspec/specs/`. SF-03's "score, bounds" is met by the displayed maxim
 - **Assumption:** a fixed Singapore display is acceptable for all users. Singapore has no daylight saving, so the offset is fixed at UTC+8.
 - **Excluded:** changing instructor screens (they keep machine-local time, which is Darryl's area), Past due or Not started tags, grades or totals in tags, notifications, and per-question workbook changes (`student-question-views`).
 - **Open (archive order):** the open `student-assignment-dashboard` change's SD-02 requires a "UTC-labelled deadline", which DR-01 replaces. That spec is not yet in `openspec/specs/`. Archive the dashboard change first, then amend SD-02 in this change before it archives. Likewise, reconcile SF-03's wording with DR-03 after `student-question-views` archives.
+  - **Resolved 2026-11-13 (Keith):** the dashboard change archived first and SD-02 is amended here. The SF-03/DR-03 reconciliation moves to `student-question-views`, which already modifies SF-03, so this change archives without waiting for it.
 - **Open:** Darryl reviews the new student route as team reviewer. The change does not touch his files.
