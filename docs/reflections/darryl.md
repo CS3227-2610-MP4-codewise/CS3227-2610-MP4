@@ -85,4 +85,3 @@ For another project, I would define success criteria and stop conditions before 
 7. [OpenSpec project context](../../openspec/config.yaml) and [ownership decision history](../../workflow/Ownership.md), illustrating the need to reconcile dated context.
 
 The earlier evaluation-planning notes are preserved in [ReflectionEvaluationNotes.md](../ReflectionEvaluationNotes.md). Results describe their recorded checkpoints; they do not imply production activation or completed instructor acceptance.
-
