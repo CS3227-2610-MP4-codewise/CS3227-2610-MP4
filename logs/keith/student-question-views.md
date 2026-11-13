@@ -244,3 +244,45 @@ None.
 - Turn tables show output tokens only; output is production volume, not cost.
 - Measured usage (cumulative for this increment; do not add checkpoint totals together): input 27663622; cached input subset 27389663; output 114154; reasoning output subset 19621; total 27777776.
 - Coverage/status: provisional; 1 linked sessions, 1 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
+
+
+<!-- experiment-checkpoint:student-question-views:archive-dashboard-01 -->
+<!-- experiment-turns:archive-dashboard-01:eb9d3d6aa933af20,5e1e055fe6cbdaea,a0e05d3dfa9bbac1,0017de3d1d8b10c7,3290dca88b2d232d -->
+## Checkpoint `archive-dashboard-01` — 2026-11-13T01:49:45.831587+00:00
+
+### Request
+
+Identify the proposed Keith spec; archive student-dashboard-refinements following its handoff archive order
+
+### Results
+
+- Owner: Keith.
+- Changes and why: Keith chose: follow the order and move SF-03/DR-03 to student-question-views. Archived student-assignment-dashboard (new main spec SD-01-06). Added an SD-02 MODIFIED delta to refinements (UTC label replaced by DR-01) and updated the proposal. Synced the new AS-01-03 and DR-01-03 main specs and archived refinements. Added the SF-03 follow-up to the student-question-views tasks. npm run specs:validate passed: 21/21. Branch keith/archive-student-dashboard-changes, not committed. PR #40 staging deploy passed; production awaiting approval. No agents.
+- Checks actually run and outcomes: see Results above and evidence; no automatic acceptance claim.
+- Evidence or handoff links: openspec/changes/archive/2026-11-13-student-dashboard-refinements/proposal.md.
+- Remaining limitations and next owner: Keith: review and commit/PR the archive branch; then apply student-question-views.
+
+### Agents spawned
+
+None.
+
+### Turn activity
+
+| Agent / role | Session | Parent | Turn start | End | Status | Model | Effort | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 856f12d0 | root | 2026-11-13T01:39:53.947Z | 2026-11-13T01:40:01.852Z | final | claude-opus-5-5 | medium | 509 | 0 | 509 |
+| Coordinator / coordinator | 7cb88687 | root | 2026-11-13T01:42:41.628Z | 2026-11-13T01:43:06.139Z | final | claude-opus-5-5 | medium | 1871 | 126 | 1871 |
+| Coordinator / coordinator | 7cb88687 | root | 2026-11-13T01:45:48.106Z | 2026-11-13T01:46:02.464Z | final | claude-opus-5-5 | medium | 1270 | 116 | 1270 |
+| Coordinator / coordinator | 7cb88687 | root | 2026-11-13T01:47:04.588Z | open | provisional | claude-opus-5-5 | medium | 9649 | 2131 | 9649 |
+
+### Reconciliation
+
+| Agent / role | Session | Turn start | Earlier status | Status | Output | Reasoning output | Output incl. spawned |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Coordinator / coordinator | 856f12d0 | 2026-11-13T01:37:11.780Z | provisional | final | 8745 | 832 | 8745 |
+
+### Coverage
+
+- Turn tables show output tokens only; output is production volume, not cost.
+- Measured usage (cumulative for this increment; do not add checkpoint totals together): input 31676381; cached input subset 31334041; output 130363; reasoning output subset 22094; total 31806744.
+- Coverage/status: provisional; 2 linked sessions, 2 bounded runs. Only admitted turns count; legacy unbounded records are excluded.
