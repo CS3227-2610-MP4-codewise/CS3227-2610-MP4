@@ -72,7 +72,7 @@ No server, shared DTO, schema, migration, dependency or shared-shell change. No 
 
 ## Limitations and open items
 
-- **Unverified UI rows:** real-browser 320–1440 px widths, 200 % zoom, light/dark contrast measurement, a real screen reader, touch input, and withdrawn/replaced/earlier-version cases with real local data. These are covered by synthetic DOM tests only.
+- **UI verification:** Keith manually checked 320/768/1024/1440 px, 200 % zoom, keyboard operation and dark mode, with no issues found. Still unverified: contrast ratio measurement, a real screen reader, touch input, and withdrawn/replaced/earlier-version cases with real local data (synthetic DOM tests only).
 - **Local preview setup:** sign-in is rejected on Vite ports while `AUTH_ORIGIN` is `http://127.0.0.1:8787`. Use the build served on 8787, or point `AUTH_ORIGIN` at 5173 for local live reload.
 - **Overview cost:** one extra bounded history read per overview load.
 - **Hosted staging:** no check yet.
