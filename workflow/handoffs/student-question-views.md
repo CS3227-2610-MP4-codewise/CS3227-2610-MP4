@@ -1,6 +1,6 @@
 # Handoff: student-question-views
 
-**Status:** implementation and local owner acceptance are complete, and all 13 tasks are done. Nothing is committed yet: the next step is to commit, open a PR and get Darryl's review. After that come the hosted staging check through the reviewed release workflow, then archiving.
+**Status:** implementation and local owner acceptance are complete, and all 13 tasks are done. The work is committed and pushed, and the PR is open for Darryl's review. After that come the hosted staging check through the reviewed release workflow, then archiving.
 
 - **Human owner:** Keith (student features). Reviewer: Darryl.
 - **Agent role / model / configuration:**
@@ -10,7 +10,7 @@
   - **Choice:** Keith chose A. The Coordinator applied A, then made the fixes and the remaining tasks itself, without further agents.
   - **Records:** the proposals are kept in [`proposals/`](../evidence/student-question-views/proposals/). The worktrees for A, B and C have been removed.
 - **Requirement IDs and OpenSpec change:** SQ-01–07; SW-08 (modified); SF-02–06 (SF-03/05 modified, with SF-03 aligned to DR-03 `Score: X / N`); UI-04/05/06/07/08 (`docs/ui/design.md`, `warm-workbook-v1`); AUTH-02; SD-03; DEV-02/04. Change `openspec/changes/student-question-views` (strict-valid).
-- **Revisions:** base `64a9159` (main). Branch `keith/student-question-views`. The work is uncommitted at handoff, so record the commit SHA here once committed.
+- **Revisions:** base `64a9159` (main). Branch `keith/student-question-views`: `8479197` (increment), then `b1c5418` (merge of `origin/main` with PR #43 icons; `Attempts.tsx` conflict resolved and icons carried to the new controls; `npm run check` exit 0 on the merged tree, 802 passed and 2 skipped).
 
 ## Owned files
 
@@ -79,6 +79,5 @@ No server, shared DTO, schema, migration, dependency or shared-shell change. No 
 
 ## Next owner
 
-- **Keith:** commit, push and open the PR with the IDs above and `warm-workbook-v1`. Re-run `npm run check` on the committed revision.
 - **Darryl:** review the PR.
 - **After merge:** the hosted staging check through the release workflow, then archive the change. Do not archive before acceptance.
